@@ -1,0 +1,69 @@
+dist/src/repeat-phrase-counter.d.ts
+  s_d404882750412e::t_464af80e0a5f95 2
+src/types.ts
+  s_d404882750412e::t_eec83983391fbe 78
+src/report.ts
+  s_d404882750412e::t_b369978600ac72 21
+  s_d404882750412e::t_b983040fd0427a 830
+  s_d404882750412e::t_a5ee463aea037e 946-947
+dist/src/report-charts.js
+  s_d404882750412e::t_464af80e0a5f95 2,5-9,189,191-192,214-220,332-343
+dist/src/report.js
+  s_d404882750412e::t_464af80e0a5f95 4,801,915-916
+dist/src/repeat-phrase-counter.js.map
+  ai_agent 1
+package.json
+  s_d404882750412e::t_bf198d41a966e8 3
+dist/src/system-notices.d.ts
+  s_d404882750412e::t_464af80e0a5f95 6
+test/parser-report.test.ts
+  s_d404882750412e::t_b2535ebdb5319d 94-100
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/repeat-phrase-counter.js
+  s_d404882750412e::t_464af80e0a5f95 3
+dist/src/types.d.ts
+  s_d404882750412e::t_464af80e0a5f95 69
+dist/src/aggregator.js
+  s_d404882750412e::t_464af80e0a5f95 857
+dist/src/aggregator.js.map
+  ai_agent 1
+src/aggregator.ts
+  s_d404882750412e::t_a0956480bed311 999
+src/repeat-phrase-counter.ts
+  s_d404882750412e::t_64d8713531e75d 6
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_464af80e0a5f95 2-5,44
+src/report-charts.ts
+  s_d404882750412e::t_ede847ac670a96 239-245
+  s_d404882750412e::t_85b27dc40b580d 214,216-217
+  s_d404882750412e::t_13e9359562b64e 4,7-12
+  s_d404882750412e::t_90a2da2d78d5fa 357-369
+src/system-notices.ts
+  s_d404882750412e::t_c36b9ab5867f86 52
+kcachat/package.json
+  s_d404882750412e::t_28f3b431aa53b8 3
+  s_d404882750412e::t_80e9e49d3da5cf 15
+dist/src/system-notices.js
+  s_d404882750412e::t_464af80e0a5f95 29
+dist/src/report.js.map
+  ai_agent 1
+dist/src/system-notices.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "ebd992d53780a5c09fb9fad7e677ae7503d1577d",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
