@@ -1,0 +1,58 @@
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_4f1f506005316e 50
+src/report/css/06-kca-responsive.css
+  s_d404882750412e::t_10de3de367e8ac 1-306
+src/report-ux.ts
+  s_d404882750412e::t_4c4afe41ab6c7a 10-11,15-19,21-23,30,43,50-79,84-86,89-92
+src/report/css/03-kca-story.css
+  s_d404882750412e::t_fd45248d51f422 16
+src/report/css/05-kca-ux.css
+  s_d404882750412e::t_ab0827e0fc233e 194
+dist/src/report-ux.js
+  s_d404882750412e::t_4f1f506005316e 7-8,12-16,18-20,27,40,47-76,81-83,86-89
+kcachat/package.json
+  s_d404882750412e::t_20c7bbe3e10972 15
+  s_d404882750412e::t_5c34c7a7e419ea 3
+README.md
+  s_d404882750412e::t_7e168e03056be3 119
+src/report-styles.ts
+  s_d404882750412e::t_4f1f506005316e 820,1158-1159,1417-1726
+src/report/css/04-kca-charts.css
+  s_d404882750412e::t_b88919f7595655 29-30
+scripts/bundle-report-css.mjs
+  s_d404882750412e::t_2c0785466c4585 20
+dist/src/report-charts.js
+  s_d404882750412e::t_4f1f506005316e 139-144,152-159,168-175,178-179,181-182
+src/report-charts.ts
+  s_d404882750412e::t_dc499425ff0a84 167-172,180-187,196-203,206-207,209-210
+package.json
+  s_d404882750412e::t_dc081ff47bca6f 3
+dist/src/report-ux.d.ts
+  s_d404882750412e::t_4f1f506005316e 4
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_4f1f506005316e 2
+dist/src/report-styles.js
+  s_d404882750412e::t_4f1f506005316e 820,1158-1159,1417-1726
+dist/src/report-ux.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e926ecedbea074cb2d2acbad41a6c53c598ca891",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
