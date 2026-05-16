@@ -18,12 +18,12 @@ import {
 } from "./report-story.js";
 import {
   CHART_CDN_BODY,
-  CHART_CDN_HEAD,
   CHARTS_INIT_SCRIPT,
   renderChartDeck,
   serializeChartPayload,
 } from "./report-charts.js";
 import { escapeHtml, formatNumber, formatReplyGapMinutes, renderHighlightLine } from "./report-util.js";
+import { REPORT_HEAD_LINKS } from "./report-head.js";
 import { REPORT_STYLES } from "./report-styles.js";
 import {
   REPORT_UX_SCRIPT,
@@ -46,7 +46,7 @@ export function renderReportHtml(data: ReportData): string {
   <meta property="og:title" content="${escapeHtml(data.source.chatRoomName)} · kca 리포트">
   <meta property="og:description" content="${escapeHtml(buildOgDescription(data))}">
   <title>카카오톡 대화 리포트 · ${escapeHtml(data.source.chatRoomName)} · kca</title>
-  ${CHART_CDN_HEAD}
+  ${REPORT_HEAD_LINKS}
   <style>
     ${REPORT_STYLES}
   </style>

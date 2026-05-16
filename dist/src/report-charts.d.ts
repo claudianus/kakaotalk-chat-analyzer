@@ -1,6 +1,6 @@
 import type { ReportData } from "./types.js";
-/** head: CDN preconnect만 (스크립트는 body 끝에서 동기 로드) */
-export declare const CHART_CDN_HEAD = "\n  <link rel=\"preconnect\" href=\"https://cdn.jsdelivr.net\" crossorigin>\n";
+/** @deprecated preconnect는 report-head.ts REPORT_HEAD_LINKS 사용 */
+export declare const CHART_CDN_HEAD = "";
 /** body 끝: 차트 라이브러리 — defer 금지(인라인 init보다 반드시 먼저 실행) */
 export declare const CHART_CDN_BODY = "\n  <script src=\"https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js\"></script>\n";
 /** @deprecated styles live in src/report/css — bundled via report-styles.ts */

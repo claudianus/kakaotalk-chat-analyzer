@@ -25,9 +25,9 @@ export const REPORT_STYLES = `/* open-props — https://open-props.style/ (MIT) 
   --accent-grad: var(--gradient-21);
   --radius-card: var(--radius-3);
   --radius-pill: var(--radius-round);
-  --font-sans: var(--font-sans);
+  --kca-font-sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", var(--font-sans);
   --ease-out: var(--ease-out-3);
-  font-family: var(--font-sans);
+  font-family: var(--kca-font-sans);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,12 +80,42 @@ body {
     radial-gradient(900px 480px at 96% 0%, color-mix(in oklab, var(--accent2) 14%, transparent), transparent 48%),
     linear-gradient(180deg, var(--bg), var(--bg2));
   color: var(--ink);
-  font-family: var(--font-sans);
+  font-family: var(--kca-font-sans);
   font-size: var(--font-size-1);
   line-height: var(--font-lineheight-3);
   transition:
     background 0.28s var(--ease-out),
     color 0.2s var(--ease-out);
+}
+
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link:focus {
+  position: fixed;
+  left: var(--size-3);
+  top: var(--size-3);
+  width: auto;
+  height: auto;
+  margin: 0;
+  clip: auto;
+  z-index: 10000;
+  padding: var(--size-2) var(--size-3);
+  border-radius: var(--radius-2);
+  background: var(--accent);
+  color: var(--gray-0);
+  font-weight: var(--font-weight-8);
+  font-size: var(--font-size-0);
+  box-shadow: var(--shadow-3);
 }
 
 main {
@@ -169,7 +199,7 @@ a {
     .card {
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: var(--radius-card);
       padding: 18px 20px;
       box-shadow: var(--shadow);
       transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.2s ease;

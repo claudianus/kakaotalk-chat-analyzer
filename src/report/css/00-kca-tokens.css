@@ -20,9 +20,9 @@
   --accent-grad: var(--gradient-21);
   --radius-card: var(--radius-3);
   --radius-pill: var(--radius-round);
-  --font-sans: var(--font-sans);
+  --kca-font-sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", var(--font-sans);
   --ease-out: var(--ease-out-3);
-  font-family: var(--font-sans);
+  font-family: var(--kca-font-sans);
 }
 
 @media (prefers-color-scheme: dark) {

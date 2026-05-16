@@ -116,6 +116,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.10.1** | Pretendard 서브셋 CDN·`--kca-font-sans` 순환 참조 수정·카드 radius 토큰 |
 | **0.10.0** | 리포트 CSS **Open Props** 토큰·6레이어 번들(`report-styles.ts`)·시맨틱 컬러 리워크 |
 | **0.9.1** | 리포트 UX: 읽기 진행률·스크롤 스파이 네비·모바일 섹션 메뉴·히어로 바로가기·키워드 CSS 접기 |
 | **0.9.0** | 시맨틱 기본 **`Xenova/multilingual-e5-small`** (한국어 NDCG ~+68% vs MiniLM)·E5 `query:` 접두사 |

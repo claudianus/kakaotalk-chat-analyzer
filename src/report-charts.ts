@@ -1,10 +1,8 @@
 import type { ReportData } from "./types.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
 
-/** head: CDN preconnect만 (스크립트는 body 끝에서 동기 로드) */
-export const CHART_CDN_HEAD = `
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-`;
+/** @deprecated preconnect는 report-head.ts REPORT_HEAD_LINKS 사용 */
+export const CHART_CDN_HEAD = ``;
 
 /** body 끝: 차트 라이브러리 — defer 금지(인라인 init보다 반드시 먼저 실행) */
 export const CHART_CDN_BODY = `

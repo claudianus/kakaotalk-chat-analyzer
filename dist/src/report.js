@@ -1,8 +1,9 @@
 import { resolveBubbleOverlaps } from "./bubble-layout.js";
 import { SYSTEM_NOTICE_LABELS } from "./system-notices.js";
 import { GH_CONTRIB_SCRIPT, buildOgDescription, renderStoryHeadline, renderStorySections, storyNavLinks, } from "./report-story.js";
-import { CHART_CDN_BODY, CHART_CDN_HEAD, CHARTS_INIT_SCRIPT, renderChartDeck, serializeChartPayload, } from "./report-charts.js";
+import { CHART_CDN_BODY, CHARTS_INIT_SCRIPT, renderChartDeck, serializeChartPayload, } from "./report-charts.js";
 import { escapeHtml, formatNumber, formatReplyGapMinutes, renderHighlightLine } from "./report-util.js";
+import { REPORT_HEAD_LINKS } from "./report-head.js";
 import { REPORT_STYLES } from "./report-styles.js";
 import { REPORT_UX_SCRIPT, renderHeroQuickJumps, renderTopChrome, topicNavLink, } from "./report-ux.js";
 const FIVE_MIB = 5 * 1024 * 1024;
@@ -18,7 +19,7 @@ export function renderReportHtml(data) {
   <meta property="og:title" content="${escapeHtml(data.source.chatRoomName)} · kca 리포트">
   <meta property="og:description" content="${escapeHtml(buildOgDescription(data))}">
   <title>카카오톡 대화 리포트 · ${escapeHtml(data.source.chatRoomName)} · kca</title>
-  ${CHART_CDN_HEAD}
+  ${REPORT_HEAD_LINKS}
   <style>
     ${REPORT_STYLES}
   </style>
