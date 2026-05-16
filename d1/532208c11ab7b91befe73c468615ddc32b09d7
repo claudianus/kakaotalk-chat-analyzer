@@ -1,0 +1,81 @@
+test/story.test.ts
+  s_d404882750412e::t_d5a3cec0695bd2 112-142
+dist/src/aggregator.js
+  s_d404882750412e::t_16a2ffc5d5b7ec 8,864
+dist/src/report-util.d.ts
+  s_d404882750412e::t_16a2ffc5d5b7ec 3-4
+package.json
+  s_d404882750412e::t_31072789a06de0 3
+dist/src/report-util.js.map
+  ai_agent 1
+src/report-story.ts
+  s_d404882750412e::t_a54bb375e2c7d3 491
+  s_d404882750412e::t_5f4a5304f4e3a2 413
+  s_d404882750412e::t_d1b21d8bd4e92d 393-400
+  s_d404882750412e::t_141cc99e006122 515-524
+  s_d404882750412e::t_d333b397d8ece6 199,205-222,227-231
+  s_d404882750412e::t_de1a7fdeeebbe9 223-226
+  s_d404882750412e::t_f248dd9a1fa8b6 317-334,341-344
+  s_d404882750412e::t_21760f4c06a26b 410
+  s_d404882750412e::t_671fd6dd2f6669 4-47
+src/story.ts
+  s_d404882750412e::t_035fd2bd56abc1 237
+  s_d404882750412e::t_99ef5771a3d75c 99
+  s_d404882750412e::t_135d1752c98dd7 127
+  s_d404882750412e::t_67ff6685ce410a 1
+  s_d404882750412e::t_02ca170a172f60 223
+dist/src/report-story.js.map
+  ai_agent 1
+dist/src/report-story.js
+  s_d404882750412e::t_16a2ffc5d5b7ec 2-44,195,201-228,313-330,337-340,386-392,399,402,469,492-501
+dist/src/report-story.d.ts
+  s_d404882750412e::t_16a2ffc5d5b7ec 2-3
+dist/src/version.js
+  s_d404882750412e::t_1d8f1a6a7fcd78 1
+dist/src/story.js
+  s_d404882750412e::t_16a2ffc5d5b7ec 1,36,62,148,161
+dist/src/aggregator.js.map
+  ai_agent 1
+src/report-util.ts
+  s_d404882750412e::t_9b9b4f937b317c 14-32
+src/aggregator.ts
+  s_d404882750412e::t_d822c064ff7531 1007
+  s_d404882750412e::t_90a459a39ac886 18
+dist/src/report-util.js
+  s_d404882750412e::t_16a2ffc5d5b7ec 12-29
+src/report.ts
+  s_d404882750412e::t_9face67f0158e7 13
+  s_d404882750412e::t_4bf4992b487e1a 916-918
+kcachat/package.json
+  s_d404882750412e::t_e4e3a8355b54ec 3
+  s_d404882750412e::t_dae021529ab7ec 15
+src/version.ts
+  s_d404882750412e::t_1d8f1a6a7fcd78 1
+dist/src/version.d.ts
+  s_d404882750412e::t_1d8f1a6a7fcd78 1-2
+test/report-util.test.ts
+  s_d404882750412e::t_4fae2caeff800e 1-13,15
+  s_d404882750412e::t_7da1b8aeb6c181 14
+dist/src/report.js
+  s_d404882750412e::t_16a2ffc5d5b7ec 3,894-895
+dist/src/report.js.map
+  ai_agent 1
+dist/src/story.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "d1532208c11ab7b91befe73c468615ddc32b09d7",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
