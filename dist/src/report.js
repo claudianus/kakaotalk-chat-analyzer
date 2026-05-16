@@ -1,6 +1,6 @@
 import { resolveBubbleOverlaps } from "./bubble-layout.js";
 import { SYSTEM_NOTICE_LABELS } from "./system-notices.js";
-import { STORY_CSS, buildOgDescription, renderStoryHeadline, renderStorySections, storyNavLinks, } from "./report-story.js";
+import { GH_CONTRIB_SCRIPT, STORY_CSS, buildOgDescription, renderStoryHeadline, renderStorySections, storyNavLinks, } from "./report-story.js";
 import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
 const FIVE_MIB = 5 * 1024 * 1024;
 export function renderReportHtml(data) {
@@ -890,6 +890,9 @@ export function renderReportHtml(data) {
         });
       });
     })();
+    </script>
+    <script>
+    ${GH_CONTRIB_SCRIPT}
     </script>
 
     <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>

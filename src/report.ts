@@ -10,6 +10,7 @@ import type {
   RoomEventStats,
 } from "./types.js";
 import {
+  GH_CONTRIB_SCRIPT,
   STORY_CSS,
   buildOgDescription,
   renderStoryHeadline,
@@ -911,6 +912,9 @@ export function renderReportHtml(data: ReportData): string {
         });
       });
     })();
+    </script>
+    <script>
+    ${GH_CONTRIB_SCRIPT}
     </script>
 
     <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>

@@ -109,3 +109,34 @@ test("buildReportStory produces wrapped cards and headline", () => {
   assert.ok(story.calendarWeeks.length >= 53);
   assert.ok(story.tone.laughPer100 > 0);
 });
+
+test("buildReportStory uses Korean compact stats not k suffix", () => {
+  const story = buildReportStory({
+    chatRoomName: "대형방",
+    totalMessages: 446_166,
+    activeDays: 30,
+    firstMessage: "2026-04-14 09:00:00",
+    lastMessage: "2026-05-16 22:00:00",
+    longestStreak: 5,
+    peakHour: 21,
+    busiestWeekdayLabel: "토요일",
+    nightSharePercent: 10,
+    emojiMessages: 100,
+    participants,
+    daily: [{ date: "2026-05-01", count: 446_166 }],
+    dailySenderCounts: new Map(),
+    senderAliases: new Map(),
+    insights: baseInsights,
+    laughMessages: 0,
+    shortMessages: 0,
+    laughBySender: new Map(),
+    shortBySender: new Map(),
+    burstDays: [],
+    activityArc: [],
+    conversationPace: { label: "혼합", emoji: "🌊", detail: "" },
+    roomPulse: [],
+  });
+  const intro = story.wrapped.find((c) => c.id === "intro");
+  assert.equal(intro?.stat, "44.6만");
+  assert.ok(!story.wrapped.some((c) => /k\b/i.test(c.stat)));
+});

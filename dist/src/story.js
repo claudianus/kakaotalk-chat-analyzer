@@ -1,3 +1,4 @@
+import { formatCompactNumber } from "./report-util.js";
 const GH_MONTH_KO = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const GITHUB_WEEKS = 53;
 const CHAPTER_GAP_DAYS = 7;
@@ -32,7 +33,7 @@ export function buildTone(total, laugh, short, emoji) {
 }
 function buildHeadline(input) {
     const room = input.chatRoomName;
-    const n = formatCompact(input.totalMessages);
+    const n = formatCompactNumber(input.totalMessages);
     const parts = [`「${room}」에서 ${n}개의 메시지가 오갔어요.`];
     if (input.longestStreak >= 3) {
         parts.push(`최장 **${input.longestStreak}일** 연속 대화`);
@@ -58,7 +59,7 @@ function buildWrappedCards(input, tone) {
         id: "intro",
         emoji: "💬",
         title: input.chatRoomName,
-        stat: formatCompact(input.totalMessages),
+        stat: formatCompactNumber(input.totalMessages),
         sub: `메시지 · ${input.activeDays}일 활동 · ${input.participants.length}명`,
     });
     if (input.firstMessage && input.lastMessage) {
@@ -144,7 +145,7 @@ function buildWrappedCards(input, tone) {
             id: "burst",
             emoji: "🔥",
             title: "붐비는 날",
-            stat: formatCompact(peak.count),
+            stat: formatCompactNumber(peak.count),
             sub: `${trimYmd(peak.date)} · 급증일 ${input.burstDays.length}일`,
         });
     }
@@ -157,7 +158,7 @@ function buildWrappedCards(input, tone) {
             emoji: ratio >= 110 ? "📈" : ratio <= 90 ? "📉" : "↔️",
             title: "처음 vs 마지막 7일",
             stat: `${ratio}%`,
-            sub: `후반/전반 메시지 · ${formatCompact(tail.messages)} vs ${formatCompact(head.messages)}`,
+            sub: `후반/전반 메시지 · ${formatCompactNumber(tail.messages)} vs ${formatCompactNumber(head.messages)}`,
         });
     }
     const modPeak = [...input.roomPulse].sort((a, b) => b.hidden + b.kick - (a.hidden + a.kick))[0];
@@ -393,15 +394,6 @@ function dayDiff(a, b) {
     const ta = new Date(`${a}T12:00:00Z`).getTime();
     const tb = new Date(`${b}T12:00:00Z`).getTime();
     return Math.round((tb - ta) / 86_400_000);
-}
-function formatCompact(n) {
-    if (n >= 1_000_000)
-        return `${round(n / 1_000_000, 1)}M`;
-    if (n >= 10_000)
-        return `${round(n / 1000, 1)}k`;
-    if (n >= 1000)
-        return `${round(n / 1000, 2)}k`;
-    return n.toLocaleString("ko-KR");
 }
 function trimDate(dt) {
     const m = dt.match(/^(\d{4}-\d{2}-\d{2})/);

@@ -1,6 +1,50 @@
 import type { ReportData } from "./types.js";
 import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
 
+export const GH_CONTRIB_SCRIPT = `
+    (function () {
+      var box = document.querySelector(".gh-contrib");
+      if (!box) return;
+      var tip = box.querySelector("[data-gh-tip]");
+      var text = box.querySelector("[data-gh-tip-text]");
+      if (!tip || !text) return;
+      var cells = box.querySelectorAll(".gh-cal-cell[data-date]");
+      function place(clientX, clientY) {
+        var r = box.getBoundingClientRect();
+        var x = clientX - r.left;
+        var y = clientY - r.top - 10;
+        tip.style.left = Math.max(8, Math.min(x, r.width - 8)) + "px";
+        tip.style.top = Math.max(8, y) + "px";
+      }
+      function show(cell, clientX, clientY) {
+        var label = cell.getAttribute("data-label");
+        if (!label) return;
+        text.textContent = label;
+        tip.removeAttribute("hidden");
+        box.classList.add("gh-tip-on");
+        place(clientX, clientY);
+      }
+      function hide() {
+        box.classList.remove("gh-tip-on");
+        tip.setAttribute("hidden", "");
+      }
+      cells.forEach(function (cell) {
+        cell.addEventListener("mouseenter", function (ev) {
+          show(cell, ev.clientX, ev.clientY);
+        });
+        cell.addEventListener("mousemove", function (ev) {
+          if (box.classList.contains("gh-tip-on")) place(ev.clientX, ev.clientY);
+        });
+        cell.addEventListener("mouseleave", hide);
+        cell.addEventListener("focus", function () {
+          var r = cell.getBoundingClientRect();
+          show(cell, r.left + r.width / 2, r.top);
+        });
+        cell.addEventListener("blur", hide);
+      });
+    })();
+`;
+
 const CHAPTER_GAP_DAYS = 7;
 
 export const STORY_CSS = `
@@ -152,10 +196,39 @@ export const STORY_CSS = `
       --gh-cell-4: #216e39;
     }
     .gh-contrib {
+      position: relative;
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 16px 18px 14px;
       background: var(--panel);
+    }
+    .gh-cal-tooltip {
+      position: absolute;
+      z-index: 20;
+      transform: translate(-50%, -100%);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.35;
+      white-space: nowrap;
+      color: #fff;
+      background: #24292f;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+    .gh-contrib.gh-tip-on .gh-cal-tooltip { opacity: 1; }
+    :root[data-theme="dark"] .gh-cal-tooltip {
+      background: #f0f6fc;
+      color: #0d1117;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .gh-cal-tooltip {
+        background: #f0f6fc;
+        color: #0d1117;
+      }
     }
     .gh-contrib-summary {
       margin: 0 0 12px;
@@ -241,12 +314,34 @@ export const STORY_CSS = `
       border-radius: 2px;
       background: var(--gh-cell-0);
       display: block;
+      padding: 0;
+      margin: 0;
+      appearance: none;
+      font: inherit;
+      cursor: default;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, outline 0.1s ease;
+    }
+    .gh-cal-cell[data-date] {
+      cursor: pointer;
+    }
+    .gh-cal-cell[data-date]:hover,
+    .gh-cal-cell[data-date]:focus-visible {
+      transform: scale(1.45);
+      z-index: 5;
+      position: relative;
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--panel) 80%, transparent);
     }
     .gh-cal-cell[data-level="1"] { background: var(--gh-cell-1); }
     .gh-cal-cell[data-level="2"] { background: var(--gh-cell-2); }
     .gh-cal-cell[data-level="3"] { background: var(--gh-cell-3); }
     .gh-cal-cell[data-level="4"] { background: var(--gh-cell-4); }
     .gh-cal-cell[data-level="0"] { background: var(--gh-cell-0); border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+    .gh-cal-cell--pad {
+      pointer-events: none;
+      border: none;
+    }
     .gh-cal-legend {
       display: flex;
       align-items: center;
@@ -295,9 +390,14 @@ function renderGitHubCalendar(data: ReportData): string {
   const cells = s.calendarWeeks
     .flatMap((w) => w.cells)
     .map((c) => {
-      const title =
-        c.date && c.count > 0 ? `${c.date}: ${formatNumber(c.count)}건` : c.date ? c.date : "";
-      return `<span class="gh-cal-cell" data-level="${c.level}"${title ? ` title="${escapeHtml(title)}"` : ""}></span>`;
+      if (!c.date) {
+        return `<span class="gh-cal-cell gh-cal-cell--pad" data-level="0" aria-hidden="true"></span>`;
+      }
+      const label =
+        c.count > 0
+          ? `${formatCalendarDate(c.date)} · ${formatNumber(c.count)}건`
+          : `${formatCalendarDate(c.date)} · 활동 없음`;
+      return `<button type="button" class="gh-cal-cell" data-level="${c.level}" data-date="${escapeHtml(c.date)}" data-count="${c.count}" data-label="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"></button>`;
     })
     .join("");
 
@@ -307,9 +407,10 @@ function renderGitHubCalendar(data: ReportData): string {
       : `<p class="gh-contrib-summary">이 기간 활동 없음<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`;
 
   return `<div class="gh-contrib">
+    <div class="gh-cal-tooltip" data-gh-tip hidden><span data-gh-tip-text></span></div>
     ${summary}
     <div class="gh-cal-scroll">
-      <div class="gh-cal-graph" style="--gh-weeks:${weekCount}" role="img" aria-label="일별 활동 히트맵, GitHub 잔디 형식">
+      <div class="gh-cal-graph" style="--gh-weeks:${weekCount}" role="group" aria-label="일별 활동 히트맵">
         <div class="gh-cal-months" aria-hidden="true">${monthCells}</div>
         <div class="gh-cal-days" aria-hidden="true">${dayLabels}</div>
         <div class="gh-cal-weeks">${cells}</div>
@@ -387,7 +488,7 @@ export function renderStorySections(data: ReportData): string {
   if (s.calendarWeeks.length > 0) {
     parts.push(`<section id="s-calendar" class="anim-enter" style="margin-bottom:14px;--enter-delay:0.05s">
       <h2 style="margin:0 0 6px;font-size:20px;font-weight:800;letter-spacing:-0.02em">연간 활동 그리드</h2>
-      <p class="chart-hint" style="margin-bottom:12px">GitHub 프로필 <strong>Contributions</strong>와 같은 레이아웃·색 단계예요. 셀에 마우스를 올리면 날짜와 건수를 볼 수 있습니다.</p>
+      <p class="chart-hint" style="margin-bottom:12px">GitHub 프로필 <strong>Contributions</strong>와 같은 레이아웃·색 단계예요. 셀에 마우스를 올리거나 탭하면 날짜와 건수가 표시됩니다.</p>
       ${renderGitHubCalendar(data)}
     </section>`);
   }
@@ -410,4 +511,14 @@ export function renderStoryHeadline(data: ReportData): string {
 export function buildOgDescription(data: ReportData): string {
   const s = data.summary;
   return `${data.source.chatRoomName} · 메시지 ${formatNumber(s.totalMessages)}건 · 활동 ${s.activeDays}일 · 리듬 ${data.insights.rhythmScore}점`;
+}
+
+function formatCalendarDate(ymd: string): string {
+  const p = ymd.split("-");
+  if (p.length !== 3) return ymd;
+  const y = Number(p[0]);
+  const m = Number(p[1]);
+  const d = Number(p[2]);
+  if (!y || !m || !d) return ymd;
+  return `${y}년 ${m}월 ${d}일`;
 }

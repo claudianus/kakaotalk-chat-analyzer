@@ -1,3 +1,4 @@
+import { formatCompactNumber } from "./report-util.js";
 import type {
   ActivityArcSegment,
   CalendarCell,
@@ -95,7 +96,7 @@ export function buildTone(
 
 function buildHeadline(input: BuildStoryInput): string {
   const room = input.chatRoomName;
-  const n = formatCompact(input.totalMessages);
+  const n = formatCompactNumber(input.totalMessages);
   const parts: string[] = [`「${room}」에서 ${n}개의 메시지가 오갔어요.`];
 
   if (input.longestStreak >= 3) {
@@ -123,7 +124,7 @@ function buildWrappedCards(input: BuildStoryInput, tone: ConversationTone): Wrap
     id: "intro",
     emoji: "💬",
     title: input.chatRoomName,
-    stat: formatCompact(input.totalMessages),
+    stat: formatCompactNumber(input.totalMessages),
     sub: `메시지 · ${input.activeDays}일 활동 · ${input.participants.length}명`,
   });
 
@@ -219,7 +220,7 @@ function buildWrappedCards(input: BuildStoryInput, tone: ConversationTone): Wrap
       id: "burst",
       emoji: "🔥",
       title: "붐비는 날",
-      stat: formatCompact(peak.count),
+      stat: formatCompactNumber(peak.count),
       sub: `${trimYmd(peak.date)} · 급증일 ${input.burstDays.length}일`,
     });
   }
@@ -233,7 +234,7 @@ function buildWrappedCards(input: BuildStoryInput, tone: ConversationTone): Wrap
       emoji: ratio >= 110 ? "📈" : ratio <= 90 ? "📉" : "↔️",
       title: "처음 vs 마지막 7일",
       stat: `${ratio}%`,
-      sub: `후반/전반 메시지 · ${formatCompact(tail.messages)} vs ${formatCompact(head.messages)}`,
+      sub: `후반/전반 메시지 · ${formatCompactNumber(tail.messages)} vs ${formatCompactNumber(head.messages)}`,
     });
   }
 
@@ -502,13 +503,6 @@ function dayDiff(a: string, b: string): number {
   const ta = new Date(`${a}T12:00:00Z`).getTime();
   const tb = new Date(`${b}T12:00:00Z`).getTime();
   return Math.round((tb - ta) / 86_400_000);
-}
-
-function formatCompact(n: number): string {
-  if (n >= 1_000_000) return `${round(n / 1_000_000, 1)}M`;
-  if (n >= 10_000) return `${round(n / 1000, 1)}k`;
-  if (n >= 1000) return `${round(n / 1000, 2)}k`;
-  return n.toLocaleString("ko-KR");
 }
 
 function trimDate(dt: string): string {

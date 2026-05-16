@@ -5,6 +5,7 @@ import { KrWordRankStream } from "./kr-wordrank-stream.js";
 import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
+import { formatCompactNumber } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
 import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
 import { buildRoomPulse, computeActivityArc, computeBurstDays, computeConversationPace, } from "./report-enrichment.js";
@@ -860,7 +861,7 @@ function buildHighlights(input) {
             .slice(0, 3)
             .map((d) => formatDayMdHighlight(d.date))
             .join(" · ");
-        out.push(`메시지가 평소보다 몰린 날 **${input.burstDays.length}일** — 최고는 **${formatDayMdHighlight(top.date)}**(${formatCompactCount(top.count)}건). ${labels}`);
+        out.push(`메시지가 평소보다 몰린 날 **${input.burstDays.length}일** — 최고는 **${formatDayMdHighlight(top.date)}**(${formatCompactNumber(top.count)}건). ${labels}`);
     }
     const head = input.activityArc.find((a) => a.id === "head");
     const tail = input.activityArc.find((a) => a.id === "tail");
@@ -893,12 +894,5 @@ function formatDayMdHighlight(ymd) {
     if (p.length === 3)
         return `${Number(p[1])}/${Number(p[2])}`;
     return ymd;
-}
-function formatCompactCount(n) {
-    if (n >= 10_000)
-        return `${Math.round(n / 1000) / 10}만`;
-    if (n >= 1000)
-        return `${(n / 1000).toFixed(1)}k`;
-    return String(n);
 }
 //# sourceMappingURL=aggregator.js.map
