@@ -119,6 +119,50 @@ export const REPORT_UX_SCRIPT = `
     })();
 `;
 
+export const REPORT_EXPLORER_SCRIPT = `
+    (function () {
+      var el = document.getElementById("kca-explorer-data");
+      var stats = document.getElementById("kca-explorer-stats");
+      var from = document.getElementById("kca-range-from");
+      var to = document.getElementById("kca-range-to");
+      if (!el || !stats || !from || !to) return;
+      var data;
+      try { data = JSON.parse(el.textContent || "{}"); } catch (e) { return; }
+      if (!data.daily || !data.daily.length) return;
+      function sumRange(f, t) {
+        var msgs = 0, days = 0;
+        data.daily.forEach(function (d) {
+          if (d.date >= f && d.date <= t) {
+            msgs += d.count;
+            if (d.count > 0) days += 1;
+          }
+        });
+        return { msgs: msgs, days: days };
+      }
+      function render() {
+        var f = from.value, t = to.value;
+        if (f > t) { var tmp = f; f = t; t = tmp; }
+        var s = sumRange(f, t);
+        stats.innerHTML = "<p><strong>선택 구간</strong> " + f + " ~ " + t + " · 메시지 <strong>" + s.msgs.toLocaleString("ko-KR") + "</strong>건 · 활동일 <strong>" + s.days + "</strong>일</p>";
+        if (typeof echarts === "undefined" || !document.getElementById("chart-explorer-daily")) return;
+        var chart = echarts.getInstanceByDom(document.getElementById("chart-explorer-daily"));
+        if (!chart) {
+          chart = echarts.init(document.getElementById("chart-explorer-daily"));
+        }
+        var filtered = data.daily.filter(function (d) { return d.date >= f && d.date <= t; });
+        chart.setOption({
+          xAxis: { type: "category", data: filtered.map(function (d) { return d.date.slice(5); }) },
+          yAxis: { type: "value" },
+          series: [{ type: "bar", data: filtered.map(function (d) { return d.count; }) }],
+          grid: { left: 40, right: 12, top: 12, bottom: 28 },
+        });
+      }
+      from.addEventListener("change", render);
+      to.addEventListener("change", render);
+      render();
+    })();
+`;
+
 export function renderHeroQuickJumps(): string {
   return `<div class="hero-jumps" aria-label="바로가기">
     <a class="hero-jump" href="#s-wrapped" data-kca-jump="s-wrapped"><strong>⓪</strong> Wrapped</a>

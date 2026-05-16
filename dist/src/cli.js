@@ -6,6 +6,8 @@ import { buildReportFromExport } from "./analysis.js";
 import { clearOwnerToken, getConfigPath, getOwnerToken, saveOwnerToken } from "./config.js";
 import { describeStreamedExport } from "./stream-parser.js";
 import { createProvider, parseHostName } from "./providers/index.js";
+import { renderCompareHtml } from "./compare-report.js";
+import { parseSinceOption } from "./report-date-filter.js";
 import { renderReportHtml } from "./report.js";
 import { VERSION } from "./version.js";
 const DEFAULT_NAMESPACE = "kakao-chat-report";
@@ -40,6 +42,7 @@ main
     .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
     .option("--no-semantic-keywords", "한국어 방 기본 시맨틱 키워드(multilingual-e5-small)를 끕니다.", false)
     .option("--semantic-keywords", "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(e5-small, 최초 다운로드).", false)
+    .option("--since <date>", "YYYY-MM-DD 이후 메시지만 집계합니다.")
     .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
     .action(async (csv, options) => {
     const host = parseHostName(options.host);
@@ -59,6 +62,7 @@ main
             : options.semanticKeywords
                 ? true
                 : undefined,
+        since: parseSinceOption(options.since),
     });
     console.log(`리포트: ${htmlPath}`);
     console.log(`크기: ${await formatFileSize(htmlPath)}`);
@@ -104,6 +108,28 @@ main
     }
 });
 program
+    .command("compare")
+    .argument("<csv...>", "비교할 CSV 2개 이상")
+    .option("-o, --out <file>", "출력 HTML 경로", "compare.html")
+    .description("여러 방 export의 핵심 지표를 한 표로 비교합니다.")
+    .action(async (csvs, options) => {
+    if (csvs.length < 2) {
+        throw new Error("compare requires at least 2 CSV files.");
+    }
+    const reports = [];
+    for (const csv of csvs) {
+        reports.push(await buildReportFromExport(resolve(csv), {
+            progress: false,
+            worker: false,
+            semanticKeywords: false,
+        }));
+    }
+    const html = renderCompareHtml(reports);
+    const outPath = resolve(options.out);
+    await writeFile(outPath, html, "utf8");
+    console.log(`비교 리포트: ${outPath}`);
+});
+program
     .command("inspect")
     .argument("<csv>", "카카오톡 CSV 보내기")
     .description("보내기 구조만 점검합니다(대화 원문은 출력하지 않음).")
@@ -147,6 +173,7 @@ async function generateReport(csv, options) {
         worker: options.worker,
         progress: options.progress,
         semanticKeywords: options.semanticKeywords,
+        since: options.since,
     });
     log("parse+aggregate", performance.now() - t0);
     t0 = performance.now();

@@ -24,6 +24,11 @@ export interface ChartPayload {
   burstDates: string[];
   totalParticipants: number;
   topics: { title: string; terms: string[]; messagePercent: number; kind: string }[];
+  interaction: {
+    aliases: string[];
+    matrix: number[][];
+    totalReplies: number;
+  } | null;
 }
 
 export function serializeChartPayload(data: ReportData): string {
@@ -58,7 +63,21 @@ export function buildChartPayload(data: ReportData): ChartPayload {
       messagePercent: t.messagePercent,
       kind: t.kind,
     })),
+    interaction: data.interaction
+      ? {
+          aliases: data.interaction.aliases,
+          matrix: data.interaction.matrix,
+          totalReplies: data.interaction.totalReplies,
+        }
+      : null,
   };
+}
+
+export function serializeExplorerPayload(data: ReportData): string {
+  return JSON.stringify(data.explorer)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 }
 
 export function renderChartDeck(data: ReportData): string {
@@ -352,6 +371,29 @@ export const CHARTS_INIT_SCRIPT = `
             label: { color: text, fontSize: 11 },
             itemStyle: { borderColor: dark ? "#0d1117" : "#fff", gapWidth: 2 },
           }],
+        }));
+      }
+
+      if (data.interaction && data.interaction.aliases.length && document.getElementById("chart-dyad")) {
+        var ix = data.interaction;
+        var heat = [];
+        var maxV = 1;
+        for (var ri = 0; ri < ix.matrix.length; ri += 1) {
+          for (var ci = 0; ci < ix.matrix[ri].length; ci += 1) {
+            var v = ix.matrix[ri][ci];
+            if (v > maxV) maxV = v;
+            if (v > 0) heat.push([ci, ri, v]);
+          }
+        }
+        var dyEl = document.getElementById("chart-dyad");
+        var dg = layout(dyEl);
+        init("chart-dyad", Object.assign(baseOpt(), {
+          tooltip: { position: "top" },
+          grid: { left: Math.max(dg.leftCat, 72), right: dg.right, top: dg.top, bottom: 56 },
+          xAxis: { type: "category", data: ix.aliases, axisLabel: { color: muted, fontSize: dg.fs, rotate: 32 }, splitArea: { show: true } },
+          yAxis: { type: "category", data: ix.aliases, axisLabel: { color: muted, fontSize: dg.fs }, splitArea: { show: true } },
+          visualMap: { min: 0, max: maxV, calculable: true, orient: "horizontal", left: "center", bottom: 4, inRange: { color: [dark ? "#0d1117" : "#f0f4f8", accent, accent2] } },
+          series: [{ type: "heatmap", data: heat, emphasis: { itemStyle: { shadowBlur: 12, shadowColor: "rgba(0,0,0,0.35)" } } }],
         }));
       }
       requestAnimationFrame(resizeAll);

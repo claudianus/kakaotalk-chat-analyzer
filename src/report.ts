@@ -21,16 +21,19 @@ import {
   CHARTS_INIT_SCRIPT,
   renderChartDeck,
   serializeChartPayload,
+  serializeExplorerPayload,
 } from "./report-charts.js";
 import { escapeHtml, formatNumber, formatReplyGapMinutes, renderHighlightLine } from "./report-util.js";
 import { REPORT_HEAD_LINKS } from "./report-head.js";
 import { REPORT_STYLES } from "./report-styles.js";
 import {
+  REPORT_EXPLORER_SCRIPT,
   REPORT_UX_SCRIPT,
   renderHeroQuickJumps,
   renderTopChrome,
   topicNavLink,
 } from "./report-ux.js";
+import { renderInnovationDeck } from "./report-innovation.js";
 
 const FIVE_MIB = 5 * 1024 * 1024;
 
@@ -76,6 +79,7 @@ export function renderReportHtml(data: ReportData): string {
       </div>
     </header>
     ${renderStorySections(data)}
+    ${renderInnovationDeck(data)}
     ${renderFactMatrix(data)}
 
     ${
@@ -243,9 +247,13 @@ export function renderReportHtml(data: ReportData): string {
     ${GH_CONTRIB_SCRIPT}
     </script>
     <script type="application/json" id="kca-chart-data">${serializeChartPayload(data)}</script>
+    <script type="application/json" id="kca-explorer-data">${serializeExplorerPayload(data)}</script>
     ${CHART_CDN_BODY}
     <script>
     ${CHARTS_INIT_SCRIPT}
+    </script>
+    <script>
+    ${REPORT_EXPLORER_SCRIPT}
     </script>
 
     <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
@@ -266,8 +274,13 @@ function renderSectionNav(data: ReportData): string {
   return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
     ${storyNavLinks(data)}
+    <a href="#s-narrative" data-kca-jump="s-narrative">방 프로필</a>
+    <a href="#s-timeline" data-kca-jump="s-timeline">타임라인</a>
     <a href="#s-facts" data-kca-jump="s-facts">① 숫자 요약</a>
     <a href="#s-story" data-kca-jump="s-story">개요</a>
+    <a href="#s-dyad" data-kca-jump="s-dyad">상호작용</a>
+    <a href="#s-compare" data-kca-jump="s-compare">기간 비교</a>
+    <a href="#s-explorer" data-kca-jump="s-explorer">기간 탐색</a>
     ${hl}
     ${topicNavLink(data)}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>

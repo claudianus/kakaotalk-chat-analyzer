@@ -2303,4 +2303,109 @@ body.kca-oled .theme-btn.kca-ripple {
   animation: none;
 }
 
+
+/* 08-kca-innovation.css */
+/* 혁신 섹션 — 타임라인·상호작용·비교·탐색 */
+.narrative-body { display: grid; gap: 12px; }
+.narrative-p { margin: 0; font-size: 15px; line-height: 1.65; color: var(--ink); }
+
+.spine-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 14px;
+  border-left: 2px solid color-mix(in oklab, var(--accent) 45%, var(--line));
+  display: grid;
+  gap: 14px;
+}
+.spine-item { position: relative; padding-left: 8px; }
+.spine-item::before {
+  content: "";
+  position: absolute;
+  left: -19px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-grad);
+  box-shadow: 0 0 12px var(--glow);
+}
+.spine-item time {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.spine-item strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.spine-item span { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+.dyad-pairs {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dyad-pairs li {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+}
+
+.period-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.period-slice {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--accent-grad-soft);
+}
+.period-slice b { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.period-slice .num { font-size: 18px; font-weight: 900; color: var(--ink); }
+
+.kw-shift {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  font-size: 13px;
+}
+.kw-shift h4 { margin: 0 0 6px; font-size: 12px; color: var(--accent); }
+.kw-shift p { margin: 0; color: var(--muted); line-height: 1.5; }
+@media (max-width: 640px) { .kw-shift { grid-template-columns: 1fr; } }
+
+.bench-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.bench-table th, .bench-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+.bench-band {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.explorer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+.explorer-controls input {
+  margin-left: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel-solid);
+  color: var(--ink);
+}
+.explorer-stats p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+
 `;

@@ -237,6 +237,68 @@ export interface DailyRoomPulse {
   newSenders: number;
 }
 
+/** 화자 A → B 응답(직전 화자 기준) */
+export interface InteractionDyad {
+  fromAlias: string;
+  toAlias: string;
+  replies: number;
+}
+
+export interface InteractionMatrix {
+  aliases: string[];
+  matrix: number[][];
+  topPairs: InteractionDyad[];
+  totalReplies: number;
+}
+
+export interface ReportTimelineEvent {
+  date: string;
+  kind: string;
+  title: string;
+  detail: string;
+  metric?: number;
+  jumpId?: string;
+}
+
+export interface RoomNarrative {
+  ogSummary: string;
+  paragraphs: string[];
+}
+
+export interface PeriodCompareSlice {
+  id: string;
+  label: string;
+  messages: number;
+  activeDays: number;
+  messagesPerActiveDay: number;
+}
+
+export interface PeriodComparison {
+  slices: PeriodCompareSlice[];
+  keywordShift: {
+    head: string[];
+    tail: string[];
+    onlyHead: string[];
+    onlyTail: string[];
+  };
+}
+
+export interface BenchmarkMetric {
+  key: string;
+  label: string;
+  value: number;
+  percentile: number;
+  band: string;
+}
+
+/** 리포트 내 날짜 브러시용 집계만 */
+export interface ExplorerPayload {
+  daily: DailyCount[];
+  hourly: number[];
+  monthly: DailyCount[];
+  range: { min: string; max: string };
+}
+
 export interface ReportData {
   generatedAt: string;
   privacy: PrivacyMode;
@@ -305,4 +367,16 @@ export interface ReportData {
   highlights: string[];
   /** Wrapped·챕터·페르소나 등 스토리 레이어 */
   story: ReportStory;
+  /** 답장·상호작용 행렬(상위 참여자) */
+  interaction: InteractionMatrix | null;
+  /** 이벤트 타임라인 */
+  timeline: ReportTimelineEvent[];
+  /** 규칙 기반 방 프로필 서사 */
+  narrative: RoomNarrative;
+  /** 처음/마지막·키워드 시프트 */
+  periodCompare: PeriodComparison;
+  /** 합성 참고 분위수(추정) */
+  benchmarks: BenchmarkMetric[];
+  /** 클라이언트 탐색용 집계 */
+  explorer: ExplorerPayload;
 }

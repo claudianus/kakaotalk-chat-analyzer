@@ -14,6 +14,11 @@ import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
 import { buildRoomPulse, computeActivityArc, computeBurstDays, computeConversationPace, } from "./report-enrichment.js";
 import { isOpenChatBoilerplate, splitMessageForAnalysis, SYSTEM_NOTICE_KEYWORD_STOP, } from "./system-notices.js";
 import { buildReportStory } from "./story.js";
+import { DyadAccumulator } from "./dyad-matrix.js";
+import { buildEventSpine } from "./event-spine.js";
+import { buildRoomNarrative } from "./room-narrative.js";
+import { buildPeriodCompare } from "./period-compare.js";
+import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
 const ATTACHMENT_MARKERS = [
     "사진",
     "동영상",
@@ -29,6 +34,7 @@ const ATTACHMENT_MARKERS = [
 const KEYWORD_EXCLUDE = new Set([...ATTACHMENT_MARKERS, ...SYSTEM_NOTICE_KEYWORD_STOP]);
 const PHOTO_BUNDLE_RE = /^사진\s+\d+\s*장$/;
 const PURE_LAUGH_RE = /^[ㅋㅎㅠㅜ]+$/u;
+const PLAN_SIGNAL_RE = /(?:\d{1,2}\s*월|\d{1,2}\s*일|내일|모레|다음\s*주|오전|오후|저녁|점심|몇\s*시|\d{1,2}:\d{2})/u;
 const WEEKDAY_LABELS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const URL_RE = /\bhttps?:\/\/[^\s<>"']+|www\.[^\s<>"']+/gi;
 const EMAIL_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
@@ -65,6 +71,10 @@ export class ReportAggregator {
     dailyHidden = new Map();
     dailyKick = new Map();
     dailyNewSenders = new Map();
+    dailyLinks = new Map();
+    dailyPlanSignals = new Map();
+    monthlyKeywordBuckets = new Map();
+    dyads = new DyadAccumulator();
     total = 0;
     totalCharacters = 0;
     messagesWithLinks = 0;
@@ -196,6 +206,12 @@ export class ReportAggregator {
                 this.gapStats.add(delta);
             }
             this.prevMs = ms;
+            if (this.prevSender !== null && record.sender !== this.prevSender) {
+                this.dyads.addReply(this.prevSender, record.sender);
+            }
+            if (PLAN_SIGNAL_RE.test(msg)) {
+                increment(this.dailyPlanSignals, dayKey);
+            }
             if (record.sender === this.prevSender) {
                 this.runLen += 1;
                 if (this.runLen >= 3) {
@@ -223,6 +239,7 @@ export class ReportAggregator {
             if (foundDomains.length > 0) {
                 stat.linkMessages += 1;
                 this.messagesWithLinks += 1;
+                increment(this.dailyLinks, dayKey);
                 for (const domain of foundDomains)
                     increment(this.domains, domain);
             }
@@ -235,6 +252,13 @@ export class ReportAggregator {
                     this.keywordStream.addDocumentTokens(kwTokens);
                     const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
                     this.topicMap.addMessage(kwTokens, monthKey);
+                    let monthBucket = this.monthlyKeywordBuckets.get(monthKey);
+                    if (!monthBucket) {
+                        monthBucket = new KeywordCounter();
+                        this.monthlyKeywordBuckets.set(monthKey, monthBucket);
+                    }
+                    for (const t of kwTokens)
+                        monthBucket.add(t);
                 }
                 if (!opts?.keywordsOnly) {
                     const kwOpts = {
@@ -455,6 +479,29 @@ export class ReportAggregator {
             if (alias)
                 shortByAlias.set(alias, (shortByAlias.get(alias) ?? 0) + c);
         }
+        const { headKeywords, tailKeywords } = splitMonthlyKeywordBuckets(this.monthlyKeywordBuckets);
+        const periodCompare = buildPeriodCompare({
+            activityArc,
+            daily: dailySorted,
+            monthly: [...this.monthly.entries()].map(([date, count]) => ({ date, count })),
+            headKeywords,
+            tailKeywords,
+        });
+        const interaction = this.dyads.buildMatrix(participantStats, aliases);
+        const topDyadLabel = interaction?.topPairs[0] != null
+            ? `${interaction.topPairs[0].fromAlias}→${interaction.topPairs[0].toAlias}`
+            : null;
+        const timeline = buildEventSpine({
+            burstDays,
+            daily: dailySorted,
+            roomPulse,
+            repeatedPhrases: this.repeatPhraseCounter.top(8, 3),
+            maxSilenceBetweenActiveDays,
+            dailyLinkSpikes: topDailyLinkSpikes(this.dailyLinks),
+            dailyPlanSignals: [...this.dailyPlanSignals.entries()]
+                .map(([date, hits]) => ({ date, hits }))
+                .sort((a, b) => a.date.localeCompare(b.date)),
+        });
         const story = buildReportStory({
             chatRoomName: parseChatRoomNameFromExportPath(meta.filePath),
             totalMessages: total,
@@ -512,6 +559,33 @@ export class ReportAggregator {
             roomPulse,
             lexicalTypeRichnessPercent,
             speakerSwitchRatePer100,
+        });
+        const narrativeFinal = buildRoomNarrative({
+            chatRoomName: parseChatRoomNameFromExportPath(meta.filePath),
+            totalMessages: total,
+            participants: aliases.size,
+            pace: conversationPace,
+            insights,
+            topics,
+            personas: story.personas,
+            events: timeline,
+            topDyadLabel,
+        });
+        const explorer = {
+            daily: dailySorted,
+            hourly: [...this.hourly],
+            monthly: [...this.monthly.entries()].map(([date, count]) => ({ date, count })),
+            range: {
+                min: dailySorted[0]?.date ?? "",
+                max: dailySorted[dailySorted.length - 1]?.date ?? "",
+            },
+        };
+        const benchmarks = buildBenchmarkBandsFromValues({
+            participantGini,
+            nightSharePercent,
+            speakerSwitchRatePer100,
+            rhythmScore,
+            weekendSharePercent,
         });
         return {
             generatedAt: new Date().toISOString(),
@@ -576,8 +650,43 @@ export class ReportAggregator {
             roomPulse,
             highlights,
             story,
+            interaction,
+            timeline,
+            narrative: narrativeFinal,
+            periodCompare,
+            benchmarks,
+            explorer,
         };
     }
+}
+function splitMonthlyKeywordBuckets(buckets) {
+    const months = [...buckets.keys()].sort();
+    if (months.length < 2) {
+        return { headKeywords: [], tailKeywords: [] };
+    }
+    const mid = Math.floor(months.length / 2);
+    const mergeMonths = (keys) => {
+        const acc = new KeywordCounter();
+        for (const k of keys) {
+            const b = buckets.get(k);
+            if (!b)
+                continue;
+            for (const item of b.topCounts(40))
+                acc.addHits(item.label, item.count);
+        }
+        return acc.topCounts(12);
+    };
+    return {
+        headKeywords: mergeMonths(months.slice(0, mid)),
+        tailKeywords: mergeMonths(months.slice(mid)),
+    };
+}
+function topDailyLinkSpikes(dailyLinks) {
+    return [...dailyLinks.entries()]
+        .filter(([, c]) => c >= 3)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6)
+        .map(([date, links]) => ({ date, links }));
 }
 function buildSenderLabels(senders, privacy) {
     const unique = [...new Set(senders)];

@@ -40,6 +40,10 @@ export declare class ReportAggregator {
     private readonly dailyHidden;
     private readonly dailyKick;
     private readonly dailyNewSenders;
+    private readonly dailyLinks;
+    private readonly dailyPlanSignals;
+    private readonly monthlyKeywordBuckets;
+    private readonly dyads;
     private total;
     private totalCharacters;
     private messagesWithLinks;

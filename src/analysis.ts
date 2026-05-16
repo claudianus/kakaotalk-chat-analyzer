@@ -12,7 +12,8 @@ import { resolveSemanticKeywords, shouldCollectSemanticSamples } from "./semanti
 import { extractSemanticKeywords } from "./semantic-keywords.js";
 import type { StreamParseOptions } from "./stream-options.js";
 import { streamKakaoExport } from "./stream-parser.js";
-import type { EncodingName, ParseResult, PrivacyMode, ReportData } from "./types.js";
+import { recordOnOrAfter } from "./report-date-filter.js";
+import type { ChatRecord, EncodingName, ParseResult, PrivacyMode, ReportData } from "./types.js";
 
 const DEFAULT_TOP = 30;
 
@@ -65,7 +66,9 @@ export function buildReportData(result: ParseResult, options?: BuildReportOption
   const agg = new ReportAggregator(result.filePath, privacy, top, {
     semanticSamples: shouldCollectSemanticSamples(result.records.length),
   });
+  const since = options?.since;
   for (const record of result.records) {
+    if (since && !recordOnOrAfter(record, since)) continue;
     agg.consume(record);
   }
   return agg.finalize(
@@ -93,7 +96,9 @@ export async function buildReportDataAsync(
   const agg = new ReportAggregator(result.filePath, privacy, top, {
     semanticSamples: shouldCollectSemanticSamples(result.records.length),
   });
+  const since = options?.since;
   for (const record of result.records) {
+    if (since && !recordOnOrAfter(record, since)) continue;
     agg.consume(record);
   }
   const usedSemantic = await applySemanticKeywords(agg, useSemantic, false);
@@ -125,8 +130,10 @@ async function runStatsPass(
     warningCount: number;
   } | null = null;
 
+  const since = streamOpts?.since;
   for await (const event of streamKakaoExport(filePath, streamOpts)) {
     if (event.type === "record") {
+      if (since && !recordOnOrAfter(event.record, since)) continue;
       prepass.onMessageText(messageTextFromRecord(event.record));
       agg.consume(event.record, { skipKeywords: true });
     } else {
@@ -146,8 +153,10 @@ async function runKeywordPass(
   agg: ReportAggregator,
   streamOpts?: StreamParseOptions,
 ): Promise<void> {
+  const since = streamOpts?.since;
   for await (const event of streamKakaoExport(filePath, streamOpts)) {
     if (event.type === "record") {
+      if (since && !recordOnOrAfter(event.record, since)) continue;
       agg.consume(event.record, { keywordsOnly: true });
     }
   }
@@ -168,13 +177,16 @@ export async function buildReportFromExportSync(
   });
   const useKiwi = process.env.KCA_NO_KIWI !== "1";
 
-  const progressOpts = (phase: string, estimated?: number): StreamParseOptions | undefined =>
-    showProgress
-      ? {
-          progressEvery: estimated && estimated > 5_000 ? 500 : 250,
-          onProgress: (count) => logReportProgress({ phase, current: count, total: estimated }),
-        }
-      : undefined;
+  const since = options?.since;
+  const progressOpts = (phase: string, estimated?: number): StreamParseOptions | undefined => {
+    const base: StreamParseOptions = since ? { since } : {};
+    if (!showProgress) return since ? base : undefined;
+    return {
+      ...base,
+      progressEvery: estimated && estimated > 5_000 ? 500 : 250,
+      onProgress: (count) => logReportProgress({ phase, current: count, total: estimated }),
+    };
+  };
 
   let meta: {
     filePath: string;
@@ -208,6 +220,7 @@ export async function buildReportFromExportSync(
     await initKiwiRuntime([]);
     for await (const event of streamKakaoExport(filePath, progressOpts("대화 분석"))) {
       if (event.type === "record") {
+        if (since && !recordOnOrAfter(event.record, since)) continue;
         prepass.onMessageText(messageTextFromRecord(event.record));
         agg.consume(event.record);
       } else {

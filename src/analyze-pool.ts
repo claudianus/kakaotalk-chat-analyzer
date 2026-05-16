@@ -14,6 +14,8 @@ export interface BuildReportOptions {
   progress?: boolean;
   /** true=강제, false=끔, undefined=한국어 방이면 자동 */
   semanticKeywords?: boolean;
+  /** YYYY-MM-DD — 이 날짜(포함) 이후 메시지만 집계 */
+  since?: string;
 }
 
 export async function shouldUseAnalyzeWorker(

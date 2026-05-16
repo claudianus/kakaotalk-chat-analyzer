@@ -6,6 +6,8 @@ import { buildReportFromExport } from "./analysis.js";
 import { clearOwnerToken, getConfigPath, getOwnerToken, saveOwnerToken } from "./config.js";
 import { describeStreamedExport } from "./stream-parser.js";
 import { createProvider, parseHostName } from "./providers/index.js";
+import { renderCompareHtml } from "./compare-report.js";
+import { parseSinceOption } from "./report-date-filter.js";
 import { renderReportHtml } from "./report.js";
 import { VERSION } from "./version.js";
 import type { HostName, PublishResult } from "./providers/types.js";
@@ -59,6 +61,7 @@ main
     "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(e5-small, 최초 다운로드).",
     false,
   )
+  .option("--since <date>", "YYYY-MM-DD 이후 메시지만 집계합니다.")
   .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
   .action(async (csv: string, options: MainOptions) => {
     const host = parseHostName(options.host);
@@ -79,6 +82,7 @@ main
         : options.semanticKeywords
           ? true
           : undefined,
+      since: parseSinceOption(options.since),
     });
     console.log(`리포트: ${htmlPath}`);
     console.log(`크기: ${await formatFileSize(htmlPath)}`);
@@ -125,6 +129,31 @@ main
       }
       process.exitCode = 1;
     }
+  });
+
+program
+  .command("compare")
+  .argument("<csv...>", "비교할 CSV 2개 이상")
+  .option("-o, --out <file>", "출력 HTML 경로", "compare.html")
+  .description("여러 방 export의 핵심 지표를 한 표로 비교합니다.")
+  .action(async (csvs: string[], options: { out: string }) => {
+    if (csvs.length < 2) {
+      throw new Error("compare requires at least 2 CSV files.");
+    }
+    const reports = [];
+    for (const csv of csvs) {
+      reports.push(
+        await buildReportFromExport(resolve(csv), {
+          progress: false,
+          worker: false,
+          semanticKeywords: false,
+        }),
+      );
+    }
+    const html = renderCompareHtml(reports);
+    const outPath = resolve(options.out);
+    await writeFile(outPath, html, "utf8");
+    console.log(`비교 리포트: ${outPath}`);
   });
 
 program
@@ -180,6 +209,7 @@ interface MainOptions {
   noProgress: boolean;
   noSemanticKeywords: boolean;
   semanticKeywords: boolean;
+  since?: string;
 }
 
 interface TokenOptions {
@@ -197,6 +227,7 @@ async function generateReport(
     worker?: boolean;
     progress?: boolean;
     semanticKeywords?: boolean;
+    since?: string;
   },
 ): Promise<string> {
   const csvPath = resolve(csv);
@@ -209,6 +240,7 @@ async function generateReport(
     worker: options.worker,
     progress: options.progress,
     semanticKeywords: options.semanticKeywords,
+    since: options.since,
   });
   log("parse+aggregate", performance.now() - t0);
 
