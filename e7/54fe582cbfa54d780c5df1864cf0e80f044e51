@@ -1,0 +1,32 @@
+kcachat/cli.mjs
+  s_d404882750412e::t_91a0a44c609be8 1-21
+kcachat/LICENSE
+  s_d404882750412e::t_d8bd89c8f8e264 1-21
+kcachat/package.json
+  s_d404882750412e::t_d8416714e16b50 11-12
+  s_d404882750412e::t_3ff891ea9c3f62 6-8
+  s_d404882750412e::t_0b39881d091c0a 1-5,9-10,13-14,16-39
+  s_d404882750412e::t_897e56fca1b45d 15
+.github/workflows/npm-publish.yml
+  s_d404882750412e::t_e7dc971bde2ec7 1-72
+AGENTS.md
+  s_d404882750412e::t_b45d50e3b49824 1-46
+kcachat/package-lock.json
+  ai_agent 1-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e754fe582cbfa54d780c5df1864cf0e80f044e51",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
