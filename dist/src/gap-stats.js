@@ -1,0 +1,75 @@
+const MAX_GAP_MS = 7 * 24 * 60 * 60 * 1000;
+const LOG_MIN = Math.log(1000);
+const LOG_MAX = Math.log(MAX_GAP_MS);
+const BUCKET_COUNT = 64;
+/** 메시지 간격(ms) 스트리밍 통계 — 전체 배열·정렬 없이 백분위·CV 근사 */
+export class GapStreamStats {
+    count = 0;
+    burstUnder1m = 0;
+    gapOver60m = 0;
+    histogram = new Uint32Array(BUCKET_COUNT);
+    welfordN = 0;
+    welfordMean = 0;
+    welfordM2 = 0;
+    add(deltaMs) {
+        if (deltaMs <= 0 || deltaMs > MAX_GAP_MS)
+            return;
+        this.count += 1;
+        if (deltaMs < 60_000)
+            this.burstUnder1m += 1;
+        if (deltaMs > 3_600_000)
+            this.gapOver60m += 1;
+        const clamped = Math.max(1000, Math.min(deltaMs, MAX_GAP_MS));
+        const log = Math.log(clamped);
+        const idx = Math.min(BUCKET_COUNT - 1, Math.floor(((log - LOG_MIN) / (LOG_MAX - LOG_MIN)) * BUCKET_COUNT));
+        this.histogram[idx] = (this.histogram[idx] ?? 0) + 1;
+        this.welfordN += 1;
+        const d = deltaMs - this.welfordMean;
+        this.welfordMean += d / this.welfordN;
+        this.welfordM2 += d * (deltaMs - this.welfordMean);
+    }
+    get size() {
+        return this.count;
+    }
+    medianMs() {
+        return this.quantileMs(0.5);
+    }
+    p90Ms() {
+        return this.quantileMs(0.9);
+    }
+    burstUnder1mPercent() {
+        if (this.count === 0)
+            return null;
+        return round((this.burstUnder1m / this.count) * 100, 1);
+    }
+    gapOver60mPercent() {
+        if (this.count === 0)
+            return null;
+        return round((this.gapOver60m / this.count) * 100, 1);
+    }
+    coeffVariation() {
+        if (this.welfordN < 2 || this.welfordMean <= 0)
+            return null;
+        const variance = this.welfordM2 / this.welfordN;
+        return round(Math.sqrt(variance) / this.welfordMean, 2);
+    }
+    quantileMs(p) {
+        if (this.count === 0)
+            return null;
+        const target = this.count * p;
+        let acc = 0;
+        for (let i = 0; i < BUCKET_COUNT; i += 1) {
+            acc += this.histogram[i] ?? 0;
+            if (acc >= target) {
+                const centerLog = LOG_MIN + ((i + 0.5) / BUCKET_COUNT) * (LOG_MAX - LOG_MIN);
+                return Math.exp(centerLog);
+            }
+        }
+        return MAX_GAP_MS;
+    }
+}
+function round(value, decimals) {
+    const factor = 10 ** decimals;
+    return Math.round(value * factor) / factor;
+}
+//# sourceMappingURL=gap-stats.js.map

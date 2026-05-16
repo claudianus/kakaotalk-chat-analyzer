@@ -1,5 +1,7 @@
 import { formatDate, formatDateTime, partsToUtcMs, weekdayIndex } from "./date.js";
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
+import { GapStreamStats } from "./gap-stats.js";
+import { KeywordCounter } from "./keyword-counter.js";
 const ATTACHMENT_MARKERS = [
     "사진",
     "동영상",
@@ -51,7 +53,8 @@ const STOPWORDS = new Set([
     "https",
 ]);
 const NIGHT_HOURS = new Set([23, 0, 1, 2, 3, 4, 5]);
-const MAX_GAP_MS = 7 * 24 * 60 * 60 * 1000;
+const EMOJI_RE = /\p{Extended_Pictographic}/u;
+const QUESTION_RE = /\?|？/;
 export class ReportAggregator {
     filePath;
     privacy;
@@ -64,7 +67,8 @@ export class ReportAggregator {
     weekdays = Array.from({ length: 7 }, () => 0);
     attachments = new Map();
     domains = new Map();
-    keywords = new Map();
+    keywordCounter = new KeywordCounter();
+    gapStats = new GapStreamStats();
     total = 0;
     totalCharacters = 0;
     messagesWithLinks = 0;
@@ -75,7 +79,6 @@ export class ReportAggregator {
     questionMessages = 0;
     speakerSwitches = 0;
     monologueMessages = 0;
-    gapsMs = [];
     prevMs = null;
     prevSender = null;
     runSender = null;
@@ -101,10 +104,10 @@ export class ReportAggregator {
             this.firstDate = record.date;
         this.lastDate = record.date;
         this.total += 1;
-        if (/\p{Extended_Pictographic}/u.test(record.message)) {
+        if (EMOJI_RE.test(record.message)) {
             this.emojiMessages += 1;
         }
-        if (/\?|？/.test(record.message)) {
+        if (QUESTION_RE.test(record.message)) {
             this.questionMessages += 1;
         }
         const wi = weekdayIndex(record.date);
@@ -117,8 +120,7 @@ export class ReportAggregator {
         }
         if (this.prevMs !== null) {
             const delta = ms - this.prevMs;
-            if (delta > 0 && delta <= MAX_GAP_MS)
-                this.gapsMs.push(delta);
+            this.gapStats.add(delta);
         }
         this.prevMs = ms;
         if (record.sender === this.prevSender) {
@@ -151,8 +153,10 @@ export class ReportAggregator {
             for (const domain of foundDomains)
                 increment(this.domains, domain);
         }
-        for (const keyword of extractKeywords(record.message, this.senderNamesNormalized)) {
-            increment(this.keywords, keyword);
+        if (shouldExtractKeywords(record.message, foundAttachments)) {
+            for (const keyword of extractKeywords(record.message, this.senderNamesNormalized)) {
+                this.keywordCounter.add(keyword);
+            }
         }
         const dayKey = formatDate(record.date);
         increment(this.daily, dayKey);
@@ -207,14 +211,15 @@ export class ReportAggregator {
             }
         }
         const busiestWeekdayLabel = busiestIdx >= 0 && busiestCount > 0 ? `${WEEKDAY_LABELS_KO[busiestIdx] ?? ""}요일` : null;
-        const medianReplyGapMinutes = this.gapsMs.length > 0 ? round(medianSorted([...this.gapsMs].sort((a, b) => a - b)) / 60_000, 1) : null;
+        const medianMs = this.gapStats.medianMs();
+        const medianReplyGapMinutes = medianMs !== null ? round(medianMs / 60_000, 1) : null;
         const nightSharePercent = total > 0 ? round((this.nightMessages / total) * 100, 1) : 0;
         const activeDays = this.daily.size;
         const messagesPerActiveDay = activeDays > 0 ? round(total / activeDays, 1) : 0;
         const allMessageCounts = [...this.senderStats.values()].map((s) => s.messages).sort((a, b) => a - b);
         const participantGini = computeGini(allMessageCounts);
-        const gapsSorted = this.gapsMs.length > 0 ? [...this.gapsMs].sort((a, b) => a - b) : [];
-        const replyGapP90Minutes = gapsSorted.length > 0 ? round(quantileSorted(gapsSorted, 0.9) / 60_000, 1) : null;
+        const p90Ms = this.gapStats.p90Ms();
+        const replyGapP90Minutes = p90Ms !== null ? round(p90Ms / 60_000, 1) : null;
         const maxSilenceBetweenActiveDays = maxSilenceGapDays(sortedDays);
         const top3ParticipantSharePercent = computeTop3Share(this.senderStats, total);
         const linkDomainEntropyBits = domainEntropyBits(this.domains);
@@ -234,28 +239,14 @@ export class ReportAggregator {
         const medianMessagesPerParticipant = perParticipantMsgs.length > 0
             ? round(medianSorted([...perParticipantMsgs].sort((a, b) => a - b)), 2)
             : null;
-        let burstUnder1m = 0;
-        let gapOver60m = 0;
-        for (const g of this.gapsMs) {
-            if (g < 60_000)
-                burstUnder1m += 1;
-            if (g > 3_600_000)
-                gapOver60m += 1;
-        }
-        const burstGapUnder1mPercent = this.gapsMs.length > 0 ? round((burstUnder1m / this.gapsMs.length) * 100, 1) : null;
-        const gapOver60mPercent = this.gapsMs.length > 0 ? round((gapOver60m / this.gapsMs.length) * 100, 1) : null;
+        const burstGapUnder1mPercent = this.gapStats.burstUnder1mPercent();
+        const gapOver60mPercent = this.gapStats.gapOver60mPercent();
         let activeHoursCount = 0;
         for (let h = 0; h < 24; h += 1) {
             if ((this.hourly[h] ?? 0) > 0)
                 activeHoursCount += 1;
         }
-        let keywordTokenSum = 0;
-        let keywordTopCount = 0;
-        for (const c of this.keywords.values()) {
-            keywordTokenSum += c;
-            keywordTopCount = Math.max(keywordTopCount, c);
-        }
-        const keywordTop1SharePercent = keywordTokenSum > 0 ? round((keywordTopCount / keywordTokenSum) * 100, 1) : null;
+        const keywordTop1SharePercent = this.keywordCounter.top1SharePercent();
         let attachmentMarkerSum = 0;
         for (const c of this.attachments.values())
             attachmentMarkerSum += c;
@@ -266,7 +257,7 @@ export class ReportAggregator {
             maxDayMessages = Math.max(maxDayMessages, c);
         const peakDaySharePercent = total > 0 ? round((maxDayMessages / total) * 100, 1) : 0;
         const uniqueDomainCount = this.domains.size;
-        const replyGapCoeffVariation = gapCoeffVariation(this.gapsMs);
+        const replyGapCoeffVariation = this.gapStats.coeffVariation();
         const monologueMessagesPercent = total > 0 ? round((this.monologueMessages / total) * 100, 1) : 0;
         const insights = {
             weekendSharePercent,
@@ -350,7 +341,7 @@ export class ReportAggregator {
             monthly: [...this.monthly.entries()].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)),
             attachments: topCounts(this.attachments, this.top),
             domains: topCounts(this.domains, this.top),
-            keywords: topCounts(this.keywords, this.top),
+            keywords: this.keywordCounter.topCounts(this.top),
             highlights,
         };
     }
@@ -388,6 +379,20 @@ function getParticipantStat(stats, sender) {
     };
     stats.set(sender, created);
     return created;
+}
+function shouldExtractKeywords(message, attachmentMarkers) {
+    const trimmed = message.trim();
+    if (trimmed.length === 0)
+        return false;
+    if (attachmentMarkers.length === 1 && trimmed === attachmentMarkers[0])
+        return false;
+    if (attachmentMarkers.length > 0 && trimmed.length <= 16) {
+        const onlyMarkers = attachmentMarkers.every((m) => trimmed === m || trimmed.includes(m));
+        if (onlyMarkers && !/[가-힣A-Za-z]{3,}/.test(trimmed.replace(/[^\p{L}\p{N}]/gu, ""))) {
+            return false;
+        }
+    }
+    return true;
 }
 function getAttachmentMarkers(message) {
     return ATTACHMENT_MARKERS.filter((marker) => message.includes(marker));
@@ -491,35 +496,6 @@ function computeGini(counts) {
         num += (2 * i - n + 1) * sorted[i];
     }
     return round(num / (n * sum), 3);
-}
-function quantileSorted(sortedAsc, p) {
-    if (sortedAsc.length === 0)
-        return 0;
-    const pos = (sortedAsc.length - 1) * p;
-    const lo = Math.floor(pos);
-    const hi = Math.ceil(pos);
-    if (lo === hi)
-        return sortedAsc[lo];
-    const w = pos - lo;
-    return sortedAsc[lo] * (1 - w) + sortedAsc[hi] * w;
-}
-function gapCoeffVariation(gaps) {
-    if (gaps.length < 2)
-        return null;
-    let sum = 0;
-    for (const g of gaps)
-        sum += g;
-    const mean = sum / gaps.length;
-    if (mean <= 0)
-        return null;
-    let varAcc = 0;
-    for (const g of gaps) {
-        const d = g - mean;
-        varAcc += d * d;
-    }
-    const variance = varAcc / gaps.length;
-    const sd = Math.sqrt(variance);
-    return round(sd / mean, 2);
 }
 function maxSilenceGapDays(sortedYmd) {
     if (sortedYmd.length < 2)

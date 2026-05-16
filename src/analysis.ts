@@ -1,11 +1,14 @@
 import { ReportAggregator } from "./aggregator.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
+import { runAnalyzeWorker, shouldUseAnalyzeWorker, type BuildReportOptions } from "./analyze-pool.js";
 import { streamKakaoExport } from "./stream-parser.js";
 import type { EncodingName, ParseResult, PrivacyMode, ReportData } from "./types.js";
 
 const DEFAULT_TOP = 30;
 
-export function buildReportData(result: ParseResult, options?: { privacy?: PrivacyMode; top?: number }): ReportData {
+export type { BuildReportOptions };
+
+export function buildReportData(result: ParseResult, options?: BuildReportOptions): ReportData {
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
   const agg = new ReportAggregator(result.filePath, privacy, top);
@@ -20,14 +23,15 @@ export function buildReportData(result: ParseResult, options?: { privacy?: Priva
   });
 }
 
-export async function buildReportFromExport(
+export async function buildReportFromExportSync(
   filePath: string,
-  options?: { privacy?: PrivacyMode; top?: number },
+  options?: BuildReportOptions,
 ): Promise<ReportData> {
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
   const agg = new ReportAggregator(filePath, privacy, top);
-  let meta: { filePath: string; encoding: EncodingName; physicalLines: number; warningCount: number } | null = null;
+  let meta: { filePath: string; encoding: EncodingName; physicalLines: number; warningCount: number } | null =
+    null;
 
   for await (const event of streamKakaoExport(filePath)) {
     if (event.type === "record") {
@@ -47,4 +51,14 @@ export async function buildReportFromExport(
   }
 
   return agg.finalize(meta);
+}
+
+export async function buildReportFromExport(
+  filePath: string,
+  options?: BuildReportOptions,
+): Promise<ReportData> {
+  if (await shouldUseAnalyzeWorker(filePath, options)) {
+    return runAnalyzeWorker(filePath, options);
+  }
+  return buildReportFromExportSync(filePath, options);
 }

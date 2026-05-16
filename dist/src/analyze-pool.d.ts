@@ -1,0 +1,9 @@
+import type { PrivacyMode, ReportData } from "./types.js";
+export interface BuildReportOptions {
+    privacy?: PrivacyMode;
+    top?: number;
+    /** false면 메인 스레드만 사용 */
+    worker?: boolean;
+}
+export declare function shouldUseAnalyzeWorker(filePath: string, options?: BuildReportOptions): Promise<boolean>;
+export declare function runAnalyzeWorker(filePath: string, options?: BuildReportOptions): Promise<ReportData>;

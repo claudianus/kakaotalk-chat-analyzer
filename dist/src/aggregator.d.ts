@@ -17,7 +17,8 @@ export declare class ReportAggregator {
     private readonly weekdays;
     private readonly attachments;
     private readonly domains;
-    private readonly keywords;
+    private readonly keywordCounter;
+    private readonly gapStats;
     private total;
     private totalCharacters;
     private messagesWithLinks;
@@ -28,7 +29,6 @@ export declare class ReportAggregator {
     private questionMessages;
     private speakerSwitches;
     private monologueMessages;
-    private readonly gapsMs;
     private prevMs;
     private prevSender;
     private runSender;
