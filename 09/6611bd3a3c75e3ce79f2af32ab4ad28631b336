@@ -1,0 +1,101 @@
+src/report-charts.ts
+  s_d404882750412e::t_56a4ee9627255f 157,205
+  s_d404882750412e::t_bf91e3635c3620 170-171,173-175
+  s_d404882750412e::t_2e6f85a183d5a6 162,180,186,191
+  s_d404882750412e::t_681162a8a904b8 153
+  s_d404882750412e::t_8846e35c97c0e9 1-115,123-152,154-156,158-161,163-169,176-178,181-184,187-190,192-204,206-265,275-348
+  s_d404882750412e::t_7e7ba3f41225d3 116-122
+  s_d404882750412e::t_2c1a4a740c7b68 172
+  s_d404882750412e::t_d7b898ad4dfb17 185
+  s_d404882750412e::t_4ffc30519502d1 179
+  s_d404882750412e::t_637670e556307b 266-274
+kcachat/package.json
+  s_d404882750412e::t_41b1e729d2125e 15
+  s_d404882750412e::t_5e24760241566d 3
+dist/src/report.js.map
+  ai_agent 1
+src/story.ts
+  s_d404882750412e::t_c52b357f0d6b96 20
+  s_d404882750412e::t_a9322379cd356e 100
+  s_d404882750412e::t_b42d516e6b1ad7 253
+  s_d404882750412e::t_974d246b887b3f 298,301
+  s_d404882750412e::t_fb02cc0c93b4ff 412-417,423,432,446-447,449-450
+  s_d404882750412e::t_c32a8dbcd6adcd 203-207
+dist/src/keyword-merge.d.ts
+  s_d404882750412e::t_b0604f2285ac7c 1,4-5
+dist/src/keyword-merge.js
+  s_d404882750412e::t_b0604f2285ac7c 1-5,9
+dist/src/aggregator.js.map
+  ai_agent 1
+package.json
+  s_d404882750412e::t_7994d6a91faa63 3
+src/kr-wordrank-stream.ts
+  s_d404882750412e::t_39c34a93997963 58-59
+  s_d404882750412e::t_aea081779ce227 145-155
+  s_d404882750412e::t_fd17c008d95459 78,80-83
+  s_d404882750412e::t_91bbeb374d5b33 25-32
+dist/src/korean-stopwords.js
+  s_d404882750412e::t_b0604f2285ac7c 267-290
+dist/src/kr-wordrank-stream.d.ts
+  s_d404882750412e::t_b0604f2285ac7c 15-21,32-33,38
+src/aggregator.ts
+  s_d404882750412e::t_8a420099d577ce 408-409,411,413
+dist/src/kr-wordrank-stream.js.map
+  ai_agent 1
+src/keyword-merge.ts
+  s_d404882750412e::t_1e6602c45a5aef 1,5,7,11-13,18
+dist/src/report-charts.js
+  s_d404882750412e::t_b0604f2285ac7c 1-325
+src/report.ts
+  s_d404882750412e::t_0c657a30ba782e 116-119
+  s_d404882750412e::t_100c167afa550a 59-62
+  s_d404882750412e::t_94c81a62eac5d5 944-947
+  s_d404882750412e::t_b7c47a260e452d 131
+  s_d404882750412e::t_c3df01276cedd5 1000-1001
+  s_d404882750412e::t_bc87856416becd 1380
+  s_d404882750412e::t_6b35c73ae9d0dc 98-101
+  s_d404882750412e::t_edf1ff559c430d 806,808-816,818,823-824
+  s_d404882750412e::t_4c16c87bb8d8e8 20-26
+  s_d404882750412e::t_2cd86e750ac397 971-973
+  s_d404882750412e::t_ca51d1fd4db5dd 43
+  s_d404882750412e::t_d6a9db43beafa6 289
+  s_d404882750412e::t_c8c72c25af1fcb 79-82
+dist/src/aggregator.js
+  s_d404882750412e::t_b0604f2285ac7c 342-343,345,347
+dist/src/korean-stopwords.js.map
+  ai_agent 1
+dist/src/story.js.map
+  ai_agent 1
+dist/src/story.js
+  s_d404882750412e::t_b0604f2285ac7c 3,37,130-133,174,210,213,304-309,313,322,335,337-338
+dist/src/kr-wordrank-stream.js
+  s_d404882750412e::t_b0604f2285ac7c 28-29,47,49-52,111-119
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_b0604f2285ac7c 1-42
+dist/src/report.js
+  s_d404882750412e::t_b0604f2285ac7c 4,19,35-38,55-58,74-77,92-95,107,265,780,782-788,790,795-796,914-917,938-940,965-966,1304
+dist/src/keyword-merge.js.map
+  ai_agent 1
+src/korean-stopwords.ts
+  s_d404882750412e::t_3a0fb24ff3527c 270-293
+test/story.test.ts
+  s_d404882750412e::t_e803af2d82dddd 109-110
+dist/src/report-charts.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "096611bd3a3c75e3ce79f2af32ab4ad28631b336",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
