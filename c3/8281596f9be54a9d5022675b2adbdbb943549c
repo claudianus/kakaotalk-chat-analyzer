@@ -1,0 +1,39 @@
+kcachat/package.json
+  s_d404882750412e::t_35ec33783d3d6d 15
+  s_d404882750412e::t_486c93b0ffa010 3
+src/version.ts
+  ai_agent 1
+kcachat/cli.mjs
+  s_d404882750412e::t_56c4401a133bf0 2,6,9-11,14-37,43
+dist/src/version.d.ts
+  s_d404882750412e::t_3518b528eb6624 1-2
+scripts/sync-version.mjs
+  s_d404882750412e::t_8a50398f1deb7c 1-10
+README.md
+  s_d404882750412e::t_dd5a3286743955 94-95
+kcachat/package-lock.json
+  ai_agent 3,9,12,53-55
+package.json
+  s_d404882750412e::t_00fc35d722cb71 25
+  s_d404882750412e::t_fba404a6803102 3
+kcachat/README.md
+  s_d404882750412e::t_ced1bbe7dbd566 10-20
+dist/src/version.js
+  s_d404882750412e::t_3518b528eb6624 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c38281596f9be54a9d5022675b2adbdbb943549c",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
