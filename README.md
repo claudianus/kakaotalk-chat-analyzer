@@ -14,7 +14,7 @@
 
 <br>
 
-<img src="https://readme-typing-svg.demolab.com?font=DM+Sans&weight=700&size=22&pause=1200&color=3EE8C5&center=true&vCenter=true&width=780&lines=Streaming+analytics+for+months+of+KakaoTalk+CSV;Premium+Korean+HTML+reports+%2B+one-line+share" alt="tagline animation" />
+<img src="https://readme-typing-svg.demolab.com?font=DM+Sans&weight=700&size=22&pause=1200&color=3EE8C5&center=true&vCenter=true&width=780&lines=Streaming+analytics+for+months+of+KakaoTalk+CSV;ECharts+charts+%2B+120+keywords+%2B+one-line+share" alt="tagline animation" />
 
 </div>
 
@@ -54,7 +54,7 @@
 |------|------|
 | **인코딩** | UTF-8 BOM, UTF-8, CP949/EUC-KR 등 보내기 인코딩 자동 감지 |
 | **파싱** | `Date,User,Message` 헤더 기반 CSV + 멀티라인 메시지 처리 |
-| **리포트** | 채팅방 이름·섹션 점프·다크/라이트·히트맵·오전/오후 시간대·참여자 맵·인사이트 지표 등 **집계 전용** 시각화 |
+| **리포트** | Wrapped·**ECharts** 차트(워드클라우드·히트맵)·**KR-WordRank** 키워드 120개·잔디 그리드·인사이트 등 **집계 전용** 시각화 |
 | **성능** | 줄 단위 스트림 파싱 · 단일 패스 집계 · 3MB+ Worker · 진행 표시(`--progress`) |
 | **배포** | BrewPage(기본) / TempFile / Cloudflare 등 **TTL 기반** 임시 호스팅 · iframe 공유 링크 안전 처리 |
 | **npx** | 짧은 별칭 **[`kcachat`](https://www.npmjs.com/package/kcachat)** 또는 본체 **`kakaotalk-chat-analyzer`** |
@@ -71,7 +71,7 @@
 | **스트리밍 파싱** | 파일 전체를 문자열/배열로 펼치지 않음 |
 | **단일 패스 집계** | `Map`·히스토그램·온라인 통계(간격 P90 등)만 유지 |
 | **Worker (≥3MB)** | 대용량일 때 메인 스레드 멈춤 완화 |
-| **키워드 상한** | 수만 개 토큰 맵 폭주 방지 + 「사진」 시스템 문구와 본문 단어 구분 |
+| **키워드** | KR-WordRank 스트리밍 + 메시지 등장 횟수 + 잡음·불용어 필터(최대 120개) |
 | **kcachat@latest** | 실행 시 `kakaotalk-chat-analyzer@latest` 본체를 받아 최신 CLI 사용 |
 
 로컬 벤치(합성 20만 메시지, 집계만): **약 0.4초대** — 환경·디스크·실제 대화 밀도에 따라 달라집니다.
@@ -93,20 +93,28 @@ npm run bench:stream -- 100000
 
 ## 리포트 UX
 
-생성되는 `index.html`은 **브라우저만** 있으면 열리는 단일 파일입니다.
+생성되는 `index.html`은 **브라우저만** 있으면 열리는 단일 파일입니다. (인터랙티브 차트는 CDN으로 ECharts를 불러옵니다.)
 
-- **채팅방 이름**: `KakaoTalk_Chat_…` 파일명에서 방 이름을 추출해 제목·카드·푸터에 표시
-- **빠른 이동**: 상단 고정 네비 — BrewPage iframe에서도 **빈 화면 없이** 섹션 점프
-- **숫자 요약 · 인사이트**: Gini·리듬 점수·응답 간격·주말 비중 등 **패턴 지표** 카드
-- **일별 히트맵**: 가로 스크롤 없이 화면 너비에 맞춘 그리드
-- **시간대 리듬**: 오전(청록) / 오후(주황) 12시간 구역으로 직관적 비교
-- **참여자 맵**: 말풍선 scatter + **마스킹된 닉네임** 라벨
-- **랭킹 테이블**: zebra stripe·구분선으로 가독성
-- **키워드**: 카톡 첨부 시스템 문구(사진·이모티콘 등)는 **본문 단어와 구분**해 집계
-- **하단 링크**: GitHub·npm·문서 — BrewPage에 embed해도 **새 탭**으로 열리고 리포트 탭은 유지
+- **⓪ Wrapped**: 채팅방 규모·리듬·MVP·급증일 등 카드형 한 장면 요약
+- **빠른 이동**: Wrapped · 숫자 요약 · 인터랙티브 차트 · 표·막대 모음 · 용어 설명
+- **인터랙티브 차트**: 워드클라우드, 시간대·요일·월별, 일별 캘린더 히트맵, 키워드 막대(80) + **전체 120개 표**
+- **연간 잔디**: 활동 **기간만** 주 단위(53주 고정 아님), 호버 시 건수 툴팁
+- **숫자·인사이트**: 지니(참여 쏠림)·리듬 점수·응답 간격(초/분 한국어) 등
+- **키워드**: **KR-WordRank** + 메시지 **등장 횟수**(상대 점수 아님), 오픈채팅·잡음어 필터
+- **참여자**: 말풍선 맵 + 마스킹 닉네임 + 랭킹 테이블
+- **BrewPage**: iframe 섹션 점프·외부 링크 안전 처리
 - **테마**: 라이트 / 다크 / 시스템
 
-원문 메시지·전체 URL·중복 JSON 덩어리는 HTML에 넣지 않습니다(BrewPage 5MiB 한도도 고려).
+원문 메시지·전체 URL은 HTML에 넣지 않습니다(BrewPage 5MiB 한도 고려). **이미 올린 링크는 재업로드해야** UI가 바뀝니다.
+
+### 최근 (v0.3.x)
+
+| 버전 | 요약 |
+|------|------|
+| **0.3.3** | 하이라이트 문구, 키워드 꼬리 필터, 팩트 매트릭스 중복 정리 |
+| **0.3.2** | 키워드 메시지 히트수, 지니·만/억 표기, 차트 리사이즈 |
+| **0.3.1** | ECharts 로드 순서 수정(빈 차트), 복붙·환영 문구 한국어 |
+| **0.3.0** | ECharts 섹션, 키워드 120, 2026 글래스 UI, Wrapped·잔디 개선 |
 
 ---
 
@@ -142,7 +150,7 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-> **버전:** `kcachat@0.1.4+`는 본체를 `kakaotalk-chat-analyzer@latest`로 매 실행 받습니다. 오프라인만 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.3.3`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
 
 전체 이름으로 실행해도 동일합니다:
 
@@ -248,7 +256,7 @@ npm test
 
 ## 문서 사이트 (GitHub Pages)
 
-랜딩 페이지(`docs/index.html`)는 **스트리밍 집계·리포트 UX·복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다.
+랜딩 페이지(`docs/index.html`)는 **v0.3.x 리포트 UX·ECharts·KR-WordRank** 요약과 **복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다.
 
 - **공개 URL:** [https://claudianus.github.io/kakaotalk-chat-analyzer/](https://claudianus.github.io/kakaotalk-chat-analyzer/)
 - **워크플로:** [`.github/workflows/pages.yml`](.github/workflows/pages.yml)
