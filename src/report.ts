@@ -685,6 +685,32 @@ export function renderReportHtml(data: ReportData): string {
       }
     })();
     </script>
+    <script>
+    (function () {
+      function openExternal(url) {
+        var opened = null;
+        try {
+          opened = window.open(url, "_blank", "noopener,noreferrer");
+        } catch (e) {}
+        if (opened) return;
+        try {
+          if (window.top && window.top !== window) {
+            window.top.location.href = url;
+            return;
+          }
+        } catch (e2) {}
+        window.location.href = url;
+      }
+      document.querySelectorAll("a[data-kca-external]").forEach(function (link) {
+        link.addEventListener("click", function (ev) {
+          var url = link.getAttribute("href");
+          if (!url || !/^https?:/i.test(url)) return;
+          ev.preventDefault();
+          openExternal(url);
+        });
+      });
+    })();
+    </script>
 
     <script type="application/json" id="report-data">${escapeJsonForHtml(data)}</script>
     <footer>${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
@@ -911,10 +937,10 @@ function renderSelfServeCallout(): string {
     <p>기본은 리포트를 만든 뒤 <strong>BrewPage에 자동 업로드</strong>해 공유 링크를 출력합니다. PC에만 저장하려면 <code>--local</code> 을 붙이세요(업로드 생략, <code>index.html</code> 만 생성).</p>
     <p>짧은 이름이 부담스럽다면: <code>npx kakaotalk-chat-analyzer@latest "./파일.csv"</code> · 로컬만: <code>… --local</code></p>
     <p class="links">
-      <a href="${gh}">GitHub 소스</a>
-      · <a href="${npmShort}">npm · kcachat</a>
-      · <a href="${npmFull}">npm · kakaotalk-chat-analyzer</a>
-      · <a href="${site}">소개 페이지</a>
+      ${externalLink(gh, "GitHub 소스")}
+      · ${externalLink(npmShort, "npm · kcachat")}
+      · ${externalLink(npmFull, "npm · kakaotalk-chat-analyzer")}
+      · ${externalLink(site, "소개 페이지")}
     </p>
   </section>`;
 }
@@ -1022,6 +1048,10 @@ function formatTimestamp(value: string): string {
   } catch {
     return value;
   }
+}
+
+function externalLink(href: string, label: string): string {
+  return `<a href="${escapeHtml(href)}" data-kca-external target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
 }
 
 function escapeHtml(value: string): string {

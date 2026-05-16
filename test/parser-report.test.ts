@@ -46,6 +46,12 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(html.includes("하이라이트"), true);
     assert.equal(html.includes("data-kca-jump"), true);
     assert.equal(html.includes("[data-kca-jump]"), true);
+    assert.equal(html.includes("data-kca-external"), true);
+    assert.equal(html.includes('target="_blank"'), true);
+    assert.match(
+      html,
+      /href="https:\/\/github\.com\/claudianus\/kakaotalk-chat-analyzer"[^>]*data-kca-external/,
+    );
     assert.equal(html.includes("hours-split"), true);
     assert.equal(html.includes("table-rank"), true);
     assert.equal(html.includes("본문 단어만"), true);
