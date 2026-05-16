@@ -1,9 +1,12 @@
 import { escapeHtml, formatNumber } from "./report-util.js";
-/** BrewPage 단일 HTML — CDN 차트 (오프라인은 CSS 폴백) */
+/** head: CDN preconnect만 (스크립트는 body 끝에서 동기 로드) */
 export const CHART_CDN_HEAD = `
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js" defer></script>
+`;
+/** body 끝: 차트 라이브러리 — defer 금지(인라인 init보다 반드시 먼저 실행) */
+export const CHART_CDN_BODY = `
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
 `;
 export const REPORT_VIZ_CSS = `
     .viz-hero {
@@ -183,8 +186,10 @@ function renderKeywordTable(items) {
 }
 export const CHARTS_INIT_SCRIPT = `
     (function () {
+      function run() {
       var dataEl = document.getElementById("kca-chart-data");
-      if (!dataEl || typeof echarts === "undefined") return;
+      if (!dataEl) return;
+      if (typeof echarts === "undefined") return;
       var data;
       try { data = JSON.parse(dataEl.textContent || "{}"); } catch (e) { return; }
 
@@ -206,9 +211,13 @@ export const CHARTS_INIT_SCRIPT = `
       function init(id, opt) {
         var el = document.getElementById(id);
         if (!el) return;
-        var chart = echarts.init(el, null, { renderer: "canvas" });
-        chart.setOption(opt);
-        window.addEventListener("resize", function () { chart.resize(); });
+        try {
+          var chart = echarts.init(el, null, { renderer: "canvas" });
+          chart.setOption(opt);
+          window.addEventListener("resize", function () { chart.resize(); });
+        } catch (err) {
+          console.error("[kca-chart]", id, err);
+        }
       }
 
       if (data.hourly && document.getElementById("chart-hours")) {
@@ -319,6 +328,19 @@ export const CHARTS_INIT_SCRIPT = `
             itemStyle: { borderColor: dark ? "#0d1117" : "#fff", gapWidth: 2 },
           }],
         }));
+      }
+      }
+      if (typeof echarts !== "undefined") {
+        run();
+      } else {
+        window.addEventListener("load", function () {
+          var tries = 0;
+          (function wait() {
+            if (typeof echarts !== "undefined") { run(); return; }
+            if (++tries > 120) return;
+            setTimeout(wait, 50);
+          })();
+        });
       }
     })();
 `;

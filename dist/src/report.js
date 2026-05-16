@@ -1,7 +1,7 @@
 import { resolveBubbleOverlaps } from "./bubble-layout.js";
 import { SYSTEM_NOTICE_LABELS } from "./system-notices.js";
 import { GH_CONTRIB_SCRIPT, STORY_CSS, buildOgDescription, renderStoryHeadline, renderStorySections, storyNavLinks, } from "./report-story.js";
-import { CHART_CDN_HEAD, CHARTS_INIT_SCRIPT, REPORT_VIZ_CSS, renderChartDeck, serializeChartPayload, } from "./report-charts.js";
+import { CHART_CDN_BODY, CHART_CDN_HEAD, CHARTS_INIT_SCRIPT, REPORT_VIZ_CSS, renderChartDeck, serializeChartPayload, } from "./report-charts.js";
 import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
 const FIVE_MIB = 5 * 1024 * 1024;
 export function renderReportHtml(data) {
@@ -798,7 +798,7 @@ export function renderReportHtml(data) {
 
     <section class="grid two" style="margin-bottom:14px">
       ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구를 본문과 분리해 집계합니다. 아래 막대는 일별 운영·유입 펄스예요.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
-      ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 동일 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
+      ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 똑같은 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
     </section>
     ${data.shopSearchTopics.length > 0
         ? `<section style="margin-bottom:14px">${panel("샵검색 키워드", "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(data.shopSearchTopics))}</section>`
@@ -912,7 +912,8 @@ export function renderReportHtml(data) {
     ${GH_CONTRIB_SCRIPT}
     </script>
     <script type="application/json" id="kca-chart-data">${serializeChartPayload(data)}</script>
-    <script defer>
+    ${CHART_CDN_BODY}
+    <script>
     ${CHARTS_INIT_SCRIPT}
     </script>
 

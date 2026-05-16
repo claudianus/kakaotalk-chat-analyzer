@@ -66,7 +66,7 @@ export interface RoomEventStats {
     hiddenSharePercent: number;
     kickSharePercent: number;
 }
-/** 동일 문구 반복(카피페asta·환영문 등) */
+/** 동일 문구 반복(복붙·환영문 등) */
 export interface RepeatedPhraseStat {
     label: string;
     count: number;

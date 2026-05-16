@@ -1,6 +1,6 @@
 const MAX_ENTRIES = 4000;
 const PRUNE_TO = 2500;
-/** 동일 본문 반복(환영문·카피페asta) — 상한 맵 */
+/** 동일 본문 반복(환영문·복붙 문구) — 상한 맵 */
 export class RepeatPhraseCounter {
     map = new Map();
     add(text) {

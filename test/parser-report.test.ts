@@ -91,6 +91,13 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(html.includes("hours-split"), true);
     assert.equal(html.includes("table-rank"), true);
     assert.equal(html.includes("KR-WordRank"), true);
+    assert.equal(html.includes('id="kca-chart-data"'), true);
+    assert.equal(html.includes('id="chart-kw-cloud"'), true);
+    const echartsPos = html.indexOf("echarts@5.6.0/dist/echarts.min.js");
+    const initPos = html.indexOf('getElementById("kca-chart-data")');
+    assert.ok(echartsPos > 0 && initPos > echartsPos, "echarts CDN must load before chart init");
+    assert.equal(html.includes("<script defer>\n    \n    (function () {\n      var dataEl"), false);
+    assert.equal(html.includes("카피페asta"), false);
     const photoKw = data.keywords.find((k) => k.label === "사진");
     assert.equal(photoKw, undefined);
     assert.equal(data.highlights.length > 0, true);

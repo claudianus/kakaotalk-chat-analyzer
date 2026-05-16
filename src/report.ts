@@ -18,6 +18,7 @@ import {
   storyNavLinks,
 } from "./report-story.js";
 import {
+  CHART_CDN_BODY,
   CHART_CDN_HEAD,
   CHARTS_INIT_SCRIPT,
   REPORT_VIZ_CSS,
@@ -826,7 +827,7 @@ export function renderReportHtml(data: ReportData): string {
 
     <section class="grid two" style="margin-bottom:14px">
       ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구를 본문과 분리해 집계합니다. 아래 막대는 일별 운영·유입 펄스예요.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
-      ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 동일 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
+      ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 똑같은 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
     </section>
     ${
       data.shopSearchTopics.length > 0
@@ -942,7 +943,8 @@ export function renderReportHtml(data: ReportData): string {
     ${GH_CONTRIB_SCRIPT}
     </script>
     <script type="application/json" id="kca-chart-data">${serializeChartPayload(data)}</script>
-    <script defer>
+    ${CHART_CDN_BODY}
+    <script>
     ${CHARTS_INIT_SCRIPT}
     </script>
 

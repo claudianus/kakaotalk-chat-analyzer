@@ -3,7 +3,7 @@ export type SystemNoticeKind = "join" | "leave" | "deleted" | "hidden" | "kick" 
 /** @deprecated */
 export type RoomEventKind = "join" | "leave";
 export declare const SYSTEM_NOTICE_KEYWORD_STOP: Set<string>;
-/** 오픈채팅 환영·규칙 카피페asta — 키워드·반복 문구에서 제외 */
+/** 오픈채팅 환영·규칙 복붙 문구 — 키워드·반복 문구에서 제외 */
 export declare function isOpenChatBoilerplate(text: string): boolean;
 /** @deprecated */
 export declare const ROOM_EVENT_KEYWORD_STOP: Set<string>;

@@ -854,7 +854,7 @@ function buildHighlights(input) {
         out.push(`**ㅋㅋ만** 보낸 리액션 메시지는 **${input.pureLaughMessages}**건이에요.`);
     }
     if (input.repeatedPhraseCount >= 10) {
-        out.push(`같은 문장이 **${input.repeatedPhraseCount}회** 반복된 카피페asta급 문구도 있어요.`);
+        out.push(`똑같은 문장이 **${input.repeatedPhraseCount}회** 반복된 복붙·환영 문구도 있어요.`);
     }
     if (input.burstDays.length > 0) {
         const top = input.burstDays[0];

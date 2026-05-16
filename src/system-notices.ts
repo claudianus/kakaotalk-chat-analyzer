@@ -49,7 +49,7 @@ export const SYSTEM_NOTICE_KEYWORD_STOP = new Set([
 const OPEN_CHAT_WELCOME_RE = /반가워[!]?\s*닉\s*옆에\s*정치성향/u;
 const OPEN_CHAT_RULE_RE = /(초중반\s*가리|강퇴\s*기준|비속어|정치성향\s*라벨|초중반가려)/u;
 
-/** 오픈채팅 환영·규칙 카피페asta — 키워드·반복 문구에서 제외 */
+/** 오픈채팅 환영·규칙 복붙 문구 — 키워드·반복 문구에서 제외 */
 export function isOpenChatBoilerplate(text: string): boolean {
   const t = text.trim().replace(/\s+/g, " ");
   if (t.length < 24) return false;
