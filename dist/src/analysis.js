@@ -1,4 +1,5 @@
 import { ReportAggregator } from "./aggregator.js";
+import { initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker } from "./analyze-pool.js";
 import { streamKakaoExport } from "./stream-parser.js";
@@ -18,6 +19,7 @@ export function buildReportData(result, options) {
     });
 }
 export async function buildReportFromExportSync(filePath, options) {
+    await initKiwiRuntime();
     const privacy = options?.privacy ?? "public-masked";
     const top = options?.top ?? DEFAULT_TOP;
     const agg = new ReportAggregator(filePath, privacy, top);

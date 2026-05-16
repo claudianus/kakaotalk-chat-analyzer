@@ -1300,7 +1300,7 @@ function renderReactionsPanel(data) {
     return parts.join("");
 }
 function renderKeywordSnapshot(items) {
-    const note = '<p class="kw-note"><strong>TF-IDF</strong>로 본문 어절·짧은 구를 뽑고, 해시태그·슬랭을 보조로 더합니다. 막대·표의 숫자는 <strong>해당 표현이 들어간 메시지 수</strong>예요. 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>';
+    const note = '<p class="kw-note"><strong>Kiwi</strong> 형태소·<strong>TF-IDF</strong>로 본문 명사·구를 뽑고, 해시태그·슬랭을 보조로 더합니다. 막대·표의 숫자는 <strong>해당 표현이 들어간 메시지 수</strong>예요. 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>';
     if (items.length === 0) {
         return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
     }

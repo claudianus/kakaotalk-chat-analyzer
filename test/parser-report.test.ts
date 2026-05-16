@@ -90,7 +90,7 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(streamed.summary.participants, data.summary.participants);
     assert.equal(html.includes("hours-split"), true);
     assert.equal(html.includes("table-rank"), true);
-    assert.equal(html.includes("TF-IDF"), true);
+    assert.equal(html.includes("Kiwi"), true);
     assert.equal(html.includes('id="kca-chart-data"'), true);
     assert.equal(html.includes('id="chart-kw-cloud"'), true);
     const echartsPos = html.indexOf("echarts@5.6.0/dist/echarts.min.js");

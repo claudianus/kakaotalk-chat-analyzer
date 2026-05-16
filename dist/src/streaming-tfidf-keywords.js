@@ -1,33 +1,15 @@
 /**
- * 스트리밍 TF-IDF + 인접 2-gram — 카톡 짧은 메시지에 맞춘 키워드 추출
+ * 스트리밍 TF-IDF + 인접 2-gram (Kiwi/휴리스틱 토큰)
  */
+import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { adaptiveMinCount, } from "./keyword-rank.js";
-import { normalizeKoreanText } from "./korean-normalize.js";
 const MAX_UNIGRAM_KEYS = 36_000;
 const MAX_BIGRAM_KEYS = 22_000;
 const PRUNE_UNIGRAM_TO = 28_000;
 const PRUNE_BIGRAM_TO = 16_000;
-const MAX_TOKEN_LEN = 32;
 const BIGRAM_SCORE_BOOST = 1.12;
 export { adaptiveMinCount };
-function normalizeToken(token) {
-    return /^[A-Za-z0-9_+-]+$/.test(token) ? token.toLowerCase() : token.trim();
-}
-function tokenize(doc) {
-    const out = [];
-    for (const raw of doc.split(/\s+/)) {
-        if (!raw)
-            continue;
-        const t = normalizeToken(raw);
-        if (t.length < 2 || t.length > MAX_TOKEN_LEN)
-            continue;
-        if (!/[가-힣A-Za-z]/.test(t))
-            continue;
-        out.push(t);
-    }
-    return out;
-}
 function canBigramPair(a, b) {
     if (a.length < 2 || b.length < 2)
         return false;
@@ -39,6 +21,25 @@ function canBigramPair(a, b) {
 }
 function tfidfScore(tf, df, corpusMessages) {
     return Math.log1p(tf) * Math.log((corpusMessages + 1) / (df + 0.5));
+}
+function pmiMultiplier(label, df, N, docFreq) {
+    if (!label.includes(" "))
+        return 1;
+    const parts = label.split(" ");
+    if (parts.length !== 2)
+        return 1;
+    const [a, b] = parts;
+    const dfA = docFreq.get(a) ?? 0;
+    const dfB = docFreq.get(b) ?? 0;
+    if (dfA < 2 || dfB < 2 || df < 2)
+        return 1;
+    const pAb = df / N;
+    const pA = dfA / N;
+    const pB = dfB / N;
+    const pmi = Math.log2(pAb / (pA * pB) + 1e-12);
+    if (pmi < 4)
+        return 1;
+    return 1 + Math.min(0.4, (pmi - 4) * 0.05);
 }
 function passesFilters(label, df, minDf, stop) {
     if (df < minDf)
@@ -55,6 +56,29 @@ function passesFilters(label, df, minDf, stop) {
     }
     return true;
 }
+function demoteSubsumedByPhrases(items) {
+    const phrases = items.filter((i) => i.label.includes(" "));
+    if (phrases.length === 0)
+        return items;
+    const parts = new Set();
+    for (const p of phrases) {
+        for (const w of p.label.split(" "))
+            parts.add(w);
+    }
+    const phraseScore = new Map(phrases.map((p) => [p.label, p.score]));
+    return items.filter((item) => {
+        if (item.label.includes(" ") || !parts.has(item.label))
+            return true;
+        for (const ph of phrases) {
+            if (!ph.label.split(" ").includes(item.label))
+                continue;
+            const ps = phraseScore.get(ph.label) ?? 0;
+            if (ps >= item.score * 0.82)
+                return false;
+        }
+        return true;
+    });
+}
 /** 메시지 스트림 → TF-IDF 어절·2-gram 키워드 */
 export class StreamingTfidfKeywords {
     documents = 0;
@@ -63,13 +87,10 @@ export class StreamingTfidfKeywords {
     bigramTf = new Map();
     bigramDf = new Map();
     addDocument(raw) {
-        const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
-        if (!doc)
-            return;
-        this.documents += 1;
-        const tokens = tokenize(doc);
+        const tokens = tokenizeForKeywords(raw);
         if (tokens.length === 0)
             return;
+        this.documents += 1;
         const seen = new Set();
         for (const t of tokens) {
             this.termFreq.set(t, (this.termFreq.get(t) ?? 0) + 1);
@@ -113,18 +134,14 @@ export class StreamingTfidfKeywords {
             if (!passesFilters(label, df, bigramMinDf, stop))
                 continue;
             const tf = this.bigramTf.get(label) ?? 0;
-            items.push({
-                label,
-                score: tfidfScore(tf, df, N) * BIGRAM_SCORE_BOOST,
-                messageHits: df,
-            });
+            const base = tfidfScore(tf, df, N) * BIGRAM_SCORE_BOOST * pmiMultiplier(label, df, N, this.docFreq);
+            items.push({ label, score: base, messageHits: df });
         }
-        return items
-            .sort((a, b) => b.score - a.score ||
+        const ranked = items.sort((a, b) => b.score - a.score ||
             b.messageHits - a.messageHits ||
             b.label.length - a.label.length ||
-            a.label.localeCompare(b.label))
-            .slice(0, limit);
+            a.label.localeCompare(b.label));
+        return demoteSubsumedByPhrases(ranked).slice(0, limit);
     }
     prunePair(dfMap, tfMap, keep) {
         const kept = [...dfMap.entries()]
