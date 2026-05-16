@@ -59,14 +59,12 @@
     nav a { color: var(--muted); }
     nav a:hover { color: var(--text); text-decoration: none; }
     .hero {
-      padding: 56px 0 72px;
-      display: grid;
-      gap: 28px;
-      grid-template-columns: 1.25fr 0.95fr;
-      align-items: start;
-    }
-    @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr; padding: 36px 0 48px; }
+      padding: 40px 0 52px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      align-items: flex-start;
+      max-width: 720px;
     }
     h1 {
       margin: 0 0 16px;
@@ -125,17 +123,49 @@
       padding: 22px;
     }
     .panel h3 { margin: 0 0 12px; font-size: 15px; color: var(--muted); font-weight: 600; }
-    pre {
+    .cmd-card {
+      width: 100%;
+      max-width: 28rem;
+    }
+    .cmd-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .cmd-row {
+      display: grid;
+      grid-template-columns: 3.75rem minmax(0, 1fr);
+      gap: 10px 12px;
+      align-items: start;
+    }
+    .cmd-row .cmd-tag {
+      font-size: 12px;
+      font-weight: 750;
+      color: var(--accent);
+      padding-top: 4px;
+      white-space: nowrap;
+    }
+    .cmd-row code {
+      display: block;
       margin: 0;
-      padding: 16px;
-      border-radius: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
       background: rgba(0, 0, 0, 0.45);
       border: 1px solid rgba(255,255,255,0.08);
-      overflow-x: auto;
-      font-size: 13px;
-      line-height: 1.55;
+      font-size: 12px;
+      line-height: 1.45;
       color: #d6e2f0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
+    .cmd-foot {
+      margin: 14px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .cmd-foot a { font-weight: 600; }
     .grid {
       display: grid;
       gap: 16px;
@@ -188,28 +218,31 @@
           원문 메시지와 전체 URL은 HTML에 남기지 않습니다.
         </p>
         <div class="pill-row">
-          <span class="pill">npx 한 줄</span>
+          <span class="pill">npx</span>
           <span class="pill">Node.js 22+</span>
           <span class="pill">MIT License</span>
         </div>
         <div class="cta-row">
           <a class="btn btn-primary" href="https://github.com/claudianus/kakaotalk-chat-analyzer">저장소 바로가기</a>
-          <a class="btn btn-ghost" href="#start">설치 · 사용법</a>
+          <a class="btn btn-ghost" href="#start">더 알아보기</a>
         </div>
       </div>
-      <div class="panel" aria-label="예시 명령">
-        <h3>npx 한 줄로 끝</h3>
-        <pre><code># 로컬에만 리포트 (./report/index.html)
-npx -y --package=kakaotalk-chat-analyzer@latest kca ./KakaoTalk_Chat_....csv --local -o ./report
-
-# 리포트 생성 + BrewPage 임시 업로드
-npx -y --package=kakaotalk-chat-analyzer@latest kca ./KakaoTalk_Chat_....csv
-
-# GitHub 소스 직접 (dist 포함 저장소)
-npx -y github:claudianus/kakaotalk-chat-analyzer kca ./chat.csv --local
-
-# 구조 점검
-npx -y --package=kakaotalk-chat-analyzer@latest kca inspect ./KakaoTalk_Chat_....csv</code></pre>
+      <div class="panel cmd-card" aria-label="실행 예시">
+        <h3>실행 (복사)</h3>
+        <div class="cmd-rows">
+          <div class="cmd-row">
+            <span class="cmd-tag">로컬</span>
+            <code>npx kakaotalk-chat-analyzer@latest ./보내기.csv --local</code>
+          </div>
+          <div class="cmd-row">
+            <span class="cmd-tag">업로드</span>
+            <code>npx kakaotalk-chat-analyzer@latest ./보내기.csv</code>
+          </div>
+        </div>
+        <p class="cmd-foot">
+          출력 폴더는 기본 <code style="font-size:11px;color:var(--accent)">.tmp/kca-report</code> · <code style="font-size:11px;color:var(--accent)">-o ./report</code> 로 바꿀 수 있어요.
+          <a href="https://github.com/claudianus/kakaotalk-chat-analyzer#readme">inspect·GitHub 설치 등 → README</a>
+        </p>
       </div>
     </section>
 

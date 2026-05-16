@@ -51,22 +51,22 @@
 
 npm에 패키지가 등록되어 있으면 아래처럼 실행할 수 있습니다(아직 레지스트리에 없다면 **GitHub 줄**을 쓰면 됩니다).
 
-**로컬에만** 리포트를 만들고 싶다면(`./report/index.html`):
+**로컬에만** (`--local`, 출력은 기본 `.tmp/kca-report`, `-o ./report` 로 변경 가능):
 
 ```bash
-npx -y --package=kakaotalk-chat-analyzer@latest kca ./KakaoTalk_Chat_....csv --local -o ./report
+npx kakaotalk-chat-analyzer@latest ./KakaoTalk_Chat_....csv --local
 ```
 
-**리포트 생성 + BrewPage 임시 업로드**까지 한 번에:
+**리포트 + BrewPage 업로드**:
 
 ```bash
-npx -y --package=kakaotalk-chat-analyzer@latest kca ./KakaoTalk_Chat_....csv
+npx kakaotalk-chat-analyzer@latest ./KakaoTalk_Chat_....csv
 ```
 
-GitHub 소스에서 직접 실행(저장소에 컴파일된 `dist` 포함):
+GitHub 소스에서 직접:
 
 ```bash
-npx -y github:claudianus/kakaotalk-chat-analyzer kca ./KakaoTalk_Chat_....csv --local -o ./report
+npx github:claudianus/kakaotalk-chat-analyzer ./KakaoTalk_Chat_....csv --local
 ```
 
 ### 로컬 클론 개발

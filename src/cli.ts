@@ -26,7 +26,10 @@ program.addHelpText(
   kca <보내기.csv>                 HTML 리포트 생성 후 BrewPage에 업로드
   kca <보내기.csv> --local         업로드 없이 로컬에만 저장 (-o 로 폴더 지정)
   kca <보내기.csv> --dry-run       업로드 생략(미리 생성만)
-  npx -y --package=kakaotalk-chat-analyzer@latest kca <보내기.csv> --local
+
+npx 예시:
+  npx kakaotalk-chat-analyzer@latest <보내기.csv> --local
+  npx kakaotalk-chat-analyzer@latest <보내기.csv>
 `,
 );
 
