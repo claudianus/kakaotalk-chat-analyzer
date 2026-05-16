@@ -1,0 +1,32 @@
+src/report.ts
+  s_d404882750412e::t_73f06c7b800d96 688-713
+  s_d404882750412e::t_8eab22ba9ef893 940-943
+  s_d404882750412e::t_0dbe3f855bc8dd 1053-1056
+kcachat/package.json
+  s_d404882750412e::t_db244c6ae1faf4 3
+package.json
+  s_d404882750412e::t_62e69f9844040f 3
+dist/src/report.js
+  s_d404882750412e::t_15d21ea1daaaff 683-708,919-922,1020-1021
+test/parser-report.test.ts
+  s_d404882750412e::t_8be4510879a74d 51-54
+  s_d404882750412e::t_0c125ae69f374a 49-50
+dist/src/report.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "70ae94447824495e772190badead4f0dc3f987a9",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
