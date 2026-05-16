@@ -95,5 +95,7 @@ test("buildReportStory produces wrapped cards and headline", () => {
   assert.equal(story.personas.length, 2);
   assert.ok(story.chapters.length >= 2);
   assert.ok(story.calendarWeeks.length > 0);
+  assert.equal(story.calendarTotalMessages, 100);
+  assert.ok(story.calendarMonthLabels.some((m) => m.label === "May"));
   assert.ok(story.tone.laughPer100 > 0);
 });

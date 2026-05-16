@@ -114,42 +114,205 @@ export const STORY_CSS = `
     .chapter-meta { font-size: 13px; line-height: 1.45; color: var(--ink); }
     .chapter-meta small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
     .chapter-stat { text-align: right; font-size: 13px; font-weight: 750; color: var(--muted); font-variant-numeric: tabular-nums; }
-    .cal-wrap { width: 100%; max-width: 100%; padding-bottom: 4px; }
-    .cal-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 4px;
-      align-items: flex-start;
-      width: 100%;
+
+    /* GitHub contribution graph (잔디) */
+    :root {
+      --gh-cell-size: 11px;
+      --gh-cell-gap: 3px;
+      --gh-cell-0: #ebedf0;
+      --gh-cell-1: #9be9a8;
+      --gh-cell-2: #40c463;
+      --gh-cell-3: #30a14e;
+      --gh-cell-4: #216e39;
     }
-    .cal-week { display: grid; grid-template-rows: repeat(7, minmax(0, 1fr)); gap: 2px; }
-    .cal-cell {
-      width: clamp(8px, 2.2vw, 12px);
-      height: clamp(8px, 2.2vw, 12px);
-      border-radius: 3px;
-      border: 1px solid transparent;
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --gh-cell-0: #161b22;
+        --gh-cell-1: #0e4429;
+        --gh-cell-2: #006d32;
+        --gh-cell-3: #26a641;
+        --gh-cell-4: #39d353;
+      }
+    }
+    :root[data-theme="dark"] {
+      --gh-cell-0: #161b22;
+      --gh-cell-1: #0e4429;
+      --gh-cell-2: #006d32;
+      --gh-cell-3: #26a641;
+      --gh-cell-4: #39d353;
+    }
+    :root[data-theme="light"] {
+      --gh-cell-0: #ebedf0;
+      --gh-cell-1: #9be9a8;
+      --gh-cell-2: #40c463;
+      --gh-cell-3: #30a14e;
+      --gh-cell-4: #216e39;
+    }
+    .gh-contrib {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 18px 14px;
+      background: var(--panel);
+    }
+    .gh-contrib-summary {
+      margin: 0 0 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+    .gh-contrib-summary strong {
+      font-weight: 600;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    .gh-contrib-span {
       display: block;
-    }
-    .cal-cell[data-level="0"] { background: var(--bar-bg); border-color: var(--line); }
-    .cal-cell[data-level="1"] { background: rgba(15, 107, 92, 0.25); }
-    .cal-cell[data-level="2"] { background: rgba(15, 107, 92, 0.45); }
-    .cal-cell[data-level="3"] { background: rgba(15, 107, 92, 0.65); }
-    .cal-cell[data-level="4"] { background: var(--accent); }
-    :root[data-theme="dark"] .cal-cell[data-level="1"] { background: rgba(62, 232, 197, 0.2); }
-    :root[data-theme="dark"] .cal-cell[data-level="2"] { background: rgba(62, 232, 197, 0.35); }
-    :root[data-theme="dark"] .cal-cell[data-level="3"] { background: rgba(62, 232, 197, 0.55); }
-    .cal-legend {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
+      margin-top: 4px;
       font-size: 11px;
       color: var(--muted);
     }
-    .cal-legend i { display: inline-flex; gap: 2px; align-items: center; }
-    .cal-legend span { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+    .gh-cal-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .gh-cal-graph {
+      display: grid;
+      grid-template-areas:
+        ". months"
+        "days weeks";
+      grid-template-columns: max-content max-content;
+      column-gap: 8px;
+      row-gap: 4px;
+      width: max-content;
+      min-width: min(100%, max-content);
+    }
+    .gh-cal-days {
+      grid-area: days;
+      display: grid;
+      grid-template-rows: repeat(7, var(--gh-cell-size));
+      gap: var(--gh-cell-gap);
+      align-items: center;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 9px;
+      line-height: 1;
+      color: var(--muted);
+      padding-right: 2px;
+    }
+    .gh-cal-days span {
+      height: var(--gh-cell-size);
+      display: flex;
+      align-items: center;
+    }
+    .gh-cal-days span:empty { visibility: hidden; }
+    .gh-cal-months {
+      grid-area: months;
+      display: grid;
+      grid-template-columns: repeat(var(--gh-weeks), var(--gh-cell-size));
+      gap: var(--gh-cell-gap);
+      height: 14px;
+      align-items: end;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 9px;
+      line-height: 1;
+      color: var(--muted);
+    }
+    .gh-cal-month {
+      grid-column: span 1;
+      white-space: nowrap;
+      overflow: visible;
+    }
+    .gh-cal-weeks {
+      grid-area: weeks;
+      display: grid;
+      grid-template-columns: repeat(var(--gh-weeks), var(--gh-cell-size));
+      grid-template-rows: repeat(7, var(--gh-cell-size));
+      gap: var(--gh-cell-gap);
+      grid-auto-flow: column;
+    }
+    .gh-cal-cell {
+      width: var(--gh-cell-size);
+      height: var(--gh-cell-size);
+      border-radius: 2px;
+      background: var(--gh-cell-0);
+      display: block;
+    }
+    .gh-cal-cell[data-level="1"] { background: var(--gh-cell-1); }
+    .gh-cal-cell[data-level="2"] { background: var(--gh-cell-2); }
+    .gh-cal-cell[data-level="3"] { background: var(--gh-cell-3); }
+    .gh-cal-cell[data-level="4"] { background: var(--gh-cell-4); }
+    .gh-cal-legend {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-top: 12px;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .gh-cal-legend-scale {
+      display: inline-flex;
+      gap: var(--gh-cell-gap);
+      align-items: center;
+      margin: 0 2px;
+    }
+    .gh-cal-legend-scale i {
+      width: var(--gh-cell-size);
+      height: var(--gh-cell-size);
+      border-radius: 2px;
+      display: block;
+      font-style: normal;
+      background: var(--gh-cell-0);
+    }
+    .gh-cal-legend-scale i[data-level="1"] { background: var(--gh-cell-1); }
+    .gh-cal-legend-scale i[data-level="2"] { background: var(--gh-cell-2); }
+    .gh-cal-legend-scale i[data-level="3"] { background: var(--gh-cell-3); }
+    .gh-cal-legend-scale i[data-level="4"] { background: var(--gh-cell-4); }
 
 `;
+function renderGitHubCalendar(data) {
+    const s = data.story;
+    const weekCount = s.calendarWeeks.length;
+    if (weekCount === 0)
+        return "";
+    const monthCells = Array.from({ length: weekCount }, (_, wi) => {
+        const hit = s.calendarMonthLabels.find((m) => m.weekIndex === wi);
+        return `<span class="gh-cal-month">${hit ? escapeHtml(hit.label) : ""}</span>`;
+    }).join("");
+    const dayLabels = ["", "Mon", "", "Wed", "", "Fri", ""]
+        .map((d) => `<span>${d}</span>`)
+        .join("");
+    const cells = s.calendarWeeks
+        .flatMap((w) => w.cells)
+        .map((c) => {
+        const title = c.date && c.count > 0 ? `${c.date}: ${formatNumber(c.count)}건` : c.date ? c.date : "";
+        return `<span class="gh-cal-cell" data-level="${c.level}"${title ? ` title="${escapeHtml(title)}"` : ""}></span>`;
+    })
+        .join("");
+    const summary = s.calendarTotalMessages > 0
+        ? `<p class="gh-contrib-summary"><strong>${formatNumber(s.calendarTotalMessages)}</strong> messages in this period<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`
+        : `<p class="gh-contrib-summary">No activity in this period<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`;
+    return `<div class="gh-contrib">
+    ${summary}
+    <div class="gh-cal-scroll">
+      <div class="gh-cal-graph" style="--gh-weeks:${weekCount}" role="img" aria-label="일별 활동 히트맵, GitHub 잔디 형식">
+        <div class="gh-cal-months" aria-hidden="true">${monthCells}</div>
+        <div class="gh-cal-days" aria-hidden="true">${dayLabels}</div>
+        <div class="gh-cal-weeks">${cells}</div>
+      </div>
+    </div>
+    <footer class="gh-cal-legend" aria-hidden="true">
+      <span>Less</span>
+      <span class="gh-cal-legend-scale">
+        <i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i>
+      </span>
+      <span>More</span>
+    </footer>
+  </div>`;
+}
 export function renderStorySections(data) {
     const s = data.story;
     const parts = [];
@@ -200,32 +363,10 @@ export function renderStorySections(data) {
     </section>`);
     }
     if (s.calendarWeeks.length > 0) {
-        parts.push(`<section id="s-calendar" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.05s">
-      <h2>연간 활동 그리드</h2>
-      <p class="chart-hint">GitHub 잔디처럼 <strong>날짜별 메시지 밀도</strong>예요. ${escapeHtml(s.calendarSpanLabel)}</p>
-      <div class="cal-wrap">
-        <div class="cal-grid" role="img" aria-label="일별 활동 히트맵">
-          ${s.calendarWeeks
-            .map((w) => `<div class="cal-week">
-            ${w.cells
-            .map((c) => {
-            const title = c.date && c.count > 0
-                ? `${c.date}: ${c.count}건`
-                : c.date
-                    ? c.date
-                    : "";
-            return `<span class="cal-cell" data-level="${c.level}"${title ? ` title="${escapeHtml(title)}"` : ""}></span>`;
-        })
-            .join("")}
-          </div>`)
-            .join("")}
-        </div>
-      </div>
-      <div class="cal-legend" aria-hidden="true">
-        <span>적음</span>
-        <i><span style="background:var(--bar-bg);border:1px solid var(--line)"></span><span style="background:rgba(15,107,92,0.35)"></span><span style="background:rgba(15,107,92,0.65)"></span><span style="background:var(--accent)"></span></i>
-        <span>많음</span>
-      </div>
+        parts.push(`<section id="s-calendar" class="anim-enter" style="margin-bottom:14px;--enter-delay:0.05s">
+      <h2 style="margin:0 0 6px;font-size:20px;font-weight:800;letter-spacing:-0.02em">연간 활동 그리드</h2>
+      <p class="chart-hint" style="margin-bottom:12px">GitHub 프로필 <strong>Contributions</strong>와 같은 레이아웃·색 단계예요. 셀에 마우스를 올리면 날짜와 건수를 볼 수 있습니다.</p>
+      ${renderGitHubCalendar(data)}
     </section>`);
     }
     return parts.join("\n");

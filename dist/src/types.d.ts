@@ -93,6 +93,11 @@ export interface CalendarCell {
 export interface CalendarWeek {
     cells: CalendarCell[];
 }
+/** 연간 그리드 상단 월 라벨(주 열 인덱스) */
+export interface CalendarMonthLabel {
+    weekIndex: number;
+    label: string;
+}
 export interface ConversationTone {
     laughMessages: number;
     laughPer100: number;
@@ -107,6 +112,9 @@ export interface ReportStory {
     chapters: StoryChapter[];
     calendarWeeks: CalendarWeek[];
     calendarSpanLabel: string;
+    /** 그리드 기간 내 메시지 합(잔디 셀 합) */
+    calendarTotalMessages: number;
+    calendarMonthLabels: CalendarMonthLabel[];
     tone: ConversationTone;
 }
 /** 고급 집계·행동 패턴 지표(원문 미저장, 통계 전용) */

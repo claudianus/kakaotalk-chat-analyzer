@@ -73,9 +73,12 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     );
     assert.equal(html.includes("window.top.location"), false);
     assert.equal(html.includes("report-data"), false);
+    assert.equal(html.includes("gh-contrib"), true);
     assert.equal(html.includes('id="s-wrapped"'), true);
     assert.equal(html.includes("wrapped-card"), true);
-    assert.equal(html.includes("overflow-x: auto"), false);
+    assert.equal(html.includes("overflow-x: clip"), true);
+    assert.equal(html.includes("gh-cal-scroll"), true);
+    assert.match(html, /\.gh-cal-scroll\s*\{[^}]*overflow-x:\s*auto/);
     assert.equal(html.includes("bubble-node"), true);
     assert.equal(html.includes("sc-plot-list"), true);
     assert.equal(html.includes("persona-chip"), true);

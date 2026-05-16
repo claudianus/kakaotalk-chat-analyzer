@@ -1,10 +1,11 @@
+const GH_MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const CHAPTER_GAP_DAYS = 7;
 export function buildReportStory(input) {
     const tone = buildTone(input.totalMessages, input.laughMessages, input.shortMessages, input.emojiMessages);
     const wrapped = buildWrappedCards(input, tone);
     const personas = buildPersonas(input.participants, input.laughBySender, input.shortBySender);
     const chapters = buildChapters(input.daily, input.dailySenderCounts, input.senderAliases, input.totalMessages);
-    const { weeks, spanLabel } = buildCalendarGrid(input.daily);
+    const { weeks, spanLabel, totalMessages, monthLabels } = buildCalendarGrid(input.daily);
     const headline = buildHeadline(input);
     return {
         headline,
@@ -13,6 +14,8 @@ export function buildReportStory(input) {
         chapters,
         calendarWeeks: weeks,
         calendarSpanLabel: spanLabel,
+        calendarTotalMessages: totalMessages,
+        calendarMonthLabels: monthLabels,
         tone,
     };
 }
@@ -249,15 +252,13 @@ function buildChapters(daily, dailySenderCounts, senderAliases, totalMessages) {
 }
 function buildCalendarGrid(daily) {
     if (daily.length === 0) {
-        return { weeks: [], spanLabel: "" };
+        return { weeks: [], spanLabel: "", totalMessages: 0, monthLabels: [] };
     }
     const map = new Map(daily.map((d) => [d.date, d.count]));
     const sorted = [...map.keys()].sort();
     const first = sorted[0];
     const last = sorted[sorted.length - 1];
-    let max = 1;
-    for (const c of map.values())
-        max = Math.max(max, c);
+    let totalMessages = 0;
     const start = new Date(`${first}T12:00:00Z`);
     const end = new Date(`${last}T12:00:00Z`);
     const padStart = start.getUTCDay();
@@ -265,6 +266,7 @@ function buildCalendarGrid(daily) {
     cursor.setUTCDate(cursor.getUTCDate() - padStart);
     const weeks = [];
     let week = [];
+    const levelThresholds = buildContributionLevelThresholds([...map.values()]);
     while (cursor.getTime() <= end.getTime() + 6 * 86_400_000) {
         const y = cursor.getUTCFullYear();
         const m = pad2(cursor.getUTCMonth() + 1);
@@ -272,10 +274,12 @@ function buildCalendarGrid(daily) {
         const key = `${y}-${m}-${d}`;
         const inRange = key >= first && key <= last;
         const count = inRange ? (map.get(key) ?? 0) : 0;
+        if (inRange && count > 0)
+            totalMessages += count;
         week.push({
             date: inRange ? key : null,
             count,
-            level: inRange && count > 0 ? levelFromCount(count, max) : 0,
+            level: inRange && count > 0 ? levelFromCount(count, levelThresholds) : 0,
         });
         if (week.length === 7) {
             weeks.push({ cells: week });
@@ -293,19 +297,50 @@ function buildCalendarGrid(daily) {
     return {
         weeks,
         spanLabel: `${first} ~ ${last}`,
+        totalMessages,
+        monthLabels: buildMonthLabels(weeks),
     };
 }
-function levelFromCount(count, max) {
+/** GitHub 잔디와 같이 활동 분포 사분위로 4단계 + 빈 칸 */
+function buildContributionLevelThresholds(counts) {
+    const positive = counts.filter((c) => c > 0).sort((a, b) => a - b);
+    if (positive.length === 0)
+        return [];
+    if (positive.length === 1)
+        return [positive[0]];
+    const pick = (p) => positive[Math.min(positive.length - 1, Math.max(0, Math.ceil(p * positive.length) - 1))];
+    const t1 = pick(0.25);
+    const t2 = pick(0.5);
+    const t3 = pick(0.75);
+    const max = positive[positive.length - 1];
+    return [...new Set([t1, t2, t3, max])].sort((a, b) => a - b);
+}
+function levelFromCount(count, thresholds) {
     if (count <= 0)
         return 0;
-    const r = count / max;
-    if (r >= 0.85)
-        return 4;
-    if (r >= 0.55)
-        return 3;
-    if (r >= 0.3)
-        return 2;
-    return 1;
+    if (thresholds.length === 0)
+        return 1;
+    let level = 0;
+    for (const t of thresholds) {
+        if (count >= t)
+            level += 1;
+    }
+    return Math.min(4, level);
+}
+function buildMonthLabels(weeks) {
+    const labels = [];
+    let lastMonth = -1;
+    for (let wi = 0; wi < weeks.length; wi++) {
+        const firstInWeek = weeks[wi].cells.find((c) => c.date);
+        if (!firstInWeek?.date)
+            continue;
+        const month = Number.parseInt(firstInWeek.date.slice(5, 7), 10) - 1;
+        if (month !== lastMonth && month >= 0 && month < 12) {
+            labels.push({ weekIndex: wi, label: GH_MONTH_SHORT[month] });
+            lastMonth = month;
+        }
+    }
+    return labels;
 }
 function dayDiff(a, b) {
     const ta = new Date(`${a}T12:00:00Z`).getTime();
