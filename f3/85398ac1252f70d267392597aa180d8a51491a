@@ -1,0 +1,50 @@
+src/korean-stopwords.ts
+  s_d404882750412e::t_a47e4051ea9594 212-213
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/keyword-quality.js
+  s_d404882750412e::t_565667d5ffda6b 2-32,41-42,49-51
+dist/src/report.js
+  s_d404882750412e::t_565667d5ffda6b 961-971,976
+src/report.ts
+  s_d404882750412e::t_beee2381089c31 997-1002,1005-1008
+  s_d404882750412e::t_96062250003bee 1003-1004,1013
+dist/src/report.js.map
+  ai_agent 1
+dist/src/korean-stopwords.js.map
+  ai_agent 1
+dist/src/keyword-quality.js.map
+  ai_agent 1
+test/keyword-quality.test.ts
+  s_d404882750412e::t_cff4be2668c2e6 10-13
+dist/src/korean-stopwords.js
+  s_d404882750412e::t_565667d5ffda6b 212-213
+src/aggregator.ts
+  s_d404882750412e::t_eb617d3344216b 942
+dist/src/aggregator.js
+  s_d404882750412e::t_565667d5ffda6b 803
+package.json
+  s_d404882750412e::t_0ed39d73442758 3
+src/keyword-quality.ts
+  s_d404882750412e::t_ba0dcc1b36a952 2-34,40,44
+  s_d404882750412e::t_0b8b2e0e8fb058 45
+kcachat/package.json
+  s_d404882750412e::t_bdb6849acddd33 15
+  s_d404882750412e::t_c5c507128cda8b 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "f385398ac1252f70d267392597aa180d8a51491a",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
