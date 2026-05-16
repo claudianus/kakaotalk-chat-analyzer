@@ -1,0 +1,85 @@
+dist/src/streaming-tfidf-keywords.js
+  s_d404882750412e::t_a41f928a80c9b8 2,4,25-43,59-81,90,93,137-138,140,143-144
+kcachat/package.json
+  s_d404882750412e::t_0734514e5eccce 15
+  s_d404882750412e::t_364c2686a1c265 3
+dist/src/kiwi-runtime.js
+  s_d404882750412e::t_a41f928a80c9b8 1-154,157-172
+  s_d404882750412e::t_8b1277c616fcbc 155-156
+kcachat/README.md
+  s_d404882750412e::t_6a1cc0c40daf0e 12
+src/kiwi-runtime.ts
+  s_d404882750412e::t_eda62e84292420 1
+  s_d404882750412e::t_89e5c8d471595c 168
+  s_d404882750412e::t_685141e90a8627 2-167,169-183
+dist/src/analysis.js.map
+  ai_agent 1
+docs/index.html
+  s_d404882750412e::t_0385807d4971d1 6,318,395
+src/report-charts.ts
+  s_d404882750412e::t_363bdb76032c65 160
+test/parser-report.test.ts
+  s_d404882750412e::t_890550f2b7627a 93
+dist/src/kiwi-runtime.d.ts
+  s_d404882750412e::t_a41f928a80c9b8 1-10
+src/analysis.ts
+  s_d404882750412e::t_8dd9d6575c26a0 2
+  s_d404882750412e::t_b94b9d5cbc8845 32
+src/keyword-tokenize.ts
+  s_d404882750412e::t_d6bdc6d019e2e5 1-58
+src/report.ts
+  s_d404882750412e::t_7b4d5eead93e8b 1381
+dist/src/analysis.js
+  s_d404882750412e::t_a41f928a80c9b8 2,22
+package.json
+  s_d404882750412e::t_e2a278ddbf2dce 37-38
+  s_d404882750412e::t_7fbc5687facce8 3
+src/streaming-tfidf-keywords.ts
+  s_d404882750412e::t_5cf63c6d17b17b 2,4,31-46,64-82,92,94,139-140,143-151
+src/version.ts
+  s_d404882750412e::t_f54935204b7155 1
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+dist/src/report.js
+  s_d404882750412e::t_a41f928a80c9b8 1303
+dist/src/report.js.map
+  ai_agent 1
+dist/src/keyword-tokenize.d.ts
+  s_d404882750412e::t_a41f928a80c9b8 1-2
+dist/src/keyword-tokenize.js
+  s_d404882750412e::t_a41f928a80c9b8 1-58
+dist/src/report-charts.js
+  s_d404882750412e::t_a41f928a80c9b8 139
+dist/src/kiwi-runtime.js.map
+  ai_agent 1
+dist/src/version.d.ts
+  s_d404882750412e::t_f54935204b7155 1-2
+dist/src/version.js
+  s_d404882750412e::t_f54935204b7155 1
+dist/src/keyword-tokenize.js.map
+  ai_agent 1
+kcachat/package-lock.json
+  ai_agent 3,9,12,53-55
+README.md
+  s_d404882750412e::t_4379b02359bb75 74
+  s_d404882750412e::t_95242ffe167b60 57
+  s_d404882750412e::t_0184b8215f794f 103
+package-lock.json
+  ai_agent 3,9,14-15,70-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "973dabde90edba63e2f45e30edcac186bf381ac3",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
