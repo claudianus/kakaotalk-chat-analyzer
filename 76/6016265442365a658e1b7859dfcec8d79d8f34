@@ -1,0 +1,104 @@
+src/kakao-line.ts
+  s_d404882750412e::t_3d903085a3a56f 3
+  s_d404882750412e::t_1a75bbfe48421f 1-2,4-156
+dist/src/encoding.d.ts
+  s_d404882750412e::t_ee87a269f9319f 1,3-7
+dist/src/stream-parser.js.map
+  ai_agent 1
+src/encoding.ts
+  s_d404882750412e::t_ce049be66e86ee 15,17,20,23,28,37-42,44-58
+  s_d404882750412e::t_aed7e504d7971a 1-2
+  s_d404882750412e::t_466f488fe59436 43
+src/cli.ts
+  s_d404882750412e::t_89bd74f4adcbdd 5
+  s_d404882750412e::t_a028618784cd72 154
+  s_d404882750412e::t_4b721c4338bc0c 58
+  s_d404882750412e::t_ccda89f2d9e24a 162-173,175-180,184,187-188
+  s_d404882750412e::t_88395a112f319a 7
+  s_d404882750412e::t_dab21d76eab4b2 49
+  s_d404882750412e::t_fbce8a1cc662de 111-113,115,118-119
+dist/src/cli.js
+  s_d404882750412e::t_ee87a269f9319f 5,7,38,46,95-97,99,102-103,125-130,132-135,138,141
+dist/src/report.js.map
+  ai_agent 1
+dist/src/kakao-line.js.map
+  ai_agent 1
+dist/src/kakao-line.js
+  s_d404882750412e::t_ee87a269f9319f 1-134
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/stream-parser.d.ts
+  s_d404882750412e::t_ee87a269f9319f 1-20
+dist/src/analysis-labels.js
+  s_d404882750412e::t_ee87a269f9319f 1-37
+src/aggregator.ts
+  s_d404882750412e::t_5ab1610308071d 12
+  s_d404882750412e::t_6d8f9822cdee03 1-11,13-733
+dist/src/aggregator.js
+  s_d404882750412e::t_ee87a269f9319f 1-652
+src/analysis.ts
+  s_d404882750412e::t_edb8d0b31ee807 1-3,6,10-11,13,15-19,23-29,32-34,36-41,45-46,49
+  s_d404882750412e::t_2797529e3d6add 4
+  s_d404882750412e::t_5591667e58a51e 30
+dist/src/analysis.js
+  s_d404882750412e::t_ee87a269f9319f 1-4,7-8,10,12-16,19-26,29-34,37-38,40
+dist/src/stream-parser.js
+  s_d404882750412e::t_ee87a269f9319f 2-101,103-109
+  s_d404882750412e::t_2bb711350419ac 1,102
+dist/src/encoding.js
+  s_d404882750412e::t_ee87a269f9319f 1,5,7,12,16,23-40
+dist/src/encoding.js.map
+  ai_agent 1
+src/stream-parser.ts
+  s_d404882750412e::t_b0026c34da2ecf 2
+  s_d404882750412e::t_ffe2359f3841a7 87-128
+  s_d404882750412e::t_c99f6c61a1f730 133
+  s_d404882750412e::t_25e3b1d0580a6e 1
+  s_d404882750412e::t_a51ca6e278e4b9 3-86,129-132,134-138
+dist/src/parser.js.map
+  ai_agent 1
+dist/src/analysis.d.ts
+  s_d404882750412e::t_ee87a269f9319f 1,7-10
+src/analysis-labels.ts
+  s_d404882750412e::t_2cf1dab07ec0fd 12-22
+  s_d404882750412e::t_b34ce6236b38b4 1-11,23-35
+dist/src/kakao-line.d.ts
+  s_d404882750412e::t_ee87a269f9319f 1-4
+src/parser.ts
+  s_d404882750412e::t_c7da60c530ef26 4,18
+dist/src/analysis-labels.d.ts
+  s_d404882750412e::t_ee87a269f9319f 1-3
+package.json
+  s_d404882750412e::t_0aab9e8062aa13 3
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/parser.js
+  s_d404882750412e::t_ee87a269f9319f 4,14
+test/parser-report.test.ts
+  s_d404882750412e::t_602141b3ea8dd4 74-78
+  s_d404882750412e::t_9c01acda02e9fa 8
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_ee87a269f9319f 1-41
+dist/src/analysis-labels.js.map
+  ai_agent 1
+src/report.ts
+  s_d404882750412e::t_53afced276bfce 1090
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "766016265442365a658e1b7859dfcec8d79d8f34",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
