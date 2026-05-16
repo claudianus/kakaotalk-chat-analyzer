@@ -1,0 +1,39 @@
+{
+  "name": "kcachat",
+  "version": "0.1.0",
+  "description": "짧은 npx 이름으로 kakaotalk-chat-analyzer(kca) CLI를 실행합니다.",
+  "type": "module",
+  "bin": {
+    "kcachat": "cli.mjs"
+  },
+  "files": [
+    "cli.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "kakaotalk-chat-analyzer": "^0.2.0"
+  },
+  "keywords": [
+    "kakaotalk",
+    "kca",
+    "chat",
+    "analyzer",
+    "npx"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/claudianus/kakaotalk-chat-analyzer.git",
+    "directory": "kcachat"
+  },
+  "bugs": {
+    "url": "https://github.com/claudianus/kakaotalk-chat-analyzer/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

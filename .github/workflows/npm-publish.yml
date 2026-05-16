@@ -1,0 +1,72 @@
+name: Publish npm packages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "src/**"
+      - "dist/**"
+      - "kcachat/**"
+  workflow_dispatch:
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.repository == 'claudianus/kakaotalk-chat-analyzer'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install and test (main)
+        run: npm ci && npm test
+
+      - name: Publish kakaotalk-chat-analyzer if version is new
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "NPM_TOKEN secret is not set; skipping npm publish. Add an Automation token at repo Settings → Secrets."
+            exit 0
+          fi
+          LOCAL="$(node -p "require('./package.json').version")"
+          REMOTE="$(npm view kakaotalk-chat-analyzer version 2>/dev/null || true)"
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "kakaotalk-chat-analyzer@$LOCAL already on registry; skip."
+          else
+            echo "Publishing kakaotalk-chat-analyzer@$LOCAL (registry had: ${REMOTE:-none})"
+            npm publish --access public
+          fi
+
+      - name: Publish kcachat if version is new
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            exit 0
+          fi
+          cd kcachat
+          npm install
+          LOCAL="$(node -p "require('./package.json').version")"
+          REMOTE="$(npm view kcachat version 2>/dev/null || true)"
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "kcachat@$LOCAL already on registry; skip."
+          else
+            echo "Publishing kcachat@$LOCAL (registry had: ${REMOTE:-none})"
+            npm publish --access public
+          fi
