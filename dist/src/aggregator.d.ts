@@ -25,8 +25,8 @@ export declare class ReportAggregator {
     private readonly weekdays;
     private readonly attachments;
     private readonly domains;
-    private readonly keywordStream;
-    private readonly topicMap;
+    private keywordStream;
+    private topicMap;
     private readonly keywordSupplement;
     private readonly repeatPhraseCounter;
     private readonly shopSearchTopics;
@@ -72,11 +72,16 @@ export declare class ReportAggregator {
     private lastDate;
     constructor(filePath: string, privacy: PrivacyMode, top: number, options?: AggregatorOptions);
     drainSemanticSamples(): string[];
+    resetKeywordPipeline(): void;
+    private consumeKeywords;
     applySemanticKeywordBoost(items: {
         label: string;
         messageHits: number;
     }[]): void;
-    consume(record: ChatRecord): void;
+    consume(record: ChatRecord, opts?: {
+        keywordsOnly?: boolean;
+        skipKeywords?: boolean;
+    }): void;
     private bumpSystemNotice;
     finalize(meta: FinalizeSourceMeta, finalizeOpts?: FinalizeOptions): ReportData;
 }

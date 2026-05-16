@@ -105,12 +105,40 @@ export class ReportAggregator {
     drainSemanticSamples() {
         return this.semanticReservoir?.drain() ?? [];
     }
+    resetKeywordPipeline() {
+        this.keywordStream = new StreamingTfidfKeywords();
+        this.topicMap = new TopicMapAccumulator();
+    }
+    consumeKeywords(record) {
+        const split = splitMessageForAnalysis(record.message);
+        const msg = split.userText.length > 0 ? split.userText : record.message;
+        const messageLength = msg.length;
+        if (split.notices.length > 0 && split.userText.length === 0)
+            return;
+        const foundAttachments = getAttachmentMarkers(msg);
+        if (messageLength < 2 ||
+            !HAS_TOKEN_CHAR_RE.test(msg) ||
+            isOpenChatBoilerplate(msg) ||
+            !shouldExtractKeywords(msg, foundAttachments)) {
+            return;
+        }
+        const kwTokens = tokenizeForKeywords(msg);
+        this.keywordStream.addDocumentTokens(kwTokens);
+        const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
+        this.topicMap.addMessage(kwTokens, monthKey);
+        if (this.semanticReservoir && messageLength >= 12)
+            this.semanticReservoir.push(msg);
+    }
     applySemanticKeywordBoost(items) {
         for (const item of items) {
             this.keywordSupplement.addHits(item.label, Math.max(2, item.messageHits));
         }
     }
-    consume(record) {
+    consume(record, opts) {
+        if (opts?.keywordsOnly) {
+            this.consumeKeywords(record);
+            return;
+        }
         if (this.prevSender !== null && record.sender !== this.prevSender) {
             this.speakerSwitches += 1;
         }
@@ -198,12 +226,13 @@ export class ReportAggregator {
                 for (const domain of foundDomains)
                     increment(this.domains, domain);
             }
-            if (messageLength >= 2 &&
+            if (!opts?.skipKeywords &&
+                messageLength >= 2 &&
                 HAS_TOKEN_CHAR_RE.test(msg) &&
                 !isOpenChatBoilerplate(msg) &&
                 shouldExtractKeywords(msg, foundAttachments)) {
                 const kwTokens = tokenizeForKeywords(msg);
-                this.keywordStream.addDocument(msg);
+                this.keywordStream.addDocumentTokens(kwTokens);
                 const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
                 this.topicMap.addMessage(kwTokens, monthKey);
                 const kwOpts = {
@@ -447,6 +476,7 @@ export class ReportAggregator {
             activityArc,
             conversationPace,
             roomPulse,
+            topics,
         });
         const highlights = buildHighlights({
             total,

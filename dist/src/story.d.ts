@@ -1,4 +1,4 @@
-import type { ActivityArcSegment, ConversationPace, ConversationTone, DailyCount, DailyRoomPulse, ParticipantStat, ReportInsights, ReportStory } from "./types.js";
+import type { ActivityArcSegment, ConversationPace, ConversationTone, DailyCount, DailyRoomPulse, ParticipantStat, ReportInsights, ReportStory, ReportTopic } from "./types.js";
 export interface BuildStoryInput {
     chatRoomName: string;
     totalMessages: number;
@@ -23,6 +23,7 @@ export interface BuildStoryInput {
     activityArc: ActivityArcSegment[];
     conversationPace: ConversationPace;
     roomPulse: DailyRoomPulse[];
+    topics?: ReportTopic[];
 }
 export declare function buildReportStory(input: BuildStoryInput): ReportStory;
 export interface PersonaCounters {

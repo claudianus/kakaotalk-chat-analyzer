@@ -100,8 +100,8 @@ export class ReportAggregator {
   private readonly weekdays = Array.from({ length: 7 }, () => 0);
   private readonly attachments = new Map<string, number>();
   private readonly domains = new Map<string, number>();
-  private readonly keywordStream = new StreamingTfidfKeywords();
-  private readonly topicMap = new TopicMapAccumulator();
+  private keywordStream = new StreamingTfidfKeywords();
+  private topicMap = new TopicMapAccumulator();
   private readonly keywordSupplement = new KeywordCounter();
   private readonly repeatPhraseCounter = new RepeatPhraseCounter();
   private readonly shopSearchTopics = new Map<string, number>();
@@ -159,13 +159,43 @@ export class ReportAggregator {
     return this.semanticReservoir?.drain() ?? [];
   }
 
+  resetKeywordPipeline(): void {
+    this.keywordStream = new StreamingTfidfKeywords();
+    this.topicMap = new TopicMapAccumulator();
+  }
+
+  private consumeKeywords(record: ChatRecord): void {
+    const split = splitMessageForAnalysis(record.message);
+    const msg = split.userText.length > 0 ? split.userText : record.message;
+    const messageLength = msg.length;
+    if (split.notices.length > 0 && split.userText.length === 0) return;
+    const foundAttachments = getAttachmentMarkers(msg);
+    if (
+      messageLength < 2 ||
+      !HAS_TOKEN_CHAR_RE.test(msg) ||
+      isOpenChatBoilerplate(msg) ||
+      !shouldExtractKeywords(msg, foundAttachments)
+    ) {
+      return;
+    }
+    const kwTokens = tokenizeForKeywords(msg);
+    this.keywordStream.addDocumentTokens(kwTokens);
+    const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
+    this.topicMap.addMessage(kwTokens, monthKey);
+    if (this.semanticReservoir && messageLength >= 12) this.semanticReservoir.push(msg);
+  }
+
   applySemanticKeywordBoost(items: { label: string; messageHits: number }[]): void {
     for (const item of items) {
       this.keywordSupplement.addHits(item.label, Math.max(2, item.messageHits));
     }
   }
 
-  consume(record: ChatRecord): void {
+  consume(record: ChatRecord, opts?: { keywordsOnly?: boolean; skipKeywords?: boolean }): void {
+    if (opts?.keywordsOnly) {
+      this.consumeKeywords(record);
+      return;
+    }
     if (this.prevSender !== null && record.sender !== this.prevSender) {
       this.speakerSwitches += 1;
     }
@@ -265,13 +295,14 @@ export class ReportAggregator {
       }
 
       if (
+        !opts?.skipKeywords &&
         messageLength >= 2 &&
         HAS_TOKEN_CHAR_RE.test(msg) &&
         !isOpenChatBoilerplate(msg) &&
         shouldExtractKeywords(msg, foundAttachments)
       ) {
         const kwTokens = tokenizeForKeywords(msg);
-        this.keywordStream.addDocument(msg);
+        this.keywordStream.addDocumentTokens(kwTokens);
         const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
         this.topicMap.addMessage(kwTokens, monthKey);
         const kwOpts = {
@@ -531,6 +562,7 @@ export class ReportAggregator {
       activityArc,
       conversationPace,
       roomPulse,
+      topics,
     });
 
     const highlights = buildHighlights({

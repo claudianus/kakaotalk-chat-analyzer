@@ -12,6 +12,8 @@ export declare class StreamingTfidfKeywords {
     private totalTokenHits;
     constructor(tokenize?: KeywordTokenizeFn);
     addDocument(raw: string): void;
+    /** Kiwi 토큰을 한 번만 계산했을 때 */
+    addDocumentTokens(tokens: string[]): void;
     extractKeywordItems(options?: KeywordExtractOptions): KeywordRankItem[];
     private prunePair;
 }

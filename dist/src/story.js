@@ -31,10 +31,24 @@ export function buildTone(total, laugh, short, emoji) {
         emojiPer100: round((emoji / base) * 100, 1),
     };
 }
+function buildTopicLine(topics) {
+    if (!topics || topics.length === 0)
+        return null;
+    const theme = topics.find((t) => t.kind === "theme") ?? topics[0];
+    if (!theme)
+        return null;
+    const label = theme.terms.slice(0, 4).join(" · ");
+    if (!label)
+        return null;
+    return `요즘 화제는 **${label}** 쪽이에요.`;
+}
 function buildHeadline(input) {
     const room = input.chatRoomName;
     const n = formatCompactNumber(input.totalMessages);
     const parts = [`「${room}」에서 ${n} 개의 메시지가 오갔어요.`];
+    const topicLine = buildTopicLine(input.topics);
+    if (topicLine)
+        parts.push(topicLine);
     if (input.longestStreak >= 3) {
         parts.push(`최장 **${input.longestStreak}일** 연속 대화`);
     }

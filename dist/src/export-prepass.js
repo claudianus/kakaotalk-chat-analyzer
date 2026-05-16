@@ -36,12 +36,39 @@ function isUserWordCandidate(token) {
         return token.length >= 2 && token.length <= 8;
     return false;
 }
-/** CSV 1회 읽기: 건수 + Kiwi 사용자 사전 후보 */
+/** 스트리밍 분석과 함께 쓰는 휴리스틱 userWords·건수 수집 */
+export class HeuristicPrepassCollector {
+    tokenDf = new Map();
+    messageCount = 0;
+    onMessageText(message) {
+        if (!HAS_TOKEN.test(message))
+            return;
+        this.messageCount += 1;
+        const seen = new Set();
+        for (const t of heuristicTokens(message)) {
+            if (!isUserWordCandidate(t) || seen.has(t))
+                continue;
+            seen.add(t);
+            this.tokenDf.set(t, (this.tokenDf.get(t) ?? 0) + 1);
+        }
+    }
+    toUserWords() {
+        return [...this.tokenDf.entries()]
+            .filter(([, df]) => df >= 3)
+            .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)
+            .slice(0, 72)
+            .map(([word, df]) => ({
+            word,
+            tag: /^[A-Za-z]/.test(word) ? "SL" : "NNP",
+            score: Math.min(8, Math.log1p(df)),
+        }));
+    }
+}
+/** CSV 1회 읽기: 건수 + Kiwi 사용자 사전 후보 (레거시·벤치용) */
 export async function runExportPrepass(filePath) {
+    const collector = new HeuristicPrepassCollector();
     const sample = await readFileSample(filePath, SAMPLE_BYTES);
     const { encoding, skipBytes } = detectEncodingFromBytes(sample);
-    const tokenDf = new Map();
-    let messageCount = 0;
     const input = openDecodedStream(filePath, encoding, skipBytes, READ_HIGH_WATER_MARK);
     const rl = createInterface({ input, crlfDelay: Infinity });
     let lineNumber = 0;
@@ -54,16 +81,8 @@ export async function runExportPrepass(filePath) {
             continue;
         }
         if (DATE_LINE_RE.test(line)) {
-            if (currentMessage && HAS_TOKEN.test(currentMessage)) {
-                messageCount += 1;
-                const seen = new Set();
-                for (const t of heuristicTokens(currentMessage)) {
-                    if (!isUserWordCandidate(t) || seen.has(t))
-                        continue;
-                    seen.add(t);
-                    tokenDf.set(t, (tokenDf.get(t) ?? 0) + 1);
-                }
-            }
+            if (currentMessage)
+                collector.onMessageText(currentMessage);
             const started = parseRecordStart(line, lineNumber, []);
             currentMessage = started.message;
             continue;
@@ -72,26 +91,9 @@ export async function runExportPrepass(filePath) {
             currentMessage = `${currentMessage}\n${line}`;
         }
     }
-    if (currentMessage && HAS_TOKEN.test(currentMessage)) {
-        messageCount += 1;
-        const seen = new Set();
-        for (const t of heuristicTokens(currentMessage)) {
-            if (!isUserWordCandidate(t) || seen.has(t))
-                continue;
-            seen.add(t);
-            tokenDf.set(t, (tokenDf.get(t) ?? 0) + 1);
-        }
-    }
-    const userWords = [...tokenDf.entries()]
-        .filter(([, df]) => df >= 3)
-        .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)
-        .slice(0, 72)
-        .map(([word, df]) => ({
-        word,
-        tag: /^[A-Za-z]/.test(word) ? "SL" : "NNP",
-        score: Math.min(8, Math.log1p(df)),
-    }));
-    return { messageCount, userWords };
+    if (currentMessage)
+        collector.onMessageText(currentMessage);
+    return { messageCount: collector.messageCount, userWords: collector.toUserWords() };
 }
 async function readFileSample(filePath, maxBytes) {
     const handle = await open(filePath, "r");

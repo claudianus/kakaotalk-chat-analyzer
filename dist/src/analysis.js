@@ -1,6 +1,6 @@
-import { stat } from "node:fs/promises";
 import { ReportAggregator } from "./aggregator.js";
-import { runExportPrepass } from "./export-prepass.js";
+import { HeuristicPrepassCollector } from "./export-prepass.js";
+import { loadGlossaryForExport } from "./glossary.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
 import { initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
@@ -9,7 +9,19 @@ import { logReportProgress, resetReportProgress } from "./report-progress.js";
 import { extractSemanticKeywords } from "./semantic-keywords.js";
 import { streamKakaoExport } from "./stream-parser.js";
 const DEFAULT_TOP = 30;
-const PREPASS_MIN_BYTES = 200_000;
+function mergeUserWords(...lists) {
+    const seen = new Set();
+    const out = [];
+    for (const list of lists) {
+        for (const uw of list) {
+            if (seen.has(uw.word))
+                continue;
+            seen.add(uw.word);
+            out.push(uw);
+        }
+    }
+    return out.slice(0, 96);
+}
 /** Kiwi 등 리포트 엔진 준비(스트리밍 분석 전 1회 호출) */
 export async function prepareReportEngine() {
     await initKiwiRuntime();
@@ -66,65 +78,15 @@ export async function buildReportDataAsync(result, options) {
         warningCount: result.warnings.length,
     }, { usedSemanticKeywords: usedSemantic });
 }
-async function prepareKiwiAndEstimate(filePath, showProgress) {
-    let estimated;
-    let userWords = [];
-    const needsPrepass = process.env.KCA_NO_KIWI !== "1" || showProgress;
-    if (needsPrepass) {
-        try {
-            const { size } = await stat(filePath);
-            if (size >= PREPASS_MIN_BYTES || showProgress) {
-                if (showProgress)
-                    logReportProgress({ phase: "사전 스캔", current: 0 });
-                const prepass = await runExportPrepass(filePath);
-                estimated = prepass.messageCount;
-                userWords = prepass.userWords;
-                if (showProgress) {
-                    logReportProgress({
-                        phase: "사전 스캔",
-                        current: estimated,
-                        total: estimated,
-                    });
-                }
-            }
-        }
-        catch {
-            estimated = undefined;
-        }
-    }
-    if (showProgress)
-        logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
-    await initKiwiRuntime(userWords);
-    if (showProgress)
-        logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
-    return estimated;
+function messageTextFromRecord(record) {
+    return record.message;
 }
-export async function buildReportFromExportSync(filePath, options) {
-    const showProgress = options?.progress !== false;
-    if (showProgress)
-        resetReportProgress();
-    const estimated = await prepareKiwiAndEstimate(filePath, showProgress);
-    const privacy = options?.privacy ?? "public-masked";
-    const top = options?.top ?? DEFAULT_TOP;
-    const agg = new ReportAggregator(filePath, privacy, top, {
-        semanticSamples: options?.semanticKeywords === true,
-    });
+async function runStatsPass(filePath, agg, prepass, streamOpts) {
     let meta = null;
-    const streamOpts = showProgress
-        ? {
-            progressEvery: estimated && estimated > 5_000 ? 500 : 250,
-            onProgress: (count) => {
-                logReportProgress({
-                    phase: "대화 분석",
-                    current: count,
-                    total: estimated,
-                });
-            },
-        }
-        : undefined;
     for await (const event of streamKakaoExport(filePath, streamOpts)) {
         if (event.type === "record") {
-            agg.consume(event.record);
+            prepass.onMessageText(messageTextFromRecord(event.record));
+            agg.consume(event.record, { skipKeywords: true });
         }
         else {
             meta = {
@@ -135,19 +97,92 @@ export async function buildReportFromExportSync(filePath, options) {
             };
         }
     }
-    if (!meta) {
-        throw new Error(`No messages parsed from export: ${filePath}`);
+    return meta;
+}
+async function runKeywordPass(filePath, agg, streamOpts) {
+    for await (const event of streamKakaoExport(filePath, streamOpts)) {
+        if (event.type === "record") {
+            agg.consume(event.record, { keywordsOnly: true });
+        }
     }
-    if (showProgress) {
-        const total = estimated ?? meta.physicalLines;
-        logReportProgress({ phase: "대화 분석", current: total, total });
-        logReportProgress({ phase: "주제·리포트 마무리", current: 0, total: 1 });
+}
+export async function buildReportFromExportSync(filePath, options) {
+    const showProgress = options?.progress !== false;
+    if (showProgress)
+        resetReportProgress();
+    const privacy = options?.privacy ?? "public-masked";
+    const top = options?.top ?? DEFAULT_TOP;
+    const agg = new ReportAggregator(filePath, privacy, top, {
+        semanticSamples: options?.semanticKeywords === true,
+    });
+    const prepass = new HeuristicPrepassCollector();
+    const useKiwi = process.env.KCA_NO_KIWI !== "1";
+    const progressOpts = (phase, estimated) => showProgress
+        ? {
+            progressEvery: estimated && estimated > 5_000 ? 500 : 250,
+            onProgress: (count) => logReportProgress({ phase, current: count, total: estimated }),
+        }
+        : undefined;
+    let meta = null;
+    if (useKiwi) {
+        if (showProgress)
+            logReportProgress({ phase: "대화 집계", current: 0 });
+        meta = await runStatsPass(filePath, agg, prepass, progressOpts("대화 집계"));
+        if (!meta)
+            throw new Error(`No messages parsed from export: ${filePath}`);
+        const estimated = prepass.messageCount;
+        if (showProgress)
+            logReportProgress({ phase: "대화 집계", current: estimated, total: estimated });
+        if (showProgress)
+            logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
+        const glossary = await loadGlossaryForExport(filePath);
+        const userWords = mergeUserWords(glossary, prepass.toUserWords());
+        await initKiwiRuntime(userWords);
+        if (showProgress)
+            logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
+        agg.resetKeywordPipeline();
+        if (showProgress)
+            logReportProgress({ phase: "키워드·주제", current: 0 });
+        await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));
+        if (showProgress) {
+            logReportProgress({ phase: "키워드·주제", current: estimated, total: estimated });
+        }
     }
+    else {
+        if (showProgress)
+            logReportProgress({ phase: "대화 분석", current: 0 });
+        await initKiwiRuntime([]);
+        for await (const event of streamKakaoExport(filePath, progressOpts("대화 분석"))) {
+            if (event.type === "record") {
+                prepass.onMessageText(messageTextFromRecord(event.record));
+                agg.consume(event.record);
+            }
+            else {
+                meta = {
+                    filePath: event.meta.filePath,
+                    encoding: event.meta.encoding,
+                    physicalLines: event.meta.physicalLines,
+                    warningCount: event.meta.warnings.length,
+                };
+            }
+        }
+        if (!meta)
+            throw new Error(`No messages parsed from export: ${filePath}`);
+        if (showProgress) {
+            logReportProgress({
+                phase: "대화 분석",
+                current: prepass.messageCount,
+                total: prepass.messageCount,
+            });
+        }
+    }
+    if (showProgress)
+        logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
     const usedSemantic = await applySemanticKeywordsIfRequested(agg, options, showProgress);
     const report = agg.finalize(meta, { usedSemanticKeywords: usedSemantic });
     if (showProgress) {
-        logReportProgress({ phase: "주제·리포트 마무리", current: 1, total: 1 });
-        const sem = report.summary.usedSemanticKeywords ? " · 시맨틱 키워드" : "";
+        logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
+        const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
         console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}`);
     }
     return report;

@@ -115,6 +115,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.7.0** | **2단계 스트림**(집계→Kiwi 키워드)·`.kca-glossary`·주제 ECharts·`keyword:audit` CI |
 | **0.6.0** | **`--semantic-keywords`** MiniLM 클러스터 키워드 보조(opt-in) |
 | **0.5.0** | **주제 맵**(c-TF-IDF)·**BM25** 키워드·CSV 사전 스캔(userWords·진행률 %) |
 | **0.4.2** | 키워드 병합(공백+Kiwi)·브랜드 표기 통합·구 dedupe 제거, **진행률 % 기본 표시** |
@@ -159,7 +160,9 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.6.0`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.7.0`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+
+CSV와 같은 폴더에 **`.kca-glossary.txt`**(한 줄에 한 단어)를 두면 Kiwi 사용자 사전에 자동 반영됩니다.
 
 전체 이름으로 실행해도 동일합니다:
 

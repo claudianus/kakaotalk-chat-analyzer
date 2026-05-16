@@ -115,6 +115,7 @@ export interface ChartPayload {
   calendarCells: { date: string; count: number }[];
   burstDates: string[];
   totalParticipants: number;
+  topics: { title: string; terms: string[]; messagePercent: number; kind: string }[];
 }
 
 export function serializeChartPayload(data: ReportData): string {
@@ -143,12 +144,27 @@ export function buildChartPayload(data: ReportData): ChartPayload {
       .map((c) => ({ date: c.date!, count: c.count })),
     burstDates: data.burstDays.map((b) => b.date),
     totalParticipants: data.participants.length,
+    topics: data.topics.slice(0, 8).map((t) => ({
+      title: t.title,
+      terms: t.terms,
+      messagePercent: t.messagePercent,
+      kind: t.kind,
+    })),
   };
 }
 
 export function renderChartDeck(data: ReportData): string {
   const kw = data.keywords.length;
+  const topicCount = data.topics.length;
   const showLegacyDaily = data.story.calendarWeeks.length === 0 && data.daily.length > 0;
+  const topicChart =
+    topicCount > 0
+      ? `<article class="viz-card span-12">
+      <h3>주제 맵 · c-TF-IDF</h3>
+      <p class="viz-hint">막대 = 해당 주제 신호가 잡힌 메시지 비중(근사 %). 테마·월별 화제를 함께 봅니다.</p>
+      <div id="chart-topics" class="chart-box" role="img" aria-label="주제 맵 차트"></div>
+    </article>`
+      : "";
 
   return `<section id="s-viz" class="viz-hero anim-enter" style="--enter-delay:0.055s" aria-label="인터랙티브 차트">
     <h2>📊 인터랙티브 차트</h2>
@@ -194,6 +210,7 @@ export function renderChartDeck(data: ReportData): string {
       <p class="viz-hint">링크 호스트 상위</p>
       <div id="chart-domains" class="chart-box" role="img" aria-label="도메인 차트"></div>
     </article>
+    ${topicChart}
   </div>
   ${showLegacyDaily ? "" : "<!-- legacy daily heatmap omitted when story calendar exists -->"}`;
 }
@@ -349,6 +366,27 @@ export const CHARTS_INIT_SCRIPT = `
             data: p.map(function (x) { return { name: x.alias, value: x.messages }; }),
             label: { color: text, fontSize: 10 },
             itemStyle: { borderRadius: 4, borderColor: dark ? "#0d1117" : "#fff", borderWidth: 2 },
+          }],
+        }));
+      }
+
+      if (data.topics && data.topics.length && document.getElementById("chart-topics")) {
+        var topics = data.topics.slice(0, 8);
+        init("chart-topics", Object.assign(baseOpt(), {
+          grid: { left: 120, right: 24, top: 16, bottom: 24 },
+          xAxis: { type: "value", axisLabel: { color: muted, formatter: "{value}%" } },
+          yAxis: {
+            type: "category",
+            data: topics.map(function (t) { return t.title; }).reverse(),
+            axisLabel: { color: text, fontSize: 11 },
+          },
+          series: [{
+            type: "bar",
+            data: topics.map(function (t) { return t.messagePercent; }).reverse(),
+            itemStyle: {
+              borderRadius: [0, 6, 6, 0],
+              color: function (p) { return p.dataIndex % 2 === 0 ? accent : accent2; },
+            },
           }],
         }));
       }

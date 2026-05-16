@@ -76,7 +76,10 @@ export class StreamingTfidfKeywords {
         this.tokenize = tokenize;
     }
     addDocument(raw) {
-        const tokens = this.tokenize(raw);
+        this.addDocumentTokens(this.tokenize(raw));
+    }
+    /** Kiwi 토큰을 한 번만 계산했을 때 */
+    addDocumentTokens(tokens) {
         if (tokens.length === 0)
             return;
         this.documents += 1;
