@@ -1,0 +1,105 @@
+dist/src/report-progress.js
+  s_d404882750412e::t_48d349fc833517 1-24
+src/keyword-tokenize.ts
+  s_d404882750412e::t_ea6325d07e737c 2,7,12-13,32,37-49,68-72,74-75,78,81,83-87
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+dist/src/keyword-quality.js.map
+  ai_agent 1
+src/cli.ts
+  s_d404882750412e::t_c2e169a3178e11 51
+  s_d404882750412e::t_4cffaaa538d71f 66
+  s_d404882750412e::t_a0cea57b1a6592 165
+kcachat/README.md
+  s_d404882750412e::t_bb5b05f63191b8 12
+dist/src/keyword-tokenize.js
+  s_d404882750412e::t_48d349fc833517 2,6,9-10,31,35-47,68-71,73,75,78,80-86
+package.json
+  s_d404882750412e::t_bfdfda6102dc73 3
+dist/src/keyword-canonical.js.map
+  ai_agent 1
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/kiwi-runtime.js
+  s_d404882750412e::t_48d349fc833517 8,122,167-168
+src/stream-parser.ts
+  s_d404882750412e::t_f9edce1efe3803 123-139
+dist/src/cli.js
+  s_d404882750412e::t_48d349fc833517 40,54
+src/kiwi-runtime.ts
+  s_d404882750412e::t_3f683a134af90c 133
+  s_d404882750412e::t_9183958ab9eb93 9
+  s_d404882750412e::t_67b186b5424c8a 178-179
+test/keyword-canonical.test.ts
+  s_d404882750412e::t_bb9887a77b1380 1-26
+dist/src/analysis.js
+  s_d404882750412e::t_48d349fc833517 1,6-7,9,33-37,39-54,59,61,63-67,87-91,93-95
+src/keyword-canonical.ts
+  s_d404882750412e::t_7797e088d76745 1-19
+dist/src/stream-parser.d.ts
+  s_d404882750412e::t_48d349fc833517 18-19
+dist/src/version.d.ts
+  s_d404882750412e::t_48d349fc833517 1-2
+dist/src/stream-parser.js.map
+  ai_agent 1
+dist/src/keyword-canonical.d.ts
+  s_d404882750412e::t_48d349fc833517 1
+dist/src/report-progress.d.ts
+  s_d404882750412e::t_48d349fc833517 1-7
+dist/src/keyword-tokenize.d.ts
+  s_d404882750412e::t_48d349fc833517 3
+src/streaming-tfidf-keywords.ts
+  s_d404882750412e::t_316f341ce7c1c1 131-139
+docs/index.html
+  s_d404882750412e::t_4f5737f9eaa28f 322
+dist/src/kiwi-runtime.js.map
+  ai_agent 1
+src/report-progress.ts
+  s_d404882750412e::t_826394232606bd 1-31
+README.md
+  s_d404882750412e::t_0362f0700ca8a7 114
+  s_d404882750412e::t_e9b3c6c6301778 266
+dist/src/version.js
+  s_d404882750412e::t_48d349fc833517 1
+dist/src/keyword-rank.js.map
+  ai_agent 1
+dist/src/keyword-canonical.js
+  s_d404882750412e::t_48d349fc833517 1-19
+kcachat/package.json
+  s_d404882750412e::t_4757c63cf110f0 3
+  s_d404882750412e::t_03a39fa368cf92 15
+src/analysis.ts
+  s_d404882750412e::t_2092a11e30ecc1 1,6,8,12,48-51,53-68,75,77,79-83,105-110,112-115,117
+src/version.ts
+  s_d404882750412e::t_48d349fc833517 1
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/keyword-tokenize.js.map
+  ai_agent 1
+dist/src/stream-parser.js
+  s_d404882750412e::t_48d349fc833517 85-102
+dist/src/report-progress.js.map
+  ai_agent 1
+dist/src/streaming-tfidf-keywords.js
+  s_d404882750412e::t_48d349fc833517 121-122,125-126
+dist/src/keyword-rank.js
+  s_d404882750412e::t_48d349fc833517 7
+src/keyword-rank.ts
+  s_d404882750412e::t_3cd555584d00b7 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e64714b22668f7cd6a42fe51c54283117221f2d6",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
