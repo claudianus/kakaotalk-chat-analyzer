@@ -1,0 +1,32 @@
+.github/workflows/npm-publish.yml
+  s_d404882750412e::t_ff7529a707d5a2 12,20,44,56-72,79
+.gitignore
+  s_d404882750412e::t_fb31ee6b157744 9
+  s_d404882750412e::t_5e663090f98966 6
+AGENTS.md
+  s_d404882750412e::t_0e3490a6c556fc 10-19
+  s_d404882750412e::t_39e2a2e721ad55 26-27
+package.json
+  s_d404882750412e::t_a5745b22c78080 27-28
+  s_d404882750412e::t_4e0786170c81af 3
+scripts/sync-npm-token-to-gh.sh
+  s_d404882750412e::t_5e2e4a7c438a91 1-43
+package-lock.json
+  ai_agent 3,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "18b361603c49c08e59ab57cbd8aed62ea653468a",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
