@@ -111,6 +111,38 @@ export function renderReportHtml(data: ReportData): string {
     .table th, .table td { text-align: left; border-bottom: 1px solid var(--line); padding: 9px 6px; }
     .table th { color: var(--muted); font-weight: 650; font-size: 11px; text-transform: none; }
     .table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .self-serve {
+      margin-top: 14px;
+      border: 1px dashed rgba(15, 107, 92, 0.38);
+      border-radius: 12px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, rgba(15, 107, 92, 0.06), rgba(196, 92, 42, 0.04));
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .self-serve h2 { margin: 0 0 10px; font-size: 16px; font-weight: 750; color: var(--ink); letter-spacing: -0.02em; }
+    .self-serve p { margin: 0 0 8px; }
+    .self-serve ol { margin: 0 0 10px; padding-left: 1.25rem; }
+    .self-serve li { margin: 4px 0; }
+    .self-serve code { font-size: 11.5px; background: rgba(0, 0, 0, 0.06); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+    .self-serve .cmd {
+      margin: 10px 0 12px;
+      padding: 11px 13px;
+      border-radius: 8px;
+      background: #f0ebe3;
+      border: 1px solid var(--line);
+      font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #1a2420;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .self-serve .links { margin: 10px 0 0; font-size: 12px; }
+    .self-serve .links a { font-weight: 650; }
     footer { margin-top: 28px; color: var(--muted); font-size: 11px; line-height: 1.5; }
     @media (max-width: 900px) {
       .hero, .two, .three, .metrics, .metrics6 { grid-template-columns: 1fr; }
@@ -179,6 +211,8 @@ export function renderReportHtml(data: ReportData): string {
       ${panel("키워드 스냅샷", renderCountBars(data.keywords))}
     </section>
 
+    ${renderSelfServeCallout()}
+
     <script type="application/json" id="report-data">${escapeJsonForHtml(data)}</script>
     <footer>${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계 목적이며 법적·회계적 증빙으로 사용할 수 없습니다.</footer>
   </main>
@@ -204,6 +238,30 @@ function metric(label: string, value: string, sub: string): string {
 
 function panel(title: string, content: string): string {
   return `<div class="card"><h2>${escapeHtml(title)}</h2>${content}</div>`;
+}
+
+function renderSelfServeCallout(): string {
+  const gh = "https://github.com/claudianus/kakaotalk-chat-analyzer";
+  const site = "https://claudianus.github.io/kakaotalk-chat-analyzer/";
+  const npmShort = "https://www.npmjs.com/package/kcachat";
+  const npmFull = "https://www.npmjs.com/package/kakaotalk-chat-analyzer";
+  return `<section class="card self-serve" aria-label="리포트 직접 만들기">
+    <h2>비슷한 리포트, 다른 대화에도 만들어보기</h2>
+    <p>이 페이지는 <strong>KakaoTalk Chat Analyzer</strong>(CLI 이름 <strong>kca</strong>)로 만든 <strong>집계 전용</strong> 리포트예요. 카카오톡에서 CSV로 보낸 뒤 같은 방식으로 돌려볼 수 있습니다.</p>
+    <ol>
+      <li>카카오톡에서 채팅방 → <strong>더보기(≡)</strong> → <strong>대화보내기</strong> → <strong>CSV 보내기</strong>로 파일 저장</li>
+      <li><strong>Node.js 22+</strong>가 있는 Mac/Windows/Linux에서 터미널을 열고, 보낸 파일 경로를 넣어 실행해 보세요.</li>
+    </ol>
+    <div class="cmd">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv" --local</div>
+    <p><code>--local</code> 은 PC에만 <code>index.html</code> 을 만들고 업로드는 건너뜁니다. BrewPage 등으로 올리고 싶다면 이 플래그만 빼면 됩니다.</p>
+    <p>짧은 이름이 부담스럽다면 전체 패키지명으로도 동일해요: <code>npx kakaotalk-chat-analyzer@latest "./파일.csv" --local</code></p>
+    <p class="links">
+      <a href="${gh}">GitHub 소스</a>
+      · <a href="${npmShort}">npm · kcachat</a>
+      · <a href="${npmFull}">npm · kakaotalk-chat-analyzer</a>
+      · <a href="${site}">소개 페이지</a>
+    </p>
+  </section>`;
 }
 
 function renderDaily(days: DailyCount[]): string {
