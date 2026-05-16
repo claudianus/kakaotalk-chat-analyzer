@@ -1,0 +1,37 @@
+src/report.ts
+  s_d404882750412e::t_0d2aaff0c7556f 647-648,650-652
+  s_d404882750412e::t_9d4d2f5c0c6bc7 749
+  s_d404882750412e::t_c5303232dbd910 223-226
+  s_d404882750412e::t_c47a54d35dc2c3 598-627
+  s_d404882750412e::t_e73153913d8e01 510
+  s_d404882750412e::t_8834c121069e45 644
+package.json
+  s_d404882750412e::t_82f6b21304fb13 3
+kcachat/package.json
+  s_d404882750412e::t_b78a4469447572 3
+  s_d404882750412e::t_0b31a89c58b3cc 15
+test/parser-report.test.ts
+  s_d404882750412e::t_3805544c9b631b 47-48
+dist/src/report.js
+  s_d404882750412e::t_3877c057faa64a 220-223,507,593-622,636,639-640,642-644,735
+kcachat/package-lock.json
+  ai_agent 3,9,12,53-55
+dist/src/report.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "bcda107b28e6cf6e7b549364630f315d710af48e",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
