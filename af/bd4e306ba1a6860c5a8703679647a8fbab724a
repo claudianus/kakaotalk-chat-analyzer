@@ -1,0 +1,81 @@
+dist/src/encoding.d.ts
+  s_d404882750412e::t_1857c03149e465 7
+src/cli.ts
+  s_d404882750412e::t_66d2e36ba857ef 192
+  s_d404882750412e::t_78d584283db923 165
+  s_d404882750412e::t_323fb4db821d93 51
+  s_d404882750412e::t_e319e80ede443f 66
+  s_d404882750412e::t_18fc13d8447c9c 175-182
+dist/src/cli.js
+  s_d404882750412e::t_1857c03149e465 40,54,141
+dist/src/aggregator.js.map
+  ai_agent 1
+src/stream-parser.ts
+  s_d404882750412e::t_60552f8bdb4510 32-45,50,55,57-58
+  s_d404882750412e::t_8b5b89d216d196 104,108
+  s_d404882750412e::t_783c3ffdcbbe38 75-79,82-89
+  s_d404882750412e::t_42ba4bb9c19640 6,10-18
+src/encoding.ts
+  s_d404882750412e::t_4488123050d642 40-46
+dist/src/aggregator.js
+  s_d404882750412e::t_1857c03149e465 57-58,65,100-107,113,116,162-165
+src/stream-options.ts
+  s_d404882750412e::t_f98e8f569b8f12 1-5
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_1857c03149e465 14
+dist/src/stream-options.js
+  s_d404882750412e::t_1857c03149e465 1-2
+dist/src/stream-parser.d.ts
+  s_d404882750412e::t_1857c03149e465 1,17
+dist/src/analysis.js.map
+  ai_agent 1
+src/analysis.ts
+  s_d404882750412e::t_9f24a38de0123f 63-67
+  s_d404882750412e::t_a496e838bdf540 4
+  s_d404882750412e::t_b7e0dbcfc65433 37-46
+dist/src/stream-options.js.map
+  ai_agent 1
+dist/src/stream-parser.js.map
+  ai_agent 1
+dist/src/stream-options.d.ts
+  s_d404882750412e::t_1857c03149e465 1-5
+src/aggregator.ts
+  s_d404882750412e::t_caa1b2671bb96c 97
+  s_d404882750412e::t_3b8efc5043c4e7 71-72
+  s_d404882750412e::t_bafebed9271ce6 207-212
+  s_d404882750412e::t_02ab27695a9ddc 137-145,152,156
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/stream-parser.js
+  s_d404882750412e::t_1857c03149e465 7-17,21,27-28,42-46,49-56,69,72
+package.json
+  s_d404882750412e::t_c06c4b373e9fe8 3
+dist/src/encoding.js.map
+  ai_agent 1
+src/analyze-pool.ts
+  s_d404882750412e::t_71cfea629d4ee7 13-14
+dist/src/analyze-pool.d.ts
+  s_d404882750412e::t_1857c03149e465 7-8
+dist/src/encoding.js
+  s_d404882750412e::t_1857c03149e465 25-26
+dist/src/analysis.js
+  s_d404882750412e::t_1857c03149e465 25-33,49-53
+dist/src/analyze-pool.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "afbd4e306ba1a6860c5a8703679647a8fbab724a",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
