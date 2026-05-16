@@ -3,9 +3,22 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { buildReportData, maskPartialDisplayName } from "../src/analysis.js";
+import {
+  buildReportData,
+  maskPartialDisplayName,
+  parseChatRoomNameFromExportPath,
+} from "../src/analysis.js";
 import { parseKakaoExport } from "../src/parser.js";
 import { renderReportHtml } from "../src/report.js";
+
+test("parseChatRoomNameFromExportPath strips KakaoTalk export filename parts", () => {
+  assert.equal(
+    parseChatRoomNameFromExportPath(
+      "/Downloads/KakaoTalk_Chat_자연어처리와 딥러닝 2024_2026-05-16-15-03-41.csv",
+    ),
+    "자연어처리와 딥러닝 2024",
+  );
+});
 
 test("parses KakaoTalk CSV export with multiline continuation lines", async () => {
   const dir = await mkdtemp(join(tmpdir(), "kca-parser-"));
@@ -29,6 +42,8 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(parsed.warnings.length, 0);
 
     const data = buildReportData(parsed, { privacy: "public-masked" });
+    assert.equal(parseChatRoomNameFromExportPath(csvPath), "chat");
+    assert.equal(data.source.chatRoomName, "chat");
     assert.equal(data.summary.totalMessages, 3);
     assert.equal(data.summary.participants, 2);
     assert.equal(data.attachments[0]?.label, "사진");
@@ -36,6 +51,8 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(maskPartialDisplayName("Bob"), "B*b");
 
     const html = renderReportHtml(data);
+    assert.equal(html.includes('class="room-title"'), true);
+    assert.match(html, /room-title[^>]*>chat</);
     assert.equal(Buffer.byteLength(html, "utf8") < 5 * 1024 * 1024, true);
     assert.equal(html.includes("Alice"), false);
     assert.equal(html.includes("Bob"), false);
@@ -97,6 +114,7 @@ function emptyReport() {
     privacy: "public-masked" as const,
     source: {
       fileName: "KakaoTalk export",
+      chatRoomName: "채팅방",
       encoding: "utf-8" as const,
       physicalLines: 1,
       warnings: 0,

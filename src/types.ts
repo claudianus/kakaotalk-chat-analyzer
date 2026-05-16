@@ -114,6 +114,8 @@ export interface ReportData {
   privacy: PrivacyMode;
   source: {
     fileName: string;
+    /** KakaoTalk CSV 파일명에서 추출한 채팅방 표시명 */
+    chatRoomName: string;
     encoding: EncodingName;
     physicalLines: number;
     warnings: number;

@@ -305,7 +305,8 @@ export function buildReportData(result, options) {
         generatedAt: new Date().toISOString(),
         privacy,
         source: {
-            fileName: "KakaoTalk export",
+            fileName: safeInputName(result.filePath),
+            chatRoomName: parseChatRoomNameFromExportPath(result.filePath),
             encoding: result.encoding,
             physicalLines: result.physicalLines,
             warnings: result.warnings.length,
@@ -342,6 +343,25 @@ export function buildReportData(result, options) {
 export function safeInputName(filePath) {
     const name = basename(filePath);
     return name.length > 80 ? `${name.slice(0, 77)}...` : name;
+}
+const KAKAO_CHAT_PREFIX_RE = /^KakaoTalk_Chat_/i;
+const KAKAO_PREFIX_RE = /^KakaoTalk_/i;
+/** 카카오 CSV 보내기 파일명 끝의 보내기 시각: _2026-05-16-15-03-41 */
+const EXPORT_TIMESTAMP_SUFFIX_RE = /_\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}$/;
+export function parseChatRoomNameFromExportPath(filePath) {
+    const base = basename(filePath).replace(/\.(csv|txt)$/i, "");
+    let room = base;
+    if (KAKAO_CHAT_PREFIX_RE.test(room)) {
+        room = room.replace(KAKAO_CHAT_PREFIX_RE, "");
+    }
+    else if (KAKAO_PREFIX_RE.test(room)) {
+        room = room.replace(KAKAO_PREFIX_RE, "");
+    }
+    room = room.replace(EXPORT_TIMESTAMP_SUFFIX_RE, "").trim();
+    if (room.length > 0)
+        return room.length > 120 ? `${room.slice(0, 117)}...` : room;
+    const fallback = base.replace(EXPORT_TIMESTAMP_SUFFIX_RE, "").trim();
+    return fallback.length > 0 ? fallback : "채팅방";
 }
 function getParticipantStat(stats, alias) {
     const existing = stats.get(alias);

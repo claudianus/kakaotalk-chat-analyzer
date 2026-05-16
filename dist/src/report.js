@@ -6,7 +6,7 @@ export function renderReportHtml(data) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>카카오톡 대화 리포트 · kca</title>
+  <title>카카오톡 대화 리포트 · ${escapeHtml(data.source.chatRoomName)} · kca</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -264,6 +264,15 @@ export function renderReportHtml(data) {
     .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
     .hero { display: grid; gap: 20px; grid-template-columns: 1.35fr 1fr; align-items: stretch; padding-bottom: 28px; }
     h1 { margin: 0; font-size: clamp(28px, 4.2vw, 48px); line-height: 1.08; letter-spacing: -0.03em; font-weight: 800; }
+    .room-title {
+      margin: 10px 0 0;
+      font-size: clamp(18px, 2.8vw, 26px);
+      line-height: 1.25;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      word-break: break-word;
+    }
     .sub { margin: 12px 0 0; color: var(--muted); line-height: 1.65; font-size: 15px; max-width: 52ch; }
     .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .badge { font-size: 12px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); }
@@ -576,6 +585,7 @@ export function renderReportHtml(data) {
     <header id="s-story" class="hero anim-enter" style="--enter-delay:0.03s;margin-bottom:16px">
       <div>
         <h1>카카오톡 대화 리포트</h1>
+        <p class="room-title" aria-label="채팅방 이름">${escapeHtml(data.source.chatRoomName)}</p>
         <p class="sub">원문 내용·전체 링크 주소는 저장하지 않아요. 이름은 <strong>일부만 보이게 가린 표시명</strong>이에요. 바로 아래 <strong>① 숫자 요약</strong>에서 규모를 보고, 차트로 패턴을 따라가면 됩니다.</p>
         <div class="badge-row">
           <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
@@ -584,6 +594,7 @@ export function renderReportHtml(data) {
         </div>
       </div>
       <div class="card side-card">
+        <p><strong>채팅방</strong><br>${escapeHtml(data.source.chatRoomName)}</p>
         <p><strong>생성 시각</strong><br>${escapeHtml(formatTimestamp(data.generatedAt))}</p>
         <p><strong>첫 메시지</strong><br>${escapeHtml(data.summary.firstMessage ?? "—")}</p>
         <p><strong>마지막 메시지</strong><br>${escapeHtml(data.summary.lastMessage ?? "—")}</p>
@@ -724,7 +735,7 @@ export function renderReportHtml(data) {
     </script>
 
     <script type="application/json" id="report-data">${escapeJsonForHtml(data)}</script>
-    <footer>${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
+    <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
   </main>
 </body>
 </html>`;
