@@ -10,7 +10,7 @@ export interface FinalizeOptions {
     koreanPrimary?: boolean;
 }
 export interface AggregatorOptions {
-    /** MiniLM 시맨틱 키워드용 메시지 샘플 수집 */
+    /** 시맨틱 키워드용 메시지 샘플 수집 */
     semanticSamples?: boolean;
 }
 export declare class ReportAggregator {

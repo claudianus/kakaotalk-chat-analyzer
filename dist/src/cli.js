@@ -38,8 +38,8 @@ main
     .option("--profile", "파싱·집계·HTML 단계별 소요 시간을 출력합니다.", false)
     .option("--no-worker", "3MB 이상 파일도 Worker 없이 메인 스레드에서 집계합니다.", false)
     .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
-    .option("--no-semantic-keywords", "한국어 방 기본 시맨틱 키워드(다국어 임베딩)를 끕니다.", false)
-    .option("--semantic-keywords", "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(최초 모델 다운로드).", false)
+    .option("--no-semantic-keywords", "한국어 방 기본 시맨틱 키워드(multilingual-e5-small)를 끕니다.", false)
+    .option("--semantic-keywords", "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(e5-small, 최초 다운로드).", false)
     .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
     .action(async (csv, options) => {
     const host = parseHostName(options.host);

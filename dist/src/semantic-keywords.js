@@ -2,7 +2,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./embedding-cluster.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
-import { semanticEmbeddingModelId } from "./semantic-policy.js";
+import { formatTextForEmbedding, semanticEmbeddingModelId } from "./semantic-policy.js";
 const MIN_SAMPLES = 48;
 const MAX_SAMPLES = 480;
 const EMBED_BATCH = 12;
@@ -26,7 +26,7 @@ async function loadPipeline() {
         const { env, pipeline } = mod;
         env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
         env.allowLocalModels = true;
-        process.stderr.write(`[kca] 한국어·다국어 임베딩 준비 중… (${modelId}, 최초 1회)\n`);
+        process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}, 최초 1회)\n`);
         return pipeline("feature-extraction", modelId, {
             quantized: true,
         });
@@ -51,7 +51,10 @@ function tensorToRows(tensor) {
     return out;
 }
 async function embedMessages(pipe, messages, onBatch) {
-    const clipped = messages.slice(0, MAX_SAMPLES).map((m) => m.slice(0, 512));
+    const modelId = semanticEmbeddingModelId();
+    const clipped = messages
+        .slice(0, MAX_SAMPLES)
+        .map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
     const vectors = [];
     for (let i = 0; i < clipped.length; i += EMBED_BATCH) {
         const batch = clipped.slice(i, i + EMBED_BATCH);

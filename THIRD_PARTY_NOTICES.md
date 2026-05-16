@@ -13,7 +13,7 @@ This project (`kakaotalk-chat-analyzer`) is distributed under the **MIT License*
 
 - **Package:** [@xenova/transformers](https://www.npmjs.com/package/@xenova/transformers)
 - **License:** Apache-2.0
-- **Use in kca:** Korean-primary chats use multilingual sentence embeddings for semantic keyword clusters by default. Default model `Xenova/paraphrase-multilingual-MiniLM-L12-v2` (override with `KCA_SEMANTIC_MODEL`). Downloaded at runtime (free).
+- **Use in kca:** Korean-primary chats use multilingual sentence embeddings for semantic keyword clusters by default. Default model `Xenova/multilingual-e5-small` (E5 `query:` prefix; override with `KCA_SEMANTIC_MODEL`, legacy MiniLM: `Xenova/paraphrase-multilingual-MiniLM-L12-v2`). Downloaded at runtime (free).
 - **Source:** https://github.com/xenova/transformers.js
 
 Other runtime dependencies: `commander` (MIT), `csv-parse` (MIT), `iconv-lite` (MIT).

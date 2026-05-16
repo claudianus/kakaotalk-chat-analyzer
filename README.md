@@ -80,8 +80,9 @@
 # 진행 상황 (2.5만 건마다 stderr)
 npx kcachat@latest "./KakaoTalk_Chat_....csv" --progress
 
-# 한국어 방은 시맨틱 키워드가 기본 ON (끄려면 --no-semantic-keywords)
+# 한국어 방은 시맨틱 키워드가 기본 ON (multilingual-e5-small, 끄려면 --no-semantic-keywords)
 # 영어 위주 방에서 강제: --semantic-keywords
+# 이전 MiniLM: KCA_SEMANTIC_MODEL=Xenova/paraphrase-multilingual-MiniLM-L12-v2
 
 # 단계별 ms (Worker 끔)
 npx kcachat@latest "./KakaoTalk_Chat_....csv" --profile --no-worker
@@ -115,6 +116,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.9.0** | 시맨틱 기본 **`Xenova/multilingual-e5-small`** (한국어 NDCG ~+68% vs MiniLM)·E5 `query:` 접두사 |
 | **0.8.1** | 키워드 랭킹 **메시지 등장 수 우선** (BM25 dl 버그 수정)·떨림 2-gram 제거 |
 | **0.8.0** | **한국어 우선**: 다국어 임베딩·한국어 방 **자동 시맨틱**·userWords 완화 |
 | **0.7.0** | **2단계 스트림**(집계→Kiwi 키워드)·`.kca-glossary`·주제 ECharts·`keyword:audit` CI |
