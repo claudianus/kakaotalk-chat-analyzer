@@ -1,0 +1,24 @@
+package.json
+  s_d404882750412e::t_59000e270a6fa5 3
+dist/src/report.js
+  s_d404882750412e::t_543d2899f3eb8a 795-797
+src/report.ts
+  s_d404882750412e::t_df43163de6038c 817-818
+  s_d404882750412e::t_44b19e768d363b 816
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "5bad42cb3c472de4bb22a8bb9cd1b927bbd7e090",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
