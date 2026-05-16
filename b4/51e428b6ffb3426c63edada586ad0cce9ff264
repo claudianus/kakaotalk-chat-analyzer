@@ -1,0 +1,85 @@
+dist/src/keyword-quality.js
+  s_d404882750412e::t_90ca31bb7debbf 32-46
+src/keyword-tokenize.ts
+  s_d404882750412e::t_f8e9f3cd490305 34-35,51-65
+src/keyword-quality.ts
+  s_d404882750412e::t_f755744df711c7 33-47
+package.json
+  s_d404882750412e::t_b4f4e4920066a5 29
+  s_d404882750412e::t_b44930e7616f83 3
+  s_d404882750412e::t_edb22db459a85e 21-22
+dist/src/kiwi-runtime.js
+  s_d404882750412e::t_90ca31bb7debbf 89-92,121,126-127
+dist/src/keyword-quality.js.map
+  ai_agent 1
+dist/src/analysis.js.map
+  ai_agent 1
+kcachat/README.md
+  s_d404882750412e::t_c7de3e402ba5f2 12
+dist/src/version.js
+  s_d404882750412e::t_90ca31bb7debbf 1
+src/analysis.ts
+  s_d404882750412e::t_dde2e6111891b6 13-17
+  s_d404882750412e::t_044475c3b7a5f3 33-40
+src/kiwi-runtime.ts
+  s_d404882750412e::t_5397f2f8c037eb 100-103
+  s_d404882750412e::t_88d8fd50c0406f 132-133,138,140
+dist/src/streaming-tfidf-keywords.js
+  s_d404882750412e::t_90ca31bb7debbf 84,90-92,94
+dist/src/keyword-tokenize.d.ts
+  s_d404882750412e::t_90ca31bb7debbf 1-3
+src/streaming-tfidf-keywords.ts
+  s_d404882750412e::t_4e81a8c733950a 94-97,99
+  s_d404882750412e::t_6b0af160e8292d 83-84,87
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+dist/src/kiwi-runtime.js.map
+  ai_agent 1
+dist/src/analysis.d.ts
+  s_d404882750412e::t_90ca31bb7debbf 5-6,8
+scripts/keyword-diff.mjs
+  s_d404882750412e::t_207a2dd55e456a 1-80
+dist/src/streaming-tfidf-keywords.d.ts
+  s_d404882750412e::t_90ca31bb7debbf 3,6,12
+dist/src/version.d.ts
+  s_d404882750412e::t_90ca31bb7debbf 1-2
+test/kiwi-keywords.test.ts
+  s_d404882750412e::t_52a447a41c8885 1-20
+docs/index.html
+  s_d404882750412e::t_320bfce1773984 322-323
+kcachat/package.json
+  s_d404882750412e::t_c56b165f70bf55 3
+  s_d404882750412e::t_8aa27a1927deaf 15
+dist/src/analysis.js
+  s_d404882750412e::t_90ca31bb7debbf 7-10,25-27
+dist/src/keyword-tokenize.js
+  s_d404882750412e::t_90ca31bb7debbf 32-33,52-65
+dist/src/keyword-tokenize.js.map
+  ai_agent 1
+.github/workflows/npm-publish.yml
+  s_d404882750412e::t_7bdd5876f8f702 35-42
+README.md
+  s_d404882750412e::t_779cf8005e1cb9 155
+  s_d404882750412e::t_6a8b43fe947162 110,114-115
+  s_d404882750412e::t_ade75deaae8e8c 261-268
+THIRD_PARTY_NOTICES.md
+  s_d404882750412e::t_2f7b5af9445a57 1-12
+src/version.ts
+  s_d404882750412e::t_90ca31bb7debbf 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "b451e428b6ffb3426c63edada586ad0cce9ff264",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
