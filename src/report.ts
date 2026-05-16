@@ -127,6 +127,15 @@ export function renderReportHtml(data: ReportData): string {
     (function () {
       var KEY = "kca-report-theme";
       var root = document.documentElement;
+      function syncBtns(mode) {
+        var m = mode || "system";
+        document.querySelectorAll(".theme-btn").forEach(function (btn) {
+          var tv = btn.getAttribute("data-theme-set") || "system";
+          var on = m === "system" ? tv === "system" : tv === m;
+          btn.classList.toggle("is-active", on);
+          btn.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      }
       function apply(v) {
         if (v === "system" || !v) {
           root.removeAttribute("data-theme");
@@ -139,11 +148,15 @@ export function renderReportHtml(data: ReportData): string {
             localStorage.setItem(KEY, v);
           } catch (e) {}
         }
+        syncBtns(v || "system");
       }
       try {
         var s = localStorage.getItem(KEY);
         if (s === "dark" || s === "light") root.setAttribute("data-theme", s);
-      } catch (e) {}
+        syncBtns(s || "system");
+      } catch (e) {
+        syncBtns("system");
+      }
       document.querySelectorAll(".theme-btn").forEach(function (btn) {
         btn.addEventListener("click", function () {
           apply(btn.getAttribute("data-theme-set") || "system");

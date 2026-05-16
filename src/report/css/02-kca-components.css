@@ -63,6 +63,7 @@
     .glossary dt { font-weight: 750; color: var(--ink); font-size: 12px; }
     .glossary dd { margin: 2px 0 0; padding: 0; font-size: 12px; }
     .chart-stack { display: flex; flex-direction: column; gap: 14px; }
+
 .toolbar {
       display: flex;
       flex-wrap: wrap;
