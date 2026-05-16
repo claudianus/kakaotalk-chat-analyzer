@@ -7,6 +7,7 @@ export interface FinalizeSourceMeta {
 }
 export interface FinalizeOptions {
     usedSemanticKeywords?: boolean;
+    koreanPrimary?: boolean;
 }
 export interface AggregatorOptions {
     /** MiniLM 시맨틱 키워드용 메시지 샘플 수집 */

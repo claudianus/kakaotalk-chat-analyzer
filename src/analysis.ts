@@ -6,7 +6,9 @@ import { buildKeywordStopwords } from "./keyword-stopwords.js";
 import { initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker, type BuildReportOptions } from "./analyze-pool.js";
+import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { logReportProgress, resetReportProgress } from "./report-progress.js";
+import { resolveSemanticKeywords, shouldCollectSemanticSamples } from "./semantic-policy.js";
 import { extractSemanticKeywords } from "./semantic-keywords.js";
 import type { StreamParseOptions } from "./stream-options.js";
 import { streamKakaoExport } from "./stream-parser.js";
@@ -34,12 +36,12 @@ export async function prepareReportEngine(): Promise<void> {
   await initKiwiRuntime();
 }
 
-async function applySemanticKeywordsIfRequested(
+async function applySemanticKeywords(
   agg: ReportAggregator,
-  options: BuildReportOptions | undefined,
+  enabled: boolean,
   showProgress: boolean,
 ): Promise<boolean> {
-  if (!options?.semanticKeywords || process.env.KCA_NO_SEMANTIC === "1") return false;
+  if (!enabled) return false;
 
   const samples = agg.drainSemanticSamples();
   if (samples.length < 48) return false;
@@ -58,18 +60,23 @@ async function applySemanticKeywordsIfRequested(
 export function buildReportData(result: ParseResult, options?: BuildReportOptions): ReportData {
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
+  const texts = result.records.map((r) => r.message);
+  const korean = isPrimarilyKoreanMessages(texts);
   const agg = new ReportAggregator(result.filePath, privacy, top, {
-    semanticSamples: options?.semanticKeywords === true,
+    semanticSamples: shouldCollectSemanticSamples(result.records.length),
   });
   for (const record of result.records) {
     agg.consume(record);
   }
-  return agg.finalize({
-    filePath: result.filePath,
-    encoding: result.encoding,
-    physicalLines: result.physicalLines,
-    warningCount: result.warnings.length,
-  });
+  return agg.finalize(
+    {
+      filePath: result.filePath,
+      encoding: result.encoding,
+      physicalLines: result.physicalLines,
+      warningCount: result.warnings.length,
+    },
+    { koreanPrimary: korean },
+  );
 }
 
 export async function buildReportDataAsync(
@@ -79,13 +86,17 @@ export async function buildReportDataAsync(
   await prepareReportEngine();
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
+  const texts = result.records.map((r) => r.message);
+  const prepass = new HeuristicPrepassCollector();
+  for (const t of texts) prepass.onMessageText(t);
+  const useSemantic = resolveSemanticKeywords(options, prepass, texts);
   const agg = new ReportAggregator(result.filePath, privacy, top, {
-    semanticSamples: options?.semanticKeywords === true,
+    semanticSamples: shouldCollectSemanticSamples(result.records.length),
   });
   for (const record of result.records) {
     agg.consume(record);
   }
-  const usedSemantic = await applySemanticKeywordsIfRequested(agg, options, false);
+  const usedSemantic = await applySemanticKeywords(agg, useSemantic, false);
   return agg.finalize(
     {
       filePath: result.filePath,
@@ -93,7 +104,7 @@ export async function buildReportDataAsync(
       physicalLines: result.physicalLines,
       warningCount: result.warnings.length,
     },
-    { usedSemanticKeywords: usedSemantic },
+    { usedSemanticKeywords: usedSemantic, koreanPrimary: prepass.isPrimarilyKorean() },
   );
 }
 
@@ -151,10 +162,10 @@ export async function buildReportFromExportSync(
 
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
-  const agg = new ReportAggregator(filePath, privacy, top, {
-    semanticSamples: options?.semanticKeywords === true,
-  });
   const prepass = new HeuristicPrepassCollector();
+  const agg = new ReportAggregator(filePath, privacy, top, {
+    semanticSamples: process.env.KCA_NO_SEMANTIC !== "1",
+  });
   const useKiwi = process.env.KCA_NO_KIWI !== "1";
 
   const progressOpts = (phase: string, estimated?: number): StreamParseOptions | undefined =>
@@ -218,10 +229,15 @@ export async function buildReportFromExportSync(
     }
   }
 
+  const useSemantic = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
+
   if (showProgress) logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
 
-  const usedSemantic = await applySemanticKeywordsIfRequested(agg, options, showProgress);
-  const report = agg.finalize(meta, { usedSemanticKeywords: usedSemantic });
+  const usedSemantic = await applySemanticKeywords(agg, useSemantic, showProgress);
+  const report = agg.finalize(meta!, {
+    usedSemanticKeywords: usedSemantic,
+    koreanPrimary: prepass.isPrimarilyKorean(),
+  });
 
   if (showProgress) {
     logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });

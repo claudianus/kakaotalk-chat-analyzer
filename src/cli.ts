@@ -50,8 +50,13 @@ main
   .option("--no-worker", "3MB 이상 파일도 Worker 없이 메인 스레드에서 집계합니다.", false)
   .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
   .option(
+    "--no-semantic-keywords",
+    "한국어 방 기본 시맨틱 키워드(다국어 임베딩)를 끕니다.",
+    false,
+  )
+  .option(
     "--semantic-keywords",
-    "MiniLM 임베딩으로 메시지 군집 키워드를 보조 추출합니다(모델 최초 1회 다운로드, @xenova/transformers).",
+    "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(최초 모델 다운로드).",
     false,
   )
   .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
@@ -69,7 +74,11 @@ main
       profile: options.profile,
       worker: options.noWorker || options.profile ? false : undefined,
       progress: !options.noProgress,
-      semanticKeywords: options.semanticKeywords,
+      semanticKeywords: options.noSemanticKeywords
+        ? false
+        : options.semanticKeywords
+          ? true
+          : undefined,
     });
     console.log(`리포트: ${htmlPath}`);
     console.log(`크기: ${await formatFileSize(htmlPath)}`);
@@ -169,6 +178,7 @@ interface MainOptions {
   profile: boolean;
   noWorker: boolean;
   noProgress: boolean;
+  noSemanticKeywords: boolean;
   semanticKeywords: boolean;
 }
 

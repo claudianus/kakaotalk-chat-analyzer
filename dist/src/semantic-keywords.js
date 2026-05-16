@@ -2,27 +2,32 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./embedding-cluster.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
+import { semanticEmbeddingModelId } from "./semantic-policy.js";
 const MIN_SAMPLES = 48;
 const MAX_SAMPLES = 480;
 const EMBED_BATCH = 12;
 let pipelinePromise = null;
+let loadedModelId = null;
 async function loadPipeline() {
-    if (pipelinePromise)
+    const modelId = semanticEmbeddingModelId();
+    if (pipelinePromise && loadedModelId === modelId)
         return pipelinePromise;
+    pipelinePromise = null;
+    loadedModelId = modelId;
     pipelinePromise = (async () => {
         let mod;
         try {
             mod = await import("@xenova/transformers");
         }
         catch {
-            throw new Error("[kca] --semantic-keywords requires optional dependency @xenova/transformers. " +
-                "Reinstall kakaotalk-chat-analyzer or run without the flag.");
+            throw new Error("[kca] 시맨틱 키워드는 optional dependency @xenova/transformers 가 필요합니다. " +
+                "재설치하거나 --no-semantic-keywords 로 끄세요.");
         }
         const { env, pipeline } = mod;
         env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
         env.allowLocalModels = true;
-        process.stderr.write("[kca] MiniLM 임베딩 모델 준비 중… (최초 1회, 무료)\n");
-        return pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", {
+        process.stderr.write(`[kca] 한국어·다국어 임베딩 준비 중… (${modelId}, 최초 1회)\n`);
+        return pipeline("feature-extraction", modelId, {
             quantized: true,
         });
     })();
@@ -56,7 +61,7 @@ async function embedMessages(pipe, messages, onBatch) {
     }
     return vectors;
 }
-/** MiniLM 임베딩 + k-means → 클러스터 대표 키워드 */
+/** 다국어(한국어 우선) 임베딩 + k-means → 클러스터 대표 키워드 */
 export async function extractSemanticKeywords(messages, options) {
     if (process.env.KCA_NO_SEMANTIC === "1")
         return [];

@@ -5,6 +5,7 @@ import { detectEncodingFromBytes, openDecodedStream } from "./encoding.js";
 import { DATE_LINE_RE, parseHeaderLine, parseRecordStart } from "./kakao-line.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
+import { countScriptChars } from "./korean-locale.js";
 import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
 
 const SAMPLE_BYTES = 512 * 1024;
@@ -43,11 +44,21 @@ function isUserWordCandidate(token: string): boolean {
 /** 스트리밍 분석과 함께 쓰는 휴리스틱 userWords·건수 수집 */
 export class HeuristicPrepassCollector {
   private readonly tokenDf = new Map<string, number>();
+  private readonly sampleMessages: string[] = [];
+  private readonly maxSamples = 220;
+  private corpusHangul = 0;
+  private corpusLatin = 0;
   messageCount = 0;
 
   onMessageText(message: string): void {
     if (!HAS_TOKEN.test(message)) return;
     this.messageCount += 1;
+    const script = countScriptChars(message);
+    this.corpusHangul += script.hangul;
+    this.corpusLatin += script.latin;
+    if (this.sampleMessages.length < this.maxSamples) {
+      this.sampleMessages.push(message);
+    }
     const seen = new Set<string>();
     for (const t of heuristicTokens(message)) {
       if (!isUserWordCandidate(t) || seen.has(t)) continue;
@@ -56,11 +67,25 @@ export class HeuristicPrepassCollector {
     }
   }
 
+  sampleTexts(): string[] {
+    return this.sampleMessages;
+  }
+
+  isPrimarilyKorean(): boolean {
+    if (this.messageCount < 8) return true;
+    if (this.corpusHangul < 24) return false;
+    if (this.corpusLatin === 0) return true;
+    return this.corpusHangul >= this.corpusLatin * 0.85;
+  }
+
   toUserWords(): UserWord[] {
     return [...this.tokenDf.entries()]
-      .filter(([, df]) => df >= 3)
+      .filter(([word, df]) => {
+        const minDf = /[가-힣]/.test(word) ? 2 : 3;
+        return df >= minDf;
+      })
       .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)
-      .slice(0, 72)
+      .slice(0, 96)
       .map(([word, df]) => ({
         word,
         tag: /^[A-Za-z]/.test(word) ? "SL" : "NNP",

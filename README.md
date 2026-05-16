@@ -71,7 +71,7 @@
 | **스트리밍 파싱** | 파일 전체를 문자열/배열로 펼치지 않음 |
 | **단일 패스 집계** | `Map`·히스토그램·온라인 통계(간격 P90 등)만 유지 |
 | **Worker (≥3MB)** | 대용량일 때 메인 스레드 멈춤 완화 |
-| **키워드** | **Kiwi**(+방별 userWords) + **BM25**·PMI + 해시태그 보조(최대 120개, 모델 최초 1회 무료 다운로드) |
+| **키워드** | **Kiwi** 한국어 형태소(+방별·glossary userWords) + **BM25**·PMI + **한국어 방 자동 시맨틱**(다국어 임베딩) |
 | **kcachat@latest** | 실행 시 `kakaotalk-chat-analyzer@latest` 본체를 받아 최신 CLI 사용 |
 
 로컬 벤치(합성 20만 메시지, 집계만): **약 0.4초대** — 환경·디스크·실제 대화 밀도에 따라 달라집니다.
@@ -80,8 +80,8 @@
 # 진행 상황 (2.5만 건마다 stderr)
 npx kcachat@latest "./KakaoTalk_Chat_....csv" --progress
 
-# 시맨틱 키워드(MiniLM, 최초 모델 다운로드)
-npx kcachat@latest "./KakaoTalk_Chat_....csv" --semantic-keywords
+# 한국어 방은 시맨틱 키워드가 기본 ON (끄려면 --no-semantic-keywords)
+# 영어 위주 방에서 강제: --semantic-keywords
 
 # 단계별 ms (Worker 끔)
 npx kcachat@latest "./KakaoTalk_Chat_....csv" --profile --no-worker
@@ -115,6 +115,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.8.0** | **한국어 우선**: 다국어 임베딩·한국어 방 **자동 시맨틱**·userWords 완화 |
 | **0.7.0** | **2단계 스트림**(집계→Kiwi 키워드)·`.kca-glossary`·주제 ECharts·`keyword:audit` CI |
 | **0.6.0** | **`--semantic-keywords`** MiniLM 클러스터 키워드 보조(opt-in) |
 | **0.5.0** | **주제 맵**(c-TF-IDF)·**BM25** 키워드·CSV 사전 스캔(userWords·진행률 %) |
@@ -160,7 +161,7 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.7.0`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.8.0`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
 
 CSV와 같은 폴더에 **`.kca-glossary.txt`**(한 줄에 한 단어)를 두면 Kiwi 사용자 사전에 자동 반영됩니다.
 

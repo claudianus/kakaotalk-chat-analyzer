@@ -1446,10 +1446,10 @@ function renderTopicMap(data: ReportData): string {
 function renderKeywordSnapshot(items: CountItem[], data: ReportData): string {
   const sem =
     data.summary.usedSemanticKeywords === true
-      ? " <strong>MiniLM</strong> 시맨틱 클러스터 키워드를 보조 반영했습니다."
+      ? " 한국어·다국어 <strong>임베딩</strong> 시맨틱 클러스터를 보조 반영했습니다."
       : "";
   const note =
-    `<p class="kw-note"><strong>Kiwi</strong> 형태소·<strong>BM25</strong>로 본문 명사·구를 뽑고, 해시태그·슬랭을 보조로 더합니다.${sem} 막대·표의 숫자는 <strong>해당 표현이 들어간 메시지 수</strong>예요. 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>`;
+    `<p class="kw-note"><strong>Kiwi</strong> 한국어 형태소·<strong>BM25</strong>로 본문 명사·구를 뽑고, 해시태그·방별 사전·슬랭을 보조로 더합니다.${sem} 막대·표의 숫자는 <strong>해당 표현이 들어간 메시지 수</strong>예요. 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>`;
   if (items.length === 0) {
     return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
   }

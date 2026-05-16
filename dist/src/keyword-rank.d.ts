@@ -11,4 +11,4 @@ export interface KeywordExtractOptions {
     minDocFreq?: number;
 }
 /** 메시지 수에 따른 최소 문서 빈도 */
-export declare function adaptiveMinCount(messageCount: number): number;
+export declare function adaptiveMinCount(messageCount: number, koreanPrimary?: boolean): number;

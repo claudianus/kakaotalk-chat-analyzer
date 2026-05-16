@@ -391,7 +391,7 @@ export class ReportAggregator {
         const wordRankItems = this.keywordStream.extractKeywordItems({
             stopwords: keywordStop,
             limit: keywordLimit,
-            minDocFreq: adaptiveMinCount(total),
+            minDocFreq: adaptiveMinCount(total, finalizeOpts?.koreanPrimary !== false),
         });
         const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit);
         const topics = this.topicMap.buildTopics(total, keywordStop);

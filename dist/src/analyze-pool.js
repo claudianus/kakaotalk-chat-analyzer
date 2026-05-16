@@ -5,7 +5,7 @@ const WORKER_THRESHOLD_BYTES = 3 * 1024 * 1024;
 export async function shouldUseAnalyzeWorker(filePath, options) {
     if (options?.worker === false)
         return false;
-    if (options?.semanticKeywords)
+    if (options?.semanticKeywords === true)
         return false;
     try {
         const { size } = await stat(filePath);

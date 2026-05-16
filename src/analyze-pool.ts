@@ -12,7 +12,7 @@ export interface BuildReportOptions {
   worker?: boolean;
   /** 집계 중 진행 건수 stderr 출력 */
   progress?: boolean;
-  /** MiniLM 임베딩 클러스터 키워드 보조 */
+  /** true=강제, false=끔, undefined=한국어 방이면 자동 */
   semanticKeywords?: boolean;
 }
 
@@ -21,7 +21,7 @@ export async function shouldUseAnalyzeWorker(
   options?: BuildReportOptions,
 ): Promise<boolean> {
   if (options?.worker === false) return false;
-  if (options?.semanticKeywords) return false;
+  if (options?.semanticKeywords === true) return false;
   try {
     const { size } = await stat(filePath);
     return size >= WORKER_THRESHOLD_BYTES;
