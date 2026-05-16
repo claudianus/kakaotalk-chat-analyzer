@@ -958,12 +958,22 @@ function renderHelpGlossary() {
 function renderFactMatrix(data) {
     const s = data.summary;
     const ins = data.insights;
+    const density = ins.densityMessagesPerCalendarDay;
+    const perActive = s.messagesPerActiveDay;
+    const densityDup = density !== null &&
+        perActive > 0 &&
+        Math.abs(density - perActive) / perActive < 0.02;
+    const densityRows = densityDup
+        ? [["활동일당 메시지", String(perActive)]]
+        : [
+            ["일평균(활동일)", String(perActive)],
+            ["달력 밀도", density === null ? "—" : String(density)],
+        ];
     const cells = [
         ["총 메시지", formatNumber(s.totalMessages)],
         ["참여자", formatNumber(s.participants)],
         ["활동일", formatNumber(s.activeDays)],
-        ["일평균(활동일)", String(s.messagesPerActiveDay)],
-        ["달력 밀도", ins.densityMessagesPerCalendarDay === null ? "—" : String(ins.densityMessagesPerCalendarDay)],
+        ...densityRows,
         ["링크·100", String(ins.linksPer100)],
         ["첨부·100", String(ins.attachmentsPer100)],
         ["사진÷첨부%", ins.photoShareOfAllAttachmentMarkers === null ? "—" : `${ins.photoShareOfAllAttachmentMarkers}%`],

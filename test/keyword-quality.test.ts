@@ -7,6 +7,10 @@ test("isNoiseKeyword filters digits and short latin tokens", () => {
   assert.equal(isNoiseKeyword("20"), true);
   assert.equal(isNoiseKeyword("kr"), true);
   assert.equal(isNoiseKeyword("ENT"), true);
+  assert.equal(isNoiseKeyword("install"), true);
+  assert.equal(isNoiseKeyword("code"), true);
+  assert.equal(isNoiseKeyword("괜찮"), true);
+  assert.equal(isNoiseKeyword("일론머스크병존사주"), true);
   assert.equal(isNoiseKeyword("google_vignette"), true);
   assert.equal(isNoiseKeyword("클로드"), false);
   assert.equal(isNoiseKeyword("SaaS"), false);

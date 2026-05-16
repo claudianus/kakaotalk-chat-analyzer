@@ -939,7 +939,7 @@ function buildHighlights(input: {
     out.push(`시간대는 **${input.peakHour}시**대에 메시지가 가장 몰렸습니다.`);
   }
   if (input.medianReplyGapMinutes !== null) {
-    out.push(`연속 메시지 사이 간격의 중앙값은 약 **${formatReplyGapMinutes(input.medianReplyGapMinutes)}**이에요.`);
+    out.push(`연속 메시지 사이 간격의 중앙값은 **${formatReplyGapMinutes(input.medianReplyGapMinutes)}** 정도예요.`);
   }
   if (input.nightSharePercent > 0) {
     out.push(`심야(23~05시) 메시지 비중은 **${input.nightSharePercent}%**입니다.`);

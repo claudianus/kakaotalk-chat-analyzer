@@ -209,6 +209,8 @@ export const KOREAN_CHAT_STOPWORDS = new Set([
   "아직",
   "기본",
   "변경",
+  "패키지",
+  "실전",
   "install",
   "usage",
   "ENT",
