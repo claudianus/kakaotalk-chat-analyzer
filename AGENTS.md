@@ -7,15 +7,24 @@
 | `kakaotalk-chat-analyzer` | 본체 CLI (`kca`) |
 | `kcachat` | 짧은 `npx` 이름 래퍼(본체 의존) |
 
+## 0. 최초 세팅: `NPM_TOKEN`을 GitHub에 넣기
+
+1. npmjs.com → **Access Tokens** 에서 **Automation**(또는 Granular: **Publish packages**, 새 패키지까지 올릴 거면 정책상 **bypass 2FA** 허용이 필요할 수 있음) 토큰을 만든다.
+2. 로컬에서 `gh` 로 GitHub에 로그인된 상태로 아래 중 하나를 실행한다.
+   - `bash scripts/sync-npm-token-to-gh.sh`  
+     (`~/.npmrc`의 `//registry.npmjs.org/:_authToken=` 를 읽어 `NPM_TOKEN` 시크릿으로 등록. **읽기 전용/legacy 토큰이면 퍼블리시는 실패**할 수 있음.)
+   - 또는 `export NPM_TOKEN=npm_...` 후 같은 스크립트 실행.
+   - 또는 한 줄 토큰만 담은 `.secrets/npm-token` 파일을 만들고 `NPM_TOKEN_FILE=.secrets/npm-token bash scripts/sync-npm-token-to-gh.sh` (`.secrets/`는 gitignore).
+3. 시크릿을 바꾼 뒤에는 Actions에서 **Publish npm packages** 워크플로를 **workflow_dispatch**로 한 번 돌려 확인한다.
+
 ## 1. 커밋·푸시 후 npm 배포 (강제)
 
 `main`에 **배포 가치가 있는 변경**(소스·`dist/`·`package.json`·`kcachat/` 등)을 커밋하고 `git push origin main`까지 했다면, **아래를 반드시 이행**할 것. “푸시만 하고 끝”은 허용하지 않는다.
 
 ### A. GitHub Actions (기본 경로)
 
-1. 저장소 **Settings → Secrets and variables → Actions**에 **`NPM_TOKEN`**을 등록한다.  
-   - npm **Automation** 토큰 또는 **Granular Access Token**(패키지 publish 권한, 필요 시 “bypass 2FA” 허용)을 사용한다.  
-   - 일반 `npm login` 세션만으로는 CI에 토큰이 없으므로 **시크릿 등록은 유지보수 담당자가 한 번** 해두면 된다.
+1. 저장소 **Settings → Secrets and variables → Actions**에 **`NPM_TOKEN`**이 있어야 한다(위 **§0** 또는 스크립트로 등록).  
+   - **새 패키지 이름**(`kcachat` 최초 등록)까지 CI에서 올리려면, 일반 로그인용 토큰이 아니라 npm 문서 기준의 **Automation / Granular publish** 토큰을 쓴다.
 2. 푸시가 `.github/workflows/npm-publish.yml`의 `paths`에 걸리면 워크플로가 돌고, **레지스트리 버전보다 `package.json`의 `version`이 새로울 때만** `npm publish`한다.
 3. 에이전트는 푸시 직후 **Actions 탭에서 해당 워크플로 성공 여부**를 확인하거나, 사용자에게 확인을 요청한다.
 
