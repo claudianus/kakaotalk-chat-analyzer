@@ -1,0 +1,28 @@
+kcachat/package-lock.json
+  ai_agent 3,9,12,53-55
+kcachat/cli.mjs
+  s_d404882750412e::t_bdf2b0bc1af8d2 10,12-17,26-36,38,40-42,45-48,51-63,66
+kcachat/package.json
+  s_d404882750412e::t_3d15bb8f044dce 15
+  s_d404882750412e::t_6d5b49106fe01d 3
+README.md
+  s_d404882750412e::t_3388b6f686e266 94
+kcachat/README.md
+  s_d404882750412e::t_274ad9c1d5887e 10,12-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a08651b22e1438e0220e4a14882b6bef843ad2ab",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
