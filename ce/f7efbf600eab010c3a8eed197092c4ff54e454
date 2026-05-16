@@ -1,0 +1,140 @@
+dist/src/providers/types.js.map
+  ai_agent 1
+dist/src/parser.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-206
+dist/src/providers/cloudflare.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-7
+dist/src/date.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-7
+dist/src/version.js.map
+  ai_agent 1
+dist/src/version.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-3
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/config.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-19
+dist/src/encoding.js.map
+  ai_agent 1
+dist/src/analysis.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-8
+src/analysis.ts
+  s_d404882750412e::t_1ccea366df8b48 2,18,57-59,62-63,66,77-84,87,92-93,95-120,142-144,149-155,157-170,174-217,228,230,233,236-242,247-248,252,267-268,275,281-282,288-327,389-455
+  s_d404882750412e::t_a4dcd538490ea9 94
+dist/src/providers/tempfile.js.map
+  ai_agent 1
+dist/src/providers/brewpage.js.map
+  ai_agent 1
+dist/src/config.js.map
+  ai_agent 1
+dist/src/providers/brewpage.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-96
+dist/src/providers/tempfile.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-60
+dist/src/providers/index.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-3
+dist/src/report.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-2
+dist/src/report.js.map
+  ai_agent 1
+dist/src/parser.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-3
+dist/src/providers/index.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-20
+dist/src/version.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-2
+src/types.ts
+  s_d404882750412e::t_e2da935f226e76 80-93,99-100,104-105
+  s_d404882750412e::t_0efb85cd68f0af 3
+  s_d404882750412e::t_bdbd548094f409 44-49
+src/cli.ts
+  s_d404882750412e::t_50e0e3366249c9 22-28,30-32
+  s_d404882750412e::t_55fd9fcf044aa4 16,20-21,33-46,50-51,53-55,74,92-93,95,101-119,123-125,130,133-134,140-142,174-175,191,204-209
+  s_d404882750412e::t_475311e8f88ed3 29
+  s_d404882750412e::t_d8df1df6e446cf 57-60,62
+docs/index.html
+  s_d404882750412e::t_0da26015617476 203,206,208-209,211-212
+  s_d404882750412e::t_6f1624a1166f0f 219-220
+  s_d404882750412e::t_7cde6732a5a53a 201-202,205
+  s_d404882750412e::t_c00c32f7b65738 187-188
+  s_d404882750412e::t_8189d12cea9ed4 191
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/report.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-227
+.gitignore
+  s_d404882750412e::t_90576a2252f1d1 8-9
+dist/src/encoding.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-53
+dist/src/providers/cloudflare.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-5
+dist/src/config.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-59
+dist/src/types.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-2
+dist/src/providers/cloudflare.js.map
+  ai_agent 1
+src/date.ts
+  s_d404882750412e::t_b5a383b16fd27a 32-36
+dist/src/providers/brewpage.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-8
+test/parser-report.test.ts
+  s_d404882750412e::t_d51753566f9ef4 6,31,35-36,44,46-61,74,83,99-105,110-111,115
+dist/src/analysis.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-406
+README.md
+  s_d404882750412e::t_323a7fbb0ba445 55,61
+  s_d404882750412e::t_888abbd63e116d 38,40
+  s_d404882750412e::t_67ecf897fde57d 64,67
+  s_d404882750412e::t_62d7da2bdac59c 126
+  s_d404882750412e::t_1d81e199b65089 50-52,58,62,66,70,73-77,80-82,85-100,103
+  s_d404882750412e::t_85bd3c3e96e4b4 109
+src/report.ts
+  s_d404882750412e::t_33d7ed38618550 11,15-25,28-39,42-67,74,76-82,84-87,91-110,113-115,118-120,123-125,128-130,134,146-151,161,165-166,171-175,181,187-190,192-193,199,209-213,215
+dist/src/date.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-32
+dist/src/encoding.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-5
+dist/src/types.js.map
+  ai_agent 1
+package-lock.json
+  ai_agent 3,9,17
+dist/src/providers/types.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-32
+dist/src/types.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-97
+dist/src/cli.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-15,23-177
+  s_d404882750412e::t_c7d2d1f98b728a 16-20,22
+  s_d404882750412e::t_f96608d366b623 21
+package.json
+  s_d404882750412e::t_538e76d6c0e2c6 3-4,15-16,20-21,25,27,46-48
+dist/src/parser.js.map
+  ai_agent 1
+dist/src/cli.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-2
+dist/src/providers/tempfile.d.ts
+  s_d404882750412e::t_9ca429f73b9c6f 1-8
+dist/src/providers/index.js.map
+  ai_agent 1
+dist/src/providers/types.js
+  s_d404882750412e::t_9ca429f73b9c6f 1-2
+dist/src/date.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "cef7efbf600eab010c3a8eed197092c4ff54e454",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
