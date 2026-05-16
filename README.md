@@ -91,6 +91,8 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
+> **버전이 안 바뀌는 것 같을 때:** `npx`는 한 번 설치한 패키지를 캐시해 **재설치 확인 문구가 안 나올 수** 있습니다. `npx --yes --prefer-online kcachat@latest --version`으로 확인하거나, 본체를 직접 `npx kakaotalk-chat-analyzer@latest`로 실행하세요. ([kcachat README](kcachat/README.md) 참고)
+
 전체 이름으로 실행해도 동일합니다:
 
 ```bash
