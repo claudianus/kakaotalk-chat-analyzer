@@ -82,7 +82,9 @@ function renderGitHubCalendar(data: ReportData): string {
       ? `<p class="gh-contrib-summary">이 기간 메시지 <strong>${formatNumber(s.calendarTotalMessages)}</strong>건<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`
       : `<p class="gh-contrib-summary">이 기간 활동 없음<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`;
 
-  return `<div class="gh-contrib">
+  const compactClass = weekCount <= 14 ? " gh-contrib--compact" : "";
+
+  return `<div class="gh-contrib${compactClass}">
     <div class="gh-cal-tooltip" data-gh-tip hidden><span data-gh-tip-text></span></div>
     ${summary}
     <div class="gh-cal-scroll">
@@ -162,8 +164,10 @@ export function renderStorySections(data: ReportData): string {
   }
 
   if (s.calendarWeeks.length > 0) {
+    const calWeeks = s.calendarWeeks.length;
+    const calTitle = calWeeks <= 14 ? "활동 기간 그리드" : "연간 활동 그리드";
     parts.push(`<section id="s-calendar" class="anim-enter" style="margin-bottom:14px;--enter-delay:0.05s">
-      <h2 style="margin:0 0 6px;font-size:20px;font-weight:800;letter-spacing:-0.02em">연간 활동 그리드</h2>
+      <h2 style="margin:0 0 6px;font-size:20px;font-weight:800;letter-spacing:-0.02em">${calTitle}</h2>
       <p class="chart-hint" style="margin-bottom:12px">GitHub 프로필 <strong>Contributions</strong>와 같은 레이아웃·색 단계예요. 셀에 마우스를 올리거나 탭하면 날짜와 건수가 표시됩니다.</p>
       ${renderGitHubCalendar(data)}
     </section>`);

@@ -1,4 +1,39 @@
-.viz-hero {
+:root {
+      --chart-heat-lo: #d4e4f4;
+      --chart-heat-hi: #1e4fd6;
+      --chart-wd-0: #4f46e5;
+      --chart-wd-1: #0f6b5c;
+      --chart-wd-2: #059669;
+      --chart-wd-3: #0d9488;
+      --chart-wd-4: #0284c7;
+      --chart-wd-5: #d97706;
+      --chart-wd-6: #ea580c;
+    }
+    :root[data-theme="dark"] {
+      --chart-heat-lo: #1a2744;
+      --chart-heat-hi: #5ee8ff;
+      --chart-wd-0: #818cf8;
+      --chart-wd-1: #3ee8c5;
+      --chart-wd-2: #34d399;
+      --chart-wd-3: #2dd4bf;
+      --chart-wd-4: #38bdf8;
+      --chart-wd-5: #fbbf24;
+      --chart-wd-6: #fb923c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --chart-heat-lo: #1a2744;
+        --chart-heat-hi: #5ee8ff;
+        --chart-wd-0: #818cf8;
+        --chart-wd-1: #3ee8c5;
+        --chart-wd-2: #34d399;
+        --chart-wd-3: #2dd4bf;
+        --chart-wd-4: #38bdf8;
+        --chart-wd-5: #fbbf24;
+        --chart-wd-6: #fb923c;
+      }
+    }
+    .viz-hero {
       margin: 0 0 18px;
       padding: 20px 22px;
       border-radius: 20px;

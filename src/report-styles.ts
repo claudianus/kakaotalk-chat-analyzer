@@ -614,11 +614,21 @@ a:hover {
       line-height: 1.55;
       color: var(--muted);
     }
+    .topic-group { margin-top: 14px; }
+    .topic-group:first-of-type { margin-top: 0; }
+    .topic-group-title {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 750;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
     .topic-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 12px;
-      margin-top: 12px;
+      margin-top: 0;
     }
     .topic-card {
       border: none;
@@ -1220,6 +1230,9 @@ a:hover {
       height: var(--gh-cell-size);
       border-radius: 2px;
       background: var(--gh-cell-0);
+      border: none;
+      outline: none;
+      box-shadow: none;
       display: block;
       padding: 0;
       margin: 0;
@@ -1269,9 +1282,17 @@ a:hover {
       width: var(--gh-cell-size);
       height: var(--gh-cell-size);
       border-radius: 2px;
+      border: none;
       display: block;
       font-style: normal;
       background: var(--gh-cell-0);
+    }
+    .gh-contrib--compact .gh-cal-scroll {
+      display: flex;
+      justify-content: center;
+    }
+    .gh-contrib--compact .gh-cal-graph {
+      --gh-cell-size: clamp(14px, calc((min(100%, 420px) - (var(--gh-weeks) - 1) * var(--gh-cell-gap)) / var(--gh-weeks)), 20px);
     }
     .gh-cal-legend-scale i[data-level="1"] { background: var(--gh-cell-1); }
     .gh-cal-legend-scale i[data-level="2"] { background: var(--gh-cell-2); }
@@ -1280,7 +1301,42 @@ a:hover {
 
 
 /* 04-kca-charts.css */
-.viz-hero {
+:root {
+      --chart-heat-lo: #d4e4f4;
+      --chart-heat-hi: #1e4fd6;
+      --chart-wd-0: #4f46e5;
+      --chart-wd-1: #0f6b5c;
+      --chart-wd-2: #059669;
+      --chart-wd-3: #0d9488;
+      --chart-wd-4: #0284c7;
+      --chart-wd-5: #d97706;
+      --chart-wd-6: #ea580c;
+    }
+    :root[data-theme="dark"] {
+      --chart-heat-lo: #1a2744;
+      --chart-heat-hi: #5ee8ff;
+      --chart-wd-0: #818cf8;
+      --chart-wd-1: #3ee8c5;
+      --chart-wd-2: #34d399;
+      --chart-wd-3: #2dd4bf;
+      --chart-wd-4: #38bdf8;
+      --chart-wd-5: #fbbf24;
+      --chart-wd-6: #fb923c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --chart-heat-lo: #1a2744;
+        --chart-heat-hi: #5ee8ff;
+        --chart-wd-0: #818cf8;
+        --chart-wd-1: #3ee8c5;
+        --chart-wd-2: #34d399;
+        --chart-wd-3: #2dd4bf;
+        --chart-wd-4: #38bdf8;
+        --chart-wd-5: #fbbf24;
+        --chart-wd-6: #fb923c;
+      }
+    }
+    .viz-hero {
       margin: 0 0 18px;
       padding: 20px 22px;
       border-radius: 20px;
@@ -2275,6 +2331,18 @@ body.kca-oled .chapter-item:hover {
 
 body.kca-oled .persona-chip em {
   text-shadow: 0 0 16px color-mix(in oklab, var(--accent) 40%, transparent);
+}
+
+body.kca-oled .gh-contrib {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+body.kca-oled .gh-cal-cell[data-date]:hover,
+body.kca-oled .gh-cal-cell[data-date]:focus-visible {
+  box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 45%, transparent);
 }
 
 /* —— 스크롤 리빌 강화 —— */

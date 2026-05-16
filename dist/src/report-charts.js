@@ -1,4 +1,6 @@
+import { isShortActivitySpan, topicsThemesOnly } from "./report-chart-util.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
+const KW_BAR_CHART_LIMIT = 30;
 /** @deprecated preconnect는 report-head.ts REPORT_HEAD_LINKS 사용 */
 export const CHART_CDN_HEAD = ``;
 /** body 끝: 차트 라이브러리 — defer 금지(인라인 init보다 반드시 먼저 실행) */
@@ -31,12 +33,20 @@ export function buildChartPayload(data) {
             .map((c) => ({ date: c.date, count: c.count })),
         burstDates: data.burstDays.map((b) => b.date),
         totalParticipants: data.participants.length,
-        topics: data.topics.slice(0, 8).map((t) => ({
-            title: t.title,
-            terms: t.terms,
-            messagePercent: t.messagePercent,
-            kind: t.kind,
-        })),
+        topicsThemes: topicsThemesOnly(data.topics)
+            .slice(0, 8)
+            .map((t) => ({ title: t.title, terms: t.terms, messagePercent: t.messagePercent })),
+        topicsPeriods: isShortActivitySpan(data.daily)
+            ? []
+            : data.topics
+                .filter((t) => t.kind === "period")
+                .slice(0, 4)
+                .map((t) => ({
+                title: t.title,
+                terms: t.terms,
+                messagePercent: t.messagePercent,
+                periodLabel: t.periodLabel,
+            })),
         interaction: data.interaction
             ? {
                 aliases: data.interaction.aliases,
@@ -54,13 +64,13 @@ export function serializeExplorerPayload(data) {
 }
 export function renderChartDeck(data) {
     const kw = data.keywords.length;
-    const topicCount = data.topics.length;
+    const themeCount = topicsThemesOnly(data.topics).length;
     const showLegacyDaily = data.story.calendarWeeks.length === 0 && data.daily.length > 0;
-    const topicChart = topicCount > 0
+    const topicChart = themeCount > 0
         ? `<article class="viz-card span-12">
-      <h3>주제 맵 · c-TF-IDF</h3>
-      <p class="viz-hint">막대 = 해당 주제 신호가 잡힌 메시지 비중(근사 %). 테마·월별 화제를 함께 봅니다.</p>
-      <div id="chart-topics" class="chart-box" role="img" aria-label="주제 맵 차트"></div>
+      <h3>대화 테마 · c-TF-IDF</h3>
+      <p class="viz-hint">막대 = <strong>의미 주제</strong> 신호 비중(근사 %). 월별 메시지량은 「기간 비교」·아래 주제 카드의 월별 화제를 보세요.</p>
+      <div id="chart-topics" class="chart-box" role="img" aria-label="주제 테마 차트"></div>
     </article>`
         : "";
     return `<section id="s-viz" class="viz-hero anim-enter" style="--enter-delay:0.055s" aria-label="인터랙티브 차트">
@@ -92,8 +102,8 @@ export function renderChartDeck(data) {
       <div id="chart-monthly" class="chart-box compact" role="img" aria-label="월별 차트"></div>
     </article>
     <article class="viz-card span-12">
-      <h3>키워드 상위 ${formatNumber(Math.min(kw, 80))} · 메시지 등장 횟수</h3>
-      <p class="viz-hint">막대는 실제로 해당 단어가 포함된 메시지 수입니다. 아래 표에서 전체 ${formatNumber(kw)}개를 볼 수 있어요.</p>
+      <h3>키워드 상위 ${formatNumber(Math.min(kw, KW_BAR_CHART_LIMIT))} · 메시지 등장 횟수</h3>
+      <p class="viz-hint">차트는 상위 ${KW_BAR_CHART_LIMIT}개(막대 안에 키워드 표시). 아래 표에서 전체 ${formatNumber(kw)}개를 볼 수 있어요.</p>
       <div id="chart-kw-bar" class="chart-box tall" role="img" aria-label="키워드 막대 차트"></div>
       ${renderKeywordTable(data.keywords)}
     </article>
@@ -145,6 +155,23 @@ export const CHARTS_INIT_SCRIPT = `
       var muted = dark ? "#8b98a8" : "#5c6670";
       var accent = dark ? "#3ee8c5" : "#0f6b5c";
       var accent2 = dark ? "#818cf8" : "#4f46e5";
+      function cssVar(name, fallback) {
+        try {
+          var v = getComputedStyle(document.body).getPropertyValue(name).trim();
+          return v || fallback;
+        } catch (e) { return fallback; }
+      }
+      var heatLo = cssVar("--chart-heat-lo", dark ? "#1a2744" : "#d4e4f4");
+      var heatHi = cssVar("--chart-heat-hi", dark ? "#5ee8ff" : "#1e4fd6");
+      var wdColors = [
+        cssVar("--chart-wd-0", dark ? "#818cf8" : "#4f46e5"),
+        cssVar("--chart-wd-1", dark ? "#3ee8c5" : "#0f6b5c"),
+        cssVar("--chart-wd-2", dark ? "#34d399" : "#059669"),
+        cssVar("--chart-wd-3", dark ? "#2dd4bf" : "#0d9488"),
+        cssVar("--chart-wd-4", dark ? "#38bdf8" : "#0284c7"),
+        cssVar("--chart-wd-5", dark ? "#fbbf24" : "#d97706"),
+        cssVar("--chart-wd-6", dark ? "#fb923c" : "#ea580c"),
+      ];
 
       function baseOpt() {
         return {
@@ -231,11 +258,27 @@ export const CHARTS_INIT_SCRIPT = `
       if (data.weekdays && document.getElementById("chart-weekday")) {
         var wdEl = document.getElementById("chart-weekday");
         var wg = layout(wdEl);
+        var wdCounts = data.weekdays.map(function (w) { return w.count; });
+        var wdMax = Math.max.apply(null, wdCounts.concat([1]));
         init("chart-weekday", Object.assign(baseOpt(), {
           grid: { left: wg.leftCat, right: wg.right, top: wg.top, bottom: wg.bottom },
           xAxis: { type: "value", axisLabel: { color: muted, fontSize: wg.fs } },
           yAxis: { type: "category", data: data.weekdays.map(function (w) { return w.label; }), axisLabel: { color: muted, fontSize: wg.fs } },
-          series: [{ type: "bar", data: data.weekdays.map(function (w) { return w.count; }), itemStyle: { color: accent, borderRadius: [0, 6, 6, 0] } }],
+          series: [{
+            type: "bar",
+            data: data.weekdays.map(function (w, i) {
+              var c = wdColors[i % 7];
+              return {
+                value: w.count,
+                itemStyle: {
+                  color: c,
+                  borderRadius: [0, 6, 6, 0],
+                  shadowBlur: w.count >= wdMax ? 10 : 0,
+                  shadowColor: w.count >= wdMax ? (dark ? "rgba(62,232,197,0.45)" : "rgba(15,107,92,0.35)") : "transparent",
+                },
+              };
+            }),
+          }],
         }));
       }
 
@@ -292,15 +335,55 @@ export const CHARTS_INIT_SCRIPT = `
       if (data.keywords && document.getElementById("chart-kw-bar")) {
         var kwEl = document.getElementById("chart-kw-bar");
         var kg = layout(kwEl);
-        var topBar = data.keywords.slice(0, kg.w < 380 ? 24 : 80);
-        var maxLabelLen = 0;
-        topBar.forEach(function (k) { if (k.label.length > maxLabelLen) maxLabelLen = k.label.length; });
-        var kwLeft = Math.max(kg.leftCat, Math.min(kg.w * 0.42, 24 + maxLabelLen * (kg.fs + 1)));
+        var kwLimit = kg.w < 380 ? 20 : 30;
+        var topBar = data.keywords.slice(0, kwLimit);
+        var nKw = topBar.length;
+        var padY = Math.min(48, 8 + nKw * 0.4);
+        function kwBarColor(rankFromTop) {
+          if (rankFromTop === 0) return dark ? "#a78bfa" : "#6366f1";
+          if (rankFromTop === 1) return dark ? "#818cf8" : "#4f46e5";
+          if (rankFromTop === 2) return dark ? "#5b9bd5" : "#3b82f6";
+          return dark ? "rgba(129,140,248,0.55)" : "rgba(79,70,229,0.45)";
+        }
+        var kwSeries = topBar.map(function (k, i) {
+          return {
+            value: k.count,
+            name: k.label,
+            itemStyle: { color: kwBarColor(i), borderRadius: [0, 4, 4, 0] },
+          };
+        }).reverse();
         init("chart-kw-bar", Object.assign(baseOpt(), {
-          grid: { left: kwLeft, right: kg.right, top: kg.top, bottom: kg.bottom, containLabel: true },
+          grid: { left: 8, right: kg.right, top: padY, bottom: padY, containLabel: false },
           xAxis: { type: "value", axisLabel: { color: muted, fontSize: kg.fs } },
-          yAxis: { type: "category", data: topBar.map(function (k) { return k.label; }).reverse(), axisLabel: { color: text, fontSize: kg.fs, width: kwLeft - 12, overflow: "truncate" } },
-          series: [{ type: "bar", data: topBar.map(function (k) { return k.count; }).reverse(), itemStyle: { color: accent2, borderRadius: [0, 4, 4, 0] }, label: { show: true, position: "right", color: muted, fontSize: kg.fs, formatter: function (p) { return p.value; } } }],
+          yAxis: {
+            type: "category",
+            data: topBar.map(function (k) { return k.label; }).reverse(),
+            axisLabel: { show: false },
+            axisTick: { show: false },
+            axisLine: { show: false },
+          },
+          series: [{
+            type: "bar",
+            data: kwSeries,
+            label: [
+              {
+                show: true,
+                position: "insideLeft",
+                color: text,
+                fontSize: kg.fs,
+                fontWeight: 600,
+                formatter: "{b}",
+                padding: [0, 0, 0, 6],
+              },
+              {
+                show: true,
+                position: "right",
+                color: muted,
+                fontSize: kg.fs,
+                formatter: "{c}",
+              },
+            ],
+          }],
         }));
       }
 
@@ -369,10 +452,10 @@ export const CHARTS_INIT_SCRIPT = `
         }));
       }
 
-      if (data.topics && data.topics.length && document.getElementById("chart-topics")) {
+      if (data.topicsThemes && data.topicsThemes.length && document.getElementById("chart-topics")) {
         var topEl = document.getElementById("chart-topics");
         var tg = layout(topEl);
-        var topics = data.topics.slice(0, 8);
+        var topics = data.topicsThemes.slice(0, 8);
         init("chart-topics", Object.assign(baseOpt(), {
           grid: { left: Math.max(tg.leftCat, tg.w < 380 ? 72 : 96), right: tg.right, top: tg.top, bottom: tg.bottom },
           xAxis: { type: "value", axisLabel: { color: muted, fontSize: tg.fs, formatter: "{value}%" } },
@@ -412,18 +495,42 @@ export const CHARTS_INIT_SCRIPT = `
           for (var ci = 0; ci < ix.matrix[ri].length; ci += 1) {
             var v = ix.matrix[ri][ci];
             if (v > maxV) maxV = v;
-            if (v > 0) heat.push([ci, ri, v]);
+            if (v > 0) heat.push({ value: [ci, ri, v], label: { show: v >= maxV * 0.15, formatter: String(v), color: text, fontSize: 9 } });
           }
         }
         var dyEl = document.getElementById("chart-dyad");
         var dg = layout(dyEl);
+        var splitFill = dark ? ["rgba(255,255,255,0.03)", "rgba(255,255,255,0.06)"] : ["rgba(0,0,0,0.02)", "rgba(0,0,0,0.05)"];
         init("chart-dyad", Object.assign(baseOpt(), {
-          tooltip: { position: "top" },
+          tooltip: { position: "top", formatter: function (p) { var v = p.value[2]; return ix.aliases[p.value[1]] + " → " + ix.aliases[p.value[0]] + ": " + v; } },
           grid: { left: Math.max(dg.leftCat, 72), right: dg.right, top: dg.top, bottom: 56 },
-          xAxis: { type: "category", data: ix.aliases, axisLabel: { color: muted, fontSize: dg.fs, rotate: 32 }, splitArea: { show: true } },
-          yAxis: { type: "category", data: ix.aliases, axisLabel: { color: muted, fontSize: dg.fs }, splitArea: { show: true } },
-          visualMap: { min: 0, max: maxV, calculable: true, orient: "horizontal", left: "center", bottom: 4, inRange: { color: [dark ? "#0d1117" : "#f0f4f8", accent, accent2] } },
-          series: [{ type: "heatmap", data: heat, emphasis: { itemStyle: { shadowBlur: 12, shadowColor: "rgba(0,0,0,0.35)" } } }],
+          xAxis: {
+            type: "category",
+            data: ix.aliases,
+            axisLabel: { color: muted, fontSize: dg.fs, rotate: 32 },
+            splitArea: { show: true, areaStyle: { color: splitFill } },
+          },
+          yAxis: {
+            type: "category",
+            data: ix.aliases,
+            axisLabel: { color: muted, fontSize: dg.fs },
+            splitArea: { show: true, areaStyle: { color: splitFill } },
+          },
+          visualMap: {
+            min: 0,
+            max: maxV,
+            calculable: true,
+            orient: "horizontal",
+            left: "center",
+            bottom: 4,
+            inRange: { color: [heatLo, dark ? "#2a9d8f" : "#7ecfc2", dark ? "#3ee8c5" : "#0f6b5c", heatHi] },
+          },
+          series: [{
+            type: "heatmap",
+            data: heat,
+            itemStyle: { borderWidth: 0 },
+            emphasis: { itemStyle: { shadowBlur: 12, shadowColor: dark ? "rgba(62,232,197,0.5)" : "rgba(15,107,92,0.35)" } },
+          }],
         }));
       }
       requestAnimationFrame(resizeAll);

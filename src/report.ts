@@ -33,6 +33,7 @@ import {
   renderTopChrome,
   topicNavLink,
 } from "./report-ux.js";
+import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
 
 const FIVE_MIB = 5 * 1024 * 1024;
@@ -716,8 +717,13 @@ function renderReactionsPanel(data: ReportData): string {
 }
 
 function renderTopicMap(data: ReportData): string {
-  if (data.topics.length === 0) return "";
-  const cards = data.topics
+  const displayTopics = topicsForDisplay(data.topics, data.daily);
+  if (displayTopics.length === 0) return "";
+  const shortSpan = displayTopics.length < data.topics.length;
+  const themes = displayTopics.filter((t) => t.kind === "theme");
+  const periods = displayTopics.filter((t) => t.kind === "period");
+  const renderCards = (items: typeof displayTopics) =>
+    items
     .map((t) => {
       const kind =
         t.kind === "period"
@@ -734,10 +740,22 @@ function renderTopicMap(data: ReportData): string {
       </article>`;
     })
     .join("");
+  const periodBlock =
+    periods.length > 0
+      ? `<div class="topic-group"><h3 class="topic-group-title">월별 화제</h3><div class="topic-grid topic-grid--periods">${renderCards(periods)}</div></div>`
+      : "";
+  const themeBlock =
+    themes.length > 0
+      ? `<div class="topic-group"><h3 class="topic-group-title">의미 테마</h3><div class="topic-grid topic-grid--themes">${renderCards(themes)}</div></div>`
+      : "";
+  const hint = shortSpan
+    ? "짧은 기간 보내기는 <strong>월 메시지 비중</strong>이 주제처럼 보일 수 있어, 월별 카드는 숨기고 「기간 비교」를 봐 주세요."
+    : "공기 그래프 군집·월별 <strong>c-TF-IDF</strong>로 뽑았어요. 비율은 해당 신호가 잡힌 메시지 근사치입니다.";
   return `<section id="s-topics" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.052s">
     <h2>이 방의 주제 맵</h2>
-    <p class="chart-hint">공기 그래프 군집·월별 <strong>c-TF-IDF</strong>로 뽑은 대화 테마예요. 비율은 해당 신호가 잡힌 메시지 근사치입니다.</p>
-    <div class="topic-grid">${cards}</div>
+    <p class="chart-hint">${hint}</p>
+    ${themeBlock}
+    ${periodBlock}
   </section>`;
 }
 

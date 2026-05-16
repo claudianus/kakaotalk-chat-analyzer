@@ -323,6 +323,18 @@ body.kca-oled .persona-chip em {
   text-shadow: 0 0 16px color-mix(in oklab, var(--accent) 40%, transparent);
 }
 
+body.kca-oled .gh-contrib {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+body.kca-oled .gh-cal-cell[data-date]:hover,
+body.kca-oled .gh-cal-cell[data-date]:focus-visible {
+  box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
 /* —— 스크롤 리빌 강화 —— */
 @media (prefers-reduced-motion: no-preference) {
   body.kca-oled .kca-reveal {
