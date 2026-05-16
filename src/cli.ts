@@ -13,76 +13,53 @@ import type { PrivacyMode } from "./types.js";
 
 const DEFAULT_NAMESPACE = "kakao-chat-report";
 const DEFAULT_OUT = ".tmp/kca-report";
-const DEFAULT_TOP = 30;
+const DEFAULT_TOP = 40;
 
 const program = new Command();
 
-program
-  .name("kca")
-  .description("Analyze KakaoTalk CSV exports and publish anonymized reports.")
-  .version(VERSION);
+program.name("kca").description("카카오톡 CSV 보내기 → 리포트 생성 → (선택) 임시 공유까지 한 번에.").version(VERSION);
 
-program
-  .command("inspect")
-  .argument("<csv>", "KakaoTalk CSV export")
-  .description("Inspect export structure without printing raw chat content.")
-  .action(async (csv: string) => {
-    const result = await parseKakaoExport(resolve(csv));
-    console.log(describeParseResult(result));
-    if (result.warnings.length > 0) {
-      console.log("\nWarning details:");
-      for (const warning of result.warnings.slice(0, 10)) {
-        console.log(`- line ${warning.line}: ${warning.code}`);
-      }
-      if (result.warnings.length > 10) {
-        console.log(`- ... ${result.warnings.length - 10} more`);
-      }
-    }
-  });
+program.addHelpText(
+  "after",
+  `
+기본 사용법 (서브커맨드 없이):
+  kca <보내기.csv>                 HTML 리포트 생성 후 BrewPage에 업로드
+  kca <보내기.csv> --local         업로드 없이 로컬에만 저장 (-o 로 폴더 지정)
+  kca <보내기.csv> --dry-run       업로드 생략(미리 생성만)
+  npx -y --package=kakaotalk-chat-analyzer@latest kca <보내기.csv> --local
+`,
+);
 
-program
-  .command("analyze")
-  .argument("<csv>", "KakaoTalk CSV export")
-  .requiredOption("-o, --out <dir>", "output directory for index.html")
-  .option("--privacy <mode>", "privacy mode", "public-anonymous")
-  .option("--top <count>", "number of top rows to keep", String(DEFAULT_TOP))
-  .description("Generate a local anonymized single-file HTML report.")
-  .action(async (csv: string, options: AnalyzeOptions) => {
-    const htmlPath = await generateReport(csv, {
-      outDir: options.out,
-      privacy: parsePrivacy(options.privacy),
-      top: parsePositiveInt(options.top, DEFAULT_TOP),
-    });
-    console.log(`Report: ${htmlPath}`);
-    console.log(`Size: ${await formatFileSize(htmlPath)}`);
-  });
+const main = program.command("default", { isDefault: true, hidden: true });
 
-program
-  .command("publish")
-  .argument("<csv>", "KakaoTalk CSV export")
-  .option("--host <host>", "brewpage, tempfile, or cloudflare", "brewpage")
-  .option("--ttl <days>", "temporary hosting TTL in days", "30")
-  .option("--ns <namespace>", "hosting namespace", DEFAULT_NAMESPACE)
-  .option("--privacy <mode>", "privacy mode", "public-anonymous")
-  .option("--top <count>", "number of top rows to keep", String(DEFAULT_TOP))
-  .option("--out <dir>", "local report output directory", DEFAULT_OUT)
-  .option("--dry-run", "generate the report but do not upload")
-  .description("Generate and publish an anonymized report. Defaults to BrewPage with no signup.")
-  .action(async (csv: string, options: PublishOptions) => {
+main
+  .argument("<csv>", "카카오톡 CSV 보내기 파일 경로")
+  .option("--local", "HTML만 만들고 업로드는 하지 않습니다.", false)
+  .option("--dry-run", "업로드를 생략하고 리포트만 생성합니다.", false)
+  .option("--host <host>", "brewpage, tempfile, cloudflare", "brewpage")
+  .option("--ttl <days>", "임시 호스팅 TTL(일)", "30")
+  .option("--ns <namespace>", "호스팅 네임스페이스", DEFAULT_NAMESPACE)
+  .option("--privacy <mode>", "public-masked | public-anonymous", "public-masked")
+  .option("--top <count>", "랭킹·상위 목록 길이", String(DEFAULT_TOP))
+  .option("-o, --out <dir>", "리포트 출력 폴더", DEFAULT_OUT)
+  .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
+  .action(async (csv: string, options: MainOptions) => {
     const host = parseHostName(options.host);
     const ttlDays = parseTtl(options.ttl);
     const namespace = sanitizeNamespace(options.ns);
-    const htmlPath = await generateReport(csv, {
-      outDir: options.out,
-      privacy: parsePrivacy(options.privacy),
-      top: parsePositiveInt(options.top, DEFAULT_TOP),
-    });
+    const privacy = parsePrivacy(options.privacy);
+    const top = parsePositiveInt(options.top, DEFAULT_TOP);
 
-    console.log(`Report: ${htmlPath}`);
-    console.log(`Size: ${await formatFileSize(htmlPath)}`);
+    const htmlPath = await generateReport(csv, { outDir: options.out, privacy, top });
+    console.log(`리포트: ${htmlPath}`);
+    console.log(`크기: ${await formatFileSize(htmlPath)}`);
 
+    if (options.local) {
+      console.log("--local: 업로드를 하지 않습니다.");
+      return;
+    }
     if (options.dryRun) {
-      console.log("Dry run: upload skipped.");
+      console.log("드라이런: 업로드를 건너뜁니다.");
       return;
     }
 
@@ -94,7 +71,7 @@ program
         html,
         ttlDays,
         namespace,
-        title: "KakaoTalk Chat Report",
+        title: "카카오톡 대화 리포트",
         ownerToken: owner?.ownerToken,
       });
 
@@ -112,48 +89,63 @@ program
 
       printPublishResult(result, namespace);
     } catch (error) {
-      console.error(`Upload failed: ${error instanceof Error ? error.message : String(error)}`);
-      console.error(`Local report is still available at: ${htmlPath}`);
+      console.error(`업로드 실패: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(`로컬 리포트는 그대로 있습니다: ${htmlPath}`);
       if (host === "brewpage") {
-        console.error(`No automatic fallback was attempted. To explicitly try TempFile, run: kca publish "${csv}" --host tempfile --ttl ${ttlDays}`);
+        console.error(`TempFile로 시도하려면: npx kakaotalk-chat-analyzer "${csv}" --host tempfile --ttl ${ttlDays}`);
       }
       process.exitCode = 1;
     }
   });
 
-const token = program.command("token").description("Manage locally saved owner tokens.");
+program
+  .command("inspect")
+  .argument("<csv>", "카카오톡 CSV 보내기")
+  .description("보내기 구조만 점검합니다(대화 원문은 출력하지 않음).")
+  .action(async (csv: string) => {
+    const result = await parseKakaoExport(resolve(csv));
+    console.log(describeParseResult(result));
+    if (result.warnings.length > 0) {
+      console.log("\n경고 상세:");
+      for (const warning of result.warnings.slice(0, 10)) {
+        console.log(`- ${warning.line}행: ${warning.code}`);
+      }
+      if (result.warnings.length > 10) {
+        console.log(`- … 외 ${result.warnings.length - 10}건`);
+      }
+    }
+  });
+
+const token = program.command("token").description("로컬에 저장된 owner 토큰 관리.");
 
 token
   .command("clear")
-  .option("--host <host>", "host token to clear", "brewpage")
-  .option("--ns <namespace>", "namespace token to clear", DEFAULT_NAMESPACE)
-  .description("Forget a locally saved owner token.")
+  .option("--host <host>", "brewpage | tempfile | cloudflare", "brewpage")
+  .option("--ns <namespace>", "네임스페이스", DEFAULT_NAMESPACE)
+  .description("저장된 owner 토큰을 삭제합니다.")
   .action(async (options: TokenOptions) => {
     const host = parseHostName(options.host);
     const namespace = sanitizeNamespace(options.ns);
     const cleared = await clearOwnerToken(host, namespace);
-    console.log(cleared ? `Cleared token for ${host}/${namespace}.` : `No token saved for ${host}/${namespace}.`);
+    console.log(cleared ? `${host}/${namespace} 토큰을 지웠습니다.` : `${host}/${namespace}에 저장된 토큰이 없습니다.`);
   });
+
+program.configureHelp({ sortSubcommands: true });
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
 });
 
-interface AnalyzeOptions {
-  out: string;
-  privacy: string;
-  top: string;
-}
-
-interface PublishOptions {
+interface MainOptions {
+  local: boolean;
+  dryRun: boolean;
   host: string;
   ttl: string;
   ns: string;
   privacy: string;
   top: string;
   out: string;
-  dryRun?: boolean;
 }
 
 interface TokenOptions {
@@ -179,8 +171,8 @@ async function readReportHtml(htmlPath: string): Promise<string> {
 }
 
 function parsePrivacy(value: string): PrivacyMode {
-  if (value === "public-anonymous") return value;
-  throw new Error(`Unsupported privacy mode "${value}". Only public-anonymous is supported in v1.`);
+  if (value === "public-masked" || value === "public-anonymous") return value;
+  throw new Error(`지원하지 않는 privacy 모드입니다: "${value}". public-masked 또는 public-anonymous 만 사용할 수 있습니다.`);
 }
 
 function parseTtl(value: string): number {
@@ -196,7 +188,7 @@ function parsePositiveInt(value: string, fallback: number): number {
 function sanitizeNamespace(value: string): string {
   const normalized = value.toLowerCase().trim();
   if (!/^[a-z0-9-]{3,32}$/.test(normalized)) {
-    throw new Error("Namespace must match [a-z0-9-]{3,32}.");
+    throw new Error("네임스페이스는 [a-z0-9-]{3,32} 형식이어야 합니다.");
   }
   return normalized;
 }
@@ -209,12 +201,12 @@ async function formatFileSize(filePath: string): Promise<string> {
 }
 
 function printPublishResult(result: PublishResult, namespace: string): void {
-  console.log(`URL: ${result.link}`);
-  if (result.expiresAt) console.log(`Expires: ${result.expiresAt}`);
-  if (result.ownerLink) console.log(`Owner link: ${result.ownerLink}`);
-  if (result.ownerToken) console.log(`Owner token: ${maskToken(result.ownerToken)} (saved in ${getConfigPath()})`);
-  console.log(`Host: ${result.provider}`);
-  console.log(`Namespace: ${namespace}`);
+  console.log(`공유 URL: ${result.link}`);
+  if (result.expiresAt) console.log(`만료: ${result.expiresAt}`);
+  if (result.ownerLink) console.log(`관리(삭제) 링크: ${result.ownerLink}`);
+  if (result.ownerToken) console.log(`Owner 토큰: ${maskToken(result.ownerToken)} (${getConfigPath()}에 저장됨)`);
+  console.log(`호스트: ${result.provider}`);
+  console.log(`네임스페이스: ${namespace}`);
 }
 
 function maskToken(token: string): string {

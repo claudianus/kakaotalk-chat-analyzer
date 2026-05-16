@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { buildReportData } from "../src/analysis.js";
+import { buildReportData, maskPartialDisplayName } from "../src/analysis.js";
 import { parseKakaoExport } from "../src/parser.js";
 import { renderReportHtml } from "../src/report.js";
 
@@ -28,10 +28,12 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(parsed.records[0]?.message.includes("continued detail"), true);
     assert.equal(parsed.warnings.length, 0);
 
-    const data = buildReportData(parsed);
+    const data = buildReportData(parsed, { privacy: "public-masked" });
     assert.equal(data.summary.totalMessages, 3);
     assert.equal(data.summary.participants, 2);
     assert.equal(data.attachments[0]?.label, "사진");
+    assert.equal(maskPartialDisplayName("Alice"), "A***e");
+    assert.equal(maskPartialDisplayName("Bob"), "B*b");
 
     const html = renderReportHtml(data);
     assert.equal(Buffer.byteLength(html, "utf8") < 5 * 1024 * 1024, true);
@@ -39,8 +41,24 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(html.includes("Bob"), false);
     assert.equal(html.includes("https://example.com/path?token=123"), false);
     assert.equal(html.includes("hello secret-project https://example.com/path?token=123"), false);
-    assert.equal(html.includes("User 001"), true);
+    assert.equal(html.includes("A***e"), true);
     assert.equal(html.includes("example.com"), true);
+    assert.equal(html.includes("하이라이트"), true);
+    assert.equal(data.highlights.length > 0, true);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("public-anonymous privacy uses User 001 style labels", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "kca-anon-"));
+  const csvPath = join(dir, "chat.csv");
+  await writeFile(csvPath, ["Date,User,Message", '2026-05-01 09:00:00,"X","hi"'].join("\n"), "utf8");
+  try {
+    const parsed = await parseKakaoExport(csvPath);
+    const data = buildReportData(parsed, { privacy: "public-anonymous" });
+    const html = renderReportHtml(data);
+    assert.equal(html.includes("User 001"), true);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -53,7 +71,7 @@ test("generated report file can be read back as standalone HTML", async () => {
   try {
     const html = await readFile(htmlPath, "utf8");
     assert.match(html, /<!doctype html>/);
-    assert.match(html, /KakaoTalk Chat Report/);
+    assert.match(html, /카카오톡 대화 리포트/);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -62,7 +80,7 @@ test("generated report file can be read back as standalone HTML", async () => {
 function emptyReport() {
   return {
     generatedAt: "2026-05-16T00:00:00.000Z",
-    privacy: "public-anonymous" as const,
+    privacy: "public-masked" as const,
     source: {
       fileName: "KakaoTalk export",
       encoding: "utf-8" as const,
@@ -78,13 +96,22 @@ function emptyReport() {
       averageMessageLength: 0,
       messagesWithLinks: 0,
       messagesWithAttachments: 0,
+      messagesPerActiveDay: 0,
+      longestActiveStreakDays: 0,
+      peakHour: null,
+      busiestWeekdayLabel: null,
+      medianReplyGapMinutes: null,
+      nightSharePercent: 0,
+      emojiMessages: 0,
     },
     participants: [],
     daily: [],
     hourly: Array.from({ length: 24 }, () => 0),
-    weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((label) => ({ label, count: 0 })),
+    weekdays: ["일", "월", "화", "수", "목", "금", "토"].map((d) => ({ label: `${d}요일`, count: 0 })),
+    monthly: [],
     attachments: [],
     domains: [],
     keywords: [],
+    highlights: [],
   };
 }

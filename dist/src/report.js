@@ -1,9 +1,6 @@
-import type { CountItem, DailyCount, ParticipantStat, ReportData } from "./types.js";
-
 const FIVE_MIB = 5 * 1024 * 1024;
-
-export function renderReportHtml(data: ReportData): string {
-  const html = `<!doctype html>
+export function renderReportHtml(data) {
+    const html = `<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
@@ -88,11 +85,9 @@ export function renderReportHtml(data: ReportData): string {
       </div>
     </header>
 
-    ${
-      data.highlights.length > 0
+    ${data.highlights.length > 0
         ? `<section class="card" style="margin-bottom:16px"><h2>하이라이트</h2><ul class="highlights">${data.highlights.map((h) => `<li>${renderHighlightLine(h)}</li>`).join("")}</ul></section>`
-        : ""
-    }
+        : ""}
 
     <section class="grid metrics" style="margin-bottom:14px">
       ${metric("총 메시지", formatNumber(data.summary.totalMessages), `활동일 ${formatNumber(data.summary.activeDays)}일`)}
@@ -135,108 +130,98 @@ export function renderReportHtml(data: ReportData): string {
   </main>
 </body>
 </html>`;
-
-  const size = Buffer.byteLength(html, "utf8");
-  if (size > FIVE_MIB) {
-    throw new Error(`Generated HTML is ${size} bytes, which exceeds the 5 MiB BrewPage HTML limit.`);
-  }
-  return html;
+    const size = Buffer.byteLength(html, "utf8");
+    if (size > FIVE_MIB) {
+        throw new Error(`Generated HTML is ${size} bytes, which exceeds the 5 MiB BrewPage HTML limit.`);
+    }
+    return html;
 }
-
-function privacyLabel(mode: string): string {
-  if (mode === "public-masked") return "부분 마스킹(기본)";
-  if (mode === "public-anonymous") return "완전 별칭(User 001)";
-  return mode;
+function privacyLabel(mode) {
+    if (mode === "public-masked")
+        return "부분 마스킹(기본)";
+    if (mode === "public-anonymous")
+        return "완전 별칭(User 001)";
+    return mode;
 }
-
-function metric(label: string, value: string, sub: string): string {
-  return `<div class="card metric"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span><span class="sub">${escapeHtml(sub)}</span></div>`;
+function metric(label, value, sub) {
+    return `<div class="card metric"><span class="label">${escapeHtml(label)}</span><span class="value">${escapeHtml(value)}</span><span class="sub">${escapeHtml(sub)}</span></div>`;
 }
-
-function panel(title: string, content: string): string {
-  return `<div class="card"><h2>${escapeHtml(title)}</h2>${content}</div>`;
+function panel(title, content) {
+    return `<div class="card"><h2>${escapeHtml(title)}</h2>${content}</div>`;
 }
-
-function renderDaily(days: DailyCount[]): string {
-  if (days.length === 0) return `<p style="margin:0;color:var(--muted);font-size:13px">날짜가 있는 메시지가 없습니다.</p>`;
-  const max = Math.max(...days.map((day) => day.count), 1);
-  return `<div class="calendar">${days
-    .map((day) => {
-      const level = Math.max(8, Math.round((day.count / max) * 85));
-      return `<div class="day" title="${escapeHtml(day.date)} · ${day.count}건" style="--level: ${level}%">${day.count}</div>`;
+function renderDaily(days) {
+    if (days.length === 0)
+        return `<p style="margin:0;color:var(--muted);font-size:13px">날짜가 있는 메시지가 없습니다.</p>`;
+    const max = Math.max(...days.map((day) => day.count), 1);
+    return `<div class="calendar">${days
+        .map((day) => {
+        const level = Math.max(8, Math.round((day.count / max) * 85));
+        return `<div class="day" title="${escapeHtml(day.date)} · ${day.count}건" style="--level: ${level}%">${day.count}</div>`;
     })
-    .join("")}</div>`;
+        .join("")}</div>`;
 }
-
-function renderMonthly(months: DailyCount[]): string {
-  if (months.length === 0) return `<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>`;
-  return renderCountBars(months.map((m) => ({ label: m.date, count: m.count })));
+function renderMonthly(months) {
+    if (months.length === 0)
+        return `<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>`;
+    return renderCountBars(months.map((m) => ({ label: m.date, count: m.count })));
 }
-
-function renderHours(hours: number[]): string {
-  const max = Math.max(...hours, 1);
-  return `<div class="hours">${hours
-    .map((count, hour) => {
-      const height = Math.max(2, Math.round((count / max) * 100));
-      return `<div class="hour" title="${hour}시 · ${count}건" style="--h: ${height}%"></div>`;
+function renderHours(hours) {
+    const max = Math.max(...hours, 1);
+    return `<div class="hours">${hours
+        .map((count, hour) => {
+        const height = Math.max(2, Math.round((count / max) * 100));
+        return `<div class="hour" title="${hour}시 · ${count}건" style="--h: ${height}%"></div>`;
     })
-    .join("")}</div>`;
+        .join("")}</div>`;
 }
-
-function renderParticipants(participants: ParticipantStat[]): string {
-  if (participants.length === 0) {
-    return `<p style="margin:0;color:var(--muted);font-size:13px">참여자 데이터가 없습니다.</p>`;
-  }
-  return `<table class="table"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${participants
-    .map(
-      (p) =>
-        `<tr><td>${escapeHtml(p.alias)}</td><td class="num">${formatNumber(p.messages)}</td><td class="num">${p.sharePercent}%</td><td class="num">${p.averageLength}</td><td class="num">${formatNumber(p.linkMessages)}</td><td class="num">${formatNumber(p.attachmentMessages)}</td><td class="num">${formatNumber(p.nightMessages)}</td><td class="num">${formatNumber(p.maxConsecutive)}</td></tr>`,
-    )
-    .join("")}</tbody></table>`;
+function renderParticipants(participants) {
+    if (participants.length === 0) {
+        return `<p style="margin:0;color:var(--muted);font-size:13px">참여자 데이터가 없습니다.</p>`;
+    }
+    return `<table class="table"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${participants
+        .map((p) => `<tr><td>${escapeHtml(p.alias)}</td><td class="num">${formatNumber(p.messages)}</td><td class="num">${p.sharePercent}%</td><td class="num">${p.averageLength}</td><td class="num">${formatNumber(p.linkMessages)}</td><td class="num">${formatNumber(p.attachmentMessages)}</td><td class="num">${formatNumber(p.nightMessages)}</td><td class="num">${formatNumber(p.maxConsecutive)}</td></tr>`)
+        .join("")}</tbody></table>`;
 }
-
-function renderCountBars(items: CountItem[]): string {
-  if (items.length === 0) return `<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>`;
-  const max = Math.max(...items.map((item) => item.count), 1);
-  return `<div class="bars">${items
-    .map((item) => {
-      const width = Math.max(2, Math.round((item.count / max) * 100));
-      return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="--w: ${width}%"></span></span><span class="bar-value">${formatNumber(item.count)}</span></div>`;
+function renderCountBars(items) {
+    if (items.length === 0)
+        return `<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>`;
+    const max = Math.max(...items.map((item) => item.count), 1);
+    return `<div class="bars">${items
+        .map((item) => {
+        const width = Math.max(2, Math.round((item.count / max) * 100));
+        return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="--w: ${width}%"></span></span><span class="bar-value">${formatNumber(item.count)}</span></div>`;
     })
-    .join("")}</div>`;
+        .join("")}</div>`;
 }
-
-function renderHighlightLine(line: string): string {
-  const parts = line.split("**");
-  return parts.map((part, i) => (i % 2 === 1 ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part))).join("");
+function renderHighlightLine(line) {
+    const parts = line.split("**");
+    return parts.map((part, i) => (i % 2 === 1 ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part))).join("");
 }
-
-function formatNumber(value: number): string {
-  return new Intl.NumberFormat("ko-KR").format(value);
+function formatNumber(value) {
+    return new Intl.NumberFormat("ko-KR").format(value);
 }
-
-function formatTimestamp(value: string): string {
-  try {
-    return new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
-  } catch {
-    return value;
-  }
+function formatTimestamp(value) {
+    try {
+        return new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+    }
+    catch {
+        return value;
+    }
 }
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+function escapeHtml(value) {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
-
-function escapeJsonForHtml(value: unknown): string {
-  return JSON.stringify(value)
-    .replace(/</g, "\\u003c")
-    .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029");
+function escapeJsonForHtml(value) {
+    return JSON.stringify(value)
+        .replace(/</g, "\\u003c")
+        .replace(/>/g, "\\u003e")
+        .replace(/&/g, "\\u0026")
+        .replace(/\u2028/g, "\\u2028")
+        .replace(/\u2029/g, "\\u2029");
 }
+//# sourceMappingURL=report.js.map

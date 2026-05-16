@@ -184,13 +184,13 @@
         <h1>대화는 그대로,<br>리포트는 안전하게.</h1>
         <p class="lede">
           <strong style="color:var(--text)">KakaoTalk Chat Analyzer</strong>는 카카오톡 CSV보내기를 읽어
-          집계 통계만 담은 단일 HTML 리포트를 만들고, 원하면 가입 없는 임시 호스팅까지 연결합니다.
-          원문 메시지와 전체 URL은 리포트에 남기지 않습니다.
+          <strong>한글 프리미엄 리포트</strong>(하이라이트·월별·심야 비중 등)를 만들고, 기본은 <strong>참여자 부분 마스킹</strong>으로 누구인지 감은 오게 보여 줍니다.
+          원문 메시지와 전체 URL은 HTML에 남기지 않습니다.
         </p>
         <div class="pill-row">
+          <span class="pill">npx 한 줄</span>
           <span class="pill">Node.js 22+</span>
           <span class="pill">MIT License</span>
-          <span class="pill">Cross-platform CLI</span>
         </div>
         <div class="cta-row">
           <a class="btn btn-primary" href="https://github.com/claudianus/kakaotalk-chat-analyzer">저장소 바로가기</a>
@@ -198,26 +198,26 @@
         </div>
       </div>
       <div class="panel" aria-label="예시 명령">
-        <h3>한 줄로 시작</h3>
-        <pre><code># 저장소 클론 후
-npm install &amp;&amp; npm run build
+        <h3>npx 한 줄로 끝</h3>
+        <pre><code># 로컬에만 리포트 (./report/index.html)
+npx -y --package=kakaotalk-chat-analyzer@latest kca ./KakaoTalk_Chat_....csv --local -o ./report
 
-# 구조 점검 (원문 출력 없음)
-node dist/src/cli.js inspect ./chat.csv
+# 리포트 생성 + BrewPage 임시 업로드
+npx -y --package=kakaotalk-chat-analyzer@latest kca ./KakaoTalk_Chat_....csv
 
-# 로컬 리포트
-node dist/src/cli.js analyze ./chat.csv -o ./report
+# GitHub 소스 직접 (dist 포함 저장소)
+npx -y github:claudianus/kakaotalk-chat-analyzer kca ./chat.csv --local
 
-# 업로드까지 (기본: BrewPage)
-node dist/src/cli.js publish ./chat.csv</code></pre>
+# 구조 점검
+npx -y --package=kakaotalk-chat-analyzer@latest kca inspect ./KakaoTalk_Chat_....csv</code></pre>
       </div>
     </section>
 
     <section class="grid" id="features">
       <article class="card">
         <div class="tag">Privacy-first</div>
-        <h2>익명·집계 중심</h2>
-        <p>참여자는 별칭으로만 표시되고, 메시지 본문은 통계 계산에만 사용됩니다. 도메인 단위로만 URL을 요약합니다.</p>
+        <h2>부분 마스킹</h2>
+        <p>기본 모드는 이름 앞뒤만 남기고 가운데를 가려, 방 안에서 누구인지 감은 오게 공유할 수 있게 합니다. 완전 별칭 모드도 선택 가능합니다.</p>
       </article>
       <article class="card">
         <div class="tag">Single file</div>

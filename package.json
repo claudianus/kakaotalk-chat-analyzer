@@ -1,7 +1,7 @@
 {
   "name": "kakaotalk-chat-analyzer",
-  "version": "0.1.0",
-  "description": "Cross-platform CLI for anonymized KakaoTalk chat export analysis and zero-login temporary report publishing.",
+  "version": "0.2.0",
+  "description": "카카오톡 CSV 보내기 → 한글 리포트 → 선택적 임시 공유. npx 한 줄로 실행 가능한 CLI.",
   "type": "module",
   "homepage": "https://claudianus.github.io/kakaotalk-chat-analyzer/",
   "repository": {
@@ -12,16 +12,19 @@
     "url": "https://github.com/claudianus/kakaotalk-chat-analyzer/issues"
   },
   "bin": {
-    "kca": "./dist/src/cli.js"
+    "kca": "./dist/src/cli.js",
+    "kakaotalk-chat-analyzer": "./dist/src/cli.js"
   },
   "files": [
     "dist/src",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
     "test": "npm run build && node --test dist/test/*.test.js",
-    "smoke": "node dist/src/cli.js inspect"
+    "smoke": "node dist/src/cli.js --help"
   },
   "engines": {
     "node": ">=22"
@@ -40,7 +43,9 @@
     "chat",
     "analyzer",
     "cli",
-    "privacy"
+    "privacy",
+    "npx",
+    "korean"
   ],
   "license": "MIT"
 }

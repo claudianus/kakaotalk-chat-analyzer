@@ -35,9 +35,9 @@
 |------|------|
 | **인코딩** | UTF-8 BOM, UTF-8, CP949/EUC-KR 등 보내기 인코딩 자동 감지 |
 | **파싱** | `Date,User,Message` 헤더 기반 CSV + 멀티라인 메시지 처리 |
-| **리포트** | 참여자·일별·시간대·요일·첨부 유형·도메인·키워드 등 **집계만** 시각화 |
+| **리포트** | 한글 UI, 하이라이트, 월별·심야·응답 간격 등 **프리미엄급 집계** |
 | **배포** | BrewPage(기본) / TempFile / Cloudflare 등 **TTL 기반** 임시 호스팅 연동 |
-| **프라이버시** | 원문 미포함, 참여자 **별칭** 표기, URL은 **호스트(도메인)** 단위만 집계 |
+| **프라이버시** | 원문 미포함, 참여자 **부분 마스킹 표시명**(기본), URL은 **도메인**만 집계 |
 
 ---
 
@@ -47,45 +47,66 @@
 
 - [Node.js](https://nodejs.org/) **22 이상**
 
-### 설치 (로컬 개발)
+### npx 한 줄 (추천)
+
+**로컬에만** 리포트를 만들고 싶다면(`./report/index.html`):
+
+```bash
+npx -y --package=kakaotalk-chat-analyzer@latest kca ./KakaoTalk_Chat_....csv --local -o ./report
+```
+
+**리포트 생성 + BrewPage 임시 업로드**까지 한 번에:
+
+```bash
+npx -y --package=kakaotalk-chat-analyzer@latest kca ./KakaoTalk_Chat_....csv
+```
+
+GitHub 소스에서 직접 실행(저장소에 컴파일된 `dist` 포함):
+
+```bash
+npx -y github:claudianus/kakaotalk-chat-analyzer kca ./KakaoTalk_Chat_....csv --local -o ./report
+```
+
+### 로컬 클론 개발
 
 ```bash
 git clone https://github.com/claudianus/kakaotalk-chat-analyzer.git
 cd kakaotalk-chat-analyzer
 npm install
 npm run build
+npm test
 ```
 
-### 명령어
+### CLI 요약
+
+기본 동작은 **서브커맨드 없이** `<csv>` 한 개만 주면 됩니다.
 
 ```bash
-# 1)보내기 구조 점검 (대화 원문은 출력하지 않음)
-kca inspect path/to/KakaoTalk_Chat_....csv
+# 기본: HTML 생성 후 BrewPage 업로드
+kca ./KakaoTalk_Chat_....csv
 
-# 2) 로컬에 익명 리포트 생성 → report/index.html
-kca analyze path/to/KakaoTalk_Chat_....csv -o ./report
+# 업로드 없이 로컬만
+kca ./KakaoTalk_Chat_....csv --local -o ./report
 
-# 3) 리포트 생성 후 임시 호스팅까지 (기본: BrewPage, TTL 최대 30일)
-kca publish path/to/KakaoTalk_Chat_....csv
+# 업로드 생략(드라이런)
+kca ./KakaoTalk_Chat_....csv --dry-run
+
+# TempFile 호스트
+kca ./chat.csv --host tempfile --ttl 30
+
+# 보내기 구조 점검(원문 출력 없음)
+kca inspect ./KakaoTalk_Chat_....csv
+
+kca --help
 ```
 
-글로벌 설치 없이 실행하려면:
-
-```bash
-node dist/src/cli.js publish ./KakaoTalk_Chat_....csv
-```
-
-`publish` 실패 시에도 **로컬 HTML은 남습니다**. BrewPage 대신 TempFile을 쓰려면:
-
-```bash
-kca publish ./chat.csv --host tempfile --ttl 30
-```
+업로드가 실패해도 **로컬 `index.html`은 남습니다**.
 
 ---
 
 ## 프라이버시 기본값
 
-- 참여자 이름은 **`User 001` 형태의 안정적인 별칭**으로만 리포트에 표시됩니다.
+- 기본(`public-masked`)은 참여자 이름을 **앞·뒤 글자만 남기고 가운데 마스킹**합니다(동명이의 충돌 시 `·2`처럼 구분자가 붙을 수 있음). 완전 별칭(`User 001`)은 `--privacy public-anonymous` 로 선택할 수 있습니다.
 - 메시지 텍스트는 **통계 계산에만** 사용되며, **생성된 HTML에 원문이 쓰이지 않습니다**.
 - URL에서 **도메인**만 집계하고, 전체 URL 문자열은 리포트에 보존하지 않습니다.
 - BrewPage **owner 토큰**은 로컬에 저장되어, 이후 링크 관리·삭제에 활용할 수 있습니다.
@@ -102,7 +123,7 @@ kca token clear --host brewpage --ns kakao-chat-report
 ```
 CSV 파일
    → parser (인코딩·CSV·날짜 파싱)
-   → analysis (집계·별칭·키워드/도메인 등)
+   → analysis (집계·부분 마스킹·키워드/도메인·하이라이트 등)
    → report (단일 HTML 렌더)
    → [선택] providers (BrewPage / TempFile / Cloudflare 업로드)
 ```

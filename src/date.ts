@@ -29,6 +29,11 @@ export function weekdayIndex(parts: ParsedDateParts): number {
   return new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay();
 }
 
+/** UTC 기준 타임스탬프(ms). 연속 일수·응답 간격 계산에 사용합니다. */
+export function partsToUtcMs(parts: ParsedDateParts): number {
+  return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+}
+
 function pad2(value: number): string {
   return value.toString().padStart(2, "0");
 }
