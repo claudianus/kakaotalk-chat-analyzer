@@ -12,6 +12,7 @@ import type {
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats } from "./gap-stats.js";
 import { KeywordCounter } from "./keyword-counter.js";
+import { buildReportStory } from "./story.js";
 
 const ATTACHMENT_MARKERS = [
   "사진",
@@ -68,6 +69,7 @@ const STOPWORDS = new Set([
 
 const NIGHT_HOURS = new Set([23, 0, 1, 2, 3, 4, 5]);
 const EMOJI_RE = /\p{Extended_Pictographic}/u;
+const LAUGH_RE = /(?:ㅋ{2,}|ㅎ{2,}|ㅠ+|ㅜ+|ㅇㅇ|ㅋㅋ|ㅎㅎ|ㅋㅎ|ㅎㅋ)/;
 const LINK_HINT_RE = /https?:\/\/|www\./i;
 const HAS_TOKEN_CHAR_RE = /[가-힣A-Za-z]/;
 
@@ -103,6 +105,9 @@ export class ReportAggregator {
   private readonly domains = new Map<string, number>();
   private readonly keywordCounter = new KeywordCounter();
   private readonly gapStats = new GapStreamStats();
+  private readonly dailySenderCounts = new Map<string, Map<string, number>>();
+  private readonly laughBySender = new Map<string, number>();
+  private readonly shortBySender = new Map<string, number>();
 
   private total = 0;
   private totalCharacters = 0;
@@ -114,6 +119,8 @@ export class ReportAggregator {
   private questionMessages = 0;
   private speakerSwitches = 0;
   private monologueMessages = 0;
+  private laughMessages = 0;
+  private shortMessages = 0;
 
   private prevMs: number | null = null;
   private prevSender: string | null = null;
@@ -151,6 +158,17 @@ export class ReportAggregator {
 
     if (messageLength > 0 && EMOJI_RE.test(msg)) {
       this.emojiMessages += 1;
+    }
+
+    if (messageLength > 0 && LAUGH_RE.test(msg)) {
+      this.laughMessages += 1;
+      increment(this.laughBySender, record.sender);
+    }
+
+    const trimmed = msg.trim();
+    if (trimmed.length > 0 && trimmed.length <= 3) {
+      this.shortMessages += 1;
+      increment(this.shortBySender, record.sender);
     }
 
     if (msg.includes("?") || msg.includes("？")) {
@@ -216,6 +234,14 @@ export class ReportAggregator {
 
     const dayKey = formatDate(record.date);
     increment(this.daily, dayKey);
+    {
+      let perDay = this.dailySenderCounts.get(dayKey);
+      if (!perDay) {
+        perDay = new Map();
+        this.dailySenderCounts.set(dayKey, perDay);
+      }
+      increment(perDay, record.sender);
+    }
     increment(this.monthly, `${record.date.year}-${pad2(record.date.month)}`);
     this.hourly[record.date.hour] = (this.hourly[record.date.hour] ?? 0) + 1;
     this.weekdays[wi] = (this.weekdays[wi] ?? 0) + 1;
@@ -349,6 +375,41 @@ export class ReportAggregator {
       replyGapCoeffVariation,
     };
 
+    const dailySorted = [...this.daily.entries()].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
+
+    const laughByAlias = new Map<string, number>();
+    const shortByAlias = new Map<string, number>();
+    for (const [raw, c] of this.laughBySender) {
+      const alias = aliases.get(raw);
+      if (alias) laughByAlias.set(alias, (laughByAlias.get(alias) ?? 0) + c);
+    }
+    for (const [raw, c] of this.shortBySender) {
+      const alias = aliases.get(raw);
+      if (alias) shortByAlias.set(alias, (shortByAlias.get(alias) ?? 0) + c);
+    }
+
+    const story = buildReportStory({
+      chatRoomName: parseChatRoomNameFromExportPath(meta.filePath),
+      totalMessages: total,
+      activeDays,
+      firstMessage: this.firstDate ? formatDateTime(this.firstDate) : null,
+      lastMessage: this.lastDate ? formatDateTime(this.lastDate) : null,
+      longestStreak,
+      peakHour,
+      busiestWeekdayLabel,
+      nightSharePercent,
+      emojiMessages: this.emojiMessages,
+      participants: participantStats,
+      daily: dailySorted,
+      dailySenderCounts: this.dailySenderCounts,
+      senderAliases: aliases,
+      insights,
+      laughMessages: this.laughMessages,
+      shortMessages: this.shortMessages,
+      laughBySender: laughByAlias,
+      shortBySender: shortByAlias,
+    });
+
     const highlights = buildHighlights({
       total,
       topAlias: participantStats[0]?.alias ?? null,
@@ -398,7 +459,7 @@ export class ReportAggregator {
       },
       insights,
       participants: participantStats,
-      daily: [...this.daily.entries()].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)),
+      daily: dailySorted,
       hourly: this.hourly,
       weekdays: this.weekdays.map((count, index) => ({
         label: `${WEEKDAY_LABELS_KO[index] ?? index}요일`,
@@ -409,6 +470,7 @@ export class ReportAggregator {
       domains: topCounts(this.domains, this.top),
       keywords: this.keywordCounter.topCounts(this.top),
       highlights,
+      story,
     };
   }
 }

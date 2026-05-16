@@ -11,6 +11,7 @@ import {
 } from "../src/analysis.js";
 import { parseKakaoExport } from "../src/parser.js";
 import { renderReportHtml } from "../src/report.js";
+import { buildReportStory } from "../src/story.js";
 
 test("parseChatRoomNameFromExportPath strips KakaoTalk export filename parts", () => {
   assert.equal(
@@ -72,6 +73,11 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     );
     assert.equal(html.includes("window.top.location"), false);
     assert.equal(html.includes("report-data"), false);
+    assert.equal(html.includes('id="s-wrapped"'), true);
+    assert.equal(html.includes("wrapped-card"), true);
+    assert.equal(html.includes("persona-chip"), true);
+    assert.equal(html.includes("story-headline"), true);
+    assert.ok(data.story.wrapped.length >= 3);
 
     const streamed = await buildReportFromExport(csvPath, { privacy: "public-masked" });
     assert.equal(streamed.summary.totalMessages, data.summary.totalMessages);
@@ -181,5 +187,50 @@ function emptyReport() {
     domains: [],
     keywords: [],
     highlights: [],
+    story: buildReportStory({
+      chatRoomName: "채팅방",
+      totalMessages: 0,
+      activeDays: 0,
+      firstMessage: null,
+      lastMessage: null,
+      longestStreak: 0,
+      peakHour: null,
+      busiestWeekdayLabel: null,
+      nightSharePercent: 0,
+      emojiMessages: 0,
+      participants: [],
+      daily: [],
+      dailySenderCounts: new Map(),
+      senderAliases: new Map(),
+      insights: {
+        weekendSharePercent: 0,
+        participantGini: null,
+        replyGapP90Minutes: null,
+        maxSilenceBetweenActiveDays: null,
+        top3ParticipantSharePercent: 0,
+        linkDomainEntropyBits: null,
+        densityMessagesPerCalendarDay: null,
+        questionLikeMessagesPer100: 0,
+        speakerSwitchRatePer100: 0,
+        rhythmScore: 0,
+        daypartPercents: [],
+        linksPer100: 0,
+        attachmentsPer100: 0,
+        medianMessagesPerParticipant: null,
+        burstGapUnder1mPercent: null,
+        gapOver60mPercent: null,
+        activeHoursCount: 0,
+        keywordTop1SharePercent: null,
+        photoShareOfAllAttachmentMarkers: null,
+        monologueMessagesPercent: 0,
+        peakDaySharePercent: 0,
+        uniqueDomainCount: 0,
+        replyGapCoeffVariation: null,
+      },
+      laughMessages: 0,
+      shortMessages: 0,
+      laughBySender: new Map(),
+      shortBySender: new Map(),
+    }),
   };
 }

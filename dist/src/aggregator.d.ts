@@ -20,6 +20,9 @@ export declare class ReportAggregator {
     private readonly domains;
     private readonly keywordCounter;
     private readonly gapStats;
+    private readonly dailySenderCounts;
+    private readonly laughBySender;
+    private readonly shortBySender;
     private total;
     private totalCharacters;
     private messagesWithLinks;
@@ -30,6 +33,8 @@ export declare class ReportAggregator {
     private questionMessages;
     private speakerSwitches;
     private monologueMessages;
+    private laughMessages;
+    private shortMessages;
     private prevMs;
     private prevSender;
     private runSender;

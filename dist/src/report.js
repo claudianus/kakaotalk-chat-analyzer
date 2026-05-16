@@ -1,3 +1,5 @@
+import { STORY_CSS, buildOgDescription, renderStoryHeadline, renderStorySections, storyNavLinks, } from "./report-story.js";
+import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
 const FIVE_MIB = 5 * 1024 * 1024;
 export function renderReportHtml(data) {
     const html = `<!doctype html>
@@ -6,6 +8,10 @@ export function renderReportHtml(data) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
+  <meta name="description" content="${escapeHtml(buildOgDescription(data))}">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="${escapeHtml(data.source.chatRoomName)} · kca 리포트">
+  <meta property="og:description" content="${escapeHtml(buildOgDescription(data))}">
   <title>카카오톡 대화 리포트 · ${escapeHtml(data.source.chatRoomName)} · kca</title>
   <style>
     :root {
@@ -227,6 +233,7 @@ export function renderReportHtml(data) {
       .card { transition: none; }
       .card:hover { transform: none; }
     }
+    ${STORY_CSS}
     body {
       margin: 0;
       background:
@@ -573,7 +580,7 @@ export function renderReportHtml(data) {
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#s-facts" data-kca-jump="s-facts">숫자 요약으로 건너뛰기</a>
+  <a class="skip-link" href="#s-wrapped" data-kca-jump="s-wrapped">Wrapped로 건너뛰기</a>
   <main>
     <div class="toolbar anim-enter" role="toolbar" aria-label="표시 테마" style="--enter-delay:0s">
       <span class="toolbar-label">테마</span>
@@ -586,7 +593,8 @@ export function renderReportHtml(data) {
       <div>
         <h1>카카오톡 대화 리포트</h1>
         <p class="room-title" aria-label="채팅방 이름">${escapeHtml(data.source.chatRoomName)}</p>
-        <p class="sub">원문 내용·전체 링크 주소는 저장하지 않아요. 이름은 <strong>일부만 보이게 가린 표시명</strong>이에요. 바로 아래 <strong>① 숫자 요약</strong>에서 규모를 보고, 차트로 패턴을 따라가면 됩니다.</p>
+        ${renderStoryHeadline(data)}
+        <p class="sub">원문·전체 URL은 저장하지 않아요. <strong>⓪ Wrapped</strong>로 한 장면씩 보거나, 아래 숫자·차트로 깊게 들어가면 됩니다.</p>
         <div class="badge-row">
           <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
           <span class="badge">인코딩: ${escapeHtml(data.source.encoding)}</span>
@@ -600,6 +608,7 @@ export function renderReportHtml(data) {
         <p><strong>마지막 메시지</strong><br>${escapeHtml(data.summary.lastMessage ?? "—")}</p>
       </div>
     </header>
+    ${renderStorySections(data)}
     ${renderFactMatrix(data)}
 
     ${data.highlights.length > 0
@@ -748,6 +757,7 @@ function renderSectionNav(data) {
     const hl = data.highlights.length > 0 ? `<a href="#s-hl" data-kca-jump="s-hl">하이라이트</a>` : "";
     return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
+    ${storyNavLinks(data)}
     <a href="#s-facts" data-kca-jump="s-facts">① 숫자 요약</a>
     <a href="#s-story" data-kca-jump="s-story">② 이 리포트 안내</a>
     ${hl}
@@ -1028,13 +1038,6 @@ function renderCountBars(items) {
     })
         .join("")}</div>`;
 }
-function renderHighlightLine(line) {
-    const parts = line.split("**");
-    return parts.map((part, i) => (i % 2 === 1 ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part))).join("");
-}
-function formatNumber(value) {
-    return new Intl.NumberFormat("ko-KR").format(value);
-}
 function formatTimestamp(value) {
     try {
         return new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -1045,13 +1048,5 @@ function formatTimestamp(value) {
 }
 function externalLink(href, label) {
     return `<a href="#" role="link" data-kca-external data-kca-external-url="${escapeHtml(href)}" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
-}
-function escapeHtml(value) {
-    return value
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
 }
 //# sourceMappingURL=report.js.map

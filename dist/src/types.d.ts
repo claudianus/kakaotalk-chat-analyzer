@@ -50,6 +50,53 @@ export interface DailyCount {
     date: string;
     count: number;
 }
+export interface WrappedCard {
+    id: string;
+    emoji: string;
+    title: string;
+    stat: string;
+    sub: string;
+}
+export interface ParticipantPersona {
+    alias: string;
+    title: string;
+    reason: string;
+}
+export interface StoryChapter {
+    index: number;
+    label: string;
+    fromDate: string;
+    toDate: string;
+    activeDays: number;
+    messages: number;
+    shareOfAll: number;
+    topAlias: string | null;
+    topSharePercent: number | null;
+}
+export interface CalendarCell {
+    date: string | null;
+    count: number;
+    level: number;
+}
+export interface CalendarWeek {
+    cells: CalendarCell[];
+}
+export interface ConversationTone {
+    laughMessages: number;
+    laughPer100: number;
+    shortMessages: number;
+    shortPer100: number;
+    emojiPer100: number;
+}
+export interface ReportStory {
+    headline: string;
+    wrapped: WrappedCard[];
+    personas: ParticipantPersona[];
+    chapters: StoryChapter[];
+    calendarWeeks: CalendarWeek[];
+    calendarSpanLabel: string;
+    tone: ConversationTone;
+}
 /** 고급 집계·행동 패턴 지표(원문 미저장, 통계 전용) */
 export interface ReportInsights {
     /** 토·일 메시지 비중(%) */
@@ -150,4 +197,6 @@ export interface ReportData {
     keywords: CountItem[];
     /** 리포트 상단에 보여줄 한 줄 인사이트(한국어) */
     highlights: string[];
+    /** Wrapped·챕터·페르소나 등 스토리 레이어 */
+    story: ReportStory;
 }
