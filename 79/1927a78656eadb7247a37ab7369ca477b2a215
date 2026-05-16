@@ -1,0 +1,52 @@
+scripts/report-viewport-check.mjs
+  s_d404882750412e::t_851f72624e9161 1-42
+package.json
+  s_d404882750412e::t_9ed5a18c395e95 3
+  s_d404882750412e::t_2e2f86e90369d5 33
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_b6f1175c97f46b 2
+src/report.ts
+  s_d404882750412e::t_13c0e9cf5767fd 348
+src/report-charts.ts
+  s_d404882750412e::t_cefe3cd173ff48 259
+  s_d404882750412e::t_0627ef8914463f 169-175
+  s_d404882750412e::t_384c87372164b1 307-310,315,317,324-325,328-329,333
+  s_d404882750412e::t_5f314efc0f0637 231-232,234-236,242-243,245-247,253-255,260,266-268,270-272,278-279,283-284,291-292
+README.md
+  s_d404882750412e::t_55a68864b2a7ef 119
+dist/src/report-styles.js
+  s_d404882750412e::t_b6f1175c97f46b 1711-1765
+kcachat/package.json
+  s_d404882750412e::t_de9d970b043e17 3
+  s_d404882750412e::t_296c792423176b 15
+src/report/css/06-kca-responsive.css
+  s_d404882750412e::t_e13efc87d8cb05 291-345
+dist/src/report.js
+  s_d404882750412e::t_b6f1175c97f46b 306
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/report-charts.js
+  s_d404882750412e::t_b6f1175c97f46b 141-147,203-204,206-208,214-215,217-219,225-227,231-232,238-240,242-244,250-251,255-256,263-264,279-282,287,289,296-297,300-301,305
+src/report-styles.ts
+  s_d404882750412e::t_b6f1175c97f46b 1711-1765
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_b6f1175c97f46b 50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "791927a78656eadb7247a37ab7369ca477b2a215",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
