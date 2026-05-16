@@ -1,0 +1,103 @@
+test/keyword-quality.test.ts
+  s_d404882750412e::t_079c4281d87fbf 1-19
+src/korean-stopwords.ts
+  s_d404882750412e::t_94c85cc34895ff 158-214
+kcachat/package.json
+  s_d404882750412e::t_9de384d3facdd2 3
+  s_d404882750412e::t_c5ceaf1e81448b 15
+src/aggregator.ts
+  s_d404882750412e::t_0a9b7b1b81df3f 18
+  s_d404882750412e::t_1a7ef43d0c9624 960
+  s_d404882750412e::t_496ce67c37fe9c 942
+dist/src/report-util.d.ts
+  s_d404882750412e::t_48b7ee7e3a4b0b 5-6
+dist/src/report-enrichment.js.map
+  ai_agent 1
+dist/src/report-charts.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 211-216,219,223-224,227-229,292,342-345,354-361
+dist/src/aggregator.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 8,803,821
+dist/src/report-enrichment.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 73
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/report-util.js.map
+  ai_agent 1
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_48b7ee7e3a4b0b 44
+dist/src/report.js.map
+  ai_agent 1
+src/kr-wordrank-stream.ts
+  s_d404882750412e::t_798b493feaa090 6
+  s_d404882750412e::t_a413750ec698ab 139
+src/report-enrichment.ts
+  s_d404882750412e::t_52d82a9b807484 76
+dist/src/korean-stopwords.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 158-214
+dist/src/keyword-quality.js.map
+  ai_agent 1
+src/report.ts
+  s_d404882750412e::t_bc352e126d6e02 28
+  s_d404882750412e::t_027e443b24da41 1010-1012,1016,1018
+  s_d404882750412e::t_fc0ba4bef92d9c 1081
+  s_d404882750412e::t_295db402307aa9 1044
+  s_d404882750412e::t_4d2c3bd7f445c0 984
+  s_d404882750412e::t_10ae93919af2f7 985-986
+  s_d404882750412e::t_77a0162197e167 1077-1078
+dist/src/story.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 122-123
+src/report-util.ts
+  s_d404882750412e::t_3e4e55dd22c5b8 33-47
+src/report-charts.ts
+  s_d404882750412e::t_8314794e1873ac 236-241,244,248-249,252-254
+  s_d404882750412e::t_78111bcde3b48f 317
+  s_d404882750412e::t_4a728807e5dbad 367-370,379-386
+package.json
+  s_d404882750412e::t_90eae3e372c4a0 3
+dist/src/korean-stopwords.js.map
+  ai_agent 1
+dist/src/story.js.map
+  ai_agent 1
+src/keyword-quality.ts
+  s_d404882750412e::t_c310f21ba8240a 1-11
+src/keyword-merge.ts
+  s_d404882750412e::t_d41df76381c56a 1
+  s_d404882750412e::t_5abfd61799a0c8 12-18
+  s_d404882750412e::t_cca7eb8c77a6c4 23
+dist/src/keyword-quality.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 1-18
+dist/src/keyword-merge.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 1,4-7,14
+dist/src/kr-wordrank-stream.js.map
+  ai_agent 1
+dist/src/keyword-merge.js.map
+  ai_agent 1
+src/story.ts
+  s_d404882750412e::t_33fc798ff7a6aa 194-195
+dist/src/report.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 5,949-951,974-976,980,982,1004,1036-1037,1040
+dist/src/keyword-quality.d.ts
+  s_d404882750412e::t_48b7ee7e3a4b0b 1-2
+dist/src/report-util.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 30-45
+dist/src/kr-wordrank-stream.js
+  s_d404882750412e::t_48b7ee7e3a4b0b 6,104
+dist/src/aggregator.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c6d9e1e2b325e18e5bcc68e374d28d23901e6ca3",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
