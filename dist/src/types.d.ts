@@ -281,10 +281,44 @@ export interface ReportBuildTiming {
     writeFileMs: number;
     totalMs: number;
 }
+/** HTML 리포트 생성·분석 provenance (CLI가 채움) */
+export interface ReportProvenance {
+    generator: {
+        name: "kakaotalk-chat-analyzer";
+        version: string;
+        invokedVia?: {
+            name: "kcachat";
+            version: string;
+        };
+    };
+    runtime?: {
+        node: string;
+        platform: string;
+        arch: string;
+    };
+    analysis: {
+        privacy: PrivacyMode;
+        top: number;
+        since?: string;
+        workerRequested?: boolean | "auto";
+        workerUsed?: boolean;
+        semanticRequested?: boolean | "auto";
+        semanticUsed: boolean;
+        kiwiAvailable: boolean;
+    };
+    output?: {
+        htmlBytes: number;
+        buildTiming?: ReportBuildTiming;
+    };
+    /** 리포트 템플릿·차트 페이로드 구분 — 기능 추가 시 bump */
+    reportSchema?: string;
+}
 export interface ReportData {
     generatedAt: string;
     /** 분석·HTML·저장 소요 (없으면 표시 생략) */
     buildTiming?: ReportBuildTiming;
+    /** 생성 도구·런타임·분석 옵션 (CLI) */
+    provenance?: ReportProvenance;
     privacy: PrivacyMode;
     source: {
         fileName: string;

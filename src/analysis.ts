@@ -272,3 +272,11 @@ export async function buildReportFromExport(
   }
   return buildReportFromExportSync(filePath, options);
 }
+
+/** CLI provenance용 — buildReportFromExport와 동일 조건 */
+export async function reportUsedAnalyzeWorker(
+  filePath: string,
+  options?: BuildReportOptions,
+): Promise<boolean> {
+  return shouldUseAnalyzeWorker(filePath, options);
+}

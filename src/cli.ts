@@ -2,7 +2,9 @@
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Command } from "commander";
-import { buildReportFromExport } from "./analysis.js";
+import { buildReportFromExport, reportUsedAnalyzeWorker } from "./analysis.js";
+import { getKiwiRuntime } from "./kiwi-runtime.js";
+import { buildReportProvenance } from "./report-provenance.js";
 import { clearOwnerToken, getConfigPath, getOwnerToken, saveOwnerToken } from "./config.js";
 import { describeStreamedExport } from "./stream-parser.js";
 import { createProvider, parseHostName } from "./providers/index.js";
@@ -233,15 +235,18 @@ async function generateReport(
   const csvPath = resolve(csv);
   const log = options.profile ? (label: string, ms: number) => console.error(`[kca] ${label}: ${ms}ms`) : () => {};
 
-  let t0 = performance.now();
-  const data = await buildReportFromExport(csvPath, {
+  const buildOpts = {
     privacy: options.privacy,
     top: options.top,
     worker: options.worker,
     progress: options.progress,
     semanticKeywords: options.semanticKeywords,
     since: options.since,
-  });
+  };
+
+  let t0 = performance.now();
+  const workerUsed = await reportUsedAnalyzeWorker(csvPath, buildOpts);
+  const data = await buildReportFromExport(csvPath, buildOpts);
   const parseAggregateMs = Math.round(performance.now() - t0);
   log("parse+aggregate", parseAggregateMs);
 
@@ -272,7 +277,20 @@ async function generateReport(
 
   buildTiming.totalMs =
     buildTiming.parseAggregateMs + buildTiming.renderHtmlMs + buildTiming.writeFileMs;
-  html = renderReportHtml({ ...data, buildTiming });
+
+  const provenance = buildReportProvenance(data, {
+    privacy: options.privacy,
+    top: options.top,
+    since: options.since,
+    workerRequested: resolveWorkerRequested(options.worker),
+    workerUsed,
+    semanticRequested: resolveSemanticRequested(options.semanticKeywords),
+    kiwiAvailable: getKiwiRuntime() != null,
+    buildTiming: { ...buildTiming },
+    htmlBytes: Buffer.byteLength(html, "utf8"),
+  });
+
+  html = renderReportHtml({ ...data, buildTiming, provenance });
   await writeFile(htmlPath, html, "utf8");
 
   if (options.profile) {
@@ -287,6 +305,20 @@ async function generateReport(
 async function readReportHtml(htmlPath: string): Promise<string> {
   const { readFile } = await import("node:fs/promises");
   return readFile(htmlPath, "utf8");
+}
+
+function resolveWorkerRequested(worker?: boolean): boolean | "auto" {
+  if (worker === false) return false;
+  if (worker === true) return true;
+  return "auto";
+}
+
+function resolveSemanticRequested(
+  semanticKeywords?: boolean,
+): boolean | "auto" {
+  if (semanticKeywords === false) return false;
+  if (semanticKeywords === true) return true;
+  return "auto";
 }
 
 function parsePrivacy(value: string): PrivacyMode {

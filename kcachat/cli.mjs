@@ -27,7 +27,7 @@ function spawnNpxLatest(forwardArgs) {
   const npx = process.platform === "win32" ? "npx.cmd" : "npx";
   return spawnSync(npx, ["--yes", "--prefer-online", "kakaotalk-chat-analyzer@latest", ...forwardArgs], {
     stdio: "inherit",
-    env: process.env,
+    env: { ...process.env, KCA_INVOKER: `kcachat/${wrapperVersion}` },
     shell: process.platform === "win32",
   });
 }
@@ -44,7 +44,7 @@ function runBundled(forwardArgs) {
   }
   return spawnSync(process.execPath, [target, ...forwardArgs], {
     stdio: "inherit",
-    env: process.env,
+    env: { ...process.env, KCA_INVOKER: `kcachat/${wrapperVersion}` },
   });
 }
 

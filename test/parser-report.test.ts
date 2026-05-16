@@ -11,7 +11,9 @@ import {
 } from "../src/analysis.js";
 import { parseKakaoExport } from "../src/parser.js";
 import { emptyReportData } from "../src/report-empty.js";
+import { buildReportProvenance } from "../src/report-provenance.js";
 import { renderReportHtml } from "../src/report.js";
+import { VERSION } from "../src/version.js";
 
 test("parseChatRoomNameFromExportPath strips KakaoTalk export filename parts", () => {
   assert.equal(
@@ -84,6 +86,22 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(html.includes("persona-chip"), true);
     assert.equal(html.includes("story-headline"), true);
     assert.ok(data.story.wrapped.length >= 3);
+
+    const provenance = buildReportProvenance(data, {
+      privacy: "public-masked",
+      top: 40,
+      workerUsed: false,
+      kiwiAvailable: false,
+      htmlBytes: 50_000,
+    });
+    const htmlWithProv = renderReportHtml({ ...data, provenance });
+    assert.equal(htmlWithProv.includes('id="kca-provenance"'), true);
+    assert.match(htmlWithProv, new RegExp(`"version":"${VERSION.replace(/\./g, "\\.")}"`));
+    assert.match(htmlWithProv, /meta name="generator" content="kakaotalk-chat-analyzer /);
+    assert.match(htmlWithProv, /<!-- kca-version:/);
+    assert.match(htmlWithProv, /<strong>생성 도구<\/strong>/);
+    assert.match(htmlWithProv, new RegExp(`kca ${VERSION.replace(/\./g, "\\.")}`));
+    assert.equal(htmlWithProv.includes("details.kca-provenance"), true);
 
     const streamed = await buildReportFromExport(csvPath, { privacy: "public-masked" });
     assert.equal(streamed.summary.totalMessages, data.summary.totalMessages);

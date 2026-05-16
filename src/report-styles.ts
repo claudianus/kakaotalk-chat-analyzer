@@ -958,6 +958,22 @@ a:hover {
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.02em;
     }
+    details.kca-provenance {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    details.kca-provenance summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .kca-provenance-list {
+      margin: 8px 0 0;
+      padding-left: 1.1em;
+      line-height: 1.45;
+    }
+    .kca-provenance-list li { margin-bottom: 4px; }
     footer { margin-top: 28px; color: var(--muted); font-size: 11px; line-height: 1.5; }
     @media (max-width: 900px) {
       .hero, .two, .three { grid-template-columns: 1fr; }

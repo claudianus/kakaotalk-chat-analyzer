@@ -2,7 +2,9 @@
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Command } from "commander";
-import { buildReportFromExport } from "./analysis.js";
+import { buildReportFromExport, reportUsedAnalyzeWorker } from "./analysis.js";
+import { getKiwiRuntime } from "./kiwi-runtime.js";
+import { buildReportProvenance } from "./report-provenance.js";
 import { clearOwnerToken, getConfigPath, getOwnerToken, saveOwnerToken } from "./config.js";
 import { describeStreamedExport } from "./stream-parser.js";
 import { createProvider, parseHostName } from "./providers/index.js";
@@ -166,15 +168,17 @@ program.parseAsync(process.argv).catch((error) => {
 async function generateReport(csv, options) {
     const csvPath = resolve(csv);
     const log = options.profile ? (label, ms) => console.error(`[kca] ${label}: ${ms}ms`) : () => { };
-    let t0 = performance.now();
-    const data = await buildReportFromExport(csvPath, {
+    const buildOpts = {
         privacy: options.privacy,
         top: options.top,
         worker: options.worker,
         progress: options.progress,
         semanticKeywords: options.semanticKeywords,
         since: options.since,
-    });
+    };
+    let t0 = performance.now();
+    const workerUsed = await reportUsedAnalyzeWorker(csvPath, buildOpts);
+    const data = await buildReportFromExport(csvPath, buildOpts);
     const parseAggregateMs = Math.round(performance.now() - t0);
     log("parse+aggregate", parseAggregateMs);
     const outDir = resolve(options.outDir);
@@ -199,7 +203,18 @@ async function generateReport(csv, options) {
     log("write file", buildTiming.writeFileMs);
     buildTiming.totalMs =
         buildTiming.parseAggregateMs + buildTiming.renderHtmlMs + buildTiming.writeFileMs;
-    html = renderReportHtml({ ...data, buildTiming });
+    const provenance = buildReportProvenance(data, {
+        privacy: options.privacy,
+        top: options.top,
+        since: options.since,
+        workerRequested: resolveWorkerRequested(options.worker),
+        workerUsed,
+        semanticRequested: resolveSemanticRequested(options.semanticKeywords),
+        kiwiAvailable: getKiwiRuntime() != null,
+        buildTiming: { ...buildTiming },
+        htmlBytes: Buffer.byteLength(html, "utf8"),
+    });
+    html = renderReportHtml({ ...data, buildTiming, provenance });
     await writeFile(htmlPath, html, "utf8");
     if (options.profile) {
         console.error(`[kca] build total: ${buildTiming.totalMs}ms (aggregate ${buildTiming.parseAggregateMs} · html ${buildTiming.renderHtmlMs} · write ${buildTiming.writeFileMs})`);
@@ -209,6 +224,20 @@ async function generateReport(csv, options) {
 async function readReportHtml(htmlPath) {
     const { readFile } = await import("node:fs/promises");
     return readFile(htmlPath, "utf8");
+}
+function resolveWorkerRequested(worker) {
+    if (worker === false)
+        return false;
+    if (worker === true)
+        return true;
+    return "auto";
+}
+function resolveSemanticRequested(semanticKeywords) {
+    if (semanticKeywords === false)
+        return false;
+    if (semanticKeywords === true)
+        return true;
+    return "auto";
 }
 function parsePrivacy(value) {
     if (value === "public-masked" || value === "public-anonymous")

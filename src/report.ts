@@ -35,6 +35,11 @@ import {
 } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
+import {
+  formatGeneratorLine,
+  formatProvenanceDetails,
+} from "./report-provenance.js";
+import { VERSION } from "./version.js";
 
 const FIVE_MIB = 5 * 1024 * 1024;
 
@@ -49,6 +54,8 @@ export function renderReportHtml(data: ReportData): string {
   <meta property="og:type" content="article">
   <meta property="og:title" content="${escapeHtml(data.source.chatRoomName)} · kca 리포트">
   <meta property="og:description" content="${escapeHtml(buildOgDescription(data))}">
+  <meta name="generator" content="kakaotalk-chat-analyzer ${escapeHtml(data.provenance?.generator.version ?? VERSION)}">
+  <!-- kca-version:${escapeHtml(data.provenance?.generator.version ?? VERSION)} -->
   <title>카카오톡 대화 리포트 · ${escapeHtml(data.source.chatRoomName)} · kca</title>
   ${REPORT_HEAD_LINKS}
   <style>
@@ -76,8 +83,10 @@ export function renderReportHtml(data: ReportData): string {
         <p><strong>채팅방</strong><br>${escapeHtml(data.source.chatRoomName)}</p>
         <p><strong>생성 시각</strong><br>${escapeHtml(formatTimestamp(data.generatedAt))}</p>
         ${data.buildTiming ? `<p><strong>생성 소요</strong><br>${escapeHtml(formatBuildTiming(data.buildTiming))}</p>` : ""}
+        ${renderProvenanceSideCard(data)}
         <p><strong>첫 메시지</strong><br>${escapeHtml(data.summary.firstMessage ?? "—")}</p>
         <p><strong>마지막 메시지</strong><br>${escapeHtml(data.summary.lastMessage ?? "—")}</p>
+        ${renderProvenanceDetailsBlock(data)}
       </div>
     </header>
     ${renderStorySections(data)}
@@ -258,7 +267,8 @@ export function renderReportHtml(data: ReportData): string {
     ${REPORT_EXPLORER_SCRIPT}
     </script>
 
-    <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건${data.buildTiming ? ` · 생성 ${escapeHtml(formatBuildTimingShort(data.buildTiming))}` : ""} · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
+    ${data.provenance ? `<script type="application/json" id="kca-provenance">${JSON.stringify(data.provenance)}</script>` : ""}
+    <footer>${renderProvenanceFooterPrefix(data)}${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건${data.buildTiming ? ` · 생성 ${escapeHtml(formatBuildTimingShort(data.buildTiming))}` : ""} · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
   </main>
 </body>
 </html>`;
@@ -792,6 +802,25 @@ function renderCountBars(items: CountItem[]): string {
       return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${width}%"></span></span><span class="bar-value">${formatNumber(item.count)}</span></div>`;
     })
     .join("")}</div>`;
+}
+
+function renderProvenanceSideCard(data: ReportData): string {
+  if (!data.provenance) return "";
+  return `<p><strong>생성 도구</strong><br>${escapeHtml(formatGeneratorLine(data.provenance))}</p>`;
+}
+
+function renderProvenanceDetailsBlock(data: ReportData): string {
+  if (!data.provenance) return "";
+  const lines = formatProvenanceDetails(data.provenance);
+  return `<details class="kca-provenance">
+      <summary>리포트 정보</summary>
+      <ul class="kca-provenance-list">${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>
+    </details>`;
+}
+
+function renderProvenanceFooterPrefix(data: ReportData): string {
+  if (!data.provenance) return "";
+  return `${escapeHtml(formatGeneratorLine(data.provenance))} · `;
 }
 
 function formatTimestamp(value: string): string {

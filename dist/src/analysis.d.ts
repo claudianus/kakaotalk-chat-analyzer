@@ -8,3 +8,5 @@ export declare function buildReportData(result: ParseResult, options?: BuildRepo
 export declare function buildReportDataAsync(result: ParseResult, options?: BuildReportOptions): Promise<ReportData>;
 export declare function buildReportFromExportSync(filePath: string, options?: BuildReportOptions): Promise<ReportData>;
 export declare function buildReportFromExport(filePath: string, options?: BuildReportOptions): Promise<ReportData>;
+/** CLI provenance용 — buildReportFromExport와 동일 조건 */
+export declare function reportUsedAnalyzeWorker(filePath: string, options?: BuildReportOptions): Promise<boolean>;
