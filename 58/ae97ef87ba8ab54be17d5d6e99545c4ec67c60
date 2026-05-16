@@ -1,0 +1,34 @@
+docs/index.html
+  s_d404882750412e::t_aa8b9e3b8e3d76 12
+  s_d404882750412e::t_70fcbc0943b202 413-416
+  s_d404882750412e::t_b74c620b7fdd19 395-396
+  s_d404882750412e::t_cb369e0841d1f0 6
+  s_d404882750412e::t_179282d9b593b2 318-319
+  s_d404882750412e::t_38c305dcf9f734 386
+  s_d404882750412e::t_4d010d9f5517ef 322-323
+README.md
+  s_d404882750412e::t_96bed0fff64cbe 57
+  s_d404882750412e::t_876a05c8e5a590 17
+  s_d404882750412e::t_3a554a9cec0633 96-105,108-117
+  s_d404882750412e::t_b0cd6b4bf36ea3 153
+  s_d404882750412e::t_41710dd56f521a 259
+  s_d404882750412e::t_d42b48550e1810 74
+kcachat/README.md
+  s_d404882750412e::t_8a4a023e47fc4b 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "58ae97ef87ba8ab54be17d5d6e99545c4ec67c60",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
