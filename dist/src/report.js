@@ -1276,7 +1276,7 @@ function renderReactionsPanel(data) {
     return parts.join("");
 }
 function renderKeywordSnapshot(items) {
-    const note = '<p class="kw-note"><strong>본문 단어만</strong> 집계해요. 첨부·시스템·운영 알림·샵검색은 <strong>각각 다른 차트</strong>에서 봅니다.</p>';
+    const note = '<p class="kw-note"><strong>KR-WordRank</strong>(비지도·한국어 특화)로 본문 어절에서 단어를 뽑고, 해시태그·슬랭은 보조로 더합니다. 조사·어미 조각은 걸러집니다.</p>';
     if (items.length === 0) {
         return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
     }

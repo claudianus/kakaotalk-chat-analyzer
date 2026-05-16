@@ -1,6 +1,10 @@
 import { formatDate, formatDateTime, partsToUtcMs, weekdayIndex } from "./date.js";
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats } from "./gap-stats.js";
+import { KrWordRankStream } from "./kr-wordrank-stream.js";
+import { extractSupplementalKeywords } from "./korean-keywords.js";
+import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
+import { mergeKeywordRankings } from "./keyword-merge.js";
 import { KeywordCounter } from "./keyword-counter.js";
 import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
 import { buildRoomPulse, computeActivityArc, computeBurstDays, computeConversationPace, } from "./report-enrichment.js";
@@ -25,46 +29,6 @@ const WEEKDAY_LABELS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const URL_RE = /\bhttps?:\/\/[^\s<>"']+|www\.[^\s<>"']+/gi;
 const EMAIL_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const PHONE_RE = /\b(?:\+?\d[\d\s().-]{7,}\d)\b/g;
-const TOKEN_RE = /[가-힣A-Za-z][가-힣A-Za-z0-9_+-]{1,}/g;
-const STOPWORDS = new Set([
-    "그리고",
-    "그냥",
-    "근데",
-    "그래서",
-    "저는",
-    "제가",
-    "우리",
-    "오늘",
-    "내일",
-    "어제",
-    "이거",
-    "저거",
-    "그거",
-    "수정",
-    "확인",
-    "가능",
-    "입니다",
-    "합니다",
-    "있습니다",
-    "없는",
-    "있는",
-    "the",
-    "and",
-    "for",
-    "with",
-    "this",
-    "that",
-    "from",
-    "http",
-    "https",
-    "정치성향",
-    "강퇴됩니다",
-    "가려짐",
-    "초중반",
-    "비속어",
-    "반가워",
-    "닉네임",
-]);
 const NIGHT_HOURS = new Set([23, 0, 1, 2, 3, 4, 5]);
 const EMOJI_RE = /\p{Extended_Pictographic}/u;
 const LAUGH_RE = /(?:ㅋ{2,}|ㅎ{2,}|ㅠ+|ㅜ+|ㅇㅇ|ㅋㅋ|ㅎㅎ|ㅋㅎ|ㅎㅋ)/;
@@ -83,7 +47,8 @@ export class ReportAggregator {
     weekdays = Array.from({ length: 7 }, () => 0);
     attachments = new Map();
     domains = new Map();
-    keywordCounter = new KeywordCounter();
+    krWordRank = new KrWordRankStream({ minCount: 3 });
+    keywordSupplement = new KeywordCounter();
     repeatPhraseCounter = new RepeatPhraseCounter();
     shopSearchTopics = new Map();
     gapStats = new GapStreamStats();
@@ -222,8 +187,13 @@ export class ReportAggregator {
                 HAS_TOKEN_CHAR_RE.test(msg) &&
                 !isOpenChatBoilerplate(msg) &&
                 shouldExtractKeywords(msg, foundAttachments)) {
-                for (const keyword of extractKeywords(msg, this.senderNamesNormalized)) {
-                    this.keywordCounter.add(keyword);
+                this.krWordRank.addDocument(msg);
+                const kwOpts = {
+                    senderNames: this.senderNamesNormalized,
+                    exclude: KEYWORD_EXCLUDE,
+                };
+                for (const keyword of extractSupplementalKeywords(msg, kwOpts)) {
+                    this.keywordSupplement.add(keyword);
                 }
                 if (messageLength >= 12 && !isOpenChatBoilerplate(msg))
                     this.repeatPhraseCounter.add(msg);
@@ -367,7 +337,13 @@ export class ReportAggregator {
             if ((this.hourly[h] ?? 0) > 0)
                 activeHoursCount += 1;
         }
-        const keywordTop1SharePercent = this.keywordCounter.top1SharePercent();
+        const keywordStop = buildKeywordStopwords();
+        const wordRankScores = this.krWordRank.extractKeywords({
+            stopwords: keywordStop,
+            limit: Math.max(this.top * 2, 50),
+        });
+        const keywords = mergeKeywordRankings(wordRankScores, this.keywordSupplement, this.top);
+        const keywordTop1SharePercent = top1ShareFromCounts(keywords, total);
         let attachmentMarkerSum = 0;
         for (const c of this.attachments.values())
             attachmentMarkerSum += c;
@@ -380,7 +356,7 @@ export class ReportAggregator {
         const uniqueDomainCount = this.domains.size;
         const replyGapCoeffVariation = this.gapStats.coeffVariation();
         const monologueMessagesPercent = total > 0 ? round((this.monologueMessages / total) * 100, 1) : 0;
-        const lexicalTypeRichnessPercent = this.keywordCounter.typeTokenRichnessPercent();
+        const lexicalTypeRichnessPercent = typeRichnessFromKeywords(keywords, total);
         const insights = {
             weekendSharePercent,
             participantGini,
@@ -519,7 +495,7 @@ export class ReportAggregator {
             monthly: [...this.monthly.entries()].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)),
             attachments: topCounts(this.attachments, this.top),
             domains: topCounts(this.domains, this.top),
-            keywords: this.keywordCounter.topCounts(this.top),
+            keywords,
             roomEvents: buildRoomEventStats(total, {
                 join: this.roomJoinMessages,
                 leave: this.roomLeaveMessages,
@@ -649,33 +625,30 @@ function getDomains(message) {
     }
     return domains;
 }
-function extractKeywords(message, senderNames) {
-    const withoutSensitivePatterns = message
-        .replace(URL_RE, " ")
-        .replace(EMAIL_RE, " ")
-        .replace(PHONE_RE, " ");
-    const tokens = withoutSensitivePatterns.match(TOKEN_RE) ?? [];
-    const keywords = [];
-    for (const token of tokens) {
-        const normalized = normalizeToken(token);
-        if (!normalized)
-            continue;
-        if (normalized.length < 2 || normalized.length > 30)
-            continue;
-        if (STOPWORDS.has(normalized))
-            continue;
-        if (senderNames.has(normalized))
-            continue;
-        if (KEYWORD_EXCLUDE.has(normalized))
-            continue;
-        if (/^\d+$/.test(normalized))
-            continue;
-        keywords.push(normalized);
-    }
-    return keywords;
-}
 function normalizeToken(token) {
     return /^[A-Za-z0-9_+-]+$/.test(token) ? token.toLowerCase() : token.trim();
+}
+function buildKeywordStopwords() {
+    const s = new Set([...KOREAN_CHAT_STOPWORDS, ...MORPHOLOGICAL_FRAGMENTS]);
+    for (const m of ATTACHMENT_MARKERS)
+        s.add(m);
+    return s;
+}
+function top1ShareFromCounts(keywords, totalMessages) {
+    if (keywords.length === 0 || totalMessages === 0)
+        return null;
+    const sum = keywords.reduce((a, k) => a + k.count, 0);
+    if (sum === 0)
+        return null;
+    return round((keywords[0].count / sum) * 100, 1);
+}
+function typeRichnessFromKeywords(keywords, totalMessages) {
+    if (totalMessages === 0 || keywords.length === 0)
+        return null;
+    const tokenSum = keywords.reduce((a, k) => a + k.count, 0);
+    if (tokenSum === 0)
+        return null;
+    return round((keywords.length / tokenSum) * 100, 1);
 }
 function increment(map, key, amount = 1) {
     map.set(key, (map.get(key) ?? 0) + amount);

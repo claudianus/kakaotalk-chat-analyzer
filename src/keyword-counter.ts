@@ -20,7 +20,10 @@ export class KeywordCounter {
   topCounts(limit: number): CountItem[] {
     return [...this.map.entries()]
       .map(([label, count]) => ({ label, count }))
-      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+      .sort(
+        (a, b) =>
+          b.count - a.count || b.label.length - a.label.length || a.label.localeCompare(b.label),
+      )
       .slice(0, limit);
   }
 

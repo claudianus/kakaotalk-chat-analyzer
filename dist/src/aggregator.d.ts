@@ -18,7 +18,8 @@ export declare class ReportAggregator {
     private readonly weekdays;
     private readonly attachments;
     private readonly domains;
-    private readonly keywordCounter;
+    private readonly krWordRank;
+    private readonly keywordSupplement;
     private readonly repeatPhraseCounter;
     private readonly shopSearchTopics;
     private readonly gapStats;
