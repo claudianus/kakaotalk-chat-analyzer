@@ -1,0 +1,61 @@
+name: Report visual QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/report/**"
+      - "src/report.ts"
+      - "src/report-*.ts"
+      - "scripts/report-*.mjs"
+      - "scripts/qa-serve.mjs"
+      - "test/fixtures/**"
+      - ".github/workflows/report-visual-qa.yml"
+  pull_request:
+    paths:
+      - "src/report/**"
+      - "src/report.ts"
+      - "src/report-*.ts"
+      - "scripts/report-*.mjs"
+  workflow_dispatch:
+
+jobs:
+  report-screenshots:
+    runs-on: ubuntu-latest
+    if: github.repository == 'claudianus/kakaotalk-chat-analyzer'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Cache Kiwi models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/kakaotalk-chat-analyzer
+          key: kca-cache-v2-${{ runner.os }}-${{ hashFiles('src/kiwi-runtime.ts') }}
+
+      - name: Install and build
+        run: npm ci && npm run build
+
+      - name: Generate smoke report
+        run: KCA_NO_SEMANTIC=1 node dist/src/cli.js test/fixtures/keyword-golden.csv --local -o .qa-reports/ci-smoke
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Screenshot viewports
+        run: |
+          node scripts/qa-serve.mjs &
+          sleep 2
+          KCA_QA_BASE_URL=http://127.0.0.1:18765/ci-smoke/ npm run report:screenshots -- ci-smoke
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-viewport-screenshots
+          path: .qa-reports/ci-smoke/screenshots/
+          retention-days: 14

@@ -83,7 +83,7 @@
 | 반응형 | ~390px 폭에서 겹침·가로 스크롤 폭주 없음 |
 | 콘솔 | `browser_console_messages`에 치명적 에러 없음 |
 
-스크린샷 또는 스냅샷으로 **최소 1장면(Wrapped + 차트 1개 + 키워드)** 을 확인한 뒤, 이슈가 있으면 고치고 **report:qa 재실행**한다.
+스크린샷 또는 스냅샷으로 **최소 1장면(Wrapped + 차트 1개 + 키워드)** 을 확인한 뒤, 이슈가 있으면 고치고 **report:qa 재실행**한다. 로컬·CI 회귀용: `npm run report:screenshots -- <slug>` (Playwright, 390/834/1440/2560 full-page).
 
 ### C. 완료 보고
 

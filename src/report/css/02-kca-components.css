@@ -14,6 +14,31 @@
     :root[data-theme="dark"] .card:hover {
       box-shadow: 0 28px 72px rgba(0, 0, 0, 0.45);
     }
+    .stat-sample-badge {
+      margin: 0 0 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px dashed var(--line);
+      background: color-mix(in srgb, var(--accent) 6%, var(--panel));
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-sample-badge strong { color: var(--ink); font-weight: 850; }
+    .stat-sample-k {
+      display: inline-block;
+      margin-right: 6px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+    }
+    .stat-sample-range { margin-left: 4px; opacity: 0.92; }
     .fact-hero-strip {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));

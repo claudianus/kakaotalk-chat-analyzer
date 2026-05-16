@@ -331,13 +331,42 @@ export const CHARTS_INIT_SCRIPT = `
       window.addEventListener("resize", resizeAll);
       window.addEventListener("load", resizeAll);
       }
-      if (typeof echarts !== "undefined") {
-        run();
-      } else {
+      function whenVisible() {
+        var anchor = document.getElementById("s-viz") || document.querySelector(".chart-box");
+        if (!anchor || typeof IntersectionObserver === "undefined") {
+          run();
+          return;
+        }
+        var started = false;
+        var io = new IntersectionObserver(function (entries) {
+          if (started) return;
+          if (entries.some(function (e) { return e.isIntersecting; })) {
+            started = true;
+            io.disconnect();
+            run();
+          }
+        }, { rootMargin: "280px 0px", threshold: 0.01 });
+        io.observe(anchor);
+        setTimeout(function () {
+          if (started) return;
+          var r = anchor.getBoundingClientRect();
+          if (r.top < window.innerHeight + 320) {
+            started = true;
+            io.disconnect();
+            run();
+          }
+        }, 200);
+      }
+      function bootCharts() {
+        if (typeof echarts === "undefined") return false;
+        whenVisible();
+        return true;
+      }
+      if (!bootCharts()) {
         window.addEventListener("load", function () {
           var tries = 0;
           (function wait() {
-            if (typeof echarts !== "undefined") { run(); return; }
+            if (bootCharts()) return;
             if (++tries > 120) {
               document.querySelectorAll(".chart-box").forEach(function (el) {
                 if (!el.querySelector("canvas")) {

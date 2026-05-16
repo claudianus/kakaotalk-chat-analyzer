@@ -344,6 +344,7 @@ function renderFactMatrix(data: ReportData): string {
   </div>`;
   return `<section id="s-facts" class="card fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>① 숫자 요약 (팩트 매트릭스)</h2>
+    ${renderSampleBadge(data)}
     ${strip}
     <p class="fact-hint">외부 AI나 서버 없이, <strong>보낸 CSV 안의 숫자만</strong>으로 만든 표예요. 지니 계수·리듬 점수는 표본(메시지·참여자) 기준 <strong>상대 비교</strong>용이며, 아래 ③에서 분포·쏠림을 함께 보세요.</p>
     <div class="fact-grid">${inner}</div>
@@ -386,10 +387,10 @@ function renderInsightDeck(data: ReportData): string {
     </div>
     <div class="insight-grid">
       ${insMetric("주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
-      ${insMetric("참여 지니", giniStr, "0에 가까우면 고르게 참여")}
+      ${insMetric("참여 지니", giniStr, giniMetricSub(ins.participantGini, data.summary.participants))}
       ${insMetric("응답 상위10%", p90, "느린 쪽 10% 구간")}
       ${insMetric("최장 공백", silence, "활동일 사이 최대 휴지")}
-      ${insMetric("상위3 점유", `${ins.top3ParticipantSharePercent}%`, "메시지 많이 보낸 3명 합")}
+      ${insMetric("상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
       ${insMetric("링크 다양성", entropy, "공유 사이트 종류(bit)")}
       ${insMetric("캘린더 밀도", density, "달력 하루당 평균 메시지")}
       ${insMetric("질문 느낌", `${ins.questionLikeMessagesPer100}/100`, "물음표 포함 비슷한 톤")}
@@ -415,6 +416,29 @@ function renderInsightDeck(data: ReportData): string {
       </div>
     </div>
   </section>`;
+}
+
+function renderSampleBadge(data: ReportData): string {
+  const s = data.summary;
+  const range =
+    s.firstMessage && s.lastMessage
+      ? `${s.firstMessage.slice(0, 10)} ~ ${s.lastMessage.slice(0, 10)}`
+      : "기간 미상";
+  return `<p class="stat-sample-badge" role="note"><span class="stat-sample-k">표본</span> <strong>${escapeHtml(formatNumber(s.totalMessages))}</strong>건 · <strong>${escapeHtml(formatNumber(s.participants))}</strong>명 · 활동 <strong>${escapeHtml(formatNumber(s.activeDays))}</strong>일 <span class="stat-sample-range">${escapeHtml(range)}</span></p>`;
+}
+
+function giniMetricSub(gini: number | null, participants: number): string {
+  if (gini === null) return `표본 n=${participants}명 — 지니 산출 불가`;
+  const band =
+    gini < 0.42 ? "고른 참여(상대)" : gini < 0.62 ? "중간 쏠림" : "소수 집중(상대)";
+  return `${band} · n=${participants}`;
+}
+
+function top3MetricSub(top3: number, gini: number | null): string {
+  const skew =
+    top3 >= 70 ? "상위 3명이 대부분" : top3 >= 50 ? "상위가 절반 이상" : "비중 분산";
+  const tail = gini !== null && gini >= 0.65 ? " · 지니도 높음" : "";
+  return `${skew}${tail}`;
 }
 
 function insMetric(label: string, value: string, sub: string): string {

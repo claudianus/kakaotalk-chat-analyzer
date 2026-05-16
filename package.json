@@ -1,6 +1,6 @@
 {
   "name": "kakaotalk-chat-analyzer",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "카카오톡 CSV 보내기 → 한글 리포트 → 선택적 임시 공유. npx 한 줄로 실행 가능한 CLI.",
   "type": "module",
   "homepage": "https://claudianus.github.io/kakaotalk-chat-analyzer/",
@@ -31,6 +31,7 @@
     "report:qa": "npm run build && node scripts/report-visual-qa.mjs",
     "report:qa:serve": "node scripts/qa-serve.mjs",
     "report:viewport": "npm run build && node scripts/report-viewport-check.mjs",
+    "report:screenshots": "node scripts/report-viewport-screenshots.mjs",
     "smoke": "node dist/src/cli.js --help",
     "gh:sync-npm-secret": "bash scripts/sync-npm-token-to-gh.sh"
   },
@@ -49,6 +50,7 @@
   "devDependencies": {
     "@types/node": "^22.19.19",
     "open-props": "^1.7.15",
+    "playwright": "^1.52.0",
     "typescript": "^6.0.3"
   },
   "keywords": [
