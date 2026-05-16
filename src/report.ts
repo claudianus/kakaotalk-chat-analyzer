@@ -294,43 +294,56 @@ export function renderReportHtml(data: ReportData): string {
     .bar-value { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
     .chart-hint { margin: 0 0 10px; font-size: 12px; color: var(--muted); line-height: 1.45; }
     .chart-hint strong { color: var(--ink); font-weight: 700; }
-    .calendar-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; margin: 0 -2px; }
     .calendar {
       display: grid;
-      gap: 4px;
-      width: max-content;
-      max-width: 100%;
+      grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+      gap: 5px;
+      width: 100%;
       box-sizing: border-box;
     }
     .day {
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 2px;
-      min-width: 42px;
-      min-height: 46px;
-      padding: 4px 3px;
+      min-width: 0;
+      aspect-ratio: 1;
+      padding: 4px 2px;
       font-weight: 650;
       border: 1px solid var(--line);
     }
-    .day-k { font-size: 10px; line-height: 1.15; font-weight: 750; letter-spacing: -0.02em; }
-    .day-n { font-size: 12px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
-    .hours-wrap { display: flex; flex-direction: column; gap: 0; }
-    .hours-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; margin: 0 -2px; }
-    .hours-chart-inner { min-width: 520px; display: flex; flex-direction: column; gap: 5px; }
-    .hours-bars { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 140px; }
+    .day-k { font-size: 9px; line-height: 1.15; font-weight: 750; letter-spacing: -0.02em; }
+    .day-n { font-size: 11px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .hours-wrap { display: flex; flex-direction: column; gap: 8px; }
+    .hours-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 560px) { .hours-split { grid-template-columns: 1fr; } }
+    .hours-half { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .hours-band {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .hours-band-am { color: #0c4a6e; background: rgba(8, 145, 178, 0.14); }
+    .hours-band-pm { color: #9a3412; background: rgba(234, 88, 12, 0.14); }
+    :root[data-theme="dark"] .hours-band-am { color: #7dd3fc; background: rgba(8, 145, 178, 0.22); }
+    :root[data-theme="dark"] .hours-band-pm { color: #fdba74; background: rgba(234, 88, 12, 0.2); }
+    .hours-bars { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; align-items: end; height: 120px; }
     .hour {
       min-width: 0;
       width: 100%;
       align-self: end;
-      background: linear-gradient(180deg, var(--accent2), #e07a45);
-      border-radius: 3px 3px 0 0;
+      border-radius: 4px 4px 0 0;
     }
+    .hour-am { background: linear-gradient(180deg, #22d3ee, #0891b2); }
+    .hour-pm { background: linear-gradient(180deg, #fb923c, #ea580c); }
     .hours-labels {
       display: grid;
-      grid-template-columns: repeat(24, 1fr);
+      grid-template-columns: repeat(12, minmax(0, 1fr));
       gap: 2px;
       font-size: 9px;
       line-height: 1.15;
@@ -340,9 +353,34 @@ export function renderReportHtml(data: ReportData): string {
     }
     .hours-labels span { min-width: 0; }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table-rank { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    .table-rank thead th {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 11px;
+      padding: 10px 8px;
+      background: var(--bar-bg);
+      border-bottom: 2px solid var(--line);
+    }
+    .table-rank tbody tr { border-bottom: 1px solid var(--line); }
+    .table-rank tbody tr:last-child { border-bottom: none; }
+    .table-rank tbody tr:nth-child(even) { background: rgba(15, 107, 92, 0.04); }
+    :root[data-theme="dark"] .table-rank tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.03); }
+    .table-rank td { padding: 10px 8px; }
+    .table-rank td:first-child { font-weight: 700; color: var(--ink); }
     .table th, .table td { text-align: left; border-bottom: 1px solid var(--line); padding: 9px 6px; }
     .table th { color: var(--muted); font-weight: 650; font-size: 11px; text-transform: none; }
     .table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .kw-note {
+      margin: 0 0 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(15, 107, 92, 0.06);
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
     .self-serve {
       margin-top: 14px;
       border: 1px dashed rgba(15, 107, 92, 0.38);
@@ -450,21 +488,44 @@ export function renderReportHtml(data: ReportData): string {
     .rh-cap small { font-size: 11px; font-weight: 700; color: var(--muted); margin-left: 1px; }
     .sc-plot {
       position: relative;
-      height: 200px;
+      height: min(280px, 52vw);
+      min-height: 220px;
       border-radius: 12px;
       border: 1px dashed var(--line);
       background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
       margin-top: 4px;
     }
-    .sc-dot {
+    .sc-point {
       position: absolute;
-      width: 12px;
-      height: 12px;
-      margin-left: -6px;
-      margin-top: -6px;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      max-width: 72px;
+      pointer-events: none;
+    }
+    .sc-label {
+      font-size: 9px;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--ink);
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+    .sc-dot {
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
       box-shadow: 0 0 0 2px var(--panel), 0 4px 12px rgba(0, 0, 0, 0.18);
-      cursor: default;
+      flex-shrink: 0;
     }
     .sc-axis { position: absolute; font-size: 10px; color: var(--muted); font-weight: 650; }
     .sc-x { right: 8px; bottom: 6px; }
@@ -502,7 +563,6 @@ export function renderReportHtml(data: ReportData): string {
     footer { margin-top: 28px; color: var(--muted); font-size: 11px; line-height: 1.5; }
     @media (max-width: 900px) {
       .hero, .two, .three { grid-template-columns: 1fr; }
-      .hours-chart-inner { min-width: 480px; }
     }
   </style>
 </head>
@@ -516,11 +576,10 @@ export function renderReportHtml(data: ReportData): string {
       <button type="button" class="theme-btn" data-theme-set="system">시스템</button>
     </div>
     ${renderSectionNav(data)}
-    ${renderFactMatrix(data)}
-    <header id="s-story" class="hero anim-enter" style="--enter-delay:0.04s">
+    <header id="s-story" class="hero anim-enter" style="--enter-delay:0.03s;margin-bottom:16px">
       <div>
         <h1>카카오톡 대화 리포트</h1>
-        <p class="sub">원문 내용·전체 링크 주소는 저장하지 않아요. 이름은 <strong>일부만 보이게 가린 표시명</strong>이에요. 위쪽 <strong>① 숫자 요약</strong>에서 한눈에 보고, 아래 차트로 패턴을 따라가면 됩니다.</p>
+        <p class="sub">원문 내용·전체 링크 주소는 저장하지 않아요. 이름은 <strong>일부만 보이게 가린 표시명</strong>이에요. 바로 아래 <strong>① 숫자 요약</strong>에서 규모를 보고, 차트로 패턴을 따라가면 됩니다.</p>
         <div class="badge-row">
           <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
           <span class="badge">인코딩: ${escapeHtml(data.source.encoding)}</span>
@@ -533,6 +592,7 @@ export function renderReportHtml(data: ReportData): string {
         <p><strong>마지막 메시지</strong><br>${escapeHtml(data.summary.lastMessage ?? "—")}</p>
       </div>
     </header>
+    ${renderFactMatrix(data)}
 
     ${
       data.highlights.length > 0
@@ -545,7 +605,7 @@ export function renderReportHtml(data: ReportData): string {
     <div id="s-charts" class="chart-stack anim-enter" style="--enter-delay:0.06s">
     <section class="grid two" style="margin-bottom:14px">
       ${panel("일별 활동 히트맵", "날짜마다 메시지가 얼마나 쌓였는지 색으로 보여요.", renderDaily(data.daily))}
-      ${panel("시간대 리듬 (0~23시)", "하루 중 몇 시에 가장 붐비는지 막대로 확인해요.", renderHours(data.hourly))}
+      ${panel("시간대 리듬 (0~23시)", "청록=오전(0~11시), 주황=오후(12~23시). 막대 높이는 해당 시간 메시지 비중이에요.", renderHours(data.hourly))}
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
@@ -560,7 +620,7 @@ export function renderReportHtml(data: ReportData): string {
 
     <section class="grid two" style="margin-bottom:14px">
       ${panel("자주 나온 도메인", "공유 링크의 사이트 이름 일부만 집계했어요.", renderCountBars(data.domains))}
-      ${panel("키워드 스냅샷", "자주 등장한 단어 상위 목록이에요.", renderCountBars(data.keywords))}
+      ${panel("키워드 스냅샷", "사람이 직접 입력한 본문 단어만 집계해요(카톡 첨부 시스템 문구는 제외).", renderKeywordSnapshot(data.keywords))}
     </section>
     </div>
 
@@ -819,7 +879,7 @@ function renderParticipantScatter(parts: ParticipantStat[]): string {
       const yRaw = (p.averageLength - minLen) / lenSpan;
       const y = 12 + (1 - yRaw) * 76;
       const hue = (i * 53) % 360;
-      return `<div class="sc-dot" style="left:${x}%;top:${y}%;background:hsl(${hue} 72% 52%)" title="${escapeHtml(p.alias)} · ${p.sharePercent}% · 평균 ${p.averageLength}자"></div>`;
+      return `<div class="sc-point" style="left:${x}%;top:${y}%"><span class="sc-label">${escapeHtml(p.alias)}</span><span class="sc-dot" style="background:hsl(${hue} 72% 52%)" title="${escapeHtml(p.alias)} · ${p.sharePercent}% · 평균 ${p.averageLength}자"></span></div>`;
     })
     .join("");
   return `<div class="sc-plot">${dots}<span class="sc-axis sc-x">점유 →</span><span class="sc-axis sc-y">길이 ↑</span></div>`;
@@ -862,7 +922,6 @@ function renderSelfServeCallout(): string {
 function renderDaily(days: DailyCount[]): string {
   if (days.length === 0) return `<p style="margin:0;color:var(--muted);font-size:13px">날짜가 있는 메시지가 없습니다.</p>`;
   const max = Math.max(...days.map((day) => day.count), 1);
-  const cols = `repeat(${days.length}, minmax(42px, 1fr))`;
   const cells = days
     .map((day) => {
       const ratio = day.count / max;
@@ -874,10 +933,8 @@ function renderDaily(days: DailyCount[]): string {
     })
     .join("");
   return `<div class="calendar-wrap">
-    <p class="chart-hint">각 칸: <strong>월/일</strong>(위) · 해당일 <strong>메시지 수</strong>(아래). 온전한 날짜는 칸에 마우스를 올리면 툴팁으로 보입니다.</p>
-    <div class="calendar-scroll">
-      <div class="calendar" style="grid-template-columns:${cols}">${cells}</div>
-    </div>
+    <p class="chart-hint">날짜 순으로 칸이 채워져요. <strong>월/일</strong>(위) · <strong>메시지 수</strong>(아래). 가로 스크롤 없이 화면 너비에 맞춥니다.</p>
+    <div class="calendar">${cells}</div>
   </div>`;
 }
 
@@ -886,22 +943,26 @@ function renderMonthly(months: DailyCount[]): string {
   return renderCountBars(months.map((m) => ({ label: m.date, count: m.count })));
 }
 
-function renderHours(hours: number[]): string {
+function renderHoursBand(hours: number[], start: number, bandClass: string, bandLabel: string): string {
+  const slice = hours.slice(start, start + 12);
   const max = Math.max(...hours, 1);
-  const bars = hours
-    .map((count, hour) => {
+  const bars = slice
+    .map((count, i) => {
+      const hour = start + i;
       const height = Math.max(2, Math.round((count / max) * 100));
-      return `<div class="hour" title="${hour}시 · ${formatNumber(count)}건" style="height:${height}%"></div>`;
+      const tone = bandClass === "hours-band-am" ? "hour-am" : "hour-pm";
+      return `<div class="hour ${tone}" title="${hour}시 · ${formatNumber(count)}건" style="height:${height}%"></div>`;
     })
     .join("");
-  const labels = Array.from({ length: 24 }, (_, hour) => `<span title="${hour}시">${hour}</span>`).join("");
+  const labels = slice.map((_, i) => `<span title="${start + i}시">${start + i}</span>`).join("");
+  return `<div class="hours-half"><div class="hours-band ${bandClass}">${bandLabel}</div><div class="hours-bars">${bars}</div><div class="hours-labels">${labels}</div></div>`;
+}
+
+function renderHours(hours: number[]): string {
   return `<div class="hours-wrap">
-    <p class="chart-hint">가로 한 칸이 <strong>1시간</strong>입니다. 아래 숫자는 <strong>시각(0~23시)</strong>이며, 막대 높이는 해당 시간대 메시지 수 비율입니다.</p>
-    <div class="hours-scroll">
-      <div class="hours-chart-inner">
-        <div class="hours-bars">${bars}</div>
-        <div class="hours-labels">${labels}</div>
-      </div>
+    <div class="hours-split">
+      ${renderHoursBand(hours, 0, "hours-band-am", "오전 · 0–11시")}
+      ${renderHoursBand(hours, 12, "hours-band-pm", "오후 · 12–23시")}
     </div>
   </div>`;
 }
@@ -917,12 +978,22 @@ function renderParticipants(participants: ParticipantStat[]): string {
   if (participants.length === 0) {
     return `<p style="margin:0;color:var(--muted);font-size:13px">참여자 데이터가 없습니다.</p>`;
   }
-  return `<table class="table"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${participants
+  return `<table class="table table-rank"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${participants
     .map(
       (p) =>
         `<tr><td>${escapeHtml(p.alias)}</td><td class="num">${formatNumber(p.messages)}</td><td class="num">${p.sharePercent}%</td><td class="num">${p.averageLength}</td><td class="num">${formatNumber(p.linkMessages)}</td><td class="num">${formatNumber(p.attachmentMessages)}</td><td class="num">${formatNumber(p.nightMessages)}</td><td class="num">${formatNumber(p.maxConsecutive)}</td></tr>`,
     )
     .join("")}</tbody></table>`;
+}
+
+
+function renderKeywordSnapshot(items: CountItem[]): string {
+  const note =
+    '<p class="kw-note"><strong>본문 단어만</strong> 집계해요. 카카오톡에서 사진·이모티콘·동영상을 보낼 때 CSV에 적히는 「사진」「이모티콘」 같은 <strong>시스템 문구</strong>는 여기 넣지 않고, <strong>첨부 유형</strong> 차트에서만 봅니다.</p>';
+  if (items.length === 0) {
+    return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
+  }
+  return note + renderCountBars(items);
 }
 
 function renderCountBars(items: CountItem[]): string {

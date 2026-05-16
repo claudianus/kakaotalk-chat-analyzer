@@ -12,6 +12,8 @@ const ATTACHMENT_MARKERS = [
     "음성메시지",
     "삭제된 메시지",
 ];
+/** 카톡 CSV 시스템 문구 — 키워드(본문 단어) 집계에서 제외, 첨부 유형으로만 집계 */
+const KEYWORD_EXCLUDE = new Set(ATTACHMENT_MARKERS);
 const WEEKDAY_LABELS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const URL_RE = /\bhttps?:\/\/[^\s<>"']+|www\.[^\s<>"']+/gi;
 const EMAIL_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
@@ -431,6 +433,8 @@ function extractKeywords(message, senderNames) {
         if (STOPWORDS.has(normalized))
             continue;
         if (senderNames.has(normalized))
+            continue;
+        if (KEYWORD_EXCLUDE.has(normalized))
             continue;
         if (/^\d+$/.test(normalized))
             continue;

@@ -46,6 +46,11 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(html.includes("하이라이트"), true);
     assert.equal(html.includes("data-kca-jump"), true);
     assert.equal(html.includes("[data-kca-jump]"), true);
+    assert.equal(html.includes("hours-split"), true);
+    assert.equal(html.includes("table-rank"), true);
+    assert.equal(html.includes("본문 단어만"), true);
+    const photoKw = data.keywords.find((k) => k.label === "사진");
+    assert.equal(photoKw, undefined);
     assert.equal(data.highlights.length > 0, true);
   } finally {
     await rm(dir, { recursive: true, force: true });
