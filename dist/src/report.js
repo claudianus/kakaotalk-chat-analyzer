@@ -69,6 +69,160 @@ export function renderReportHtml(data) {
       --glow: rgba(15, 107, 92, 0.18);
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    #s-facts, #s-story, #s-hl, #s-ai, #s-charts, #s-help { scroll-margin-top: 76px; }
+    .skip-link {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .skip-link:focus {
+      position: fixed;
+      left: 12px;
+      top: 12px;
+      width: auto;
+      height: auto;
+      margin: 0;
+      clip: auto;
+      z-index: 10000;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #04120f;
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+    .deck-nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 10px;
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+    .deck-nav-h {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-right: 4px;
+      letter-spacing: 0.04em;
+    }
+    .deck-nav a {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      text-decoration: none;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .deck-nav a:hover {
+      border-color: var(--accent);
+      background: rgba(62, 232, 197, 0.08);
+      transform: translateY(-1px);
+    }
+    @keyframes kca-fade-up {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes kca-ring-in {
+      from { transform: scale(0.92); opacity: 0.75; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .anim-enter {
+      animation: kca-fade-up 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      opacity: 0;
+      animation-delay: var(--enter-delay, 0s);
+    }
+    .rh-wrap.anim-ring { animation: kca-ring-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.2s ease;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 22px 56px rgba(20, 26, 31, 0.11);
+      transform: translateY(-2px);
+    }
+    :root[data-theme="dark"] .card:hover {
+      box-shadow: 0 28px 72px rgba(0, 0, 0, 0.45);
+    }
+    .fact-hero-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 14px;
+    }
+    @media (max-width: 560px) { .fact-hero-strip { grid-template-columns: 1fr; } }
+    .fact-hero-cell {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(15, 107, 92, 0.08), transparent);
+    }
+    .fact-hero-cell b {
+      display: block;
+      font-size: 11px;
+      font-weight: 750;
+      color: var(--muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.02em;
+    }
+    .fact-hero-cell span {
+      font-size: clamp(22px, 4vw, 28px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+    }
+    .glossary {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    .glossary > summary {
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--ink);
+      list-style: none;
+    }
+    .glossary > summary::-webkit-details-marker { display: none; }
+    .glossary dl { margin: 12px 0 0; display: grid; gap: 10px; }
+    .glossary dt { font-weight: 750; color: var(--ink); font-size: 12px; }
+    .glossary dd { margin: 2px 0 0; padding: 0; font-size: 12px; }
+    .chart-stack { display: flex; flex-direction: column; gap: 14px; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .anim-enter, .rh-wrap.anim-ring { animation: none !important; opacity: 1 !important; transform: none !important; }
+      .card { transition: none; }
+      .card:hover { transform: none; }
+    }
     body {
       margin: 0;
       background:
@@ -109,7 +263,6 @@ export function renderReportHtml(data) {
     .sub { margin: 12px 0 0; color: var(--muted); line-height: 1.65; font-size: 15px; max-width: 52ch; }
     .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .badge { font-size: 12px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); }
     .side-card { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
     .side-card p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
     .side-card strong { color: var(--ink); }
@@ -347,18 +500,20 @@ export function renderReportHtml(data) {
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#s-facts">숫자 요약으로 건너뛰기</a>
   <main>
-    <div class="toolbar" role="toolbar" aria-label="표시 테마">
+    <div class="toolbar anim-enter" role="toolbar" aria-label="표시 테마" style="--enter-delay:0s">
       <span class="toolbar-label">테마</span>
       <button type="button" class="theme-btn" data-theme-set="light">라이트</button>
       <button type="button" class="theme-btn" data-theme-set="dark">다크</button>
       <button type="button" class="theme-btn" data-theme-set="system">시스템</button>
     </div>
+    ${renderSectionNav(data)}
     ${renderFactMatrix(data)}
-    <header class="hero">
+    <header id="s-story" class="hero anim-enter" style="--enter-delay:0.04s">
       <div>
         <h1>카카오톡 대화 리포트</h1>
-        <p class="sub">원문 메시지·전체 URL은 저장하지 않습니다. 참여자는 <strong>부분 마스킹된 표시명</strong>으로만 보여요. 핵심 수치는 상단 <strong>팩트 매트릭스</strong>에 모았고, 아래는 차트·고급 인사이트입니다.</p>
+        <p class="sub">원문 내용·전체 링크 주소는 저장하지 않아요. 이름은 <strong>일부만 보이게 가린 표시명</strong>이에요. 위쪽 <strong>① 숫자 요약</strong>에서 한눈에 보고, 아래 차트로 패턴을 따라가면 됩니다.</p>
         <div class="badge-row">
           <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
           <span class="badge">인코딩: ${escapeHtml(data.source.encoding)}</span>
@@ -373,32 +528,35 @@ export function renderReportHtml(data) {
     </header>
 
     ${data.highlights.length > 0
-        ? `<section class="card" style="margin-bottom:16px"><h2>하이라이트</h2><ul class="highlights">${data.highlights.map((h) => `<li>${renderHighlightLine(h)}</li>`).join("")}</ul></section>`
+        ? `<section id="s-hl" class="card anim-enter" style="margin-bottom:16px;--enter-delay:0.05s"><h2>하이라이트</h2><p class="chart-hint" style="margin-top:-4px">대화에서 눈에 띈 <strong>짧은 요약</strong>이에요. 아래 차트와 같이 보면 맥락이 잡힙니다.</p><ul class="highlights">${data.highlights.map((h) => `<li>${renderHighlightLine(h)}</li>`).join("")}</ul></section>`
         : ""}
 
     ${renderInsightDeck(data)}
 
+    <div id="s-charts" class="chart-stack anim-enter" style="--enter-delay:0.06s">
     <section class="grid two" style="margin-bottom:14px">
-      ${panel("일별 활동 히트맵", renderDaily(data.daily))}
-      ${panel("시간대 리듬 (0~23시)", renderHours(data.hourly))}
+      ${panel("일별 활동 히트맵", "날짜마다 메시지가 얼마나 쌓였는지 색으로 보여요.", renderDaily(data.daily))}
+      ${panel("시간대 리듬 (0~23시)", "하루 중 몇 시에 가장 붐비는지 막대로 확인해요.", renderHours(data.hourly))}
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
-      ${panel("참여자 랭킹", renderParticipants(data.participants))}
-      ${panel("요일별 활동", renderCountBars(data.weekdays))}
+      ${panel("참여자 랭킹", "누가 얼마나 보냈는지 비율과 평균 길이를 함께 봐요.", renderParticipants(data.participants))}
+      ${panel("요일별 활동", "주중·주말 패턴이 한눈에 들어옵니다.", renderCountBars(data.weekdays))}
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
-      ${panel("월별 추이", renderMonthly(data.monthly))}
-      ${panel("첨부 유형", renderCountBars(data.attachments))}
+      ${panel("월별 추이", "기간이 길 때 계절·이벤트 구간을 가늠할 때 씁니다.", renderMonthly(data.monthly))}
+      ${panel("첨부 유형", "사진·동영상 등 메타 유형 비중이에요.", renderCountBars(data.attachments))}
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
-      ${panel("자주 나온 도메인", renderCountBars(data.domains))}
-      ${panel("키워드 스냅샷", renderCountBars(data.keywords))}
+      ${panel("자주 나온 도메인", "공유 링크의 사이트 이름 일부만 집계했어요.", renderCountBars(data.domains))}
+      ${panel("키워드 스냅샷", "자주 등장한 단어 상위 목록이에요.", renderCountBars(data.keywords))}
     </section>
+    </div>
 
     ${renderSelfServeCallout()}
+    ${renderHelpGlossary()}
 
     <script>
     (function () {
@@ -430,7 +588,7 @@ export function renderReportHtml(data) {
     </script>
 
     <script type="application/json" id="report-data">${escapeJsonForHtml(data)}</script>
-    <footer>${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계 목적이며 법적·회계적 증빙으로 사용할 수 없습니다.</footer>
+    <footer>${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
   </main>
 </body>
 </html>`;
@@ -439,6 +597,33 @@ export function renderReportHtml(data) {
         throw new Error(`Generated HTML is ${size} bytes, which exceeds the 5 MiB BrewPage HTML limit.`);
     }
     return html;
+}
+function renderSectionNav(data) {
+    const hl = data.highlights.length > 0 ? `<a href="#s-hl">하이라이트</a>` : "";
+    return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
+    <span class="deck-nav-h">빠른 이동</span>
+    <a href="#s-facts">① 숫자 요약</a>
+    <a href="#s-story">② 이 리포트 안내</a>
+    ${hl}
+    <a href="#s-ai">③ 분위기·리듬</a>
+    <a href="#s-charts">④ 차트 모아보기</a>
+    <a href="#s-help">⑤ 용어 설명</a>
+  </nav>`;
+}
+function renderHelpGlossary() {
+    return `<section id="s-help" class="glossary anim-enter" aria-label="용어 설명" style="--enter-delay:0.08s">
+    <details>
+      <summary>용어가 낯설 때 — 한 번에 펼쳐보기</summary>
+      <dl>
+        <dt>Gini (지니)</dt><dd>참여가 얼마나 한쪽에 쏠렸는지 0~1에 가까운 숫자예요. 0에 가까우면 비슷하게 나눠 말하고, 높을수록 소수가 더 많이 말한 편이에요.</dd>
+        <dt>P90 간격</dt><dd>메시지 사이 시간 간격을 작은 순으로 줄 세웠을 때, 위에서 10% 지점(느린 쪽) 값이에요. “가끔 아주 느린 응답”이 있는지 볼 때 씁니다.</dd>
+        <dt>CV (변동계수)</dt><dd>간격이 들쭉날쭉한 정도예요. 숫자가 크면 리듬이 불규칙한 편입니다.</dd>
+        <dt>도메인 H (엔트로피)</dt><dd>공유한 링크가 몇 종류 사이트로 퍼져 있는지 “다양함”을 bit 단위로 요약한 값이에요. 높을수록 여러 종류의 사이트가 나온 거예요.</dd>
+        <dt>리듬 점수</dt><dd>활동일·메시지 밀도·시간대 분산 등을 섞은 내부 요약 점수(0~100)로, “이 방이 얼마나 꾸준히 살아 있는지” 감으로 보기 위한 지표입니다.</dd>
+        <dt>화자 전환 (100메시지당)</dt><dd>말하는 사람이 바뀐 횟수를 메시지 100개당으로 나눈 거예요. 숫자가 클수록 빠르게 교대하며 대화하는 스타일에 가깝습니다.</dd>
+      </dl>
+    </details>
+  </section>`;
 }
 function renderFactMatrix(data) {
     const s = data.summary;
@@ -482,9 +667,15 @@ function renderFactMatrix(data) {
     const inner = cells
         .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
         .join("");
-    return `<section class="card fact-card" aria-label="핵심 지표 요약">
-    <h2>팩트 매트릭스</h2>
-    <p class="fact-hint">외부 API·무거운 모델 없이, 메시지·시간·메타만으로 계산한 <strong>운영형 KPI</strong> 밀집 뷰입니다. MPU·응답 분포·첨부 구성 등 대시보드에서 자주 보는 축을 한 화면에 모았습니다.</p>
+    const strip = `<div class="fact-hero-strip" aria-label="핵심 숫자 세 가지">
+    <div class="fact-hero-cell"><b>총 메시지</b><span>${escapeHtml(formatNumber(s.totalMessages))}</span></div>
+    <div class="fact-hero-cell"><b>참여자</b><span>${escapeHtml(formatNumber(s.participants))}</span></div>
+    <div class="fact-hero-cell"><b>리듬 점수</b><span>${escapeHtml(String(ins.rhythmScore))}<small style="font-size:14px;font-weight:800;color:var(--muted)">/100</small></span></div>
+  </div>`;
+    return `<section id="s-facts" class="card fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
+    <h2>① 숫자 요약 (팩트 매트릭스)</h2>
+    ${strip}
+    <p class="fact-hint">외부 AI나 서버 없이, <strong>보낸 CSV 안의 숫자만</strong>으로 만든 표예요. 아래 칸이 많아 보여도, 위 세 칸만 봐도 대화 규모와 “살아 있는 정도” 감이 잡힙니다.</p>
     <div class="fact-grid">${inner}</div>
   </section>`;
 }
@@ -503,32 +694,32 @@ function renderInsightDeck(data) {
     })
         .join("");
     const scatter = renderParticipantScatter(data.participants);
-    return `<section class="card insight-hero" style="margin-bottom:14px">
+    return `<section id="s-ai" class="card insight-hero anim-enter" style="margin-bottom:14px;--enter-delay:0.05s">
     <div class="insight-head">
       <div>
-        <h2>고급 인사이트 · 행동 지표</h2>
-        <p class="insight-lede">참여 <strong>불균형(Gini)</strong>·응답 간격 <strong>꼬리(90% 백분위)</strong>·링크 도메인 <strong>엔트로피</strong> 등, 그룹 대화 분석에서 자주 보는 지표를 CSV 집계에 맞게 넣었습니다. 원문·전체 URL은 계속 저장하지 않습니다.</p>
+        <h2>③ 분위기·리듬 (고급 인사이트)</h2>
+        <p class="insight-lede">참여가 고르지 않은지, 응답이 한번에 몰리는지, 링크가 여러 사이트로 퍼지는지 같은 <strong>패턴 지표</strong>예요. 낯선 말은 맨 아래 <a href="#s-help" style="color:var(--accent);font-weight:750">⑤ 용어 설명</a>을 펼쳐 보세요.</p>
       </div>
-      <div class="rh-wrap" aria-label="리듬 점수">
+      <div class="rh-wrap anim-ring" aria-label="리듬 점수">
         <div class="rh-ring" style="--p:${ins.rhythmScore}"><span></span></div>
         <div class="rh-cap"><strong>리듬</strong><span>${ins.rhythmScore}<small>/100</small></span></div>
       </div>
     </div>
     <div class="insight-grid">
-      ${insMetric("주말 비중", `${ins.weekendSharePercent}%`, "토·일")}
-      ${insMetric("참여 Gini", giniStr, "0=균등 ·↑집중")}
-      ${insMetric("간격 P90", p90, "연속 메시지")}
-      ${insMetric("최장 공백", silence, "활동일 사이")}
-      ${insMetric("상위3 점유", `${ins.top3ParticipantSharePercent}%`, "메시지 기준")}
-      ${insMetric("도메인 H", entropy, "Shannon bit")}
-      ${insMetric("캘린더 밀도", density, "일평균 메시지")}
-      ${insMetric("질문 느낌", `${ins.questionLikeMessagesPer100}/100`, "? 포함")}
-      ${insMetric("화자 전환", `${ins.speakerSwitchRatePer100}/100`, "메시지당 교대")}
+      ${insMetric("주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
+      ${insMetric("참여 Gini", giniStr, "0에 가까우면 고르게 참여")}
+      ${insMetric("간격 P90", p90, "느린 쪽 10% 구간")}
+      ${insMetric("최장 공백", silence, "활동일 사이 최대 휴지")}
+      ${insMetric("상위3 점유", `${ins.top3ParticipantSharePercent}%`, "메시지 많이 보낸 3명 합")}
+      ${insMetric("도메인 H", entropy, "링크 사이트 다양성(bit)")}
+      ${insMetric("캘린더 밀도", density, "달력 하루당 평균 메시지")}
+      ${insMetric("질문 느낌", `${ins.questionLikeMessagesPer100}/100`, "물음표 포함 비슷한 톤")}
+      ${insMetric("화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
     </div>
     <div class="insight-split">
       <div>
-        <h3 class="insight-sub">시간대 세그먼트</h3>
-        <p class="chart-hint">하루를 네 구간으로 나눈 <strong>메시지 비중</strong>입니다.</p>
+        <h3 class="insight-sub">하루 시간대 비중</h3>
+        <p class="chart-hint">새벽·아침·낮·저녁 네 덩어리로 나눈 <strong>메시지 비율</strong>이에요.</p>
         <div class="daypart-bar" role="img" aria-label="시간대 비중">${daypartBar}</div>
         <ul class="daypart-legend">${ins.daypartPercents
         .map((d) => `<li><i style="background:${daypartColor(d.key)}"></i>${escapeHtml(d.label)} <strong>${d.percent}%</strong></li>`)
@@ -536,7 +727,7 @@ function renderInsightDeck(data) {
       </div>
       <div>
         <h3 class="insight-sub">참여자 말풍선 맵</h3>
-        <p class="chart-hint">가로 <strong>점유율(%)</strong>, 세로 <strong>평균 길이</strong> (상위 12명).</p>
+        <p class="chart-hint">가로는 <strong>비율(%)</strong>, 세로는 <strong>평균 글자 수</strong> (상위 12명).</p>
         ${scatter}
       </div>
     </div>
@@ -586,8 +777,8 @@ function privacyLabel(mode) {
         return "완전 별칭(User 001)";
     return mode;
 }
-function panel(title, content) {
-    return `<div class="card"><h2>${escapeHtml(title)}</h2>${content}</div>`;
+function panel(title, hint, content) {
+    return `<div class="card"><h2>${escapeHtml(title)}</h2><p class="chart-hint" style="margin-top:-4px">${escapeHtml(hint)}</p>${content}</div>`;
 }
 function renderSelfServeCallout() {
     const gh = "https://github.com/claudianus/kakaotalk-chat-analyzer";
