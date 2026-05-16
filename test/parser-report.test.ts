@@ -44,6 +44,8 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(html.includes("A***e"), true);
     assert.equal(html.includes("example.com"), true);
     assert.equal(html.includes("하이라이트"), true);
+    assert.equal(html.includes("data-kca-jump"), true);
+    assert.equal(html.includes("[data-kca-jump]"), true);
     assert.equal(data.highlights.length > 0, true);
   } finally {
     await rm(dir, { recursive: true, force: true });

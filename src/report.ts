@@ -220,6 +220,10 @@ export function renderReportHtml(data: ReportData): string {
     .glossary dt { font-weight: 750; color: var(--ink); font-size: 12px; }
     .glossary dd { margin: 2px 0 0; padding: 0; font-size: 12px; }
     .chart-stack { display: flex; flex-direction: column; gap: 14px; }
+    .anim-enter:target {
+      opacity: 1 !important;
+      transform: none !important;
+    }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .anim-enter, .rh-wrap.anim-ring { animation: none !important; opacity: 1 !important; transform: none !important; }
@@ -503,7 +507,7 @@ export function renderReportHtml(data: ReportData): string {
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#s-facts">숫자 요약으로 건너뛰기</a>
+  <a class="skip-link" href="#s-facts" data-kca-jump="s-facts">숫자 요약으로 건너뛰기</a>
   <main>
     <div class="toolbar anim-enter" role="toolbar" aria-label="표시 테마" style="--enter-delay:0s">
       <span class="toolbar-label">테마</span>
@@ -591,6 +595,36 @@ export function renderReportHtml(data: ReportData): string {
       });
     })();
     </script>
+    <script>
+    (function () {
+      var reduce = false;
+      try {
+        reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      } catch (e) {}
+      function jumpTo(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      }
+      document.querySelectorAll("[data-kca-jump]").forEach(function (link) {
+        link.addEventListener("click", function (ev) {
+          var id = link.getAttribute("data-kca-jump");
+          if (!id || !document.getElementById(id)) return;
+          ev.preventDefault();
+          jumpTo(id);
+        });
+      });
+      var initial = (location.hash || "").replace(/^#/, "");
+      if (initial && document.getElementById(initial)) {
+        try {
+          history.replaceState(null, "", location.pathname + location.search);
+        } catch (e) {}
+        requestAnimationFrame(function () {
+          jumpTo(initial);
+        });
+      }
+    })();
+    </script>
 
     <script type="application/json" id="report-data">${escapeJsonForHtml(data)}</script>
     <footer>${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
@@ -607,15 +641,15 @@ export function renderReportHtml(data: ReportData): string {
 
 function renderSectionNav(data: ReportData): string {
   const hl =
-    data.highlights.length > 0 ? `<a href="#s-hl">하이라이트</a>` : "";
+    data.highlights.length > 0 ? `<a href="#s-hl" data-kca-jump="s-hl">하이라이트</a>` : "";
   return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
-    <a href="#s-facts">① 숫자 요약</a>
-    <a href="#s-story">② 이 리포트 안내</a>
+    <a href="#s-facts" data-kca-jump="s-facts">① 숫자 요약</a>
+    <a href="#s-story" data-kca-jump="s-story">② 이 리포트 안내</a>
     ${hl}
-    <a href="#s-ai">③ 분위기·리듬</a>
-    <a href="#s-charts">④ 차트 모아보기</a>
-    <a href="#s-help">⑤ 용어 설명</a>
+    <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
+    <a href="#s-charts" data-kca-jump="s-charts">④ 차트 모아보기</a>
+    <a href="#s-help" data-kca-jump="s-help">⑤ 용어 설명</a>
   </nav>`;
 }
 
@@ -712,7 +746,7 @@ function renderInsightDeck(data: ReportData): string {
     <div class="insight-head">
       <div>
         <h2>③ 분위기·리듬 (고급 인사이트)</h2>
-        <p class="insight-lede">참여가 고르지 않은지, 응답이 한번에 몰리는지, 링크가 여러 사이트로 퍼지는지 같은 <strong>패턴 지표</strong>예요. 낯선 말은 맨 아래 <a href="#s-help" style="color:var(--accent);font-weight:750">⑤ 용어 설명</a>을 펼쳐 보세요.</p>
+        <p class="insight-lede">참여가 고르지 않은지, 응답이 한번에 몰리는지, 링크가 여러 사이트로 퍼지는지 같은 <strong>패턴 지표</strong>예요. 낯선 말은 맨 아래 <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑤ 용어 설명</a>을 펼쳐 보세요.</p>
       </div>
       <div class="rh-wrap anim-ring" aria-label="리듬 점수">
         <div class="rh-ring" style="--p:${ins.rhythmScore}"><span></span></div>
