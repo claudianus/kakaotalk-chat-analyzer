@@ -1,0 +1,109 @@
+src/topic-map.ts
+  s_d404882750412e::t_e2c4f912f8d2d6 138-139,143
+  s_d404882750412e::t_9a46aff498a661 66-70,72
+  s_d404882750412e::t_34b98cc05f7092 192-249
+dist/src/types.d.ts
+  s_d404882750412e::t_472a0a813d10e6 277-283,286-287
+src/cli.ts
+  s_d404882750412e::t_941b028e78d5a1 248-256,259-261,270-275
+  s_d404882750412e::t_5f2dcd68ba1636 245-246
+  s_d404882750412e::t_e9e843573e18b4 277-279,281-282
+  s_d404882750412e::t_b326d752611d9a 280
+src/report/css/02-kca-components.css
+  s_d404882750412e::t_21f4c1561d59fc 273-274,276-277
+  s_d404882750412e::t_01b324a6a00433 279-285
+  s_d404882750412e::t_4014610d43dfeb 311-312
+dist/src/story.js.map
+  ai_agent 1
+src/story.ts
+  s_d404882750412e::t_4e57e2d2483ec3 282,289,298,305,308-311,314,317,319,324,331-338,341,344-365,369-370
+dist/src/report-styles.js
+  s_d404882750412e::t_472a0a813d10e6 624-625,627-636,662-663,1247,1345-1361
+src/report-innovation.ts
+  s_d404882750412e::t_e481821f9d34ba 41-44,47
+  s_d404882750412e::t_445007d6a05fef 1
+dist/src/event-spine.d.ts
+  s_d404882750412e::t_472a0a813d10e6 18-22
+src/report-styles.ts
+  s_d404882750412e::t_472a0a813d10e6 624-625,627-636,662-663,1247,1345-1361
+dist/src/cli.js
+  s_d404882750412e::t_472a0a813d10e6 178-187,189-191,198-206
+dist/src/report-charts.js
+  s_d404882750412e::t_472a0a813d10e6 104,115-123,204-209,219-225,256,258-289,296-298,300,302-303,339-345,347-348,352-367,448
+  s_d404882750412e::t_b05f4742629e2f 102
+dist/src/report-innovation.js
+  s_d404882750412e::t_472a0a813d10e6 1,39-42,45
+dist/src/topic-map.js
+  s_d404882750412e::t_472a0a813d10e6 57-58,125-126,130,177-227
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_472a0a813d10e6 56
+package.json
+  s_d404882750412e::t_e8cc7a34c8ca79 3
+src/types.ts
+  s_d404882750412e::t_a08d6fd328e0ff 302-309,312-313
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/report-charts.js.map
+  ai_agent 1
+src/report/css/04-kca-charts.css
+  s_d404882750412e::t_47ff9a012d3d48 63-79
+dist/src/topic-map.js.map
+  ai_agent 1
+dist/src/event-spine.js
+  s_d404882750412e::t_472a0a813d10e6 1-2,5,49,51,67-71,73-147,151,153-159
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_472a0a813d10e6 2
+src/report-charts.ts
+  s_d404882750412e::t_45506844c5a050 146-159
+  s_d404882750412e::t_e3967e9d971ba0 335-337,339,341-342
+  s_d404882750412e::t_1dee4688ab8587 243-248,258-264
+  s_d404882750412e::t_52d53d70fd906a 134
+  s_d404882750412e::t_a8729b8dfe7800 295,297-328
+  s_d404882750412e::t_1fec47e0b304e5 132
+  s_d404882750412e::t_df3fe1f346d570 487
+  s_d404882750412e::t_26b86a3f4d4daa 378-384,386-387,391-406
+dist/src/report.js
+  s_d404882750412e::t_472a0a813d10e6 48,225,643-644,658,695-709
+dist/src/report-innovation.js.map
+  ai_agent 1
+test/story.test.ts
+  s_d404882750412e::t_79b4379dd195c9 114-155
+test/event-spine.test.ts
+  s_d404882750412e::t_068f140f27fd9f 23-56
+src/report.ts
+  s_d404882750412e::t_b750f445883e16 77
+  s_d404882750412e::t_c2160807ca6c9f 746
+  s_d404882750412e::t_48c73354464261 260
+  s_d404882750412e::t_a8e667979284fa 729-731
+  s_d404882750412e::t_df84ce8c614945 787-804
+src/event-spine.ts
+  s_d404882750412e::t_75049132e3e453 18-20,24,73,91-97,99-176,178-179,184,186-192
+  s_d404882750412e::t_fc245f1ae03ae6 177
+  s_d404882750412e::t_dcf0e7a46b3286 71
+src/report/css/03-kca-story.css
+  s_d404882750412e::t_4bd372820dbc04 290
+dist/src/story.js
+  s_d404882750412e::t_472a0a813d10e6 198,204,210,217,220-223,226,229,231,236,243-250,253,256-277,280-281
+dist/src/report.js.map
+  ai_agent 1
+dist/src/event-spine.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "af2827b269beb53cc45df24002a3b02a65dc7255",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
