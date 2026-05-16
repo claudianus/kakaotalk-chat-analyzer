@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="카카오톡 CSV보내기를 분석해 익명화된 HTML 리포트를 만들고, 가입 없이 임시 공유까지 한 번에.">
+  <meta name="theme-color" content="#0a0e14">
+  <title>KakaoTalk Chat Analyzer · kca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg0: #06080c;
+      --bg1: #0c1018;
+      --card: rgba(255, 255, 255, 0.04);
+      --stroke: rgba(255, 255, 255, 0.1);
+      --text: #e9eef5;
+      --muted: #8b98a8;
+      --accent: #3ee8c5;
+      --accent2: #7c5cff;
+      --warn: #ffb020;
+      --radius: 16px;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(124, 92, 255, 0.35), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(62, 232, 197, 0.22), transparent 50%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+    header {
+      padding: 28px 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      font-weight: 700; letter-spacing: -0.02em;
+    }
+    .logo {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 8px 32px rgba(62, 232, 197, 0.35);
+    }
+    nav { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+    .hero {
+      padding: 56px 0 72px;
+      display: grid;
+      gap: 28px;
+      grid-template-columns: 1.25fr 0.95fr;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 36px 0 48px; }
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+    .lede {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 52ch;
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .pill {
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-weight: 650;
+      font-size: 15px;
+      border: 1px solid transparent;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #2bd4a8);
+      color: #04120f;
+      box-shadow: 0 12px 40px rgba(62, 232, 197, 0.35);
+    }
+    .btn-primary:hover { filter: brightness(1.05); text-decoration: none; }
+    .btn-ghost {
+      border-color: var(--stroke);
+      background: var(--card);
+      color: var(--text);
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.22); text-decoration: none; }
+    code {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 0.92em;
+    }
+    .panel {
+      border-radius: var(--radius);
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .panel h3 { margin: 0 0 12px; font-size: 15px; color: var(--muted); font-weight: 600; }
+    pre {
+      margin: 0;
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #d6e2f0;
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: 0 0 64px;
+    }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      padding: 22px;
+      border-radius: var(--radius);
+      border: 1px solid var(--stroke);
+      background: var(--card);
+    }
+    .card h2 { margin: 0 0 10px; font-size: 18px; letter-spacing: -0.02em; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 14px; }
+    .tag { color: var(--warn); font-weight: 650; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+    footer {
+      padding: 32px 0 48px;
+      border-top: 1px solid var(--stroke);
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <span>kca</span>
+      </div>
+      <nav>
+        <a href="#features">기능</a>
+        <a href="#start">시작하기</a>
+        <a href="https://github.com/claudianus/kakaotalk-chat-analyzer">GitHub</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>대화는 그대로,<br>리포트는 안전하게.</h1>
+        <p class="lede">
+          <strong style="color:var(--text)">KakaoTalk Chat Analyzer</strong>는 카카오톡 CSV보내기를 읽어
+          집계 통계만 담은 단일 HTML 리포트를 만들고, 원하면 가입 없는 임시 호스팅까지 연결합니다.
+          원문 메시지와 전체 URL은 리포트에 남기지 않습니다.
+        </p>
+        <div class="pill-row">
+          <span class="pill">Node.js 22+</span>
+          <span class="pill">MIT License</span>
+          <span class="pill">Cross-platform CLI</span>
+        </div>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/claudianus/kakaotalk-chat-analyzer">저장소 바로가기</a>
+          <a class="btn btn-ghost" href="#start">설치 · 사용법</a>
+        </div>
+      </div>
+      <div class="panel" aria-label="예시 명령">
+        <h3>한 줄로 시작</h3>
+        <pre><code># 저장소 클론 후
+npm install &amp;&amp; npm run build
+
+# 구조 점검 (원문 출력 없음)
+node dist/src/cli.js inspect ./chat.csv
+
+# 로컬 리포트
+node dist/src/cli.js analyze ./chat.csv -o ./report
+
+# 업로드까지 (기본: BrewPage)
+node dist/src/cli.js publish ./chat.csv</code></pre>
+      </div>
+    </section>
+
+    <section class="grid" id="features">
+      <article class="card">
+        <div class="tag">Privacy-first</div>
+        <h2>익명·집계 중심</h2>
+        <p>참여자는 별칭으로만 표시되고, 메시지 본문은 통계 계산에만 사용됩니다. 도메인 단위로만 URL을 요약합니다.</p>
+      </article>
+      <article class="card">
+        <div class="tag">Single file</div>
+        <h2>단일 HTML 리포트</h2>
+        <p>배포와 보관이 쉬운 하나의 <code>index.html</code>로 시각화합니다. 브라우저만 있으면 열어볼 수 있습니다.</p>
+      </article>
+      <article class="card">
+        <div class="tag">Publish</div>
+        <h2>임시 공유</h2>
+        <p>BrewPage, TempFile, Cloudflare 등 호스트를 선택해 TTL 기반 임시 링크를 만들 수 있습니다.</p>
+      </article>
+    </section>
+
+    <section id="start" class="panel" style="margin-bottom:48px">
+      <h3 style="margin:0 0 14px;color:var(--text);font-size:18px">오픈소스로 함께 다듬기</h3>
+      <p style="margin:0 0 16px;color:var(--muted);line-height:1.6;max-width:70ch">
+        이 사이트는 <strong>GitHub Pages</strong>로 자동 배포됩니다. 이슈·PR·스타는 언제나 환영입니다.
+        프로덕션 사용 전에는 반드시 개인정보·보안 정책을 확인하세요.
+      </p>
+      <a class="btn btn-primary" href="https://github.com/claudianus/kakaotalk-chat-analyzer">GitHub에서 보기</a>
+    </section>
+
+    <footer>
+      <span>© claudianus · <a href="https://github.com/claudianus/kakaotalk-chat-analyzer/blob/main/LICENSE">MIT</a></span>
+      <span><a href="https://github.com/claudianus/kakaotalk-chat-analyzer">github.com/claudianus/kakaotalk-chat-analyzer</a></span>
+    </footer>
+  </div>
+</body>
+</html>
