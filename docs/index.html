@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="카카오톡 CSV 보내기를 읽어 익명화된 한글 HTML 리포트를 만들고, npx 한 줄로 로컬 저장 또는 BrewPage 임시 공유까지.">
+  <meta name="description" content="카카오톡 CSV 스트리밍 집계 · 프리미엄 한글 HTML 리포트 · npx kcachat@latest 한 줄로 로컬 저장 또는 BrewPage 임시 공유.">
   <meta name="theme-color" content="#0a0e14">
   <link rel="canonical" href="https://claudianus.github.io/kakaotalk-chat-analyzer/">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://claudianus.github.io/kakaotalk-chat-analyzer/">
   <meta property="og:title" content="KakaoTalk Chat Analyzer · kca">
-  <meta property="og:description" content="카카오톡 CSV 보내기 → 집계 전용 한글 리포트 → 선택적 임시 공유. 메시지 원문은 HTML에 저장하지 않습니다.">
+  <meta property="og:description" content="대용량 CSV 스트리밍 분석 · 채팅방 이름·히트맵·인사이트 카드 · 집계 전용 한글 리포트 · npx 한 줄 공유.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="KakaoTalk Chat Analyzer · kca">
-  <meta name="twitter:description" content="카카오톡 CSV 보내기 → 집계 전용 한글 리포트 → 선택적 임시 공유.">
+  <meta name="twitter:description" content="스트리밍 집계 + 프리미엄 한글 리포트. 메시지 원문은 HTML에 저장하지 않습니다.">
   <title>KakaoTalk Chat Analyzer · kca</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -214,7 +214,51 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       padding: 0 0 48px;
     }
+    @media (min-width: 960px) {
+      .grid.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
     @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    .section-head {
+      margin: 0 0 18px;
+      font-size: clamp(22px, 3vw, 28px);
+      letter-spacing: -0.03em;
+    }
+    .section-lede {
+      margin: -8px 0 22px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 15px;
+      max-width: 62ch;
+    }
+    .stat-row {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 48px;
+    }
+    @media (max-width: 720px) { .stat-row { grid-template-columns: 1fr; } }
+    .stat {
+      padding: 18px 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--stroke);
+      background: linear-gradient(135deg, rgba(62,232,197,0.08), rgba(124,92,255,0.06));
+    }
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .stat span { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .feature-list {
+      margin: 12px 0 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .feature-list li { margin-bottom: 4px; }
     .card {
       padding: 22px;
       border-radius: var(--radius);
@@ -256,6 +300,8 @@
       </div>
       <nav aria-label="주요 링크">
         <a href="#features">기능</a>
+        <a href="#speed">속도</a>
+        <a href="#report">리포트</a>
         <a href="#start">시작하기</a>
         <a href="https://www.npmjs.com/package/kcachat">npm · kcachat</a>
         <a href="https://www.npmjs.com/package/kakaotalk-chat-analyzer">npm · 본체</a>
@@ -266,16 +312,17 @@
 
     <section class="hero">
       <div>
-        <h1>대화는 그대로,<br>리포트는 안전하게.</h1>
+        <h1>몇 달 치 대화도,<br>한 번에 읽히는 리포트.</h1>
         <p class="lede">
-          <strong style="color:var(--text)">KakaoTalk Chat Analyzer</strong>(CLI 이름 <strong>kca</strong>)는 카카오톡
-          <strong>CSV 보내기</strong> 파일을 읽어 <strong>집계 전용 한글 리포트</strong>(월별·시간대·키워드·하이라이트 등)를 만듭니다.
-          기본은 참여자 <strong>부분 마스킹</strong>이고, 메시지 원문·전체 URL 문자열은 생성된 HTML에 넣지 않습니다.
+          <strong style="color:var(--text)">KakaoTalk Chat Analyzer</strong>(<strong>kca</strong>)는 카카오톡
+          <strong>CSV 보내기</strong>를 <strong>스트리밍</strong>으로 읽고, 채팅방 이름·히트맵·오전/오후 리듬·인사이트 카드가 담긴
+          <strong>프리미엄 한글 HTML</strong>을 만듭니다. 수십만 줄도 파일 전체를 RAM에 올리지 않고, 메시지 원문은 HTML에 남기지 않습니다.
         </p>
         <div class="pill-row">
-          <span class="pill">npx · kcachat</span>
+          <span class="pill">스트리밍 집계</span>
+          <span class="pill">npx kcachat@latest</span>
+          <span class="pill">Worker ≥3MB</span>
           <span class="pill">Node.js 22+</span>
-          <span class="pill">MIT</span>
         </div>
         <div class="cta-row">
           <a class="btn btn-primary" href="https://github.com/claudianus/kakaotalk-chat-analyzer">저장소</a>
@@ -300,37 +347,77 @@
             </div>
             <button type="button" class="copy-btn" data-copy-target="cmd-upload" aria-label="업로드 명령 복사">복사</button>
           </div>
+          <div class="cmd-row">
+            <span class="cmd-tag">진행</span>
+            <div class="cmd-body">
+              <code id="cmd-progress">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv" --progress</code>
+            </div>
+            <button type="button" class="copy-btn" data-copy-target="cmd-progress" aria-label="진행 표시 명령 복사">복사</button>
+          </div>
         </div>
         <p class="cmd-foot">
-          <code>--local</code>이면 PC에만 <code>index.html</code>을 만들고 기본 BrewPage 업로드는 생략합니다.
-          출력 기본 <code>.tmp/kca-report</code> · 경로 바꾸기 <code>-o ./report</code>.
-          패키지 전체 이름은 <a href="https://www.npmjs.com/package/kakaotalk-chat-analyzer">kakaotalk-chat-analyzer</a>와 동일하게 동작합니다.
-          <a href="https://github.com/claudianus/kakaotalk-chat-analyzer#readme">inspect · 다른 호스트 → README</a>
+          <code>kcachat@latest</code>는 실행마다 <strong>kakaotalk-chat-analyzer@latest</strong> 본체를 받아 최신 CLI·리포트 UI를 씁니다.
+          <code>--local</code>이면 BrewPage 업로드 없이 PC에만 <code>index.html</code>을 만듭니다.
+          대용량은 <code>--progress</code>, 단계별 ms는 <code>--profile</code>.
+          <a href="https://github.com/claudianus/kakaotalk-chat-analyzer#readme">전체 옵션 → README</a>
         </p>
       </div>
     </section>
 
-    <section class="grid" id="features">
+    <section id="speed" style="margin-bottom:8px">
+      <h2 class="section-head">대용량도 Node.js만으로</h2>
+      <p class="section-lede">카카오 보내기 CSV 전용 스트림 파서 · 단일 패스 집계 · 3MB 이상 Worker. 외부 DB 없이 설치 부담을 줄였습니다.</p>
+    </section>
+    <div class="stat-row" aria-label="성능 요약">
+      <div class="stat"><strong>스트리밍</strong><span>파일 전체를 RAM에 올리지 않고 줄 단위 파싱</span></div>
+      <div class="stat"><strong>~0.4s</strong><span>합성 20만 메시지 벤치(환경·실데이터에 따라 다름)</span></div>
+      <div class="stat"><strong>--progress</strong><span>2.5만 건마다 stderr 진행 표시</span></div>
+    </div>
+
+    <section class="grid six" id="features">
+      <article class="card">
+        <div class="tag">Streaming</div>
+        <h2>고속 집계</h2>
+        <p>인코딩 샘플(512KB) 후 스트림 파싱. 메시지 본문은 통계에만 쓰고 즉시 버립니다. 키워드 맵 상한으로 메모리 폭주를 막습니다.</p>
+      </article>
+      <article class="card">
+        <div class="tag">Report UX</div>
+        <h2>프리미엄 한글 UI</h2>
+        <p>채팅방 이름·섹션 점프·다크/라이트·무스크롤 히트맵·오전/오후 12시간대·참여자 맵·인사이트 지표.</p>
+      </article>
       <article class="card">
         <div class="tag">Privacy-first</div>
         <h2>부분 마스킹</h2>
-        <p>기본은 이름 앞뒤만 남기고 가운데를 가려, 방 안에서만 알아볼 수 있는 수준으로 공유할 수 있습니다. 완전 별칭 모드는 CLI 옵션으로 선택합니다.</p>
+        <p>기본은 이름 앞뒤만 남기고 가운데를 가려 방 안에서만 알아볼 수 있는 수준으로 공유합니다.</p>
       </article>
       <article class="card">
-        <div class="tag">Single file</div>
-        <h2>단일 HTML</h2>
-        <p>브라우저만 있으면 되는 하나의 <code>index.html</code>입니다. 리포트 하단에는 같은 방식으로 다시 만들어 볼 수 있는 짧은 안내가 들어갈 수 있습니다.</p>
+        <div class="tag">Keywords</div>
+        <h2>키워드 구분</h2>
+        <p>「사진」「이모티콘」 등 카톡 첨부 시스템 문구와 본문 단어를 구분해 집계합니다.</p>
       </article>
       <article class="card">
-        <div class="tag">Charts</div>
-        <h2>한글 집계 UI</h2>
-        <p>일별·시간대 히트맵, 응답 간격, 키워드·링크 도메인 등 대화 흐름을 읽기 쉽게 묶었습니다.</p>
+        <div class="tag">Embed-safe</div>
+        <h2>BrewPage 친화</h2>
+        <p>iframe에서 섹션 점프·하단 외부 링크가 리포트 탭을 비우지 않도록 처리했습니다. UI 수정 후에는 재업로드가 필요합니다.</p>
       </article>
       <article class="card">
         <div class="tag">Publish</div>
         <h2>임시 공유</h2>
-        <p>기본은 BrewPage 업로드입니다. TempFile·Cloudflare 등 다른 호스트와 TTL은 README와 <code>kca --help</code>를 참고하세요.</p>
+        <p>기본 BrewPage 업로드. TempFile·Cloudflare 등 TTL 호스트는 README·<code>kca --help</code> 참고.</p>
       </article>
+    </section>
+
+    <section id="report" class="panel" style="margin-bottom:48px">
+      <h3 style="margin:0 0 14px;color:var(--text);font-size:18px">리포트에 들어가는 것</h3>
+      <ul class="feature-list">
+        <li>숫자 요약 · Gini · 리듬 점수 · 응답 간격 P90 · 주말 비중 등 인사이트 카드</li>
+        <li>일별 히트맵(가로 스크롤 없음) · 오전(청록)/오후(주황) 시간대 막대</li>
+        <li>참여자 말풍선 맵 + 마스킹된 닉네임 · 랭킹 테이블 zebra stripe</li>
+        <li>월별·심야·키워드·링크 도메인 · 하이라이트 타임라인</li>
+      </ul>
+      <p style="margin:14px 0 0;color:var(--muted);font-size:13px;line-height:1.6">
+        원문 메시지·전체 URL·미사용 JSON 덩어리는 HTML에 넣지 않습니다.
+      </p>
     </section>
 
     <section id="start" class="panel" style="margin-bottom:48px">

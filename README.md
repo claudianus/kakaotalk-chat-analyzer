@@ -14,7 +14,7 @@
 
 <br>
 
-<img src="https://readme-typing-svg.demolab.com?font=DM+Sans&weight=700&size=22&pause=1200&color=3EE8C5&center=true&vCenter=true&width=780&lines=Privacy-first+chat+analytics+for+KakaoTalk+CSV+exports;Single-file+HTML+reports+%2B+optional+zero-login+hosting" alt="tagline animation" />
+<img src="https://readme-typing-svg.demolab.com?font=DM+Sans&weight=700&size=22&pause=1200&color=3EE8C5&center=true&vCenter=true&width=780&lines=Streaming+analytics+for+months+of+KakaoTalk+CSV;Premium+Korean+HTML+reports+%2B+one-line+share" alt="tagline animation" />
 
 </div>
 
@@ -24,6 +24,8 @@
 
 - [왜 이 프로젝트인가요?](#왜-이-프로젝트인가요)
 - [핵심 기능](#핵심-기능)
+- [대용량·속도](#대용량속도)
+- [리포트 UX](#리포트-ux)
 - [카카오톡에서 CSV 보내기](#카카오톡에서-csv-보내기)
 - [빠른 시작](#빠른-시작)
 - [생성되는 리포트](#생성되는-리포트)
@@ -40,7 +42,7 @@
 카카오톡 대화를 **CSV로 보낸 뒤**, 팀·친구·커뮤니티에 **재미있는 통계**를 공유하고 싶을 때가 있습니다.  
 그런데 원문 그대로 올리기엔 **개인정보·민감 URL** 리스크가 큽니다.
 
-**`kca`(KakaoTalk Chat Analyzer)**는 메시지 본문을 **리포트 파일에 저장하지 않고**, 집계 통계만 담은 **단일 `index.html`**을 생성합니다. 기본은 참여자 이름을 **부분 마스킹**해 방 안에서 누구인지 감은 오게 보여 주며, 필요하면 **가입 없이** 임시 HTML 호스트에 올려 링크로 공유할 수 있습니다.
+**`kca`(KakaoTalk Chat Analyzer)**는 메시지 본문을 **리포트 파일에 저장하지 않고**, 집계 통계만 담은 **단일 `index.html`**을 생성합니다. 몇 개월·수십만 줄 규모도 **파일 전체를 RAM에 올리지 않는 스트리밍 집계**로 처리하고, 리포트는 **한글 프리미엄 UI**(채팅방 이름·히트맵·오전/오후 리듬·인사이트 카드)로 바로 읽을 수 있습니다. 기본은 참여자 **부분 마스킹**, 필요 시 **가입 없이** BrewPage 등에 올려 링크로 공유합니다.
 
 > 이 도구는 카카오 공식 제품이 아닙니다. 보낸 CSV 형식 변경에 따라 파싱이 깨질 수 있으니, 중요한 데이터는 항상 백업하세요.
 
@@ -52,10 +54,59 @@
 |------|------|
 | **인코딩** | UTF-8 BOM, UTF-8, CP949/EUC-KR 등 보내기 인코딩 자동 감지 |
 | **파싱** | `Date,User,Message` 헤더 기반 CSV + 멀티라인 메시지 처리 |
-| **리포트** | 한글 UI, 일별·시간대, 하이라이트, 월별·심야·응답 간격·키워드/도메인 등 **집계 전용** 시각화 |
-| **배포** | BrewPage(기본) / TempFile / Cloudflare 등 **TTL 기반** 임시 호스팅 연동 |
+| **리포트** | 채팅방 이름·섹션 점프·다크/라이트·히트맵·오전/오후 시간대·참여자 맵·인사이트 지표 등 **집계 전용** 시각화 |
+| **성능** | 줄 단위 스트림 파싱 · 단일 패스 집계 · 3MB+ Worker · 진행 표시(`--progress`) |
+| **배포** | BrewPage(기본) / TempFile / Cloudflare 등 **TTL 기반** 임시 호스팅 · iframe 공유 링크 안전 처리 |
 | **npx** | 짧은 별칭 **[`kcachat`](https://www.npmjs.com/package/kcachat)** 또는 본체 **`kakaotalk-chat-analyzer`** |
 | **프라이버시** | 원문 미포함, 참여자 **부분 마스킹 표시명**(기본), URL은 **도메인**만 집계 |
+
+---
+
+## 대용량·속도
+
+카카오 보내기 CSV는 **일반 표 CSV가 아니라** “날짜 줄 + 이어지는 본문” 형식입니다. `kca`는 이 형식에 맞춘 **전용 스트림 파서**로 읽고, 메시지마다 통계만 누적한 뒤 **본문은 즉시 버립니다**.
+
+| 설계 | 효과 |
+|------|------|
+| **스트리밍 파싱** | 파일 전체를 문자열/배열로 펼치지 않음 |
+| **단일 패스 집계** | `Map`·히스토그램·온라인 통계(간격 P90 등)만 유지 |
+| **Worker (≥3MB)** | 대용량일 때 메인 스레드 멈춤 완화 |
+| **키워드 상한** | 수만 개 토큰 맵 폭주 방지 + 「사진」 시스템 문구와 본문 단어 구분 |
+| **kcachat@latest** | 실행 시 `kakaotalk-chat-analyzer@latest` 본체를 받아 최신 CLI 사용 |
+
+로컬 벤치(합성 20만 메시지, 집계만): **약 0.4초대** — 환경·디스크·실제 대화 밀도에 따라 달라집니다.
+
+```bash
+# 진행 상황 (2.5만 건마다 stderr)
+npx kcachat@latest "./KakaoTalk_Chat_....csv" --progress
+
+# 단계별 ms (Worker 끔)
+npx kcachat@latest "./KakaoTalk_Chat_....csv" --profile --no-worker
+
+# 개발용 벤치
+npm run bench:stream -- 100000
+```
+
+> 외부 DB(DuckDB 등) 없이 **Node.js만**으로 동작합니다. 의존성·설치 부담을 줄이기 위한 선택입니다.
+
+---
+
+## 리포트 UX
+
+생성되는 `index.html`은 **브라우저만** 있으면 열리는 단일 파일입니다.
+
+- **채팅방 이름**: `KakaoTalk_Chat_…` 파일명에서 방 이름을 추출해 제목·카드·푸터에 표시
+- **빠른 이동**: 상단 고정 네비 — BrewPage iframe에서도 **빈 화면 없이** 섹션 점프
+- **숫자 요약 · 인사이트**: Gini·리듬 점수·응답 간격·주말 비중 등 **패턴 지표** 카드
+- **일별 히트맵**: 가로 스크롤 없이 화면 너비에 맞춘 그리드
+- **시간대 리듬**: 오전(청록) / 오후(주황) 12시간 구역으로 직관적 비교
+- **참여자 맵**: 말풍선 scatter + **마스킹된 닉네임** 라벨
+- **랭킹 테이블**: zebra stripe·구분선으로 가독성
+- **키워드**: 카톡 첨부 시스템 문구(사진·이모티콘 등)는 **본문 단어와 구분**해 집계
+- **하단 링크**: GitHub·npm·문서 — BrewPage에 embed해도 **새 탭**으로 열리고 리포트 탭은 유지
+- **테마**: 라이트 / 다크 / 시스템
+
+원문 메시지·전체 URL·중복 JSON 덩어리는 HTML에 넣지 않습니다(BrewPage 5MiB 한도도 고려).
 
 ---
 
@@ -132,8 +183,12 @@ kca ./KakaoTalk_Chat_....csv --dry-run
 # TempFile 호스트
 kca ./chat.csv --host tempfile --ttl 30
 
-# 보내기 구조 점검(원문 출력 없음)
+# 보내기 구조 점검(원문 출력 없음, 스트리밍)
 kca inspect ./KakaoTalk_Chat_....csv
+
+# 대용량 진행 표시 / 프로파일
+kca ./chat.csv --progress
+kca ./chat.csv --profile --no-worker
 
 kca --help
 ```
@@ -144,9 +199,10 @@ kca --help
 
 ## 생성되는 리포트
 
-- **단일 `index.html`**: 오프라인으로 열어도 되는 **자급자족** 파일입니다(집계용 JSON은 `<script type="application/json">` 등으로 같은 파일 안에 포함).
-- **원문 미저장**: 메시지 본문은 통계에만 쓰이고, 결과 HTML에는 넣지 않습니다.
-- **하단 안내(선택적 홍보)**: 리포트 맨 아래에, 같은 도구로 **다른 대화**도 만들어 볼 수 있도록 `npx` 예시와 문서 링크가 **짧게** 들어갈 수 있습니다. 통계 본문과 겹치지 않도록 별도 박스로 구분되어 있습니다.
+- **단일 `index.html`**: CSS·차트·안내 문구가 **한 파일에 포함**되어 오프라인에서도 동작합니다.
+- **원문 미저장**: 메시지 본문은 통계 계산에만 사용되며 HTML에 남기지 않습니다.
+- **재업로드 안내**: 예전 BrewPage 링크는 생성 시점 HTML이 고정됩니다. UI·버그 수정 후에는 **다시 업로드**해야 반영됩니다.
+- 자세한 화면 구성은 [리포트 UX](#리포트-ux)를 참고하세요.
 
 ---
 
@@ -167,12 +223,16 @@ kca token clear --host brewpage --ns kakao-chat-report
 ## 아키텍처 한눈에
 
 ```
-CSV 파일
-   → parser (인코딩·CSV·날짜 파싱)
-   → analysis (집계·부분 마스킹·키워드/도메인·하이라이트 등)
-   → report (단일 HTML 렌더)
-   → [선택] providers (BrewPage / TempFile / Cloudflare 업로드)
+CSV 파일 (스트림 read)
+   → 인코딩 샘플(512KB) + 줄 단위 Kakao 파서
+   → ReportAggregator (단일 패스 · 메시지 본문 비보관)
+        ├─ [≥3MB] Worker 스레드 (선택)
+        └─ Gap/키워드 온라인 통계
+   → report.ts (단일 HTML, 다크/라이트)
+   → [선택] providers → BrewPage / TempFile / Cloudflare
 ```
+
+`kcachat`는 npm에서 **짧은 이름**으로 위 파이프라인을 실행하는 래퍼입니다.
 
 ---
 
@@ -188,7 +248,7 @@ npm test
 
 ## 문서 사이트 (GitHub Pages)
 
-랜딩 페이지(`docs/index.html`)는 **저장소의 `docs/` 폴더**를 그대로 올리며, **GitHub Actions**가 `main`에 푸시될 때마다 배포합니다.
+랜딩 페이지(`docs/index.html`)는 **스트리밍 집계·리포트 UX·복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다.
 
 - **공개 URL:** [https://claudianus.github.io/kakaotalk-chat-analyzer/](https://claudianus.github.io/kakaotalk-chat-analyzer/)
 - **워크플로:** [`.github/workflows/pages.yml`](.github/workflows/pages.yml)
