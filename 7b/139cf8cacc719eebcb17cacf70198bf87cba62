@@ -1,0 +1,44 @@
+dist/src/analysis.js
+  s_d404882750412e::t_238f3020026470 15-16,437
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/report.js.map
+  ai_agent 1
+package.json
+  s_d404882750412e::t_a6401c4204c2d1 3
+src/report.ts
+  s_d404882750412e::t_bd6bf7d629b1bb 936-937
+  s_d404882750412e::t_9e07671a9ad8c1 882
+  s_d404882750412e::t_fed2d804a1c95c 946-947,949-951,953-954,957-961,963-965,981,989-996
+  s_d404882750412e::t_5bfcea1b8706bd 595
+  s_d404882750412e::t_3ca31025b755f2 623
+  s_d404882750412e::t_216374d24865d0 491-492,498,500-519,521-525,528
+  s_d404882750412e::t_cc729396ad56bf 608
+  s_d404882750412e::t_3cfe40916c92ab 299-301,305,311-313,317-335,340,342-343,346,356-370,374-383
+  s_d404882750412e::t_63040a8b8d0d21 582
+  s_d404882750412e::t_065b6c751d50f2 520
+  s_d404882750412e::t_96fd3d745ae1a0 579
+test/parser-report.test.ts
+  s_d404882750412e::t_216e403511af57 49-53
+dist/src/report.js
+  s_d404882750412e::t_238f3020026470 296-298,302,308-310,314-332,337,339-340,343,353-367,371-380,488-489,495,497-522,525,576,579,592,603,618,862,915-916,924-925,927-929,931-932,935-938,940-942,957,961-966
+src/analysis.ts
+  s_d404882750412e::t_95823bea70561e 487
+  s_d404882750412e::t_ebf13afca3fdf8 26-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "7b139cf8cacc719eebcb17cacf70198bf87cba62",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
