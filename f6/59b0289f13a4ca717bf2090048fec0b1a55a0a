@@ -1,0 +1,49 @@
+test/room-events.test.ts
+  s_d404882750412e::t_ca73ddde9731cd 8-12
+test/korean-hashtags.test.ts
+  s_d404882750412e::t_97518fa3e0733a 3,7-8,11,14-16,19-20,24
+src/aggregator.ts
+  s_d404882750412e::t_7aeede3a08bb9b 15
+  s_d404882750412e::t_23604b0c540b0d 252
+.gitignore
+  s_d404882750412e::t_675c6542dd461f 12-14
+dist/src/korean-hashtags.js
+  s_d404882750412e::t_49cae5e6c353cc 2-3,5-7,9-13,15,17
+dist/src/korean-hashtags.js.map
+  ai_agent 1
+dist/src/korean-hashtags.d.ts
+  s_d404882750412e::t_49cae5e6c353cc 1,5-6
+package.json
+  s_d404882750412e::t_b5892a529819d2 3
+dist/src/version.d.ts
+  s_d404882750412e::t_26367ad999addc 1-2
+src/korean-hashtags.ts
+  s_d404882750412e::t_97365745dd5376 3,8-9,11-16
+dist/src/version.js
+  s_d404882750412e::t_26367ad999addc 1
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/aggregator.js
+  s_d404882750412e::t_49cae5e6c353cc 5,195
+kcachat/package.json
+  s_d404882750412e::t_4f8947376ce485 15
+  s_d404882750412e::t_7abf5f2420e6ac 3
+src/version.ts
+  s_d404882750412e::t_26367ad999addc 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "f659b0289f13a4ca717bf2090048fec0b1a55a0a",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
