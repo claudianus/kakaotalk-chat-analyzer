@@ -12,6 +12,13 @@ export interface KrWordRankExtractOptions {
     stopwords?: ReadonlySet<string>;
     limit?: number;
 }
+export interface KeywordRankItem {
+    label: string;
+    /** HITS 점수 (상대 중요도) */
+    score: number;
+    /** 해당 단어가 등장한 메시지 수(문서 빈도) */
+    messageHits: number;
+}
 /** 메시지 스트림으로 학습 → HITS → L-부분 키워드 */
 export declare class KrWordRankStream {
     private minCount;
@@ -22,10 +29,13 @@ export declare class KrWordRankStream {
     private readonly converge;
     private readonly counter;
     private readonly edgeCounts;
+    /** 공백 단위 어절이 포함된 메시지 수 */
+    private readonly wordDocFreq;
     private documents;
     constructor(options?: KrWordRankOptions);
     addDocument(raw: string): void;
     extractKeywords(options?: KrWordRankExtractOptions): Map<string, number>;
+    extractKeywordItems(options?: KrWordRankExtractOptions): KeywordRankItem[];
     private scanToken;
     private bumpCounter;
     private pruneCounter;

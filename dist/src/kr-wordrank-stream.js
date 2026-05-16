@@ -25,6 +25,8 @@ export class KrWordRankStream {
     converge;
     counter = new Map();
     edgeCounts = new Map();
+    /** 공백 단위 어절이 포함된 메시지 수 */
+    wordDocFreq = new Map();
     documents = 0;
     constructor(options = {}) {
         this.minCount = options.minCount ?? DEFAULT_MIN_COUNT;
@@ -42,7 +44,12 @@ export class KrWordRankStream {
         const tokens = doc.split(/\s+/).filter(Boolean);
         if (tokens.length === 0)
             return;
+        const seenWord = new Set();
         for (const token of tokens) {
+            if (token.length >= 2 && !seenWord.has(token)) {
+                seenWord.add(token);
+                this.wordDocFreq.set(token, (this.wordDocFreq.get(token) ?? 0) + 1);
+            }
             this.scanToken(token);
         }
         const links = [];
@@ -100,6 +107,16 @@ export class KrWordRankStream {
                 break;
         }
         return out;
+    }
+    extractKeywordItems(options = {}) {
+        const scores = this.extractKeywords(options);
+        return [...scores.entries()]
+            .map(([label, score]) => ({
+            label,
+            score,
+            messageHits: this.wordDocFreq.get(label) ?? 0,
+        }))
+            .sort((a, b) => b.score - a.score || b.messageHits - a.messageHits);
     }
     scanToken(token) {
         const len = token.length;

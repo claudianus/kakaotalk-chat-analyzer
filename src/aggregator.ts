@@ -405,11 +405,12 @@ export class ReportAggregator {
       if ((this.hourly[h] ?? 0) > 0) activeHoursCount += 1;
     }
     const keywordStop = buildKeywordStopwords();
-    const wordRankScores = this.krWordRank.extractKeywords({
+    const keywordLimit = Math.max(120, this.top * 3);
+    const wordRankItems = this.krWordRank.extractKeywordItems({
       stopwords: keywordStop,
-      limit: Math.max(this.top * 2, 50),
+      limit: keywordLimit,
     });
-    const keywords = mergeKeywordRankings(wordRankScores, this.keywordSupplement, this.top);
+    const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit);
     const keywordTop1SharePercent = top1ShareFromCounts(keywords, total);
     let attachmentMarkerSum = 0;
     for (const c of this.attachments.values()) attachmentMarkerSum += c;

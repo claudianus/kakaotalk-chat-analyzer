@@ -1,4 +1,5 @@
+import type { KeywordRankItem } from "./kr-wordrank-stream.js";
 import type { CountItem } from "./types.js";
 import type { KeywordCounter } from "./keyword-counter.js";
-/** KR-WordRank 점수 우선 + 미등록 해시태그·슬랭만 보조 */
-export declare function mergeKeywordRankings(wordRank: Map<string, number>, supplement: KeywordCounter, limit: number): CountItem[];
+/** KR-WordRank 점수 순 + 실제 메시지 등장 횟수(count) */
+export declare function mergeKeywordRankings(ranked: KeywordRankItem[], supplement: KeywordCounter, limit: number): CountItem[];

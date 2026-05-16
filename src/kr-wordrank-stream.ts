@@ -22,6 +22,14 @@ export interface KrWordRankExtractOptions {
   limit?: number;
 }
 
+export interface KeywordRankItem {
+  label: string;
+  /** HITS 점수 (상대 중요도) */
+  score: number;
+  /** 해당 단어가 등장한 메시지 수(문서 빈도) */
+  messageHits: number;
+}
+
 const DEFAULT_MIN_COUNT = 4;
 const DEFAULT_MAX_LENGTH = 10;
 const MAX_VOCAB = 48_000;
@@ -47,6 +55,8 @@ export class KrWordRankStream {
 
   private readonly counter = new Map<string, number>();
   private readonly edgeCounts = new Map<string, number>();
+  /** 공백 단위 어절이 포함된 메시지 수 */
+  private readonly wordDocFreq = new Map<string, number>();
   private documents = 0;
 
   constructor(options: KrWordRankOptions = {}) {
@@ -65,7 +75,12 @@ export class KrWordRankStream {
     const tokens = doc.split(/\s+/).filter(Boolean);
     if (tokens.length === 0) return;
 
+    const seenWord = new Set<string>();
     for (const token of tokens) {
+      if (token.length >= 2 && !seenWord.has(token)) {
+        seenWord.add(token);
+        this.wordDocFreq.set(token, (this.wordDocFreq.get(token) ?? 0) + 1);
+      }
       this.scanToken(token);
     }
 
@@ -125,6 +140,17 @@ export class KrWordRankStream {
       if (out.size >= limit) break;
     }
     return out;
+  }
+
+  extractKeywordItems(options: KrWordRankExtractOptions = {}): KeywordRankItem[] {
+    const scores = this.extractKeywords(options);
+    return [...scores.entries()]
+      .map(([label, score]) => ({
+        label,
+        score,
+        messageHits: this.wordDocFreq.get(label) ?? 0,
+      }))
+      .sort((a, b) => b.score - a.score || b.messageHits - a.messageHits);
   }
 
   private scanToken(token: string): void {

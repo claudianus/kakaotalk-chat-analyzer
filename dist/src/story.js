@@ -1,6 +1,6 @@
 import { formatCompactNumber } from "./report-util.js";
 const GH_MONTH_KO = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
-const GITHUB_WEEKS = 53;
+const MAX_CALENDAR_WEEKS = 53;
 const CHAPTER_GAP_DAYS = 7;
 export function buildReportStory(input) {
     const tone = buildTone(input.totalMessages, input.laughMessages, input.shortMessages, input.emojiMessages);
@@ -34,7 +34,7 @@ export function buildTone(total, laugh, short, emoji) {
 function buildHeadline(input) {
     const room = input.chatRoomName;
     const n = formatCompactNumber(input.totalMessages);
-    const parts = [`「${room}」에서 ${n}개의 메시지가 오갔어요.`];
+    const parts = [`「${room}」에서 ${n} 개의 메시지가 오갔어요.`];
     if (input.longestStreak >= 3) {
         parts.push(`최장 **${input.longestStreak}일** 연속 대화`);
     }
@@ -123,21 +123,14 @@ function buildWrappedCards(input, tone) {
             sub: `웃음·리액션 느낌 100건당 · 이모지 ${tone.emojiPer100}건당`,
         });
     }
-    if (input.insights.burstGapUnder1mPercent !== null && input.insights.burstGapUnder1mPercent >= 35) {
-        cards.push({
-            id: "speed",
-            emoji: "⚡",
-            title: "실시간 톤",
-            stat: `${input.insights.burstGapUnder1mPercent}%`,
-            sub: "응답 간격 1분 이내 비율",
-        });
-    }
     cards.push({
         id: "pace",
         emoji: input.conversationPace.emoji,
         title: input.conversationPace.label,
-        stat: `${input.insights.speakerSwitchRatePer100}`,
-        sub: `화자 전환/100 · ${input.conversationPace.detail.slice(0, 42)}${input.conversationPace.detail.length > 42 ? "…" : ""}`,
+        stat: input.insights.burstGapUnder1mPercent !== null && input.insights.burstGapUnder1mPercent >= 35
+            ? `${input.insights.burstGapUnder1mPercent}%`
+            : `${input.insights.speakerSwitchRatePer100}`,
+        sub: input.conversationPace.detail.slice(0, 56) + (input.conversationPace.detail.length > 56 ? "…" : ""),
     });
     if (input.burstDays.length > 0) {
         const peak = input.burstDays[0];
@@ -178,7 +171,7 @@ function buildWrappedCards(input, tone) {
         stat: "스크롤",
         sub: "숫자 요약 · 챕터 · 연간 그리드 · 차트가 이어집니다",
     });
-    return cards.slice(0, 14);
+    return cards.slice(0, 8);
 }
 function trimYmd(ymd) {
     const p = ymd.split("-");
@@ -214,10 +207,10 @@ function buildPersonas(participants, laughBySender, shortBySender) {
         if (linkPct >= 10) {
             cands.push({ score: linkPct, title: "링크 큐레이터", reason: `링크 공유 ${linkPct}%` });
         }
-        if (p.maxConsecutive >= 6) {
+        if (p.maxConsecutive >= 12) {
             cands.push({
                 score: p.maxConsecutive * 4,
-                title: "장문 연속왕",
+                title: "연속 발화",
                 reason: `최대 ${p.maxConsecutive}연속 메시지`,
             });
         }
@@ -308,18 +301,16 @@ function buildCalendarGrid(daily) {
     let totalMessages = 0;
     for (const c of map.values())
         totalMessages += c;
-    const end = new Date(`${last}T12:00:00Z`);
-    const windowStart = new Date(end);
-    windowStart.setUTCDate(windowStart.getUTCDate() - (GITHUB_WEEKS * 7 - 1));
-    const padStart = windowStart.getUTCDay();
-    const cursor = new Date(windowStart);
-    cursor.setUTCDate(cursor.getUTCDate() - padStart);
+    const startMs = new Date(`${first}T12:00:00Z`);
+    const endMs = new Date(`${last}T12:00:00Z`);
+    const cursor = new Date(startMs);
+    cursor.setUTCDate(cursor.getUTCDate() - cursor.getUTCDay());
+    const gridEnd = new Date(endMs);
+    gridEnd.setUTCDate(gridEnd.getUTCDate() + (6 - gridEnd.getUTCDay()));
     const weeks = [];
     let week = [];
     const levelThresholds = buildContributionLevelThresholds([...map.values()]);
-    const targetCells = GITHUB_WEEKS * 7;
-    let filled = 0;
-    while (filled < targetCells) {
+    while (cursor <= gridEnd) {
         const y = cursor.getUTCFullYear();
         const m = pad2(cursor.getUTCMonth() + 1);
         const d = pad2(cursor.getUTCDate());
@@ -328,9 +319,8 @@ function buildCalendarGrid(daily) {
         week.push({
             date: key,
             count,
-            level: count > 0 ? levelFromCount(count, levelThresholds) : 0,
+            level: count > 0 ? Math.max(1, levelFromCount(count, levelThresholds)) : 0,
         });
-        filled += 1;
         if (week.length === 7) {
             weeks.push({ cells: week });
             week = [];
@@ -342,9 +332,10 @@ function buildCalendarGrid(daily) {
             week.push({ date: null, count: 0, level: 0 });
         weeks.push({ cells: week });
     }
+    const weekCount = Math.min(MAX_CALENDAR_WEEKS, weeks.length);
     return {
-        weeks,
-        spanLabel: `${first} ~ ${last} · 잔디 ${GITHUB_WEEKS}주`,
+        weeks: weeks.slice(-weekCount),
+        spanLabel: `${first} ~ ${last} · 활동 ${weekCount}주`,
         totalMessages,
         monthLabels: buildMonthLabels(weeks),
     };

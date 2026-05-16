@@ -17,6 +17,13 @@ import {
   renderStorySections,
   storyNavLinks,
 } from "./report-story.js";
+import {
+  CHART_CDN_HEAD,
+  CHARTS_INIT_SCRIPT,
+  REPORT_VIZ_CSS,
+  renderChartDeck,
+  serializeChartPayload,
+} from "./report-charts.js";
 import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
 
 const FIVE_MIB = 5 * 1024 * 1024;
@@ -33,6 +40,7 @@ export function renderReportHtml(data: ReportData): string {
   <meta property="og:title" content="${escapeHtml(data.source.chatRoomName)} · kca 리포트">
   <meta property="og:description" content="${escapeHtml(buildOgDescription(data))}">
   <title>카카오톡 대화 리포트 · ${escapeHtml(data.source.chatRoomName)} · kca</title>
+  ${CHART_CDN_HEAD}
   <style>
     :root {
       color-scheme: light dark;
@@ -48,6 +56,10 @@ export function renderReportHtml(data: ReportData): string {
       --shadow: 0 18px 50px rgba(20, 26, 31, 0.08);
       --bar-bg: #e5dfd4;
       --glow: rgba(15, 107, 92, 0.18);
+      --glass: rgba(255, 252, 247, 0.72);
+      --glass-border: rgba(20, 26, 31, 0.08);
+      --panel-solid: #fffcf7;
+      --accent-grad: linear-gradient(125deg, var(--accent), #4f46e5 55%, var(--accent2));
       font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", ui-sans-serif, system-ui, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
@@ -64,6 +76,10 @@ export function renderReportHtml(data: ReportData): string {
         --shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
         --bar-bg: rgba(255, 255, 255, 0.08);
         --glow: rgba(62, 232, 197, 0.15);
+        --glass: rgba(255, 255, 255, 0.06);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --panel-solid: #161b22;
+        --accent-grad: linear-gradient(125deg, var(--accent), #818cf8 50%, var(--accent2));
       }
     }
     :root[data-theme="dark"] {
@@ -79,6 +95,10 @@ export function renderReportHtml(data: ReportData): string {
       --shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
       --bar-bg: rgba(255, 255, 255, 0.08);
       --glow: rgba(62, 232, 197, 0.15);
+      --glass: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --panel-solid: #161b22;
+      --accent-grad: linear-gradient(125deg, var(--accent), #818cf8 50%, var(--accent2));
     }
     :root[data-theme="light"] {
       --bg: #f4f1ea;
@@ -93,6 +113,10 @@ export function renderReportHtml(data: ReportData): string {
       --shadow: 0 18px 50px rgba(20, 26, 31, 0.08);
       --bar-bg: #e5dfd4;
       --glow: rgba(15, 107, 92, 0.18);
+      --glass: rgba(255, 252, 247, 0.72);
+      --glass-border: rgba(20, 26, 31, 0.08);
+      --panel-solid: #fffcf7;
+      --accent-grad: linear-gradient(125deg, var(--accent), #4f46e5 55%, var(--accent2));
     }
     * { box-sizing: border-box; }
     html {
@@ -104,7 +128,7 @@ export function renderReportHtml(data: ReportData): string {
       overflow-x: clip;
       max-width: 100%;
     }
-    #s-facts, #s-story, #s-hl, #s-ai, #s-charts, #s-help { scroll-margin-top: 76px; }
+    #s-facts, #s-story, #s-hl, #s-ai, #s-viz, #s-charts, #s-help { scroll-margin-top: 76px; }
     .skip-link {
       position: absolute;
       width: 1px;
@@ -262,6 +286,7 @@ export function renderReportHtml(data: ReportData): string {
       .card:hover { transform: none; }
     }
     ${STORY_CSS}
+    ${REPORT_VIZ_CSS}
     body {
       margin: 0;
       overflow-x: clip;
@@ -778,25 +803,25 @@ export function renderReportHtml(data: ReportData): string {
 
     ${renderInsightDeck(data)}
 
-    <div id="s-charts" class="chart-stack anim-enter" style="--enter-delay:0.06s">
-    <section class="grid two" style="margin-bottom:14px">
-      ${panel("일별 활동 히트맵", "날짜마다 메시지가 쌓인 양이에요. 테두리·🔥는 평소보다 급증한 날입니다.", renderDaily(data.daily, data.burstDays))}
-      ${panel("시간대 리듬 (0~23시)", "청록=오전(0~11시), 주황=오후(12~23시). 막대 높이는 해당 시간 메시지 비중이에요.", renderHours(data.hourly))}
-    </section>
+    ${renderChartDeck(data)}
 
+    <div id="s-charts" class="chart-stack anim-enter" style="--enter-delay:0.07s">
+    ${
+      data.story.calendarWeeks.length > 0
+        ? ""
+        : `<section class="grid two" style="margin-bottom:14px">
+      ${panel("일별 활동 (CSS)", "Wrapped 잔디와 별도로, 날짜 칸 색으로 본 일별 히트맵이에요.", renderDaily(data.daily, data.burstDays))}
+      ${panel("시간대 리듬 (0~23시)", "청록=오전, 주황=오후. 막대 높이는 해당 시간 메시지 비중이에요.", renderHours(data.hourly))}
+    </section>`
+    }
     <section class="grid two" style="margin-bottom:14px">
-      ${panel("참여자 랭킹", "누가 얼마나 보냈는지 비율과 평균 길이를 함께 봐요.", renderParticipants(data.participants))}
-      ${panel("요일별 활동", "주중·주말 패턴이 한눈에 들어옵니다.", renderCountBars(data.weekdays))}
-    </section>
-
-    <section class="grid two" style="margin-bottom:14px">
-      ${panel("월별 추이", "기간이 길 때 계절·이벤트 구간을 가늠할 때 씁니다.", renderMonthly(data.monthly))}
+      ${panel(`참여자 랭킹 · 상위 ${formatNumber(Math.min(data.participants.length, 40))} / 전체 ${formatNumber(data.participants.length)}`, "누가 얼마나 보냈는지 비율과 평균 길이를 함께 봐요.", renderParticipants(data.participants))}
       ${panel("첨부 유형", "사진·동영상 등 메타 유형 비중이에요.", renderCountBars(data.attachments))}
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
-      ${panel("자주 나온 도메인", "공유 링크의 사이트 이름 일부만 집계했어요.", renderCountBars(data.domains))}
-      ${panel("키워드 스냅샷", "사람이 직접 입력한 본문 단어만 집계해요.", renderKeywordSnapshot(data.keywords))}
+      ${panel(`키워드 요약 (CSS) · ${formatNumber(data.keywords.length)}개`, "숫자는 메시지 등장 횟수. 워드클라우드·전체 표는 위 인터랙티브 차트.", renderKeywordSnapshot(data.keywords))}
+      ${panel("자주 나온 도메인", "공유 링크 호스트 상위", renderCountBars(data.domains.slice(0, 24)))}
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
@@ -916,6 +941,10 @@ export function renderReportHtml(data: ReportData): string {
     <script>
     ${GH_CONTRIB_SCRIPT}
     </script>
+    <script type="application/json" id="kca-chart-data">${serializeChartPayload(data)}</script>
+    <script defer>
+    ${CHARTS_INIT_SCRIPT}
+    </script>
 
     <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
   </main>
@@ -939,8 +968,9 @@ function renderSectionNav(data: ReportData): string {
     <a href="#s-story" data-kca-jump="s-story">② 이 리포트 안내</a>
     ${hl}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
-    <a href="#s-charts" data-kca-jump="s-charts">④ 차트 모아보기</a>
-    <a href="#s-help" data-kca-jump="s-help">⑤ 용어 설명</a>
+    <a href="#s-viz" data-kca-jump="s-viz">④ 인터랙티브 차트</a>
+    <a href="#s-charts" data-kca-jump="s-charts">⑤ 표·막대 모음</a>
+    <a href="#s-help" data-kca-jump="s-help">⑥ 용어 설명</a>
   </nav>`;
 }
 
@@ -967,8 +997,8 @@ function renderFactMatrix(data: ReportData): string {
     ["총 메시지", formatNumber(s.totalMessages)],
     ["참여자", formatNumber(s.participants)],
     ["활동일", formatNumber(s.activeDays)],
-    ["활동일당", String(s.messagesPerActiveDay)],
-    ["캘린더 밀도", ins.densityMessagesPerCalendarDay === null ? "—" : String(ins.densityMessagesPerCalendarDay)],
+    ["일평균(활동일)", String(s.messagesPerActiveDay)],
+    ["달력 밀도", ins.densityMessagesPerCalendarDay === null ? "—" : String(ins.densityMessagesPerCalendarDay)],
     ["링크·100", String(ins.linksPer100)],
     ["첨부·100", String(ins.attachmentsPer100)],
     ["사진÷첨부%", ins.photoShareOfAllAttachmentMarkers === null ? "—" : `${ins.photoShareOfAllAttachmentMarkers}%`],
@@ -1347,7 +1377,7 @@ function renderReactionsPanel(data: ReportData): string {
 
 function renderKeywordSnapshot(items: CountItem[]): string {
   const note =
-    '<p class="kw-note"><strong>KR-WordRank</strong>(비지도·한국어 특화)로 본문 어절에서 단어를 뽑고, 해시태그·슬랭은 보조로 더합니다. 조사·어미 조각은 걸러집니다.</p>';
+    '<p class="kw-note"><strong>KR-WordRank</strong>로 본문 어절을 뽑고, 해시태그·슬랭을 보조로 더합니다. 막대·표의 숫자는 <strong>해당 단어가 들어간 메시지 수</strong>예요(상대 점수 아님). 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>';
   if (items.length === 0) {
     return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
   }

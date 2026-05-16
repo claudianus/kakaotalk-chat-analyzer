@@ -1,22 +1,21 @@
+import type { KeywordRankItem } from "./kr-wordrank-stream.js";
 import type { CountItem } from "./types.js";
 import type { KeywordCounter } from "./keyword-counter.js";
 
-/** KR-WordRank 점수 우선 + 미등록 해시태그·슬랭만 보조 */
+/** KR-WordRank 점수 순 + 실제 메시지 등장 횟수(count) */
 export function mergeKeywordRankings(
-  wordRank: Map<string, number>,
+  ranked: KeywordRankItem[],
   supplement: KeywordCounter,
   limit: number,
 ): CountItem[] {
-  const ranked = [...wordRank.entries()].sort((a, b) => b[1] - a[1]);
-  const peak = ranked[0]?.[1] ?? 1;
-  const items: CountItem[] = ranked.slice(0, limit).map(([label, score]) => ({
-    label,
-    count: Math.max(1, Math.round((score / peak) * 10_000)),
+  const items: CountItem[] = ranked.slice(0, limit).map((item) => ({
+    label: item.label,
+    count: Math.max(item.messageHits, 1),
   }));
 
   const floor = items[items.length - 1]?.count ?? 1;
   const seen = new Set(items.map((i) => i.label));
-  for (const { label, count } of supplement.topCounts(Math.max(6, Math.floor(limit / 4)))) {
+  for (const { label, count } of supplement.topCounts(Math.max(8, Math.floor(limit / 5)))) {
     if (seen.has(label)) continue;
     items.push({ label, count: Math.min(count, floor) });
     seen.add(label);
