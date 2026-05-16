@@ -36,7 +36,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/kakaotalk-chat-analyzer
-          key: kiwi-base-v1-${{ runner.os }}-${{ hashFiles('src/kiwi-runtime.ts') }}
+          key: kca-cache-v2-${{ runner.os }}-${{ hashFiles('src/kiwi-runtime.ts', 'src/semantic-keywords.ts') }}
           restore-keys: |
             kiwi-base-v1-${{ runner.os }}-
 

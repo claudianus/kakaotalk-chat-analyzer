@@ -5,6 +5,13 @@ export interface FinalizeSourceMeta {
     physicalLines: number;
     warningCount: number;
 }
+export interface FinalizeOptions {
+    usedSemanticKeywords?: boolean;
+}
+export interface AggregatorOptions {
+    /** MiniLM 시맨틱 키워드용 메시지 샘플 수집 */
+    semanticSamples?: boolean;
+}
 export declare class ReportAggregator {
     private readonly filePath;
     private readonly privacy;
@@ -56,14 +63,20 @@ export declare class ReportAggregator {
     private roomShopSearchMessages;
     private roomPhotoBundleMessages;
     private pureLaughMessages;
+    private readonly semanticReservoir;
     private prevMs;
     private prevSender;
     private runSender;
     private runLen;
     private firstDate;
     private lastDate;
-    constructor(filePath: string, privacy: PrivacyMode, top: number);
+    constructor(filePath: string, privacy: PrivacyMode, top: number, options?: AggregatorOptions);
+    drainSemanticSamples(): string[];
+    applySemanticKeywordBoost(items: {
+        label: string;
+        messageHits: number;
+    }[]): void;
     consume(record: ChatRecord): void;
     private bumpSystemNotice;
-    finalize(meta: FinalizeSourceMeta): ReportData;
+    finalize(meta: FinalizeSourceMeta, finalizeOpts?: FinalizeOptions): ReportData;
 }

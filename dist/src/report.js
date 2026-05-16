@@ -835,7 +835,7 @@ export function renderReportHtml(data) {
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
-      ${panel(`키워드 요약 (CSS) · ${formatNumber(data.keywords.length)}개`, "숫자는 메시지 등장 횟수. 워드클라우드·전체 표는 위 인터랙티브 차트.", renderKeywordSnapshot(data.keywords))}
+      ${panel(`키워드 요약 (CSS) · ${formatNumber(data.keywords.length)}개`, "숫자는 메시지 등장 횟수. 워드클라우드·전체 표는 위 인터랙티브 차트.", renderKeywordSnapshot(data.keywords, data))}
       ${panel("자주 나온 도메인", "공유 링크 호스트 상위", renderCountBars(data.domains.slice(0, 24)))}
     </section>
 
@@ -1365,8 +1365,11 @@ function renderTopicMap(data) {
     <div class="topic-grid">${cards}</div>
   </section>`;
 }
-function renderKeywordSnapshot(items) {
-    const note = '<p class="kw-note"><strong>Kiwi</strong> 형태소·<strong>BM25</strong>로 본문 명사·구를 뽑고, 해시태그·슬랭을 보조로 더합니다. 막대·표의 숫자는 <strong>해당 표현이 들어간 메시지 수</strong>예요. 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>';
+function renderKeywordSnapshot(items, data) {
+    const sem = data.summary.usedSemanticKeywords === true
+        ? " <strong>MiniLM</strong> 시맨틱 클러스터 키워드를 보조 반영했습니다."
+        : "";
+    const note = `<p class="kw-note"><strong>Kiwi</strong> 형태소·<strong>BM25</strong>로 본문 명사·구를 뽑고, 해시태그·슬랭을 보조로 더합니다.${sem} 막대·표의 숫자는 <strong>해당 표현이 들어간 메시지 수</strong>예요. 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>`;
     if (items.length === 0) {
         return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
     }

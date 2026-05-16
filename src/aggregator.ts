@@ -15,7 +15,8 @@ import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { adaptiveMinCount, StreamingTfidfKeywords } from "./streaming-tfidf-keywords.js";
 import { TopicMapAccumulator } from "./topic-map.js";
 import { extractHashtagKeywords } from "./korean-hashtags.js";
-import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
+import { buildKeywordStopwords } from "./keyword-stopwords.js";
+import { MessageReservoir } from "./message-reservoir.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
@@ -65,6 +66,15 @@ export interface FinalizeSourceMeta {
   encoding: EncodingName;
   physicalLines: number;
   warningCount: number;
+}
+
+export interface FinalizeOptions {
+  usedSemanticKeywords?: boolean;
+}
+
+export interface AggregatorOptions {
+  /** MiniLM 시맨틱 키워드용 메시지 샘플 수집 */
+  semanticSamples?: boolean;
 }
 
 interface MutableParticipantStat {
@@ -129,6 +139,7 @@ export class ReportAggregator {
   private roomShopSearchMessages = 0;
   private roomPhotoBundleMessages = 0;
   private pureLaughMessages = 0;
+  private readonly semanticReservoir: MessageReservoir | null;
 
   private prevMs: number | null = null;
   private prevSender: string | null = null;
@@ -137,10 +148,21 @@ export class ReportAggregator {
   private firstDate: ParsedDateParts | null = null;
   private lastDate: ParsedDateParts | null = null;
 
-  constructor(filePath: string, privacy: PrivacyMode, top: number) {
+  constructor(filePath: string, privacy: PrivacyMode, top: number, options?: AggregatorOptions) {
     this.filePath = filePath;
     this.privacy = privacy;
     this.top = top;
+    this.semanticReservoir = options?.semanticSamples ? new MessageReservoir(480) : null;
+  }
+
+  drainSemanticSamples(): string[] {
+    return this.semanticReservoir?.drain() ?? [];
+  }
+
+  applySemanticKeywordBoost(items: { label: string; messageHits: number }[]): void {
+    for (const item of items) {
+      this.keywordSupplement.addHits(item.label, Math.max(2, item.messageHits));
+    }
   }
 
   consume(record: ChatRecord): void {
@@ -260,6 +282,7 @@ export class ReportAggregator {
           this.keywordSupplement.add(keyword);
         }
         if (messageLength >= 12 && !isOpenChatBoilerplate(msg)) this.repeatPhraseCounter.add(msg);
+        if (this.semanticReservoir && messageLength >= 12) this.semanticReservoir.push(msg);
       }
     }
 
@@ -321,7 +344,7 @@ export class ReportAggregator {
     }
   }
 
-  finalize(meta: FinalizeSourceMeta): ReportData {
+  finalize(meta: FinalizeSourceMeta, finalizeOpts?: FinalizeOptions): ReportData {
     if (this.prevSender !== null && this.runSender !== null) {
       const prevStat = getParticipantStat(this.senderStats, this.prevSender);
       prevStat.maxConsecutive = Math.max(prevStat.maxConsecutive, this.runLen);
@@ -569,6 +592,7 @@ export class ReportAggregator {
         medianReplyGapMinutes,
         nightSharePercent,
         emojiMessages: this.emojiMessages,
+        usedSemanticKeywords: finalizeOpts?.usedSemanticKeywords === true,
       },
       insights,
       participants: participantStats,
@@ -733,12 +757,6 @@ function getDomains(message: string): string[] {
 
 function normalizeToken(token: string): string {
   return /^[A-Za-z0-9_+-]+$/.test(token) ? token.toLowerCase() : token.trim();
-}
-
-function buildKeywordStopwords(): Set<string> {
-  const s = new Set<string>([...KOREAN_CHAT_STOPWORDS, ...MORPHOLOGICAL_FRAGMENTS]);
-  for (const m of ATTACHMENT_MARKERS) s.add(m);
-  return s;
 }
 
 function top1ShareFromCounts(keywords: { count: number }[], totalMessages: number): number | null {

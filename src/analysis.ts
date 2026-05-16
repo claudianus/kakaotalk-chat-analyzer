@@ -1,10 +1,12 @@
 import { stat } from "node:fs/promises";
 import { ReportAggregator } from "./aggregator.js";
 import { runExportPrepass } from "./export-prepass.js";
+import { buildKeywordStopwords } from "./keyword-stopwords.js";
 import { initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker, type BuildReportOptions } from "./analyze-pool.js";
 import { logReportProgress, resetReportProgress } from "./report-progress.js";
+import { extractSemanticKeywords } from "./semantic-keywords.js";
 import type { StreamParseOptions } from "./stream-options.js";
 import { streamKakaoExport } from "./stream-parser.js";
 import type { EncodingName, ParseResult, PrivacyMode, ReportData } from "./types.js";
@@ -19,10 +21,33 @@ export async function prepareReportEngine(): Promise<void> {
   await initKiwiRuntime();
 }
 
+async function applySemanticKeywordsIfRequested(
+  agg: ReportAggregator,
+  options: BuildReportOptions | undefined,
+  showProgress: boolean,
+): Promise<boolean> {
+  if (!options?.semanticKeywords || process.env.KCA_NO_SEMANTIC === "1") return false;
+
+  const samples = agg.drainSemanticSamples();
+  if (samples.length < 48) return false;
+
+  if (showProgress) logReportProgress({ phase: "시맨틱 키워드", current: 0 });
+  const items = await extractSemanticKeywords(samples, {
+    stopwords: buildKeywordStopwords(),
+    onProgress: showProgress
+      ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
+      : undefined,
+  });
+  if (items.length > 0) agg.applySemanticKeywordBoost(items);
+  return items.length > 0;
+}
+
 export function buildReportData(result: ParseResult, options?: BuildReportOptions): ReportData {
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
-  const agg = new ReportAggregator(result.filePath, privacy, top);
+  const agg = new ReportAggregator(result.filePath, privacy, top, {
+    semanticSamples: options?.semanticKeywords === true,
+  });
   for (const record of result.records) {
     agg.consume(record);
   }
@@ -39,7 +64,24 @@ export async function buildReportDataAsync(
   options?: BuildReportOptions,
 ): Promise<ReportData> {
   await prepareReportEngine();
-  return buildReportData(result, options);
+  const privacy = options?.privacy ?? "public-masked";
+  const top = options?.top ?? DEFAULT_TOP;
+  const agg = new ReportAggregator(result.filePath, privacy, top, {
+    semanticSamples: options?.semanticKeywords === true,
+  });
+  for (const record of result.records) {
+    agg.consume(record);
+  }
+  const usedSemantic = await applySemanticKeywordsIfRequested(agg, options, false);
+  return agg.finalize(
+    {
+      filePath: result.filePath,
+      encoding: result.encoding,
+      physicalLines: result.physicalLines,
+      warningCount: result.warnings.length,
+    },
+    { usedSemanticKeywords: usedSemantic },
+  );
 }
 
 async function prepareKiwiAndEstimate(
@@ -49,9 +91,7 @@ async function prepareKiwiAndEstimate(
   let estimated: number | undefined;
   let userWords: import("kiwi-nlp").UserWord[] = [];
 
-  const needsPrepass =
-    process.env.KCA_NO_KIWI !== "1" ||
-    showProgress;
+  const needsPrepass = process.env.KCA_NO_KIWI !== "1" || showProgress;
 
   if (needsPrepass) {
     try {
@@ -92,7 +132,9 @@ export async function buildReportFromExportSync(
 
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
-  const agg = new ReportAggregator(filePath, privacy, top);
+  const agg = new ReportAggregator(filePath, privacy, top, {
+    semanticSamples: options?.semanticKeywords === true,
+  });
   let meta: { filePath: string; encoding: EncodingName; physicalLines: number; warningCount: number } | null =
     null;
 
@@ -132,11 +174,15 @@ export async function buildReportFromExportSync(
     logReportProgress({ phase: "주제·리포트 마무리", current: 0, total: 1 });
   }
 
-  const report = agg.finalize(meta);
+  const usedSemantic = await applySemanticKeywordsIfRequested(agg, options, showProgress);
+  const report = agg.finalize(meta, { usedSemanticKeywords: usedSemantic });
 
   if (showProgress) {
     logReportProgress({ phase: "주제·리포트 마무리", current: 1, total: 1 });
-    console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개`);
+    const sem = report.summary.usedSemanticKeywords ? " · 시맨틱 키워드" : "";
+    console.error(
+      `[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}`,
+    );
   }
 
   return report;

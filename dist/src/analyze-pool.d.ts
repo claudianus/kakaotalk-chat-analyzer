@@ -6,6 +6,8 @@ export interface BuildReportOptions {
     worker?: boolean;
     /** 집계 중 진행 건수 stderr 출력 */
     progress?: boolean;
+    /** MiniLM 임베딩 클러스터 키워드 보조 */
+    semanticKeywords?: boolean;
 }
 export declare function shouldUseAnalyzeWorker(filePath: string, options?: BuildReportOptions): Promise<boolean>;
 export declare function runAnalyzeWorker(filePath: string, options?: BuildReportOptions): Promise<ReportData>;

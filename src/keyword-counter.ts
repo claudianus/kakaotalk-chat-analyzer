@@ -10,8 +10,13 @@ export class KeywordCounter {
   private maxCount = 0;
 
   add(token: string): void {
-    this.totalHits += 1;
-    const next = (this.map.get(token) ?? 0) + 1;
+    this.addHits(token, 1);
+  }
+
+  addHits(token: string, hits: number): void {
+    if (hits <= 0) return;
+    this.totalHits += hits;
+    const next = (this.map.get(token) ?? 0) + hits;
     this.map.set(token, next);
     if (next > this.maxCount) this.maxCount = next;
     if (this.map.size > MAX_KEYS) this.prune();

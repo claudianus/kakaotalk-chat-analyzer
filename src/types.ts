@@ -271,6 +271,8 @@ export interface ReportData {
     nightSharePercent: number;
     /** 이모지/픽토그램이 포함된 메시지 수(대략적) */
     emojiMessages: number;
+    /** --semantic-keywords 로 MiniLM 클러스터 키워드를 반영했는지 */
+    usedSemanticKeywords?: boolean;
   };
   insights: ReportInsights;
   participants: ParticipantStat[];

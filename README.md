@@ -80,6 +80,9 @@
 # 진행 상황 (2.5만 건마다 stderr)
 npx kcachat@latest "./KakaoTalk_Chat_....csv" --progress
 
+# 시맨틱 키워드(MiniLM, 최초 모델 다운로드)
+npx kcachat@latest "./KakaoTalk_Chat_....csv" --semantic-keywords
+
 # 단계별 ms (Worker 끔)
 npx kcachat@latest "./KakaoTalk_Chat_....csv" --profile --no-worker
 
@@ -112,6 +115,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.6.0** | **`--semantic-keywords`** MiniLM 클러스터 키워드 보조(opt-in) |
 | **0.5.0** | **주제 맵**(c-TF-IDF)·**BM25** 키워드·CSV 사전 스캔(userWords·진행률 %) |
 | **0.4.2** | 키워드 병합(공백+Kiwi)·브랜드 표기 통합·구 dedupe 제거, **진행률 % 기본 표시** |
 | **0.4.1** | Kiwi CI 캐시, `keyword:diff` 스크립트, `KCA_NO_KIWI`, 잡음어·장문 절단 |
@@ -155,7 +159,7 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.5.0`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.6.0`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
 
 전체 이름으로 실행해도 동일합니다:
 

@@ -6,8 +6,13 @@ export class KeywordCounter {
     totalHits = 0;
     maxCount = 0;
     add(token) {
-        this.totalHits += 1;
-        const next = (this.map.get(token) ?? 0) + 1;
+        this.addHits(token, 1);
+    }
+    addHits(token, hits) {
+        if (hits <= 0)
+            return;
+        this.totalHits += hits;
+        const next = (this.map.get(token) ?? 0) + hits;
         this.map.set(token, next);
         if (next > this.maxCount)
             this.maxCount = next;

@@ -49,6 +49,11 @@ main
   .option("--profile", "파싱·집계·HTML 단계별 소요 시간을 출력합니다.", false)
   .option("--no-worker", "3MB 이상 파일도 Worker 없이 메인 스레드에서 집계합니다.", false)
   .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
+  .option(
+    "--semantic-keywords",
+    "MiniLM 임베딩으로 메시지 군집 키워드를 보조 추출합니다(모델 최초 1회 다운로드, @xenova/transformers).",
+    false,
+  )
   .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
   .action(async (csv: string, options: MainOptions) => {
     const host = parseHostName(options.host);
@@ -64,6 +69,7 @@ main
       profile: options.profile,
       worker: options.noWorker || options.profile ? false : undefined,
       progress: !options.noProgress,
+      semanticKeywords: options.semanticKeywords,
     });
     console.log(`리포트: ${htmlPath}`);
     console.log(`크기: ${await formatFileSize(htmlPath)}`);
@@ -163,6 +169,7 @@ interface MainOptions {
   profile: boolean;
   noWorker: boolean;
   noProgress: boolean;
+  semanticKeywords: boolean;
 }
 
 interface TokenOptions {
@@ -179,6 +186,7 @@ async function generateReport(
     profile: boolean;
     worker?: boolean;
     progress?: boolean;
+    semanticKeywords?: boolean;
   },
 ): Promise<string> {
   const csvPath = resolve(csv);
@@ -190,6 +198,7 @@ async function generateReport(
     top: options.top,
     worker: options.worker,
     progress: options.progress,
+    semanticKeywords: options.semanticKeywords,
   });
   log("parse+aggregate", performance.now() - t0);
 
