@@ -1,0 +1,208 @@
+dist/src/report-date-filter.js.map
+  ai_agent 1
+dist/src/report-charts.js
+  s_d404882750412e::t_b0defe9214c061 40-46,49-54,342-362
+dist/src/dyad-matrix.js
+  s_d404882750412e::t_b0defe9214c061 1-16,18-49
+  s_d404882750412e::t_e79c1c182985b8 17
+src/report.ts
+  s_d404882750412e::t_626415e4308576 250,255-256
+  s_d404882750412e::t_af5ea027509cbb 24
+  s_d404882750412e::t_73cda0eef9c03f 277-278,281-283
+  s_d404882750412e::t_1d87dba8afbcc9 82
+  s_d404882750412e::t_b0af394dd7c5d2 30,36
+src/types.ts
+  s_d404882750412e::t_4c4d18823e2b89 240-301
+  s_d404882750412e::t_ab1d6ea7a25bde 370-381
+dist/src/event-spine.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-17
+src/period-compare.ts
+  s_d404882750412e::t_d032e4aaff698b 1-46
+dist/src/report-date-filter.js
+  s_d404882750412e::t_b0defe9214c061 1-17
+dist/src/report-ux.js
+  s_d404882750412e::t_b0defe9214c061 118-160
+dist/src/stream-options.d.ts
+  s_d404882750412e::t_b0defe9214c061 5-6
+dist/src/dyad-matrix.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-8
+dist/src/report-empty.js.map
+  ai_agent 1
+src/report/css/08-kca-innovation.css
+  s_d404882750412e::t_5332b681727312 1-102
+dist/src/cli.js
+  s_d404882750412e::t_b0defe9214c061 9-10,45,65,110-131,176
+src/event-spine.ts
+  s_d404882750412e::t_f4113444124c71 1-135
+dist/src/analysis.js
+  s_d404882750412e::t_b0defe9214c061 13,58,60-61,83,85-86,102,105-106,122,125-126,142-148,151-152,184-185
+dist/src/compare-report.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-2
+dist/src/room-narrative.js.map
+  ai_agent 1
+dist/src/benchmark-bands.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-8
+src/report-ux.ts
+  s_d404882750412e::t_b053bb904e8c05 122-165
+src/report-date-filter.ts
+  s_d404882750412e::t_86ce0c91c2ab28 1-19
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/period-compare.js.map
+  ai_agent 1
+dist/src/report.js.map
+  ai_agent 1
+dist/src/room-narrative.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-17
+dist/src/analyze-pool.d.ts
+  s_d404882750412e::t_b0defe9214c061 11-12
+src/compare-report.ts
+  s_d404882750412e::t_cbc439eb6c061d 1-23
+src/benchmark-bands.ts
+  s_d404882750412e::t_0a1dce70b32132 1
+  s_d404882750412e::t_e83836055f1f8d 2-63
+dist/src/report-innovation.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-2
+src/stream-options.ts
+  s_d404882750412e::t_59b81e1107bd59 5-6
+dist/src/period-compare.js
+  s_d404882750412e::t_b0defe9214c061 1-31
+dist/src/report-date-filter.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-4
+kcachat/package.json
+  s_d404882750412e::t_18bb721caa5283 15
+  s_d404882750412e::t_7e63937b4bd4b0 3
+dist/src/event-spine.js.map
+  ai_agent 1
+dist/src/report.js
+  s_d404882750412e::t_b0defe9214c061 4,8-9,53,215,220-222,239-240,243-245
+dist/src/analyze-pool.js.map
+  ai_agent 1
+src/analysis.ts
+  s_d404882750412e::t_4740161e342f24 15-16
+  s_d404882750412e::t_a1205385b2f6fb 133,136
+  s_d404882750412e::t_9a097eb37845d8 223
+  s_d404882750412e::t_251afec500a978 180-189
+  s_d404882750412e::t_56fe50395b1f67 69,71
+  s_d404882750412e::t_cb0d5cdabe2a76 99,101
+  s_d404882750412e::t_130ebba7a9e066 156,159
+test/parser-report.test.ts
+  s_d404882750412e::t_e739381b980c8a 13
+  s_d404882750412e::t_6cfece7c134ca4 126
+src/report-empty.ts
+  s_d404882750412e::t_0e9ca0cf8d18be 1-137
+dist/src/benchmark-bands.js.map
+  ai_agent 1
+src/dyad-matrix.ts
+  s_d404882750412e::t_edf44afc0b90ff 28-30
+  s_d404882750412e::t_9f94c65ead1c05 1-24,26-27,31-58
+  s_d404882750412e::t_1861d2aa271c87 25
+src/room-narrative.ts
+  s_d404882750412e::t_05ede26f6aea42 1-66
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/report-ux.d.ts
+  s_d404882750412e::t_f8f6f1f8d51269 4
+  s_d404882750412e::t_b0defe9214c061 5
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_b0defe9214c061 2
+dist/src/types.d.ts
+  s_d404882750412e::t_b0defe9214c061 220-276,345-356
+src/report-charts.ts
+  s_d404882750412e::t_175eb85409cd28 27-31
+  s_d404882750412e::t_da7c922eb6e281 376-398
+  s_d404882750412e::t_3abfbe7ec9ac0d 66-72,76-80
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/period-compare.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-19
+dist/src/report-empty.d.ts
+  s_d404882750412e::t_b0defe9214c061 1-3
+package.json
+  s_d404882750412e::t_0bd626a4d78e95 3
+dist/src/dyad-matrix.js.map
+  ai_agent 1
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_b0defe9214c061 43-46
+dist/src/report-empty.js
+  s_d404882750412e::t_b0defe9214c061 1-136
+dist/src/benchmark-bands.js
+  s_d404882750412e::t_b0defe9214c061 1-58
+dist/src/report-innovation.js
+  s_d404882750412e::t_e79c1c182985b8 46
+  s_d404882750412e::t_b0defe9214c061 1-45,47-103
+dist/src/report-ux.js.map
+  ai_agent 1
+src/report-styles.ts
+  ai_agent 2306-2410
+test/event-spine.test.ts
+  s_d404882750412e::t_448f794f24f4bd 1-23
+dist/src/aggregator.js
+  s_d404882750412e::t_b0defe9214c061 17-21,37,74-77,209-214,242,255-261,482-504,563-589,653-658,662-689
+dist/src/compare-report.js.map
+  ai_agent 1
+dist/src/report-styles.js.map
+  ai_agent 1
+src/analyze-pool.ts
+  s_d404882750412e::t_210a2ee685d4c5 17-18
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_b0defe9214c061 46-50,54,56
+src/aggregator.ts
+  s_d404882750412e::t_f2e643debb6cb4 659-688
+  s_d404882750412e::t_ca92b1a7cd6783 126-129
+  s_d404882750412e::t_a08c5835df4f57 37-42
+  s_d404882750412e::t_fa7d1c8f10a243 279-286
+  s_d404882750412e::t_3f669132cf6354 330-335
+  s_d404882750412e::t_b73da5efbb9769 60-61
+  s_d404882750412e::t_76af5f4ae068b8 572-598
+  s_d404882750412e::t_901b31f83ad588 315
+  s_d404882750412e::t_189c9cd292245b 752-757,762-792
+test/dyad-matrix.test.ts
+  s_d404882750412e::t_e087157b37a8db 1-46
+dist/src/event-spine.js
+  s_d404882750412e::t_b0defe9214c061 1-109
+dist/src/room-narrative.js
+  s_d404882750412e::t_b0defe9214c061 1-26
+dist/src/compare-report.js
+  s_d404882750412e::t_b0defe9214c061 1-20
+src/cli.ts
+  s_d404882750412e::t_c077e2d9d15930 212
+  s_d404882750412e::t_cd2a0567e35cb9 64
+  s_d404882750412e::t_82bc633c0d2054 230
+  s_d404882750412e::t_cc705f5ce63833 243
+  s_d404882750412e::t_1a2115ad710d0e 85
+  s_d404882750412e::t_7fbee88a7460e3 9-10
+  s_d404882750412e::t_5c928079de27c8 135-158
+dist/src/report-innovation.js.map
+  ai_agent 1
+src/report-innovation.ts
+  s_d404882750412e::t_023ca185a7ea63 76,78
+  s_d404882750412e::t_da9e0a8ec0c383 2,70,107
+  s_d404882750412e::t_8987678b236177 1,3-21,23-48,50-60,62-69,71-75,77,79-106,108-111,114-115
+  s_d404882750412e::t_c394367d1dff4f 22,61,112-113
+  s_d404882750412e::t_b99215978bbf7f 49
+dist/src/analysis.js.map
+  ai_agent 1
+test/innovation.test.ts
+  s_d404882750412e::t_4f30aa7d6238ee 1-80
+dist/src/report-styles.js
+  s_d404882750412e::t_b0defe9214c061 2306-2410
+scripts/bundle-report-css.mjs
+  s_d404882750412e::t_e9a3190d32738f 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "def9b4cf597ea1331ff563c564d521492a3b9551",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
