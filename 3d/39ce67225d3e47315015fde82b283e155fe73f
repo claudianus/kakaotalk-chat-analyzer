@@ -1,0 +1,127 @@
+dist/src/version.js.map
+  ai_agent 1
+src/aggregator.ts
+  s_d404882750412e::t_2990bbe4edf583 281,287
+  s_d404882750412e::t_bdb0a1d0b5c8b6 305,309,313,320,324
+  s_d404882750412e::t_2b3c51f6a23e51 17-23
+  s_d404882750412e::t_d85f02ae41b001 1022-1069
+  s_d404882750412e::t_5b3289198d8aaf 945-950
+  s_d404882750412e::t_ee8dd2e525573e 192
+  s_d404882750412e::t_096ca2b2e57126 523-526
+  s_d404882750412e::t_23be2e8835b5eb 476,480-490
+  s_d404882750412e::t_4ba97f34e2f7a9 184
+  s_d404882750412e::t_c85581da19ff3e 83-89
+  s_d404882750412e::t_e4119f3ffde381 554-559
+  s_d404882750412e::t_01e0c451a17042 135-139
+  s_d404882750412e::t_d716db6d7e0815 617-620
+  s_d404882750412e::t_9ae18fd242f9f9 450
+  s_d404882750412e::t_7f77a32b78d27c 189
+dist/src/report.js.map
+  ai_agent 1
+dist/src/version.d.ts
+  s_d404882750412e::t_5f64191f32a717 1-2
+kcachat/package.json
+  s_d404882750412e::t_8f98488c32ac63 3
+  s_d404882750412e::t_ea5b795742f211 15
+src/report.ts
+  s_d404882750412e::t_98896fb780474a 782
+  s_d404882750412e::t_f2238604555102 1199,1207-1209,1214
+  s_d404882750412e::t_65d1ddf8920535 1210
+  s_d404882750412e::t_7f6f87e46b7ca4 1032-1034,1037-1040
+  s_d404882750412e::t_817f5110623403 1219-1225
+  s_d404882750412e::t_6166dce6afce6b 802
+  s_d404882750412e::t_5cce7f7b7d302a 361-384
+  s_d404882750412e::t_3591968a723698 1061
+  s_d404882750412e::t_4a83ef1033e976 1196
+  s_d404882750412e::t_e07f6e50a4b33f 1036
+  s_d404882750412e::t_bc736e0e02f2c6 1226
+  s_d404882750412e::t_baee73f86e38e3 1278-1282
+  s_d404882750412e::t_8aecd3df98b917 1306-1321
+  s_d404882750412e::t_ca793db870dd72 3-11
+dist/src/keyword-counter.js
+  s_d404882750412e::t_7216b983e46051 29-34
+dist/src/report.js
+  s_d404882750412e::t_7216b983e46051 344-367,763,783,1002-1003,1005-1009,1030,1148,1152,1160-1163,1167,1171-1177,1220,1243-1258
+src/keyword-counter.ts
+  s_d404882750412e::t_325c856c93ce1a 33-38
+dist/src/system-notices.js.map
+  ai_agent 1
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_7216b983e46051 28-32
+test/system-notices.test.ts
+  s_d404882750412e::t_d04874ac5aa695 34-43
+  s_d404882750412e::t_6817c4ec87dc8f 5
+dist/src/keyword-counter.d.ts
+  s_d404882750412e::t_7216b983e46051 10-11
+src/version.ts
+  s_d404882750412e::t_5f64191f32a717 1
+test/parser-report.test.ts
+  s_d404882750412e::t_cda38cf8c08b13 243
+  s_d404882750412e::t_e0e86a0ad9a9dc 249
+  s_d404882750412e::t_239a9c5ad11f11 186
+  s_d404882750412e::t_a1022354ad142c 236
+  s_d404882750412e::t_83cba6ae771b4a 242,244-245,247-248,250
+dist/src/keyword-counter.js.map
+  ai_agent 1
+dist/src/story.js.map
+  ai_agent 1
+dist/src/report-enrichment.d.ts
+  s_d404882750412e::t_7216b983e46051 1-5
+test/story.test.ts
+  s_d404882750412e::t_8842a0579f0747 30
+  s_d404882750412e::t_4b17935bf207e1 91-98
+dist/src/types.d.ts
+  s_d404882750412e::t_7216b983e46051 185-208,262-269
+src/system-notices.ts
+  s_d404882750412e::t_fb3ecdf5556526 49-59
+dist/src/report-enrichment.js
+  s_d404882750412e::t_7216b983e46051 1-105
+dist/src/version.js
+  s_d404882750412e::t_5f64191f32a717 1
+dist/src/story.js
+  s_d404882750412e::t_7216b983e46051 135-172,180-186
+dist/src/aggregator.js.map
+  ai_agent 1
+src/story.ts
+  s_d404882750412e::t_277e64144d13e0 43-46
+  s_d404882750412e::t_3c9326f0401b69 209-250
+  s_d404882750412e::t_45885b2945ffd3 259-265
+  s_d404882750412e::t_f945e5d19d9db7 2,6,9
+src/report-enrichment.ts
+  s_d404882750412e::t_1f49bbc51c663e 1-100,109-115
+  s_d404882750412e::t_e1fa2c068ac17b 101-108
+test/report-enrichment.test.ts
+  s_d404882750412e::t_7977e0f4686b08 1-87
+src/types.ts
+  s_d404882750412e::t_b29ac8f14e8da6 281-288
+  s_d404882750412e::t_e7eb3d7ee3ac37 200-226
+dist/src/aggregator.js
+  s_d404882750412e::t_7216b983e46051 6-7,60-66,93-97,142,146,223,228,245,249,253,260,264,383,408,411-414,447-450,477-482,539-542,884-929
+  s_d404882750412e::t_5f64191f32a717 137
+dist/src/story.d.ts
+  s_d404882750412e::t_7216b983e46051 1,22-25
+dist/src/system-notices.d.ts
+  s_d404882750412e::t_7216b983e46051 6-7
+dist/src/system-notices.js
+  s_d404882750412e::t_7216b983e46051 27-37
+dist/src/report-enrichment.js.map
+  ai_agent 1
+package.json
+  s_d404882750412e::t_ff569b2d4afc0b 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "3d39ce67225d3e47315015fde82b283e155fe73f",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
