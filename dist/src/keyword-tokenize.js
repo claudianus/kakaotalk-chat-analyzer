@@ -1,10 +1,13 @@
 import { getKiwiRuntime, kiwiKeywordTokens } from "./kiwi-runtime.js";
+import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { normalizeKoreanText } from "./korean-normalize.js";
 const MAX_TOKEN_LEN = 32;
 const HANGUL_GLUE_RE = /[가-힣]{6,}/;
+const KIWI_MORPH_MAX_CHARS = 768;
 const TRAILING_ENDING_RE = /(?:했(?:어|음|네|지)?|했|하는|하다|해서|이고|이었|었는|는데|지만|으로|에서|에게|부터|까지|처럼|보다|마다|라서|라고|습니다|세요|해요|함|임|음|네|지|아|어|야|요)$/u;
 function normalizeToken(token) {
-    return /^[A-Za-z0-9_+-]+$/.test(token) ? token.toLowerCase() : token.trim();
+    const t = /^[A-Za-z0-9_+-]+$/.test(token) ? token.toLowerCase() : token.trim();
+    return canonicalKeywordToken(t);
 }
 function spaceTokens(doc) {
     const out = [];
@@ -25,9 +28,22 @@ function heuristicExtra(token) {
     if (HANGUL_GLUE_RE.test(token)) {
         const stem = token.replace(TRAILING_ENDING_RE, "");
         if (stem.length >= 2 && stem.length < token.length)
-            extras.push(stem);
+            extras.push(canonicalKeywordToken(stem));
     }
     return extras;
+}
+function mergeTokens(...lists) {
+    const seen = new Set();
+    const out = [];
+    for (const list of lists) {
+        for (const t of list) {
+            if (!t || seen.has(t))
+                continue;
+            seen.add(t);
+            out.push(t);
+        }
+    }
+    return out;
 }
 /** 공백·접미사 휴리스틱만 (비교·KCA_NO_KIWI용) */
 export function tokenizeHeuristicOnly(raw) {
@@ -49,19 +65,24 @@ export function tokenizeHeuristicOnly(raw) {
     }
     return out;
 }
-/** 본문 키워드용 토큰( Kiwi 우선, 없으면 휴리스틱 ) */
+function shouldRunKiwiMorph(doc) {
+    return /[가-힣]/.test(doc) && doc.length >= 3;
+}
+/** 본문 키워드: 공백 어절 + (한글 있으면) Kiwi 형태소 병합 */
 export function tokenizeForKeywords(raw) {
+    const heur = tokenizeHeuristicOnly(raw);
     if (process.env.KCA_NO_KIWI === "1")
-        return tokenizeHeuristicOnly(raw);
+        return heur;
     const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
     if (!doc)
-        return [];
+        return heur;
     const kiwi = getKiwiRuntime();
-    if (kiwi) {
-        const fromKiwi = kiwiKeywordTokens(doc);
-        if (fromKiwi.length > 0)
-            return fromKiwi;
-    }
-    return tokenizeHeuristicOnly(raw);
+    if (!kiwi || !shouldRunKiwiMorph(doc))
+        return heur;
+    const slice = doc.length > KIWI_MORPH_MAX_CHARS ? doc.slice(0, KIWI_MORPH_MAX_CHARS) : doc;
+    const tailSlice = doc.length > KIWI_MORPH_MAX_CHARS ? doc.slice(KIWI_MORPH_MAX_CHARS) : "";
+    const fromKiwi = kiwiKeywordTokens(slice);
+    const fromTail = tailSlice ? spaceTokens(tailSlice) : [];
+    return mergeTokens(fromKiwi, heur, fromTail);
 }
 //# sourceMappingURL=keyword-tokenize.js.map

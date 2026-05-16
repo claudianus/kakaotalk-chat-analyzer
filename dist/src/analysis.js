@@ -1,9 +1,12 @@
+import { stat } from "node:fs/promises";
 import { ReportAggregator } from "./aggregator.js";
 import { initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker } from "./analyze-pool.js";
-import { streamKakaoExport } from "./stream-parser.js";
+import { logReportProgress, resetReportProgress } from "./report-progress.js";
+import { estimateKakaoMessageCount, streamKakaoExport } from "./stream-parser.js";
 const DEFAULT_TOP = 30;
+const PROGRESS_COUNT_MIN_BYTES = 400_000;
 /** Kiwi 등 리포트 엔진 준비(스트리밍 분석 전 1회 호출) */
 export async function prepareReportEngine() {
     await initKiwiRuntime();
@@ -27,16 +30,41 @@ export async function buildReportDataAsync(result, options) {
     return buildReportData(result, options);
 }
 export async function buildReportFromExportSync(filePath, options) {
+    const showProgress = options?.progress !== false;
+    if (showProgress)
+        resetReportProgress();
+    if (showProgress)
+        logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
     await initKiwiRuntime();
+    if (showProgress)
+        logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
+    let estimated;
+    if (showProgress) {
+        try {
+            const { size } = await stat(filePath);
+            if (size >= PROGRESS_COUNT_MIN_BYTES) {
+                logReportProgress({ phase: "메시지 수 계산", current: 0 });
+                estimated = await estimateKakaoMessageCount(filePath);
+                logReportProgress({ phase: "메시지 수 계산", current: 1, total: 1 });
+            }
+        }
+        catch {
+            estimated = undefined;
+        }
+    }
     const privacy = options?.privacy ?? "public-masked";
     const top = options?.top ?? DEFAULT_TOP;
     const agg = new ReportAggregator(filePath, privacy, top);
     let meta = null;
-    const streamOpts = options?.progress
+    const streamOpts = showProgress
         ? {
-            progressEvery: 25_000,
+            progressEvery: estimated && estimated > 5_000 ? 500 : 250,
             onProgress: (count) => {
-                console.error(`[kca] 처리 중… ${count.toLocaleString("ko-KR")}건`);
+                logReportProgress({
+                    phase: "대화 분석",
+                    current: count,
+                    total: estimated,
+                });
             },
         }
         : undefined;
@@ -56,9 +84,15 @@ export async function buildReportFromExportSync(filePath, options) {
     if (!meta) {
         throw new Error(`No messages parsed from export: ${filePath}`);
     }
+    if (showProgress) {
+        const total = estimated ?? meta.physicalLines;
+        logReportProgress({ phase: "대화 분석", current: total, total });
+        logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
+    }
     const report = agg.finalize(meta);
-    if (options?.progress && report.summary.totalMessages > 0) {
-        console.error(`[kca] 처리 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건`);
+    if (showProgress) {
+        logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
+        console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건`);
     }
     return report;
 }

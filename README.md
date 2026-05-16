@@ -111,6 +111,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.4.2** | 키워드 병합(공백+Kiwi)·브랜드 표기 통합·구 dedupe 제거, **진행률 % 기본 표시** |
 | **0.4.1** | Kiwi CI 캐시, `keyword:diff` 스크립트, `KCA_NO_KIWI`, 잡음어·장문 절단 |
 | **0.4.0** | **Kiwi** 형태소 + TF-IDF·PMI 키워드 (KR-WordRank 제거) |
 | **0.3.3** | 하이라이트 문구, 키워드 꼬리 필터, 팩트 매트릭스 중복 정리 |
@@ -262,6 +263,7 @@ npm test
 
 - **최초 실행** 시 GitHub에서 Kiwi 한국어 모델을 **무료**로 받아 `~/.cache/kakaotalk-chat-analyzer/kiwi-base/`에 둡니다.
 - **`KCA_NO_KIWI=1`**: 형태소 없이 휴리스틱만(빠름, 품질↓).
+- **진행률**: 기본으로 stderr에 `대화 분석 42% (…)` 표시. 끄려면 `--no-progress`.
 - **키워드 비교**: `npm run keyword:diff -- ./KakaoTalk_Chat_....csv 30`
 - LGPL 고지: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 

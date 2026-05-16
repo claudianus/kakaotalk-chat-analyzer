@@ -16,6 +16,6 @@ export interface KeywordExtractOptions {
 export function adaptiveMinCount(messageCount: number): number {
   if (messageCount < 200) return 2;
   if (messageCount < 2_000) return 3;
-  if (messageCount < 20_000) return 4;
+  if (messageCount < 100_000) return 4;
   return 5;
 }

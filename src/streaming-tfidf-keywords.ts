@@ -61,25 +61,6 @@ function passesFilters(
   return true;
 }
 
-function demoteSubsumedByPhrases(items: KeywordRankItem[]): KeywordRankItem[] {
-  const phrases = items.filter((i) => i.label.includes(" "));
-  if (phrases.length === 0) return items;
-  const parts = new Set<string>();
-  for (const p of phrases) {
-    for (const w of p.label.split(" ")) parts.add(w);
-  }
-  const phraseScore = new Map(phrases.map((p) => [p.label, p.score]));
-  return items.filter((item) => {
-    if (item.label.includes(" ") || !parts.has(item.label)) return true;
-    for (const ph of phrases) {
-      if (!ph.label.split(" ").includes(item.label)) continue;
-      const ps = phraseScore.get(ph.label) ?? 0;
-      if (ps >= item.score * 0.82) return false;
-    }
-    return true;
-  });
-}
-
 export type KeywordTokenizeFn = (raw: string) => string[];
 
 /** 메시지 스트림 → TF-IDF 어절·2-gram 키워드 */
@@ -147,15 +128,15 @@ export class StreamingTfidfKeywords {
       items.push({ label, score: base, messageHits: df });
     }
 
-    const ranked = items.sort(
-      (a, b) =>
-        b.score - a.score ||
-        b.messageHits - a.messageHits ||
-        b.label.length - a.label.length ||
-        a.label.localeCompare(b.label),
-    );
-
-    return demoteSubsumedByPhrases(ranked).slice(0, limit);
+    return items
+      .sort(
+        (a, b) =>
+          b.score - a.score ||
+          b.messageHits - a.messageHits ||
+          b.label.length - a.label.length ||
+          a.label.localeCompare(b.label),
+      )
+      .slice(0, limit);
   }
 
   private prunePair(dfMap: Map<string, number>, tfMap: Map<string, number>, keep: number): void {

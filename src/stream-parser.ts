@@ -120,6 +120,23 @@ export async function* streamKakaoExport(
   };
 }
 
+/** DATE 줄만 세어 메시지 건수 추정(진행률 %용, CSV 2회 읽기) */
+export async function estimateKakaoMessageCount(filePath: string): Promise<number> {
+  const sample = await readFileSample(filePath, SAMPLE_BYTES);
+  const { encoding, skipBytes } = detectEncodingFromBytes(sample);
+  const input = openDecodedStream(filePath, encoding, skipBytes, READ_HIGH_WATER_MARK);
+  const rl = createInterface({ input, crlfDelay: Infinity });
+  let lineNumber = 0;
+  let count = 0;
+  for await (const rawLine of rl) {
+    lineNumber += 1;
+    const line = rawLine.replace(/\r$/, "");
+    if (lineNumber === 1) continue;
+    if (DATE_LINE_RE.test(line)) count += 1;
+  }
+  return count;
+}
+
 export async function describeStreamedExport(filePath: string): Promise<{
   text: string;
   warnings: ParseWarning[];

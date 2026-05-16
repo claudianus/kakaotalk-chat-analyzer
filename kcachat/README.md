@@ -9,7 +9,7 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv"
 
 ### `npx`·버전
 
-- **0.1.4+** `kcachat`는 실행할 때마다 `kakaotalk-chat-analyzer@latest` 본체를 받아 실행합니다(네트워크 필요). 현재 래퍼 **0.1.15** · 본체 **0.4.1** 권장.
+- **0.1.4+** `kcachat`는 실행할 때마다 `kakaotalk-chat-analyzer@latest` 본체를 받아 실행합니다(네트워크 필요). 현재 래퍼 **0.1.16** · 본체 **0.4.2** 권장.
 - 오프라인·고정 버전만 쓰려면 `--bundled` 또는 환경 변수 `KCA_BUNDLED=1` (설치 시 함께 깔린 본체 사용).
 - 설치 확인 문구가 안 뜨는 것은 `~/.npm/_npx` 캐시 때문일 수 있습니다.
 - 버전 확인: `npx kcachat@latest --version` → `kcachat` 줄 + registry 최신 본체 버전.

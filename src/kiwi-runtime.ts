@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import { pipeline } from "node:stream/promises";
 import type { Kiwi } from "kiwi-nlp";
 import { KiwiBuilder, Match, type ModelFiles } from "kiwi-nlp";
+import { canonicalKeywordToken } from "./keyword-canonical.js";
 
 const KIWI_MODEL_TAG = "0.23.1";
 const MODEL_URL = `https://github.com/bab2min/Kiwi/releases/download/v${KIWI_MODEL_TAG}/kiwi_model_v${KIWI_MODEL_TAG}_base.tgz`;
@@ -129,7 +130,7 @@ export function isKiwiReady(): boolean {
 }
 
 /** Kiwi가 켜져 있을 때만 호출 */
-const KIWI_MAX_CHARS = 512;
+const KIWI_MAX_CHARS = 768;
 
 export function kiwiKeywordTokens(text: string): string[] {
   const kiwi = readyKiwi;
@@ -174,8 +175,8 @@ function normalizeKiwiForm(raw: string): string {
   let w = raw.trim();
   if (w.startsWith("#")) w = w.slice(1);
   if (w.length < 2) return "";
-  if (/^[A-Za-z0-9_+-]+$/.test(w)) return w.toLowerCase();
-  return w;
+  if (/^[A-Za-z0-9_+-]+$/.test(w)) return canonicalKeywordToken(w.toLowerCase());
+  return canonicalKeywordToken(w);
 }
 
 /** 캐시 디렉터리(테스트·진단용) */

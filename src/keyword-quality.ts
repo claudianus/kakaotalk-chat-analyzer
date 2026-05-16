@@ -35,7 +35,6 @@ const HANGUL_FRAGMENTS = new Set([
   "그런",
   "뭔가",
   "약간",
-  "진짜",
   "완전",
   "되게",
   "엄청",

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { pipeline } from "node:stream/promises";
 import { KiwiBuilder, Match } from "kiwi-nlp";
+import { canonicalKeywordToken } from "./keyword-canonical.js";
 const KIWI_MODEL_TAG = "0.23.1";
 const MODEL_URL = `https://github.com/bab2min/Kiwi/releases/download/v${KIWI_MODEL_TAG}/kiwi_model_v${KIWI_MODEL_TAG}_base.tgz`;
 const MODEL_FILES = [
@@ -118,7 +119,7 @@ export function isKiwiReady() {
     return readyKiwi !== null;
 }
 /** Kiwi가 켜져 있을 때만 호출 */
-const KIWI_MAX_CHARS = 512;
+const KIWI_MAX_CHARS = 768;
 export function kiwiKeywordTokens(text) {
     const kiwi = readyKiwi;
     if (!kiwi)
@@ -163,8 +164,8 @@ function normalizeKiwiForm(raw) {
     if (w.length < 2)
         return "";
     if (/^[A-Za-z0-9_+-]+$/.test(w))
-        return w.toLowerCase();
-    return w;
+        return canonicalKeywordToken(w.toLowerCase());
+    return canonicalKeywordToken(w);
 }
 /** 캐시 디렉터리(테스트·진단용) */
 export function kiwiCacheDir() {
