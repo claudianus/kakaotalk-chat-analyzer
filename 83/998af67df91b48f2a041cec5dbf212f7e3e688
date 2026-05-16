@@ -1,0 +1,51 @@
+src/report-ux.ts
+  s_d404882750412e::t_6c7b3a98b064ae 95-118
+kcachat/package.json
+  s_d404882750412e::t_bb600dfc6b2804 3
+  s_d404882750412e::t_f98d023658f779 15
+src/report.ts
+  s_d404882750412e::t_4c838fe07cf762 54
+src/report/css/01-kca-base.css
+  s_d404882750412e::t_1fc6a7290747e0 1,14,18-24,30-54,80-81,84,91-92,112-131,137-138,142-143,149-151,156-175,180,186,192,199-203,209
+src/report/css/00-kca-tokens.css
+  s_d404882750412e::t_f0c0ac24e2587b 1,4-40,42-47,51-78,83-103,107-128
+dist/src/report-ux.js.map
+  ai_agent 1
+scripts/bundle-report-css.mjs
+  s_d404882750412e::t_5c8fbb20f5f05a 21
+dist/src/report-styles.js
+  s_d404882750412e::t_f8f6f1f8d51269 6,9-45,47-52,56-83,88-108,112-133,138,151,155-161,167-191,217-218,221,228-229,249-268,274-275,279-280,286-288,293-312,317,323,329,336-340,346,1927-2303
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_f8f6f1f8d51269 2
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/report.js
+  s_d404882750412e::t_f8f6f1f8d51269 27
+src/report-styles.ts
+  ai_agent 6,9-45,47-52,56-83,88-108,112-133,138,151,155-161,167-191,217-218,221,228-229,249-268,274-275,279-280,286-288,293-312,317,323,329,336-340,346,1927-2303
+src/report/css/07-kca-oled-glass.css
+  s_d404882750412e::t_b5a3a5e9c95324 135-136
+  s_d404882750412e::t_57b78f50bda07d 1-134,137-376
+.github/workflows/report-visual-qa.yml
+  s_d404882750412e::t_6cc255020ecf8f 8,18
+dist/src/report-ux.js
+  s_d404882750412e::t_f8f6f1f8d51269 92-115
+package.json
+  s_d404882750412e::t_d4819496b59d03 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "83998af67df91b48f2a041cec5dbf212f7e3e688",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
