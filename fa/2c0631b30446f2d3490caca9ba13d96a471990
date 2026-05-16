@@ -1,0 +1,44 @@
+src/report.ts
+  s_d404882750412e::t_9026bb58615984 130-138,151,156-159
+package.json
+  s_d404882750412e::t_f3bbd9cecb8f13 3
+kcachat/package.json
+  s_d404882750412e::t_bb3263fc70a831 3
+  s_d404882750412e::t_5576d5cd03ffde 15
+src/report/css/02-kca-components.css
+  s_d404882750412e::t_db760d7142ebcb 66
+src/report-styles.ts
+  ai_agent 6,9-29,35-51,56-72,76-92,300,1224-1270
+dist/src/report-styles.js
+  s_d404882750412e::t_00247549dd39a0 6,9-29,35-51,56-72,76-92,300,1224-1270
+dist/src/report-styles.js.map
+  ai_agent 1
+src/report/css/00-kca-tokens.css
+  s_d404882750412e::t_76dd287150ddf8 1,4-24,30-46,51-67,71-87
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_00247549dd39a0 2
+src/report/css/05-kca-ux.css
+  s_d404882750412e::t_bf0c23c34ef4c1 1-47
+dist/src/report.js.map
+  ai_agent 1
+dist/src/report.js
+  s_d404882750412e::t_c746fa4f033dd2 97-105,118,123-126
+README.md
+  s_d404882750412e::t_419300a30c432c 119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "fa2c0631b30446f2d3490caca9ba13d96a471990",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
