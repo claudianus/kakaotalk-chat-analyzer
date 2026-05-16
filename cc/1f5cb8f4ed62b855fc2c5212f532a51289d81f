@@ -1,0 +1,46 @@
+README.md
+  s_d404882750412e::t_9a9b91e7a15406 118
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+test/streaming-tfidf-keywords.test.ts
+  s_d404882750412e::t_903640ed703e80 33,42-44
+  s_d404882750412e::t_0e957b62e43569 34-41,45-46
+src/aggregator.ts
+  s_d404882750412e::t_59493d8960ad1b 304-319
+package.json
+  s_d404882750412e::t_9c2e6109c24b4e 3
+dist/src/aggregator.js
+  s_d404882750412e::t_f34709b4569006 229,233-250
+dist/src/streaming-tfidf-keywords.js
+  s_d404882750412e::t_5275a5edac5f1a 13-19,139
+  s_d404882750412e::t_f34709b4569006 34-51,79
+  s_d404882750412e::t_2e2ed0028669d6 29-30,32-33,147,153,157-158
+src/streaming-tfidf-keywords.ts
+  s_d404882750412e::t_670d00048746e9 80
+  s_d404882750412e::t_f23b67f831c9b6 33-34,36-37
+  s_d404882750412e::t_fc4339a7eea365 152,158,166
+  s_d404882750412e::t_269f6dcd1b5255 38-52
+  s_d404882750412e::t_3581d1400703e8 144
+  s_d404882750412e::t_80ff63df4389ce 20-25
+kcachat/package.json
+  s_d404882750412e::t_ff4b5dc8c5cc61 3
+  s_d404882750412e::t_76fd72f8ea06af 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "cc1f5cb8f4ed62b855fc2c5212f532a51289d81f",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
