@@ -6,14 +6,14 @@
   "homepage": "https://claudianus.github.io/kakaotalk-chat-analyzer/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/claudianus/kakaotalk-chat-analyzer.git"
+    "url": "git+https://github.com/claudianus/kakaotalk-chat-analyzer.git"
   },
   "bugs": {
     "url": "https://github.com/claudianus/kakaotalk-chat-analyzer/issues"
   },
   "bin": {
-    "kca": "./dist/src/cli.js",
-    "kakaotalk-chat-analyzer": "./dist/src/cli.js"
+    "kca": "dist/src/cli.js",
+    "kakaotalk-chat-analyzer": "dist/src/cli.js"
   },
   "files": [
     "dist/src",
