@@ -1,0 +1,114 @@
+dist/src/report.js
+  s_d404882750412e::t_38ee5b3a21242e 1370,1372
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/korean-locale.d.ts
+  s_d404882750412e::t_38ee5b3a21242e 1-8
+dist/src/semantic-policy.js
+  s_d404882750412e::t_38ee5b3a21242e 1-34
+dist/src/semantic-policy.js.map
+  ai_agent 1
+dist/src/korean-locale.js.map
+  ai_agent 1
+dist/src/korean-locale.js
+  s_d404882750412e::t_38ee5b3a21242e 1-27
+package.json
+  s_d404882750412e::t_09ad9e4b0811e7 3
+dist/src/cli.js
+  s_d404882750412e::t_38ee5b3a21242e 41-42,57-61
+README.md
+  s_d404882750412e::t_f567cd3ac09abb 83-84
+  s_d404882750412e::t_3657eeb3876a19 74
+  s_d404882750412e::t_268ef01466d399 164
+  s_d404882750412e::t_a808e4dab1a900 118
+THIRD_PARTY_NOTICES.md
+  s_d404882750412e::t_4d758d6cec8715 16
+src/semantic-policy.ts
+  s_d404882750412e::t_66636a3fd6cc0d 1-37
+src/analyze-pool.ts
+  s_d404882750412e::t_0e822980a04d0e 24
+  s_d404882750412e::t_46a34dce34a17d 15
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_38ee5b3a21242e 10
+dist/src/semantic-policy.d.ts
+  s_d404882750412e::t_38ee5b3a21242e 1-12
+dist/src/aggregator.js.map
+  ai_agent 1
+test/korean-locale.test.ts
+  s_d404882750412e::t_94758b91a81db0 1-30
+src/cli.ts
+  s_d404882750412e::t_067e4fac6aebca 53-56,59
+  s_d404882750412e::t_dc451ee35d42e9 181
+  s_d404882750412e::t_93c4c8ad6cc0fd 77-81
+dist/src/export-prepass.js
+  s_d404882750412e::t_38ee5b3a21242e 7,43-46,52-57,66-77,80-83,85
+dist/src/semantic-keywords.d.ts
+  s_d404882750412e::t_38ee5b3a21242e 7
+src/export-prepass.ts
+  s_d404882750412e::t_7162297733df56 8
+  s_d404882750412e::t_3e752ed32dbc0c 70-80,83-86,88
+  s_d404882750412e::t_cb1387fc3f8031 47-50,56-61
+src/semantic-keywords.ts
+  s_d404882750412e::t_c3940a5f76389a 85
+  s_d404882750412e::t_cdd8ef6ef66c6a 6
+  s_d404882750412e::t_2706e4c54b7639 18,21-24,31-32,38-39
+dist/src/aggregator.js
+  s_d404882750412e::t_38ee5b3a21242e 394
+src/aggregator.ts
+  s_d404882750412e::t_33f52923ed8805 473
+  s_d404882750412e::t_c54758aa5da6f3 73
+dist/src/analysis.js.map
+  ai_agent 1
+kcachat/package.json
+  s_d404882750412e::t_94076cfb325e48 15
+  s_d404882750412e::t_59d6ac82249c3a 3
+src/korean-locale.ts
+  s_d404882750412e::t_1adac4d8bb74e1 1-26
+dist/src/export-prepass.d.ts
+  s_d404882750412e::t_38ee5b3a21242e 9-12,15-16
+dist/src/keyword-rank.js.map
+  ai_agent 1
+dist/src/report.js.map
+  ai_agent 1
+src/analysis.ts
+  s_d404882750412e::t_9d1716fdee1400 9,11,39,41,44,63-64,66,71-79,89-92,94,99,107,165,232-233,236-240
+  s_d404882750412e::t_713f9b56c948a5 167
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/export-prepass.js.map
+  ai_agent 1
+dist/src/analyze-pool.d.ts
+  s_d404882750412e::t_38ee5b3a21242e 9
+dist/src/keyword-rank.js
+  s_d404882750412e::t_38ee5b3a21242e 2-3,5-14
+src/keyword-rank.ts
+  s_d404882750412e::t_5e1bdc72d1071d 16-23
+dist/src/analyze-pool.js
+  s_d404882750412e::t_38ee5b3a21242e 8
+dist/src/semantic-keywords.js
+  s_d404882750412e::t_38ee5b3a21242e 5,10,12-13,15-16,23-24,29-30,64
+dist/src/analysis.js
+  s_d404882750412e::t_38ee5b3a21242e 8,10,31-32,52-53,55,65,71-75,77,82,88,124,126,188,191-195
+src/report.ts
+  s_d404882750412e::t_ac2c8aed5ebc01 1449,1452
+dist/src/analyze-pool.js.map
+  ai_agent 1
+dist/src/keyword-rank.d.ts
+  s_d404882750412e::t_38ee5b3a21242e 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "82657410fe27de7565b70be679ee8d710a59d2cc",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
