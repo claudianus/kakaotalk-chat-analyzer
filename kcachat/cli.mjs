@@ -7,8 +7,14 @@ import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
 const kcachatRoot = dirname(fileURLToPath(import.meta.url));
+const wrapperVersion = JSON.parse(readFileSync(join(kcachatRoot, "package.json"), "utf8")).version;
 
-function resolveMain() {
+const rawArgs = process.argv.slice(2);
+const useBundled =
+  process.env.KCA_BUNDLED === "1" || rawArgs.includes("--bundled");
+const args = rawArgs.filter((a) => a !== "--bundled");
+
+function resolveBundled() {
   const pkgPath = require.resolve("kakaotalk-chat-analyzer/package.json");
   const root = dirname(pkgPath);
   return {
@@ -17,31 +23,45 @@ function resolveMain() {
   };
 }
 
-const args = process.argv.slice(2);
-if (args.includes("--version") || args.includes("-V")) {
-  let main;
+function spawnNpxLatest(forwardArgs) {
+  const npx = process.platform === "win32" ? "npx.cmd" : "npx";
+  return spawnSync(npx, ["--yes", "--prefer-online", "kakaotalk-chat-analyzer@latest", ...forwardArgs], {
+    stdio: "inherit",
+    env: process.env,
+    shell: process.platform === "win32",
+  });
+}
+
+function runBundled(forwardArgs) {
+  let target;
   try {
-    main = resolveMain();
+    target = resolveBundled().cli;
   } catch {
-    console.error('[kcachat] "kakaotalk-chat-analyzer"를 불러오지 못했습니다.');
+    console.error(
+      '[kcachat] 번들된 "kakaotalk-chat-analyzer"를 찾지 못했습니다. npm i kcachat 후 다시 시도하거나 --bundled 없이 실행해 주세요.',
+    );
     process.exit(1);
   }
-  const wrapper = JSON.parse(readFileSync(join(kcachatRoot, "package.json"), "utf8")).version;
-  console.log(`kcachat ${wrapper}`);
-  console.log(`kakaotalk-chat-analyzer ${main.version}`);
-  process.exit(0);
+  return spawnSync(process.execPath, [target, ...forwardArgs], {
+    stdio: "inherit",
+    env: process.env,
+  });
 }
 
-let target;
-try {
-  target = resolveMain().cli;
-} catch {
-  console.error('[kcachat] "kakaotalk-chat-analyzer"를 불러오지 못했습니다. npm i kcachat 후 다시 실행해 주세요.');
-  process.exit(1);
+if (args.includes("--version") || args.includes("-V")) {
+  console.log(`kcachat ${wrapperVersion}`);
+  if (useBundled) {
+    try {
+      console.log(`kakaotalk-chat-analyzer ${resolveBundled().version} (bundled)`);
+    } catch {
+      console.error('[kcachat] bundled 본체를 찾지 못했습니다.');
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+  const result = spawnNpxLatest(["--version"]);
+  process.exit(result.status ?? 1);
 }
 
-const result = spawnSync(process.execPath, [target, ...args], {
-  stdio: "inherit",
-  env: process.env,
-});
+const result = useBundled ? runBundled(args) : spawnNpxLatest(args);
 process.exit(result.status ?? 1);
