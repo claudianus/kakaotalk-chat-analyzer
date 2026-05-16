@@ -1,0 +1,30 @@
+dist/src/report.js.map
+  ai_agent 1
+dist/src/report.js
+  s_d404882750412e::t_66d3fead08498f 685-696,701-711,714-715,717-720,1037
+package.json
+  s_d404882750412e::t_1ad4e339b6cabe 3
+test/parser-report.test.ts
+  s_d404882750412e::t_490dd96f40c4a1 50,53,55
+src/report.ts
+  s_d404882750412e::t_6cd51fcea05906 690-701,706-716,719-720,722-725
+  s_d404882750412e::t_751afdfa3c1d22 1070
+kcachat/package.json
+  s_d404882750412e::t_b08e0e6aa8620d 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "942f14362102a4b87d56aa700225041caf30eb90",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
