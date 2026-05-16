@@ -19,6 +19,7 @@ export declare class ReportAggregator {
     private readonly attachments;
     private readonly domains;
     private readonly keywordStream;
+    private readonly topicMap;
     private readonly keywordSupplement;
     private readonly repeatPhraseCounter;
     private readonly shopSearchTopics;

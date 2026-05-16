@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { pipeline } from "node:stream/promises";
 import type { Kiwi } from "kiwi-nlp";
-import { KiwiBuilder, Match, type ModelFiles } from "kiwi-nlp";
+import { KiwiBuilder, Match, type ModelFiles, type UserWord } from "kiwi-nlp";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
 
 const KIWI_MODEL_TAG = "0.23.1";
@@ -28,6 +28,7 @@ const MODEL_DIR = join(CACHE_ROOT, "models", "cong", "base");
 let initPromise: Promise<Kiwi | null> | null = null;
 let readyKiwi: Kiwi | null = null;
 let initFailed = false;
+let pendingUserWords: UserWord[] = [];
 
 function kiwiPackageRoot(): string {
   return dirname(fileURLToPath(import.meta.resolve("kiwi-nlp/package.json")));
@@ -84,7 +85,7 @@ async function ensureModelOnDisk(): Promise<void> {
   }
 }
 
-async function buildKiwi(): Promise<Kiwi> {
+async function buildKiwi(userWords: UserWord[]): Promise<Kiwi> {
   const builder = await KiwiBuilder.create(wasmPath());
   return builder.build({
     modelFiles: loadModelBuffers(),
@@ -93,11 +94,13 @@ async function buildKiwi(): Promise<Kiwi> {
     loadDefaultDict: true,
     loadTypoDict: true,
     loadMultiDict: true,
+    userWords: userWords.length > 0 ? userWords : undefined,
   });
 }
 
 /** 형태소 분석기 준비(실패 시 null → 휴리스틱 폴백) */
-export async function initKiwiRuntime(): Promise<Kiwi | null> {
+export async function initKiwiRuntime(userWords: UserWord[] = []): Promise<Kiwi | null> {
+  pendingUserWords = userWords;
   if (process.env.KCA_NO_KIWI === "1") {
     initFailed = true;
     return null;
@@ -108,7 +111,7 @@ export async function initKiwiRuntime(): Promise<Kiwi | null> {
     initPromise = (async () => {
       try {
         await ensureModelOnDisk();
-        readyKiwi = await buildKiwi();
+        readyKiwi = await buildKiwi(pendingUserWords);
         return readyKiwi;
       } catch (err) {
         initFailed = true;
@@ -188,4 +191,5 @@ export function resetKiwiRuntimeForTests(): void {
   readyKiwi = null;
   initPromise = null;
   initFailed = false;
+  pendingUserWords = [];
 }

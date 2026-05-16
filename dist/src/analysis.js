@@ -1,12 +1,13 @@
 import { stat } from "node:fs/promises";
 import { ReportAggregator } from "./aggregator.js";
+import { runExportPrepass } from "./export-prepass.js";
 import { initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker } from "./analyze-pool.js";
 import { logReportProgress, resetReportProgress } from "./report-progress.js";
-import { estimateKakaoMessageCount, streamKakaoExport } from "./stream-parser.js";
+import { streamKakaoExport } from "./stream-parser.js";
 const DEFAULT_TOP = 30;
-const PROGRESS_COUNT_MIN_BYTES = 400_000;
+const PREPASS_MIN_BYTES = 200_000;
 /** Kiwi 등 리포트 엔진 준비(스트리밍 분석 전 1회 호출) */
 export async function prepareReportEngine() {
     await initKiwiRuntime();
@@ -29,29 +30,45 @@ export async function buildReportDataAsync(result, options) {
     await prepareReportEngine();
     return buildReportData(result, options);
 }
-export async function buildReportFromExportSync(filePath, options) {
-    const showProgress = options?.progress !== false;
-    if (showProgress)
-        resetReportProgress();
-    if (showProgress)
-        logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
-    await initKiwiRuntime();
-    if (showProgress)
-        logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
+async function prepareKiwiAndEstimate(filePath, showProgress) {
     let estimated;
-    if (showProgress) {
+    let userWords = [];
+    const needsPrepass = process.env.KCA_NO_KIWI !== "1" ||
+        showProgress;
+    if (needsPrepass) {
         try {
             const { size } = await stat(filePath);
-            if (size >= PROGRESS_COUNT_MIN_BYTES) {
-                logReportProgress({ phase: "메시지 수 계산", current: 0 });
-                estimated = await estimateKakaoMessageCount(filePath);
-                logReportProgress({ phase: "메시지 수 계산", current: 1, total: 1 });
+            if (size >= PREPASS_MIN_BYTES || showProgress) {
+                if (showProgress)
+                    logReportProgress({ phase: "사전 스캔", current: 0 });
+                const prepass = await runExportPrepass(filePath);
+                estimated = prepass.messageCount;
+                userWords = prepass.userWords;
+                if (showProgress) {
+                    logReportProgress({
+                        phase: "사전 스캔",
+                        current: estimated,
+                        total: estimated,
+                    });
+                }
             }
         }
         catch {
             estimated = undefined;
         }
     }
+    if (showProgress)
+        logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
+    await initKiwiRuntime(userWords);
+    if (showProgress)
+        logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
+    return estimated;
+}
+export async function buildReportFromExportSync(filePath, options) {
+    const showProgress = options?.progress !== false;
+    if (showProgress)
+        resetReportProgress();
+    const estimated = await prepareKiwiAndEstimate(filePath, showProgress);
     const privacy = options?.privacy ?? "public-masked";
     const top = options?.top ?? DEFAULT_TOP;
     const agg = new ReportAggregator(filePath, privacy, top);
@@ -87,12 +104,12 @@ export async function buildReportFromExportSync(filePath, options) {
     if (showProgress) {
         const total = estimated ?? meta.physicalLines;
         logReportProgress({ phase: "대화 분석", current: total, total });
-        logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
+        logReportProgress({ phase: "주제·리포트 마무리", current: 0, total: 1 });
     }
     const report = agg.finalize(meta);
     if (showProgress) {
-        logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
-        console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건`);
+        logReportProgress({ phase: "주제·리포트 마무리", current: 1, total: 1 });
+        console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개`);
     }
     return report;
 }

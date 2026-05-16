@@ -24,6 +24,7 @@ const MODEL_DIR = join(CACHE_ROOT, "models", "cong", "base");
 let initPromise = null;
 let readyKiwi = null;
 let initFailed = false;
+let pendingUserWords = [];
 function kiwiPackageRoot() {
     return dirname(fileURLToPath(import.meta.resolve("kiwi-nlp/package.json")));
 }
@@ -74,7 +75,7 @@ async function ensureModelOnDisk() {
         extractModelArchive(tgzPath);
     }
 }
-async function buildKiwi() {
+async function buildKiwi(userWords) {
     const builder = await KiwiBuilder.create(wasmPath());
     return builder.build({
         modelFiles: loadModelBuffers(),
@@ -83,10 +84,12 @@ async function buildKiwi() {
         loadDefaultDict: true,
         loadTypoDict: true,
         loadMultiDict: true,
+        userWords: userWords.length > 0 ? userWords : undefined,
     });
 }
 /** 형태소 분석기 준비(실패 시 null → 휴리스틱 폴백) */
-export async function initKiwiRuntime() {
+export async function initKiwiRuntime(userWords = []) {
+    pendingUserWords = userWords;
     if (process.env.KCA_NO_KIWI === "1") {
         initFailed = true;
         return null;
@@ -99,7 +102,7 @@ export async function initKiwiRuntime() {
         initPromise = (async () => {
             try {
                 await ensureModelOnDisk();
-                readyKiwi = await buildKiwi();
+                readyKiwi = await buildKiwi(pendingUserWords);
                 return readyKiwi;
             }
             catch (err) {
@@ -175,5 +178,6 @@ export function resetKiwiRuntimeForTests() {
     readyKiwi = null;
     initPromise = null;
     initFailed = false;
+    pendingUserWords = [];
 }
 //# sourceMappingURL=kiwi-runtime.js.map

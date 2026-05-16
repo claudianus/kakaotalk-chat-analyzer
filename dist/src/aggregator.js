@@ -1,7 +1,9 @@
 import { formatDate, formatDateTime, partsToUtcMs, weekdayIndex } from "./date.js";
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats } from "./gap-stats.js";
+import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { adaptiveMinCount, StreamingTfidfKeywords } from "./streaming-tfidf-keywords.js";
+import { TopicMapAccumulator } from "./topic-map.js";
 import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
@@ -49,6 +51,7 @@ export class ReportAggregator {
     attachments = new Map();
     domains = new Map();
     keywordStream = new StreamingTfidfKeywords();
+    topicMap = new TopicMapAccumulator();
     keywordSupplement = new KeywordCounter();
     repeatPhraseCounter = new RepeatPhraseCounter();
     shopSearchTopics = new Map();
@@ -188,7 +191,10 @@ export class ReportAggregator {
                 HAS_TOKEN_CHAR_RE.test(msg) &&
                 !isOpenChatBoilerplate(msg) &&
                 shouldExtractKeywords(msg, foundAttachments)) {
+                const kwTokens = tokenizeForKeywords(msg);
                 this.keywordStream.addDocument(msg);
+                const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
+                this.topicMap.addMessage(kwTokens, monthKey);
                 const kwOpts = {
                     senderNames: this.senderNamesNormalized,
                     exclude: KEYWORD_EXCLUDE,
@@ -346,6 +352,7 @@ export class ReportAggregator {
             minDocFreq: adaptiveMinCount(total),
         });
         const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit);
+        const topics = this.topicMap.buildTopics(total, keywordStop);
         const keywordTop1SharePercent = top1ShareFromCounts(keywords, total);
         let attachmentMarkerSum = 0;
         for (const c of this.attachments.values())
@@ -499,6 +506,7 @@ export class ReportAggregator {
             attachments: topCounts(this.attachments, this.top),
             domains: topCounts(this.domains, this.top),
             keywords,
+            topics,
             roomEvents: buildRoomEventStats(total, {
                 join: this.roomJoinMessages,
                 leave: this.roomLeaveMessages,

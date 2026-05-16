@@ -7,7 +7,14 @@ const LATIN_TO_CANONICAL: Record<string, string> = {
   gemini: "제미니",
   openai: "오픈ai",
   github: "깃허브",
+  gpt: "gpt",
   npm: "npm",
+  api: "api",
+  react: "react",
+  node: "node",
+  python: "python",
+  typescript: "typescript",
+  javascript: "javascript",
 };
 
 export function canonicalKeywordToken(token: string): string {

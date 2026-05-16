@@ -9,6 +9,7 @@ export declare class StreamingTfidfKeywords {
     private readonly docFreq;
     private readonly bigramTf;
     private readonly bigramDf;
+    private totalTokenHits;
     constructor(tokenize?: KeywordTokenizeFn);
     addDocument(raw: string): void;
     extractKeywordItems(options?: KeywordExtractOptions): KeywordRankItem[];

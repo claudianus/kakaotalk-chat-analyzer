@@ -7,7 +7,14 @@ const LATIN_TO_CANONICAL = {
     gemini: "제미니",
     openai: "오픈ai",
     github: "깃허브",
+    gpt: "gpt",
     npm: "npm",
+    api: "api",
+    react: "react",
+    node: "node",
+    python: "python",
+    typescript: "typescript",
+    javascript: "javascript",
 };
 export function canonicalKeywordToken(token) {
     if (/^[A-Za-z][A-Za-z0-9+.-]*$/.test(token)) {

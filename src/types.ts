@@ -54,6 +54,17 @@ export interface CountItem {
   count: number;
 }
 
+/** c-TF-IDF·공기 군집으로 뽑은 대화 주제 */
+export interface ReportTopic {
+  id: string;
+  kind: "theme" | "period";
+  title: string;
+  terms: string[];
+  /** 해당 주제 신호가 잡힌 메시지 비율(%) — 근사치 */
+  messagePercent: number;
+  periodLabel?: string;
+}
+
 /** 카카오톡 시스템·운영 알림 집계 */
 export interface RoomEventStats {
   joinCount: number;
@@ -271,6 +282,8 @@ export interface ReportData {
   attachments: CountItem[];
   domains: CountItem[];
   keywords: CountItem[];
+  /** 대화 주제 맵(최대 8) */
+  topics: ReportTopic[];
   roomEvents: RoomEventStats;
   /** 3회 이상 동일 본문 */
   repeatedPhrases: RepeatedPhraseStat[];

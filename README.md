@@ -54,7 +54,7 @@
 |------|------|
 | **인코딩** | UTF-8 BOM, UTF-8, CP949/EUC-KR 등 보내기 인코딩 자동 감지 |
 | **파싱** | `Date,User,Message` 헤더 기반 CSV + 멀티라인 메시지 처리 |
-| **리포트** | Wrapped·**ECharts** 차트(워드클라우드·히트맵)·**Kiwi+TF-IDF** 키워드 120개·잔디 그리드·인사이트 등 **집계 전용** 시각화 |
+| **리포트** | Wrapped·**ECharts**·**주제 맵**(c-TF-IDF)·**Kiwi+BM25** 키워드 120개·잔디·인사이트 등 **집계 전용** 시각화 |
 | **성능** | 줄 단위 스트림 파싱 · 단일 패스 집계 · 3MB+ Worker · 진행 표시(`--progress`) |
 | **배포** | BrewPage(기본) / TempFile / Cloudflare 등 **TTL 기반** 임시 호스팅 · iframe 공유 링크 안전 처리 |
 | **npx** | 짧은 별칭 **[`kcachat`](https://www.npmjs.com/package/kcachat)** 또는 본체 **`kakaotalk-chat-analyzer`** |
@@ -71,7 +71,7 @@
 | **스트리밍 파싱** | 파일 전체를 문자열/배열로 펼치지 않음 |
 | **단일 패스 집계** | `Map`·히스토그램·온라인 통계(간격 P90 등)만 유지 |
 | **Worker (≥3MB)** | 대용량일 때 메인 스레드 멈춤 완화 |
-| **키워드** | **Kiwi** 형태소 + TF-IDF·PMI + 해시태그 보조(최대 120개, 모델 최초 1회 무료 다운로드) |
+| **키워드** | **Kiwi**(+방별 userWords) + **BM25**·PMI + 해시태그 보조(최대 120개, 모델 최초 1회 무료 다운로드) |
 | **kcachat@latest** | 실행 시 `kakaotalk-chat-analyzer@latest` 본체를 받아 최신 CLI 사용 |
 
 로컬 벤치(합성 20만 메시지, 집계만): **약 0.4초대** — 환경·디스크·실제 대화 밀도에 따라 달라집니다.
@@ -100,7 +100,8 @@ npm run bench:stream -- 100000
 - **인터랙티브 차트**: 워드클라우드, 시간대·요일·월별, 일별 캘린더 히트맵, 키워드 막대(80) + **전체 120개 표**
 - **연간 잔디**: 활동 **기간만** 주 단위(53주 고정 아님), 호버 시 건수 툴팁
 - **숫자·인사이트**: 지니(참여 쏠림)·리듬 점수·응답 간격(초/분 한국어) 등
-- **키워드**: **Kiwi** 명사·고유명사 + **TF-IDF/PMI** + 메시지 **등장 횟수**, 오픈채팅·잡음어 필터
+- **주제 맵**: 공기 그래프 군집 + 월별 **c-TF-IDF**로 이 방의 테마·시기별 화제
+- **키워드**: **Kiwi** 명사·고유명사 + **BM25/PMI** + 메시지 **등장 횟수**, 오픈채팅·잡음어 필터
 - **참여자**: 말풍선 맵 + 마스킹 닉네임 + 랭킹 테이블
 - **BrewPage**: iframe 섹션 점프·외부 링크 안전 처리
 - **테마**: 라이트 / 다크 / 시스템
@@ -111,6 +112,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.5.0** | **주제 맵**(c-TF-IDF)·**BM25** 키워드·CSV 사전 스캔(userWords·진행률 %) |
 | **0.4.2** | 키워드 병합(공백+Kiwi)·브랜드 표기 통합·구 dedupe 제거, **진행률 % 기본 표시** |
 | **0.4.1** | Kiwi CI 캐시, `keyword:diff` 스크립트, `KCA_NO_KIWI`, 잡음어·장문 절단 |
 | **0.4.0** | **Kiwi** 형태소 + TF-IDF·PMI 키워드 (KR-WordRank 제거) |
@@ -153,7 +155,7 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.4.1`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.5.0`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
 
 전체 이름으로 실행해도 동일합니다:
 

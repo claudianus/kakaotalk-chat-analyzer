@@ -24,8 +24,15 @@ function canBigramPair(a: string, b: string): boolean {
   return true;
 }
 
-function tfidfScore(tf: number, df: number, corpusMessages: number): number {
-  return Math.log1p(tf) * Math.log((corpusMessages + 1) / (df + 0.5));
+function bm25Score(tf: number, df: number, corpusMessages: number, avgDocLen: number): number {
+  const k1 = 1.25;
+  const b = 0.72;
+  const dl = Math.max(1, tf);
+  const avg = Math.max(1, avgDocLen);
+  const idf = Math.log(1 + (corpusMessages - df + 0.5) / (df + 0.5));
+  const numer = tf * (k1 + 1);
+  const denom = tf + k1 * (1 - b + (b * dl) / avg);
+  return Math.max(0, idf * (numer / denom));
 }
 
 function pmiMultiplier(label: string, df: number, N: number, docFreq: Map<string, number>): number {
@@ -71,6 +78,7 @@ export class StreamingTfidfKeywords {
   private readonly docFreq = new Map<string, number>();
   private readonly bigramTf = new Map<string, number>();
   private readonly bigramDf = new Map<string, number>();
+  private totalTokenHits = 0;
 
   constructor(tokenize: KeywordTokenizeFn = tokenizeForKeywords) {
     this.tokenize = tokenize;
@@ -82,6 +90,7 @@ export class StreamingTfidfKeywords {
     this.documents += 1;
 
     const seen = new Set<string>();
+    this.totalTokenHits += tokens.length;
     for (const t of tokens) {
       this.termFreq.set(t, (this.termFreq.get(t) ?? 0) + 1);
       if (!seen.has(t)) {
@@ -113,18 +122,19 @@ export class StreamingTfidfKeywords {
     const bigramMinDf = Math.max(2, minDf - 1);
     const stop = options.stopwords;
     const limit = options.limit ?? 100;
+    const avgDocLen = this.totalTokenHits / N;
     const items: KeywordRankItem[] = [];
 
     for (const [label, df] of this.docFreq) {
       if (!passesFilters(label, df, minDf, stop)) continue;
       const tf = this.termFreq.get(label) ?? 0;
-      items.push({ label, score: tfidfScore(tf, df, N), messageHits: df });
+      items.push({ label, score: bm25Score(tf, df, N, avgDocLen), messageHits: df });
     }
 
     for (const [label, df] of this.bigramDf) {
       if (!passesFilters(label, df, bigramMinDf, stop)) continue;
       const tf = this.bigramTf.get(label) ?? 0;
-      const base = tfidfScore(tf, df, N) * BIGRAM_SCORE_BOOST * pmiMultiplier(label, df, N, this.docFreq);
+      const base = bm25Score(tf, df, N, avgDocLen) * BIGRAM_SCORE_BOOST * pmiMultiplier(label, df, N, this.docFreq);
       items.push({ label, score: base, messageHits: df });
     }
 

@@ -474,6 +474,47 @@ export function renderReportHtml(data: ReportData): string {
       line-height: 1.55;
       color: var(--muted);
     }
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .topic-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--bar-bg);
+    }
+    .topic-card header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .topic-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+    .topic-badge.theme { background: rgba(15, 107, 92, 0.15); color: var(--accent); }
+    .topic-badge.period { background: rgba(196, 92, 42, 0.15); color: var(--warm); }
+    .topic-pct { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .topic-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .topic-chip {
+      font-size: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--ink);
+    }
+    :root[data-theme="dark"] .topic-chip { background: rgba(255, 255, 255, 0.06); }
     .self-serve {
       margin-top: 14px;
       border: 1px dashed rgba(15, 107, 92, 0.38);
@@ -803,6 +844,8 @@ export function renderReportHtml(data: ReportData): string {
     }
 
     ${renderInsightDeck(data)}
+
+    ${renderTopicMap(data)}
 
     ${renderChartDeck(data)}
 
@@ -1376,9 +1419,33 @@ function renderReactionsPanel(data: ReportData): string {
   return parts.join("");
 }
 
+function renderTopicMap(data: ReportData): string {
+  if (data.topics.length === 0) return "";
+  const cards = data.topics
+    .map((t) => {
+      const kind =
+        t.kind === "period"
+          ? `<span class="topic-badge period">${escapeHtml(t.periodLabel ?? "기간")}</span>`
+          : `<span class="topic-badge theme">주제</span>`;
+      const chips = t.terms
+        .map((term) => `<span class="topic-chip">${escapeHtml(term)}</span>`)
+        .join("");
+      return `<article class="topic-card">
+        <header>${kind}<strong>${escapeHtml(t.title)}</strong><span class="topic-pct">~${t.messagePercent}%</span></header>
+        <div class="topic-chips">${chips}</div>
+      </article>`;
+    })
+    .join("");
+  return `<section id="s-topics" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.052s">
+    <h2>② 이 방의 주제 맵</h2>
+    <p class="chart-hint">공기 그래프 군집·월별 <strong>c-TF-IDF</strong>로 뽑은 대화 테마예요. 비율은 해당 신호가 잡힌 메시지 근사치입니다.</p>
+    <div class="topic-grid">${cards}</div>
+  </section>`;
+}
+
 function renderKeywordSnapshot(items: CountItem[]): string {
   const note =
-    '<p class="kw-note"><strong>Kiwi</strong> 형태소·<strong>TF-IDF</strong>로 본문 명사·구를 뽑고, 해시태그·슬랭을 보조로 더합니다. 막대·표의 숫자는 <strong>해당 표현이 들어간 메시지 수</strong>예요. 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>';
+    '<p class="kw-note"><strong>Kiwi</strong> 형태소·<strong>BM25</strong>로 본문 명사·구를 뽑고, 해시태그·슬랭을 보조로 더합니다. 막대·표의 숫자는 <strong>해당 표현이 들어간 메시지 수</strong>예요. 위 <a href="#s-viz" data-kca-jump="s-viz">인터랙티브 차트</a>에서 워드클라우드·전체 표를 볼 수 있어요.</p>';
   if (items.length === 0) {
     return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
   }

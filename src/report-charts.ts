@@ -157,7 +157,7 @@ export function renderChartDeck(data: ReportData): string {
   <div class="viz-grid anim-enter" style="--enter-delay:0.06s">
     <article class="viz-card span-8">
       <h3>키워드 워드클라우드</h3>
-      <p class="viz-hint">글자 크기 = 메시지 등장 빈도. Kiwi·TF-IDF로 뽑은 본문 키워드입니다.</p>
+      <p class="viz-hint">글자 크기 = 메시지 등장 빈도. Kiwi·BM25로 뽑은 본문 키워드입니다.</p>
       <div id="chart-kw-cloud" class="chart-box tall" role="img" aria-label="키워드 워드클라우드"></div>
     </article>
     <article class="viz-card span-4">

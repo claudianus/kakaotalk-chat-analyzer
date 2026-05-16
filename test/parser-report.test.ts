@@ -200,6 +200,7 @@ function emptyReport() {
     attachments: [],
     domains: [],
     keywords: [],
+    topics: [],
     highlights: [],
     story: buildReportStory({
       chatRoomName: "채팅방",
