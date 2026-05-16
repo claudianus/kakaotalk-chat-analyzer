@@ -1,0 +1,127 @@
+dist/src/analyze-pool.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 8-9
+dist/src/types.d.ts
+  s_d404882750412e::t_c3f90f0ee9c4d6 254-255
+dist/src/analysis.js.map
+  ai_agent 1
+src/aggregator.ts
+  s_d404882750412e::t_ac402249740f9b 142
+  s_d404882750412e::t_ff331088c7d5b2 151,155-165
+  s_d404882750412e::t_a2e47024f4ee01 285
+  s_d404882750412e::t_8c185b86f060de 18-19
+  s_d404882750412e::t_6af2267742c8ee 71-79
+  s_d404882750412e::t_3d69453c8df842 347
+  s_d404882750412e::t_42b66503741b20 595
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/aggregator.js.map
+  ai_agent 1
+src/keyword-stopwords.ts
+  s_d404882750412e::t_514936460fbd68 1-25
+src/cli.ts
+  s_d404882750412e::t_c6589257ae341c 52-56
+  s_d404882750412e::t_7e193aa94c675c 72
+  s_d404882750412e::t_c8844fc85cf0a7 189
+  s_d404882750412e::t_7aaa3a8b0d4f09 201
+  s_d404882750412e::t_dd1acdf2c5fe77 172
+kcachat/package.json
+  s_d404882750412e::t_fea53ef1cf55fd 3
+  s_d404882750412e::t_f841ae0f9b2131 15
+dist/src/message-reservoir.d.ts
+  s_d404882750412e::t_c3f90f0ee9c4d6 1-10
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_c3f90f0ee9c4d6 8-14,66,73-78,81
+dist/src/analyze-pool.js.map
+  ai_agent 1
+dist/src/semantic-keywords.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 1-93
+src/message-reservoir.ts
+  s_d404882750412e::t_a99d17b2b2f09c 1-31
+dist/src/aggregator.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 8-9,92,99,103-111,218-219,278,509
+src/analyze-pool.ts
+  s_d404882750412e::t_453eee6d15a04f 15-16
+  s_d404882750412e::t_7e3bf1db99dfe1 24
+dist/src/keyword-counter.d.ts
+  s_d404882750412e::t_c3f90f0ee9c4d6 8
+dist/src/cli.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 41,56,144
+package.json
+  s_d404882750412e::t_fd2c812108a274 42-44
+  s_d404882750412e::t_229d046b4fa5dc 3
+dist/src/message-reservoir.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 1-29
+test/embedding-cluster.test.ts
+  s_d404882750412e::t_1e6aa001e06900 1-24
+THIRD_PARTY_NOTICES.md
+  s_d404882750412e::t_d0026a980c7db3 12-18
+dist/src/report.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 838,1368-1372
+dist/src/embedding-cluster.js.map
+  ai_agent 1
+dist/src/keyword-stopwords.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 1-24
+src/embedding-cluster.ts
+  s_d404882750412e::t_d785dab76f855c 1-105
+src/analysis.ts
+  s_d404882750412e::t_4d7590c2f149f7 4,9,24-44,48-50,67-84,94,135-137,177-178,182-185
+dist/src/keyword-stopwords.js.map
+  ai_agent 1
+package-lock.json
+  ai_agent 3,9,27-78,81-122,127,133-369,385-485,502-543,550-825,832-1018,1037,1039-1052
+src/report.ts
+  s_d404882750412e::t_8020c95e71bbd4 867
+  s_d404882750412e::t_c7e02f1503a1f8 1446-1450,1452
+dist/src/analysis.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 4,9,17-34,38-40,53-67,72,109-111,146-147,150-151
+.github/workflows/npm-publish.yml
+  s_d404882750412e::t_f8152a1a38da14 39
+dist/src/keyword-counter.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 9-15
+dist/src/keyword-counter.js.map
+  ai_agent 1
+README.md
+  s_d404882750412e::t_2f02be6ab81471 83-85
+  s_d404882750412e::t_3e276d7ac5d37f 162
+  s_d404882750412e::t_ce6365a25d3cce 118
+src/semantic-keywords.ts
+  s_d404882750412e::t_dae944845d7683 3
+  s_d404882750412e::t_72130bdf17452b 1-2,4-95,97-116
+  s_d404882750412e::t_0ea7b921a5d662 96
+dist/src/embedding-cluster.d.ts
+  s_d404882750412e::t_c3f90f0ee9c4d6 1-9
+dist/src/message-reservoir.js.map
+  ai_agent 1
+src/types.ts
+  s_d404882750412e::t_42e14fd159dbc1 274-275
+dist/src/analyze-pool.d.ts
+  s_d404882750412e::t_c3f90f0ee9c4d6 9-10
+dist/src/embedding-cluster.js
+  s_d404882750412e::t_c3f90f0ee9c4d6 1-92
+src/keyword-counter.ts
+  s_d404882750412e::t_d08869236e5af5 13-19
+dist/src/keyword-stopwords.d.ts
+  s_d404882750412e::t_c3f90f0ee9c4d6 1
+dist/src/semantic-keywords.d.ts
+  s_d404882750412e::t_c3f90f0ee9c4d6 1-8
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/report.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "756b85d56393dbe12ab1d2c1694cb1307bf846a9",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
