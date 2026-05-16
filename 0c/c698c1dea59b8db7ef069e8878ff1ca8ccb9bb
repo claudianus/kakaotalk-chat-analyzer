@@ -1,0 +1,124 @@
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/export-prepass.js.map
+  ai_agent 1
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+src/types.ts
+  s_d404882750412e::t_39ab4aa04fc7b1 57-67
+  s_d404882750412e::t_92acde0404c99c 285-286
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_d78fbfc8df0831 22
+dist/src/export-prepass.d.ts
+  s_d404882750412e::t_d78fbfc8df0831 1-7
+test/parser-report.test.ts
+  s_d404882750412e::t_c47985c0361627 203
+dist/src/kiwi-runtime.d.ts
+  s_d404882750412e::t_d78fbfc8df0831 2,4
+dist/src/topic-map.js.map
+  ai_agent 1
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/keyword-canonical.js.map
+  ai_agent 1
+dist/src/ctfidf.js.map
+  ai_agent 1
+dist/src/report.js.map
+  ai_agent 1
+README.md
+  s_d404882750412e::t_d0fe4f2839d9bc 74
+  s_d404882750412e::t_993fd11cf187d9 103-104
+  s_d404882750412e::t_a302aab5af8f07 158
+  s_d404882750412e::t_1ba5f277be3ff0 115
+  s_d404882750412e::t_99286bc6f4b45b 57
+src/analysis.ts
+  s_d404882750412e::t_9728d20958c6d0 3,9,13,45,47-50,52-54,56,59-70,77-92,132,138-139
+dist/src/aggregator.js
+  s_d404882750412e::t_d78fbfc8df0831 4,6,54,194,196-197,355,509
+test/ctfidf.test.ts
+  s_d404882750412e::t_8079daa1a54f34 1-21
+test/topic-map.test.ts
+  s_d404882750412e::t_7c81e64aa958a2 1-24
+package.json
+  s_d404882750412e::t_c2908b4d53248f 3
+dist/src/ctfidf.js
+  s_d404882750412e::t_d78fbfc8df0831 1-42
+dist/src/ctfidf.d.ts
+  s_d404882750412e::t_d78fbfc8df0831 1-5
+src/streaming-tfidf-keywords.ts
+  s_d404882750412e::t_96b5d0ea6a5a97 125,131,137
+  s_d404882750412e::t_93356442719264 81
+  s_d404882750412e::t_cbb06c6dd19979 27-35
+  s_d404882750412e::t_f982acc3ee76f3 93
+src/ctfidf.ts
+  s_d404882750412e::t_07c55d34283633 1-50
+src/report-charts.ts
+  s_d404882750412e::t_1db6f179a8c62e 160
+kcachat/package.json
+  s_d404882750412e::t_1bbd3740963c83 3
+  s_d404882750412e::t_ffe88c0ff7e700 15
+src/aggregator.ts
+  s_d404882750412e::t_d968b9db997c88 421
+  s_d404882750412e::t_1a437b335a39ee 14,16
+  s_d404882750412e::t_0682c36f9d1b49 585
+  s_d404882750412e::t_82970cd08e59dc 251,253-254
+  s_d404882750412e::t_8daeb86bcf9fb8 94
+dist/src/analysis.js
+  s_d404882750412e::t_d78fbfc8df0831 3,8,10,33,35-38,41-53,60-71,107,111-112
+src/export-prepass.ts
+  s_d404882750412e::t_ce4671f9740ba3 1-118
+dist/src/export-prepass.js
+  s_d404882750412e::t_d78fbfc8df0831 1-107
+dist/src/kiwi-runtime.js
+  s_d404882750412e::t_d78fbfc8df0831 27,78,87,91-92,105,181
+dist/src/streaming-tfidf-keywords.d.ts
+  s_d404882750412e::t_d78fbfc8df0831 12
+dist/src/keyword-canonical.js
+  s_d404882750412e::t_d78fbfc8df0831 10,12-17
+dist/src/streaming-tfidf-keywords.js
+  s_d404882750412e::t_d78fbfc8df0831 22-30,74,84,116,122,128
+dist/src/topic-map.js
+  s_d404882750412e::t_d78fbfc8df0831 1-177
+dist/src/report.js
+  s_d404882750412e::t_d78fbfc8df0831 452-492,821-822,1345-1367,1369
+src/report.ts
+  s_d404882750412e::t_c0daeed5449a82 848-849
+  s_d404882750412e::t_9f9cf21eae07ce 1435
+  s_d404882750412e::t_c0834d4010b935 1422-1434,1436-1441,1443-1445,1448
+  s_d404882750412e::t_bb387f360abac3 477-517
+  s_d404882750412e::t_444e531af03207 1442
+dist/src/report-charts.js
+  s_d404882750412e::t_d78fbfc8df0831 139
+dist/src/kiwi-runtime.js.map
+  ai_agent 1
+src/kiwi-runtime.ts
+  s_d404882750412e::t_a838c7968a19cd 194
+  s_d404882750412e::t_957621f60524d6 31
+  s_d404882750412e::t_c8b3a4749aa11e 8
+  s_d404882750412e::t_5a99d926173f90 114
+  s_d404882750412e::t_8460adda4c60b8 88,97,102-103
+src/keyword-canonical.ts
+  s_d404882750412e::t_4f040491787d99 10,12-17
+dist/src/topic-map.d.ts
+  s_d404882750412e::t_d78fbfc8df0831 1-13
+dist/src/types.d.ts
+  s_d404882750412e::t_d78fbfc8df0831 49-58,265-266
+src/topic-map.ts
+  s_d404882750412e::t_de001c0a49f939 1-187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "0cc698c1dea59b8db7ef069e8878ff1ca8ccb9bb",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
