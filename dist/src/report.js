@@ -49,12 +49,32 @@ export function renderReportHtml(data) {
     .bar-row { display: grid; grid-template-columns: minmax(72px, 1fr) minmax(0, 2.2fr) 52px; gap: 10px; align-items: center; min-height: 22px; }
     .bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
     .bar-track { height: 9px; background: #e5dfd4; border-radius: 999px; overflow: hidden; }
-    .bar-fill { height: 100%; width: var(--w); background: linear-gradient(90deg, var(--accent), #1a9d87); border-radius: inherit; }
+    .bar-fill {
+      display: block;
+      height: 100%;
+      min-width: 2px;
+      background: linear-gradient(90deg, var(--accent), #1a9d87);
+      border-radius: inherit;
+    }
     .bar-value { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
     .calendar { display: grid; gap: 3px; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); }
-    .day { aspect-ratio: 1; border-radius: 6px; background: color-mix(in srgb, var(--accent) var(--level), #e5dfd4); display: grid; place-items: center; font-size: 9px; color: #0c2a24; font-weight: 650; }
+    .day {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 9px;
+      font-weight: 650;
+      border: 1px solid rgba(15, 107, 92, 0.12);
+    }
     .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 140px; }
-    .hour { min-width: 0; background: linear-gradient(180deg, var(--accent2), #e07a45); border-radius: 3px 3px 0 0; height: var(--h); }
+    .hour {
+      min-width: 0;
+      width: 100%;
+      align-self: end;
+      background: linear-gradient(180deg, var(--accent2), #e07a45);
+      border-radius: 3px 3px 0 0;
+    }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .table th, .table td { text-align: left; border-bottom: 1px solid var(--line); padding: 9px 6px; }
     .table th { color: var(--muted); font-weight: 650; font-size: 11px; text-transform: none; }
@@ -155,8 +175,11 @@ function renderDaily(days) {
     const max = Math.max(...days.map((day) => day.count), 1);
     return `<div class="calendar">${days
         .map((day) => {
-        const level = Math.max(8, Math.round((day.count / max) * 85));
-        return `<div class="day" title="${escapeHtml(day.date)} · ${day.count}건" style="--level: ${level}%">${day.count}</div>`;
+        const ratio = day.count / max;
+        const alpha = Math.min(0.92, Math.max(0.1, 0.1 + ratio * 0.82));
+        const bg = `rgba(15, 107, 92, ${alpha.toFixed(2)})`;
+        const fg = ratio > 0.42 ? "#f4f8f7" : "#0c2a24";
+        return `<div class="day" title="${escapeHtml(day.date)} · ${day.count}건" style="background-color:${bg};color:${fg}">${day.count}</div>`;
     })
         .join("")}</div>`;
 }
@@ -170,7 +193,7 @@ function renderHours(hours) {
     return `<div class="hours">${hours
         .map((count, hour) => {
         const height = Math.max(2, Math.round((count / max) * 100));
-        return `<div class="hour" title="${hour}시 · ${count}건" style="--h: ${height}%"></div>`;
+        return `<div class="hour" title="${hour}시 · ${count}건" style="height:${height}%"></div>`;
     })
         .join("")}</div>`;
 }
@@ -189,7 +212,7 @@ function renderCountBars(items) {
     return `<div class="bars">${items
         .map((item) => {
         const width = Math.max(2, Math.round((item.count / max) * 100));
-        return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="--w: ${width}%"></span></span><span class="bar-value">${formatNumber(item.count)}</span></div>`;
+        return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${width}%"></span></span><span class="bar-value">${formatNumber(item.count)}</span></div>`;
     })
         .join("")}</div>`;
 }
