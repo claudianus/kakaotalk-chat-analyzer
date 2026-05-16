@@ -69,12 +69,19 @@ export function buildReportData(result, options) {
     let messagesWithAttachments = 0;
     let nightMessages = 0;
     let emojiMessages = 0;
+    let weekendMessages = 0;
+    let questionMessages = 0;
+    let speakerSwitches = 0;
+    let monologueMessages = 0;
     const gapsMs = [];
     let prevMs = null;
     let prevSender = null;
     let runSender = null;
     let runLen = 0;
     for (const record of result.records) {
+        if (prevSender !== null && record.sender !== prevSender) {
+            speakerSwitches += 1;
+        }
         const alias = aliases.get(record.sender) ?? "???";
         const stat = getParticipantStat(senderStats, alias);
         const messageLength = record.message.length;
@@ -83,6 +90,13 @@ export function buildReportData(result, options) {
         const ms = partsToUtcMs(record.date);
         if (/\p{Extended_Pictographic}/u.test(record.message)) {
             emojiMessages += 1;
+        }
+        if (/\?|？/.test(record.message)) {
+            questionMessages += 1;
+        }
+        const wi = weekdayIndex(record.date);
+        if (wi === 0 || wi === 6) {
+            weekendMessages += 1;
         }
         if (NIGHT_HOURS.has(record.date.hour)) {
             nightMessages += 1;
@@ -96,6 +110,9 @@ export function buildReportData(result, options) {
         prevMs = ms;
         if (record.sender === prevSender) {
             runLen += 1;
+            if (runLen >= 3) {
+                monologueMessages += 1;
+            }
         }
         else {
             if (prevSender !== null && runSender !== null) {
@@ -129,7 +146,7 @@ export function buildReportData(result, options) {
         increment(daily, dayKey);
         increment(monthly, `${record.date.year}-${pad2(record.date.month)}`);
         hourly[record.date.hour] = (hourly[record.date.hour] ?? 0) + 1;
-        weekdays[weekdayIndex(record.date)] = (weekdays[weekdayIndex(record.date)] ?? 0) + 1;
+        weekdays[wi] = (weekdays[wi] ?? 0) + 1;
     }
     if (prevSender !== null && runSender !== null) {
         const prevAlias = aliases.get(prevSender) ?? "???";
@@ -181,6 +198,88 @@ export function buildReportData(result, options) {
     const nightSharePercent = total > 0 ? round((nightMessages / total) * 100, 1) : 0;
     const activeDays = daily.size;
     const messagesPerActiveDay = activeDays > 0 ? round(total / activeDays, 1) : 0;
+    const allMessageCounts = [...senderStats.values()].map((s) => s.messages).sort((a, b) => a - b);
+    const participantGini = computeGini(allMessageCounts);
+    const gapsSorted = gapsMs.length > 0 ? [...gapsMs].sort((a, b) => a - b) : [];
+    const replyGapP90Minutes = gapsSorted.length > 0 ? round(quantileSorted(gapsSorted, 0.9) / 60_000, 1) : null;
+    const maxSilenceBetweenActiveDays = maxSilenceGapDays(sortedDays);
+    const top3ParticipantSharePercent = computeTop3Share(senderStats, total);
+    const linkDomainEntropyBits = domainEntropyBits(domains);
+    const densityMessagesPerCalendarDay = computeDensityPerCalendarDay(result.records, total);
+    const weekendSharePercent = total > 0 ? round((weekendMessages / total) * 100, 1) : 0;
+    const questionLikeMessagesPer100 = total > 0 ? round((questionMessages / total) * 100, 2) : 0;
+    const speakerSwitchRatePer100 = total > 0 ? round((speakerSwitches / total) * 100, 2) : 0;
+    const daypartPercents = computeDaypartPercents(hourly, total);
+    const rhythmScore = computeRhythmScore({
+        gini: participantGini,
+        longestStreak,
+        density: densityMessagesPerCalendarDay,
+    });
+    const linksPer100 = total > 0 ? round((messagesWithLinks / total) * 100, 2) : 0;
+    const attachmentsPer100 = total > 0 ? round((messagesWithAttachments / total) * 100, 2) : 0;
+    const perParticipantMsgs = [...senderStats.values()].map((s) => s.messages);
+    const medianMessagesPerParticipant = perParticipantMsgs.length > 0
+        ? round(medianSorted([...perParticipantMsgs].sort((a, b) => a - b)), 2)
+        : null;
+    let burstUnder1m = 0;
+    let gapOver60m = 0;
+    for (const g of gapsMs) {
+        if (g < 60_000)
+            burstUnder1m += 1;
+        if (g > 3_600_000)
+            gapOver60m += 1;
+    }
+    const burstGapUnder1mPercent = gapsMs.length > 0 ? round((burstUnder1m / gapsMs.length) * 100, 1) : null;
+    const gapOver60mPercent = gapsMs.length > 0 ? round((gapOver60m / gapsMs.length) * 100, 1) : null;
+    let activeHoursCount = 0;
+    for (let h = 0; h < 24; h += 1) {
+        if ((hourly[h] ?? 0) > 0)
+            activeHoursCount += 1;
+    }
+    let keywordTokenSum = 0;
+    let keywordTopCount = 0;
+    for (const c of keywords.values()) {
+        keywordTokenSum += c;
+        keywordTopCount = Math.max(keywordTopCount, c);
+    }
+    const keywordTop1SharePercent = keywordTokenSum > 0 ? round((keywordTopCount / keywordTokenSum) * 100, 1) : null;
+    let attachmentMarkerSum = 0;
+    for (const c of attachments.values())
+        attachmentMarkerSum += c;
+    const photoMarkerCount = attachments.get("사진") ?? 0;
+    const photoShareOfAllAttachmentMarkers = attachmentMarkerSum > 0 ? round((photoMarkerCount / attachmentMarkerSum) * 100, 1) : null;
+    let maxDayMessages = 0;
+    for (const c of daily.values())
+        maxDayMessages = Math.max(maxDayMessages, c);
+    const peakDaySharePercent = total > 0 ? round((maxDayMessages / total) * 100, 1) : 0;
+    const uniqueDomainCount = domains.size;
+    const replyGapCoeffVariation = gapCoeffVariation(gapsMs);
+    const monologueMessagesPercent = total > 0 ? round((monologueMessages / total) * 100, 1) : 0;
+    const insights = {
+        weekendSharePercent,
+        participantGini,
+        replyGapP90Minutes,
+        maxSilenceBetweenActiveDays,
+        top3ParticipantSharePercent,
+        linkDomainEntropyBits,
+        densityMessagesPerCalendarDay,
+        questionLikeMessagesPer100,
+        speakerSwitchRatePer100,
+        rhythmScore,
+        daypartPercents,
+        linksPer100,
+        attachmentsPer100,
+        medianMessagesPerParticipant,
+        burstGapUnder1mPercent,
+        gapOver60mPercent,
+        activeHoursCount,
+        keywordTop1SharePercent,
+        photoShareOfAllAttachmentMarkers,
+        monologueMessagesPercent,
+        peakDaySharePercent,
+        uniqueDomainCount,
+        replyGapCoeffVariation,
+    };
     const highlights = buildHighlights({
         total,
         topAlias: participantStats[0]?.alias ?? null,
@@ -192,6 +291,13 @@ export function buildReportData(result, options) {
         longestStreak,
         emojiMessages,
         messagesWithAttachments,
+        weekendSharePercent,
+        participantGini,
+        replyGapP90Minutes,
+        maxSilenceBetweenActiveDays,
+        rhythmScore,
+        burstGapUnder1mPercent,
+        monologueMessagesPercent,
     });
     return {
         generatedAt: new Date().toISOString(),
@@ -219,6 +325,7 @@ export function buildReportData(result, options) {
             nightSharePercent,
             emojiMessages,
         },
+        insights,
         participants: participantStats,
         daily: [...daily.entries()].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)),
         hourly,
@@ -375,6 +482,132 @@ function longestDateStreak(sortedYmd) {
     }
     return best;
 }
+function computeGini(counts) {
+    if (counts.length === 0)
+        return null;
+    const sorted = [...counts].sort((a, b) => a - b);
+    const n = sorted.length;
+    let sum = 0;
+    for (const x of sorted)
+        sum += x;
+    if (sum === 0)
+        return null;
+    let num = 0;
+    for (let i = 0; i < n; i += 1) {
+        num += (2 * i - n + 1) * sorted[i];
+    }
+    return round(num / (n * sum), 3);
+}
+function quantileSorted(sortedAsc, p) {
+    if (sortedAsc.length === 0)
+        return 0;
+    const pos = (sortedAsc.length - 1) * p;
+    const lo = Math.floor(pos);
+    const hi = Math.ceil(pos);
+    if (lo === hi)
+        return sortedAsc[lo];
+    const w = pos - lo;
+    return sortedAsc[lo] * (1 - w) + sortedAsc[hi] * w;
+}
+function gapCoeffVariation(gaps) {
+    if (gaps.length < 2)
+        return null;
+    let sum = 0;
+    for (const g of gaps)
+        sum += g;
+    const mean = sum / gaps.length;
+    if (mean <= 0)
+        return null;
+    let varAcc = 0;
+    for (const g of gaps) {
+        const d = g - mean;
+        varAcc += d * d;
+    }
+    const variance = varAcc / gaps.length;
+    const sd = Math.sqrt(variance);
+    return round(sd / mean, 2);
+}
+function maxSilenceGapDays(sortedYmd) {
+    if (sortedYmd.length < 2)
+        return null;
+    let best = 0;
+    for (let i = 1; i < sortedYmd.length; i += 1) {
+        const a = new Date(`${sortedYmd[i - 1]}T12:00:00Z`).getTime();
+        const b = new Date(`${sortedYmd[i]}T12:00:00Z`).getTime();
+        const diffDays = Math.round((b - a) / 86_400_000);
+        best = Math.max(best, Math.max(0, diffDays - 1));
+    }
+    return best;
+}
+function computeTop3Share(stats, total) {
+    if (total === 0)
+        return 0;
+    const top3 = [...stats.values()]
+        .map((s) => s.messages)
+        .sort((a, b) => b - a)
+        .slice(0, 3)
+        .reduce((a, c) => a + c, 0);
+    return round((top3 / total) * 100, 1);
+}
+function domainEntropyBits(domains) {
+    let sum = 0;
+    for (const c of domains.values())
+        sum += c;
+    if (sum === 0)
+        return null;
+    let h = 0;
+    for (const c of domains.values()) {
+        if (c <= 0)
+            continue;
+        const p = c / sum;
+        h -= p * Math.log2(p);
+    }
+    return round(h, 2);
+}
+function computeDensityPerCalendarDay(records, total) {
+    if (total === 0 || records.length === 0)
+        return null;
+    const first = records[0].date;
+    const last = records[records.length - 1].date;
+    const spanDays = Math.max(1, Math.floor((partsToUtcMs(last) - partsToUtcMs(first)) / 86_400_000) + 1);
+    return round(total / spanDays, 2);
+}
+function computeDaypartPercents(hourly, total) {
+    const bands = [
+        { key: "dawn", label: "새벽(0~5시)", lo: 0, hi: 5 },
+        { key: "morning", label: "오전(6~11시)", lo: 6, hi: 11 },
+        { key: "afternoon", label: "오후(12~17시)", lo: 12, hi: 17 },
+        { key: "evening", label: "저녁(18~23시)", lo: 18, hi: 23 },
+    ];
+    if (total === 0) {
+        return bands.map((b) => ({ key: b.key, label: b.label, percent: 0 }));
+    }
+    const raw = bands.map((b) => {
+        let c = 0;
+        for (let h = b.lo; h <= b.hi; h += 1)
+            c += hourly[h] ?? 0;
+        return { key: b.key, label: b.label, count: c };
+    });
+    const sum = raw.reduce((a, x) => a + x.count, 0) || 1;
+    let rounded = raw.map((x) => ({
+        key: x.key,
+        label: x.label,
+        percent: round((x.count / sum) * 100, 1),
+    }));
+    const drift = 100 - rounded.reduce((a, x) => a + x.percent, 0);
+    if (Math.abs(drift) >= 0.05 && rounded.length > 0) {
+        const idx = rounded.reduce((best, x, i, arr) => (x.percent >= arr[best].percent ? i : best), 0);
+        rounded = rounded.map((x, i) => i === idx ? { ...x, percent: round(x.percent + drift, 1) } : x);
+    }
+    return rounded;
+}
+function computeRhythmScore(input) {
+    const g = input.gini ?? 0.45;
+    const streakN = Math.min(1, input.longestStreak / 28);
+    const densityN = input.density != null ? Math.min(1, input.density / 40) : 0.25;
+    const score = 48 * (1 - Math.min(0.95, g)) + 32 * streakN + 20 * densityN;
+    return Math.max(0, Math.min(100, Math.round(score)));
+}
 function buildHighlights(input) {
     const out = [];
     if (input.topAlias && input.topShare !== null && input.total > 0) {
@@ -401,6 +634,27 @@ function buildHighlights(input) {
     if (input.messagesWithAttachments > 0) {
         out.push(`사진·파일·동영상 등 첨부가 들어간 메시지는 **${input.messagesWithAttachments}**건입니다.`);
     }
-    return out.slice(0, 8);
+    if (input.total > 0 && input.weekendSharePercent > 0) {
+        out.push(`주말(토·일) 메시지 비중은 **${input.weekendSharePercent}%**예요.`);
+    }
+    if (input.participantGini !== null && input.participantGini >= 0.35) {
+        out.push(`참여도는 소수에게 조금 몰린 편이에요(Gini **${input.participantGini}** 근처).`);
+    }
+    if (input.replyGapP90Minutes !== null && input.replyGapP90Minutes >= 30) {
+        out.push(`가끔 긴 침묵도 있어요 — 응답 간격 **상위 10%**가 약 **${input.replyGapP90Minutes}분** 이상입니다.`);
+    }
+    if (input.maxSilenceBetweenActiveDays !== null && input.maxSilenceBetweenActiveDays >= 7) {
+        out.push(`활동일 사이 최대 **${input.maxSilenceBetweenActiveDays}일** 동안은 메시지가 끊긴 구간이 있었어요.`);
+    }
+    if (input.rhythmScore >= 65) {
+        out.push(`종합 **리듬 점수**는 **${input.rhythmScore}/100** — 꾸준하고 균형 잡힌 페이스에 가깝습니다.`);
+    }
+    if (input.burstGapUnder1mPercent !== null && input.burstGapUnder1mPercent >= 40) {
+        out.push(`응답 간격의 **${input.burstGapUnder1mPercent}%**가 1분 이내로, 실시간 대화 톤이 강해요.`);
+    }
+    if (input.monologueMessagesPercent >= 25) {
+        out.push(`같은 사람 **3연속 이상** 메시지가 전체의 **${input.monologueMessagesPercent}%** — 긴 설명·정리 구간이 잦을 수 있어요.`);
+    }
+    return out.slice(0, 12);
 }
 //# sourceMappingURL=analysis.js.map

@@ -19,9 +19,10 @@ program.addHelpText("after", `
   kca <보내기.csv> --local         업로드 없이 로컬에만 저장 (-o 로 폴더 지정)
   kca <보내기.csv> --dry-run       업로드 생략(미리 생성만)
 
-npx 예시:
-  npx kakaotalk-chat-analyzer@latest <보내기.csv> --local
-  npx kakaotalk-chat-analyzer@latest <보내기.csv>
+npx 예시 (짧은 이름):
+  npx kcachat@latest <보내기.csv> --local
+  npx kcachat@latest <보내기.csv>
+  (전체 패키지명: npx kakaotalk-chat-analyzer@latest … 동일)
 `);
 const main = program.command("default", { isDefault: true, hidden: true });
 main

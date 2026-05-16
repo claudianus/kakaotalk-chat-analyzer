@@ -50,6 +50,59 @@ export interface DailyCount {
     date: string;
     count: number;
 }
+/** 고급 집계·행동 패턴 지표(원문 미저장, 통계 전용) */
+export interface ReportInsights {
+    /** 토·일 메시지 비중(%) */
+    weekendSharePercent: number;
+    /** 참여자 메시지 수 불평등(Gini, 0=완전 균등, 1에 가까울수록 소수 집중) */
+    participantGini: number | null;
+    /** 연속 메시지 간격의 90퍼센타일(분) — 꼬리가 길수록 가끔 긴 침묵 */
+    replyGapP90Minutes: number | null;
+    /** 활동이 있었던 날 사이 최대 ‘빈’ 일수(인접 활동일 기준) */
+    maxSilenceBetweenActiveDays: number | null;
+    /** 메시지 상위 3명이 차지한 비율(%) */
+    top3ParticipantSharePercent: number;
+    /** 링크 도메인 분포의 샤논 엔트로피(bit). 다양할수록 큼 */
+    linkDomainEntropyBits: number | null;
+    /** 첫날~마지막날 달력 일수로 나눈 일평균 메시지(스팬 0일이면 null) */
+    densityMessagesPerCalendarDay: number | null;
+    /** 물음표(?, ？) 포함 메시지 비율(100메시지당) */
+    questionLikeMessagesPer100: number;
+    /** 발화자가 바뀐 비율(100메시지당 화자 전환 횟수) */
+    speakerSwitchRatePer100: number;
+    /** 0~100 종합 ‘리듬’ 점수(참여 균형·연속 활동·밀도 가중) */
+    rhythmScore: number;
+    /** 시간대 세그먼트(새벽0~5, 오전6~11, 오후12~17, 저녁18~23) 비율 합계 100에 근접 */
+    daypartPercents: {
+        key: string;
+        label: string;
+        percent: number;
+    }[];
+    /** 100메시지당 URL 포함 메시지 수 */
+    linksPer100: number;
+    /** 100메시지당 첨부 포함 메시지 수 */
+    attachmentsPer100: number;
+    /** 참여자 1인당 메시지 수 중앙값 */
+    medianMessagesPerParticipant: number | null;
+    /** 응답 간격 1분 미만 비율(%) — 빠른 왕복 */
+    burstGapUnder1mPercent: number | null;
+    /** 응답 간격 60분 초과 비율(%) — 비동기 대화 */
+    gapOver60mPercent: number | null;
+    /** 메시지가 1건 이상 있었던 시각(0~23) 개수 */
+    activeHoursCount: number;
+    /** 키워드 토큰 중 1위가 차지한 비율(%) */
+    keywordTop1SharePercent: number | null;
+    /** 첨부 마커 합계 중 ‘사진’ 비중(%) */
+    photoShareOfAllAttachmentMarkers: number | null;
+    /** 동일인 3연속 이상 메시지 비중(%) — 독백·정리형 발화 */
+    monologueMessagesPercent: number;
+    /** 일별 최대 메시지가 전체에서 차지한 비율(%) */
+    peakDaySharePercent: number;
+    /** 서로 다른 링크 도메인 수 */
+    uniqueDomainCount: number;
+    /** 응답 간격 변동계수(σ/μ, 무차원). 클수록 템포 들쭉날쭉 */
+    replyGapCoeffVariation: number | null;
+}
 export interface ReportData {
     generatedAt: string;
     privacy: PrivacyMode;
@@ -83,6 +136,7 @@ export interface ReportData {
         /** 이모지/픽토그램이 포함된 메시지 수(대략적) */
         emojiMessages: number;
     };
+    insights: ReportInsights;
     participants: ParticipantStat[];
     daily: DailyCount[];
     hourly: number[];
