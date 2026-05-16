@@ -24,7 +24,7 @@ export function renderReportHtml(data) {
     ${REPORT_STYLES}
   </style>
 </head>
-<body>
+<body class="kca-oled">
   <a class="skip-link" href="#s-wrapped" data-kca-jump="s-wrapped">Wrapped로 건너뛰기</a>
   <main>
     ${renderTopChrome(data, renderSectionNav(data))}

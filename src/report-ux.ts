@@ -92,6 +92,30 @@ export const REPORT_UX_SCRIPT = `
       });
       obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
       syncThemeButtons();
+      document.querySelectorAll(".theme-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (reduce) return;
+          btn.classList.remove("kca-ripple");
+          void btn.offsetWidth;
+          btn.classList.add("kca-ripple");
+          setTimeout(function () { btn.classList.remove("kca-ripple"); }, 500);
+        });
+      });
+      if (!reduce && window.matchMedia("(hover: hover)").matches) {
+        document.querySelectorAll(".card, .wrapped-card, .viz-card, .insight-hero").forEach(function (el) {
+          el.addEventListener("mousemove", function (ev) {
+            var r = el.getBoundingClientRect();
+            var x = ((ev.clientX - r.left) / r.width) * 100;
+            var y = ((ev.clientY - r.top) / r.height) * 100;
+            el.style.setProperty("--kca-spot-x", x + "%");
+            el.style.setProperty("--kca-spot-y", y + "%");
+          });
+          el.addEventListener("mouseleave", function () {
+            el.style.removeProperty("--kca-spot-x");
+            el.style.removeProperty("--kca-spot-y");
+          });
+        });
+      }
     })();
 `;
 

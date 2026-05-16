@@ -1,0 +1,376 @@
+/* OLED 글라스모피즘 · 글로우 · 마이크로 모션 (최상위 레이어) */
+
+/* —— 공통 글라스 패널 —— */
+body.kca-oled .card,
+body.kca-oled .viz-card,
+body.kca-oled .viz-hero,
+body.kca-oled .kw-css-fold,
+body.kca-oled .toolbar {
+  position: relative;
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow), 0 0 0 1px color-mix(in oklab, var(--glass-highlight) 40%, transparent) inset;
+  transition:
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.35s var(--ease-out),
+    border-color 0.3s var(--ease-out);
+}
+
+body.kca-oled .card::before,
+body.kca-oled .viz-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--border-shine);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+body.kca-oled .card::after,
+body.kca-oled .wrapped-card::after,
+body.kca-oled .viz-card::after,
+body.kca-oled .insight-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    520px circle at var(--kca-spot-x, 50%) var(--kca-spot-y, 30%),
+    var(--spot-glow),
+    transparent 58%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-out);
+}
+
+body.kca-oled .card:hover::after,
+body.kca-oled .wrapped-card:hover::after,
+body.kca-oled .viz-card:hover::after {
+  opacity: 0.85;
+}
+
+body.kca-oled .card:hover,
+body.kca-oled .viz-card:hover {
+  transform: translateY(-4px) scale(1.005);
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--glass-border));
+  box-shadow: var(--shadow), var(--shadow-glow);
+}
+
+/* —— 히어로 —— */
+body.kca-oled .hero h1 {
+  background: var(--accent-grad);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: kca-shimmer 8s linear infinite;
+  filter: drop-shadow(0 0 28px color-mix(in oklab, var(--accent) 35%, transparent));
+}
+
+body.kca-oled .room-title {
+  color: var(--ink);
+  text-shadow: 0 0 24px color-mix(in oklab, var(--accent) 40%, transparent);
+}
+
+body.kca-oled .story-headline {
+  color: color-mix(in oklab, var(--ink) 92%, var(--accent));
+}
+
+body.kca-oled .badge {
+  border: 1px solid color-mix(in oklab, var(--accent) 35%, var(--line));
+  background: color-mix(in oklab, var(--glass) 80%, var(--accent) 8%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 16px color-mix(in oklab, var(--accent) 12%, transparent);
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s;
+}
+
+body.kca-oled .badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 22px color-mix(in oklab, var(--accent) 22%, transparent);
+}
+
+/* —— Wrapped 카드 —— */
+body.kca-oled .wrapped-card {
+  border: 1px solid var(--glass-border);
+  background:
+    linear-gradient(155deg, color-mix(in oklab, var(--accent) 18%, transparent), transparent 42%),
+    linear-gradient(220deg, color-mix(in oklab, var(--warm) 12%, transparent), transparent 50%),
+    var(--glass);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  box-shadow: var(--shadow), 0 0 40px color-mix(in oklab, var(--accent) 8%, transparent);
+  overflow: hidden;
+  transition:
+    transform 0.4s var(--ease-spring),
+    box-shadow 0.4s var(--ease-out);
+}
+
+body.kca-oled .wrapped-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: var(--shadow), 0 0 56px color-mix(in oklab, var(--accent) 22%, transparent);
+}
+
+body.kca-oled .wrapped-card-stat {
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.kca-oled .wrapped-card::before {
+  opacity: 0.28;
+  filter: drop-shadow(0 0 20px var(--glow));
+}
+
+/* —— 팩트 · 인사이트 —— */
+body.kca-oled .fact-hero-cell {
+  background: linear-gradient(145deg, color-mix(in oklab, var(--accent) 14%, transparent), transparent);
+  border: 1px solid color-mix(in oklab, var(--accent) 28%, var(--line));
+  box-shadow: 0 0 24px color-mix(in oklab, var(--accent) 10%, transparent);
+}
+
+body.kca-oled .fact-hero-cell span {
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.kca-oled .stat-sample-badge {
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--accent2) 35%, var(--line));
+  background: var(--accent-grad-soft);
+  box-shadow: 0 0 20px color-mix(in oklab, var(--accent2) 8%, transparent);
+}
+
+body.kca-oled .ins-metric {
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.28s var(--ease-spring), box-shadow 0.28s;
+}
+
+body.kca-oled .ins-metric:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px color-mix(in oklab, var(--accent) 15%, transparent);
+}
+
+body.kca-oled .ins-m-val {
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.kca-oled .insight-hero::before {
+  background: radial-gradient(closest-side, var(--glow-violet), transparent 72%);
+  animation: kca-aurora 14s ease-in-out infinite alternate;
+}
+
+body.kca-oled .rh-ring {
+  box-shadow:
+    0 0 0 1px var(--glass-border) inset,
+    0 0 32px color-mix(in oklab, var(--accent) 35%, transparent);
+  animation: kca-pulse-glow 3.5s ease-in-out infinite;
+}
+
+body.kca-oled .pace-ribbon {
+  border: 1px solid color-mix(in oklab, var(--warm) 40%, var(--line));
+  background: linear-gradient(
+    120deg,
+    color-mix(in oklab, var(--warm) 16%, transparent),
+    color-mix(in oklab, var(--accent) 12%, transparent)
+  );
+  box-shadow: 0 0 28px color-mix(in oklab, var(--warm) 12%, transparent);
+}
+
+/* —— 막대 · 하이라이트 —— */
+body.kca-oled .bar-fill {
+  background: var(--accent-grad);
+  box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
+body.kca-oled .highlights li {
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--line));
+  background: linear-gradient(
+    120deg,
+    color-mix(in oklab, var(--accent) 12%, var(--glass)),
+    color-mix(in oklab, var(--warm) 8%, var(--glass))
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* —— 탑바 · 네비 —— */
+body.kca-oled .kca-topbar {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-strong);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.35),
+    0 0 0 1px color-mix(in oklab, var(--glass-highlight) 30%, transparent) inset;
+}
+
+body.kca-oled .kca-progress-fill {
+  background: var(--accent-grad);
+  background-size: 200% auto;
+  animation: kca-shimmer 4s linear infinite;
+  box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 55%, transparent);
+}
+
+body.kca-oled .deck-nav a,
+body.kca-oled .hero-jump,
+body.kca-oled .theme-btn {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  transition:
+    transform 0.22s var(--ease-spring),
+    border-color 0.2s,
+    box-shadow 0.22s,
+    color 0.2s;
+}
+
+body.kca-oled .deck-nav a:hover,
+body.kca-oled .hero-jump:hover,
+body.kca-oled .theme-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px color-mix(in oklab, var(--accent) 25%, transparent);
+  transform: translateY(-2px);
+}
+
+body.kca-oled .deck-nav a.is-active,
+body.kca-oled .theme-btn.is-active {
+  border-color: color-mix(in oklab, var(--accent) 60%, var(--glass-border));
+  background: color-mix(in oklab, var(--accent) 16%, var(--glass));
+  color: var(--accent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent),
+    0 0 24px color-mix(in oklab, var(--accent) 20%, transparent);
+}
+
+body.kca-oled .kca-back-top {
+  background: var(--glass-strong);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in oklab, var(--accent) 40%, var(--line));
+  box-shadow: var(--shadow-glow);
+}
+
+body.kca-oled .kca-back-top:hover {
+  animation: kca-pulse-glow 1.2s ease-in-out;
+}
+
+/* —— 차트 덱 —— */
+body.kca-oled .viz-hero h2,
+body.kca-oled h2.section-glow {
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.kca-oled .chart-box {
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--oled-deep) 40%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+body.kca-oled .daypart-bar {
+  box-shadow: 0 0 16px color-mix(in oklab, var(--accent) 8%, transparent);
+}
+
+body.kca-oled .dp-seg {
+  filter: saturate(1.15);
+  box-shadow: 0 0 8px color-mix(in oklab, currentColor 20%, transparent);
+}
+
+/* —— 페르소나 · 챕터 —— */
+body.kca-oled .persona-chip,
+body.kca-oled .chapter-item,
+body.kca-oled .arc-chip {
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.28s var(--ease-spring), box-shadow 0.28s;
+}
+
+body.kca-oled .persona-chip:hover,
+body.kca-oled .chapter-item:hover {
+  transform: translateX(4px);
+  box-shadow: -4px 0 24px color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+body.kca-oled .persona-chip em {
+  text-shadow: 0 0 16px color-mix(in oklab, var(--accent) 40%, transparent);
+}
+
+/* —— 스크롤 리빌 강화 —— */
+@media (prefers-reduced-motion: no-preference) {
+  body.kca-oled .kca-reveal {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+    filter: blur(6px);
+    transition:
+      opacity 0.65s var(--ease-out),
+      transform 0.65s var(--ease-spring),
+      filter 0.65s var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  body.kca-oled .kca-reveal.is-inview {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* —— 테마 버튼 클릭 리플 —— */
+body.kca-oled .theme-btn.kca-ripple {
+  animation: kca-ripple 0.45s var(--ease-out);
+}
+
+@keyframes kca-ripple {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 50%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 14px transparent;
+  }
+}
+
+@media (hover: none) {
+  body.kca-oled .card:hover,
+  body.kca-oled .wrapped-card:hover,
+  body.kca-oled .viz-card:hover {
+    transform: none;
+  }
+
+  body.kca-oled .card::after,
+  body.kca-oled .wrapped-card::after,
+  body.kca-oled .viz-card::after {
+    opacity: 0;
+  }
+}
+
+:root[data-theme="light"] body.kca-oled .rh-ring {
+  animation: none;
+}
