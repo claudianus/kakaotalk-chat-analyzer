@@ -155,9 +155,7 @@ body {
 }
 
 main {
-  width: min(var(--size-content-3, 72rem), calc(100% - var(--size-4)));
   margin: 0 auto;
-  padding: var(--size-6) 0 var(--size-8);
   overflow-x: clip;
   max-width: 100%;
 }
@@ -819,7 +817,7 @@ a {
     .wrapped-deck {
       display: grid;
       gap: 12px;
-      grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
       padding: 0;
     }
     .wrapped-card {
@@ -1157,6 +1155,8 @@ a {
     }
     .viz-card {
       grid-column: span 12;
+      container-type: inline-size;
+      container-name: kca-viz;
       border-radius: 18px;
       border: 1px solid var(--glass-border);
       background: var(--glass);
@@ -1414,8 +1414,315 @@ a {
     @media (hover: none) {
       .card:hover { transform: none; box-shadow: var(--shadow); border-color: var(--line); }
     }
-    #s-wrapped, #s-personas, #s-chapters, #s-calendar, #s-facts, #s-story, #s-hl, #s-ai, #s-topics, #s-viz, #s-charts, #s-help {
-      scroll-margin-top: 118px;
-    }
+    /* scroll-margin: 06-kca-responsive.css --kca-topbar-offset */
+
+
+/* 06-kca-responsive.css */
+/* kca 반응형 — 모바일 · 태블릿 · 데스크톱 · 4K + 컨테이너 쿼리 */
+:root {
+  --kca-content-max: 72rem;
+  --kca-gutter: clamp(12px, 2.8vw, 28px);
+  --kca-topbar-offset: 112px;
+  --kca-section-gap: clamp(14px, 2vw, 22px);
+}
+
+@media (min-width: 600px) {
+  :root {
+    --kca-topbar-offset: 104px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --kca-content-max: 80rem;
+    --kca-topbar-offset: 92px;
+  }
+}
+
+@media (min-width: 1440px) {
+  :root {
+    --kca-content-max: 84rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --kca-content-max: 92rem;
+    --kca-gutter: clamp(20px, 2vw, 40px);
+    --kca-section-gap: 24px;
+  }
+}
+
+@media (min-width: 2560px) {
+  :root {
+    --kca-content-max: 100rem;
+  }
+}
+
+main {
+  width: min(var(--kca-content-max), calc(100% - var(--kca-gutter) * 2));
+  padding-block: clamp(20px, 4vw, 48px) clamp(40px, 6vw, 72px);
+}
+
+#s-story,
+#s-wrapped,
+#s-personas,
+#s-chapters,
+#s-calendar,
+#s-facts,
+#s-hl,
+#s-ai,
+#s-topics,
+#s-viz,
+#s-charts,
+#s-help {
+  scroll-margin-top: var(--kca-topbar-offset);
+}
+
+.report-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 520px;
+}
+
+.kca-topbar,
+#s-story,
+#s-wrapped {
+  content-visibility: visible;
+}
+
+/* ── 컨테이너 쿼리: 차트 카드 ── */
+.viz-card {
+  container-type: inline-size;
+  container-name: kca-viz;
+}
+
+@container kca-viz (max-width: 22rem) {
+  .chart-box {
+    height: min(36vh, 260px);
+    min-height: 200px;
+  }
+  .chart-box.tall {
+    height: min(42vh, 300px);
+    min-height: 220px;
+  }
+  .viz-card h3 {
+    font-size: 14px;
+  }
+}
+
+@container kca-viz (min-width: 22rem) {
+  .chart-box.compact {
+    height: min(32vh, 280px);
+  }
+}
+
+/* ── 모바일 (≤599px) ── */
+@media (max-width: 599px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+
+  .hero-jumps {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-jump {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .badge-row {
+    gap: 6px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+
+  .fact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .fact-cell b {
+    font-size: 8px;
+  }
+
+  .fact-cell span {
+    font-size: 11px;
+  }
+
+  .wrapped-deck {
+    grid-template-columns: 1fr;
+  }
+
+  .wrapped-card {
+    min-height: 168px;
+    padding: 18px 16px;
+  }
+
+  .wrapped-card-stat {
+    font-size: clamp(28px, 10vw, 36px);
+  }
+
+  .chart-box {
+    height: 240px;
+    min-height: 200px;
+  }
+
+  .chart-box.tall {
+    height: min(44vh, 300px);
+    min-height: 220px;
+  }
+
+  .viz-hero {
+    padding: 16px;
+  }
+
+  .viz-hero h2 {
+    font-size: 18px;
+  }
+
+  .bar-row {
+    grid-template-columns: minmax(56px, 0.9fr) minmax(0, 2fr) 44px;
+    gap: 6px;
+  }
+
+  .deck-nav a {
+    font-size: 11px;
+    padding: 5px 9px;
+  }
+
+  .deck-nav-h {
+    width: 100%;
+    margin-bottom: 2px;
+  }
+}
+
+/* ── 태블릿 (600–1023px) ── */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .wrapped-deck {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fact-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .insight-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .two {
+    grid-template-columns: 1fr;
+  }
+
+  .three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chart-box {
+    height: min(40vh, 320px);
+  }
+}
+
+/* ── 데스크톱 (1024–1919px) ── */
+@media (min-width: 1024px) {
+  .hero {
+    grid-template-columns: 1.35fr 1fr;
+  }
+
+  .wrapped-deck {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .fact-grid {
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  }
+}
+
+/* ── 4K / 울트라와이드 (≥1920px) ── */
+@media (min-width: 1920px) {
+  h1 {
+    font-size: clamp(2.25rem, 1.6vw + 1rem, 3.25rem);
+  }
+
+  .room-title {
+    font-size: clamp(1.25rem, 0.8vw + 0.75rem, 1.75rem);
+  }
+
+  .story-headline {
+    font-size: clamp(1.1rem, 0.5vw + 0.85rem, 1.35rem);
+    max-width: 56ch;
+  }
+
+  .viz-grid {
+    gap: 18px;
+  }
+
+  .viz-card {
+    padding: 18px 20px 14px;
+  }
+
+  .wrapped-deck {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .wrapped-card-stat {
+    font-size: clamp(36px, 3vw, 48px);
+  }
+
+  .card {
+    padding: 20px 24px;
+  }
+
+  .deck-nav a {
+    font-size: 13px;
+    padding: 7px 13px;
+  }
+}
+
+/* 스크롤 진입 모션 (접근성: reduced-motion 시 UX 스크립트가 비활성) */
+@media (prefers-reduced-motion: no-preference) {
+  .kca-reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.55s var(--ease-out),
+      transform 0.55s var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .kca-reveal.is-inview {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 터치 타깃 */
+@media (hover: none) and (pointer: coarse) {
+  .theme-btn,
+  .deck-nav a,
+  .hero-jump {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gh-cal-cell {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
 
 `;

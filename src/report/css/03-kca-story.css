@@ -13,7 +13,7 @@
     .wrapped-deck {
       display: grid;
       gap: 12px;
-      grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
       padding: 0;
     }
     .wrapped-card {

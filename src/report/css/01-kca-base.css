@@ -59,9 +59,7 @@ body {
 }
 
 main {
-  width: min(var(--size-content-3, 72rem), calc(100% - var(--size-4)));
   margin: 0 auto;
-  padding: var(--size-6) 0 var(--size-8);
   overflow-x: clip;
   max-width: 100%;
 }

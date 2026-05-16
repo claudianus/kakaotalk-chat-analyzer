@@ -191,6 +191,4 @@
     @media (hover: none) {
       .card:hover { transform: none; box-shadow: var(--shadow); border-color: var(--line); }
     }
-    #s-wrapped, #s-personas, #s-chapters, #s-calendar, #s-facts, #s-story, #s-hl, #s-ai, #s-topics, #s-viz, #s-charts, #s-help {
-      scroll-margin-top: 118px;
-    }
+    /* scroll-margin: 06-kca-responsive.css --kca-topbar-offset */

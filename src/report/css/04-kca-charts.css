@@ -26,6 +26,8 @@
     }
     .viz-card {
       grid-column: span 12;
+      container-type: inline-size;
+      container-name: kca-viz;
       border-radius: 18px;
       border: 1px solid var(--glass-border);
       background: var(--glass);

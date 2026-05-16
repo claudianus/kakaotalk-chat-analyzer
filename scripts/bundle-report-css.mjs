@@ -17,6 +17,7 @@ const layers = [
   "03-kca-story.css",
   "04-kca-charts.css",
   "05-kca-ux.css",
+  "06-kca-responsive.css",
 ];
 
 function readLayer(name) {

@@ -164,6 +164,12 @@ export const CHARTS_INIT_SCRIPT = `
           try { c.resize(); } catch (e) {}
         });
       }
+      function layout(el) {
+        var w = (el && el.clientWidth) || 400;
+        if (w < 380) return { left: 28, right: 8, top: 14, bottom: 42, fs: 9, rot: 38 };
+        if (w < 640) return { left: 40, right: 10, top: 18, bottom: 32, fs: 10, rot: 24 };
+        return { left: 48, right: 14, top: 22, bottom: 28, fs: 11, rot: 0 };
+      }
       function init(id, opt) {
         var el = document.getElementById(id);
         if (!el) return null;
@@ -171,6 +177,14 @@ export const CHARTS_INIT_SCRIPT = `
           var chart = echarts.init(el, null, { renderer: "canvas" });
           chart.setOption(opt);
           charts.push(chart);
+          if (typeof ResizeObserver !== "undefined") {
+            var ro = new ResizeObserver(function () {
+              requestAnimationFrame(function () {
+                try { chart.resize(); } catch (e) {}
+              });
+            });
+            ro.observe(el);
+          }
           return chart;
         } catch (err) {
           console.error("[kca-chart]", id, err);
@@ -179,11 +193,21 @@ export const CHARTS_INIT_SCRIPT = `
           return null;
         }
       }
+      var mqWide = window.matchMedia && window.matchMedia("(min-width: 900px)");
+      if (mqWide && mqWide.addEventListener) {
+        mqWide.addEventListener("change", function () { setTimeout(resizeAll, 80); });
+      } else if (mqWide && mqWide.addListener) {
+        mqWide.addListener(function () { setTimeout(resizeAll, 80); });
+      }
+      var themeObs = new MutationObserver(function () { setTimeout(resizeAll, 60); });
+      themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
       if (data.hourly && document.getElementById("chart-hours")) {
+        var hoursEl = document.getElementById("chart-hours");
+        var hg = layout(hoursEl);
         init("chart-hours", Object.assign(baseOpt(), {
-          grid: { left: 36, right: 12, top: 24, bottom: 28 },
-          xAxis: { type: "category", data: data.hourly.map(function (_, h) { return h + "시"; }), axisLabel: { color: muted, fontSize: 10 } },
+          grid: { left: hg.left, right: hg.right, top: hg.top, bottom: hg.bottom },
+          xAxis: { type: "category", data: data.hourly.map(function (_, h) { return h + "시"; }), axisLabel: { color: muted, fontSize: hg.fs, rotate: hg.rot } },
           yAxis: { type: "value", axisLabel: { color: muted }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
           series: [{
             type: "bar",

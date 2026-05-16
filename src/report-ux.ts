@@ -7,20 +7,27 @@ export const REPORT_UX_SCRIPT = `
     (function () {
       var fill = document.querySelector(".kca-progress-fill");
       var backTop = document.querySelector(".kca-back-top");
-      var navLinks = document.querySelectorAll(".deck-nav a[data-kca-jump]");
+      var topbar = document.querySelector(".kca-topbar");
+      var navLinks = document.querySelectorAll(".deck-nav a[data-kca-jump], .hero-jump[data-kca-jump]");
       var sections = [];
       navLinks.forEach(function (a) {
         var id = a.getAttribute("data-kca-jump");
-        var el = id && document.getElementById(id);
-        if (el) sections.push({ el: el, link: a });
+        if (!id) return;
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (sections.some(function (s) { return s.el === el; })) return;
+        sections.push({ el: el, link: a });
       });
+      function topbarOffset() {
+        return topbar ? topbar.getBoundingClientRect().height + 10 : 112;
+      }
       function onScroll() {
         var st = window.scrollY || document.documentElement.scrollTop;
         var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
         if (fill) fill.style.width = Math.min(100, (st / max) * 100) + "%";
         if (backTop) backTop.hidden = st < 480;
         if (!sections.length) return;
-        var probe = st + 150;
+        var probe = st + topbarOffset();
         var current = sections[0];
         for (var i = 0; i < sections.length; i += 1) {
           if (sections[i].el.offsetTop <= probe) current = sections[i];
@@ -33,21 +40,56 @@ export const REPORT_UX_SCRIPT = `
         });
       }
       window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll, { passive: true });
       onScroll();
       if (backTop) {
         backTop.addEventListener("click", function () {
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
       }
+      var shell = document.querySelector(".deck-nav-shell");
+      if (shell) {
+        shell.addEventListener("toggle", function () {
+          setTimeout(function () {
+            onScroll();
+            window.dispatchEvent(new Event("resize"));
+          }, 60);
+        });
+      }
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduce && typeof IntersectionObserver !== "undefined") {
+        var reveal = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (en) {
+              if (en.isIntersecting) {
+                en.target.classList.add("is-inview");
+                reveal.unobserve(en.target);
+              }
+            });
+          },
+          { rootMargin: "0px 0px -5% 0px", threshold: 0.05 },
+        );
+        var ri = 0;
+        document.querySelectorAll(".card, .wrapped-card, .viz-card, .fact-card").forEach(function (el) {
+          el.classList.add("kca-reveal");
+          el.style.setProperty("--reveal-delay", Math.min(ri * 35, 280) + "ms");
+          ri += 1;
+          reveal.observe(el);
+        });
+      }
       function syncThemeButtons() {
         var mode = document.documentElement.getAttribute("data-theme") || "system";
         document.querySelectorAll(".theme-btn").forEach(function (btn) {
           var v = btn.getAttribute("data-theme-set") || "system";
-          btn.classList.toggle("is-active", v === mode);
-          btn.setAttribute("aria-pressed", v === mode ? "true" : "false");
+          var on = mode === "system" ? v === "system" : v === mode;
+          btn.classList.toggle("is-active", on);
+          btn.setAttribute("aria-pressed", on ? "true" : "false");
         });
       }
-      var obs = new MutationObserver(syncThemeButtons);
+      var obs = new MutationObserver(function () {
+        syncThemeButtons();
+        setTimeout(function () { window.dispatchEvent(new Event("resize")); }, 40);
+      });
       obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
       syncThemeButtons();
     })();

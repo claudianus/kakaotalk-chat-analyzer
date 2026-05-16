@@ -116,6 +116,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.11.0** | 반응형 6레이어(모바일~4K)·컨테이너 쿼리·ECharts ResizeObserver·스크롤 리빌 |
 | **0.10.2** | CSS 복구: `.deck-nav` pill 네비·명시 라이트/다크 팔레트(대비)·테마 버튼 동기화 |
 | **0.10.1** | Pretendard 서브셋 CDN·`--kca-font-sans` 순환 참조 수정·카드 radius 토큰 |
 | **0.10.0** | 리포트 CSS **Open Props** 토큰·6레이어 번들(`report-styles.ts`)·시맨틱 컬러 리워크 |
