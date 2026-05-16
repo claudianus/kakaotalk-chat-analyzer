@@ -12,7 +12,7 @@
     "LICENSE"
   ],
   "dependencies": {
-    "kakaotalk-chat-analyzer": "0.2.9"
+    "kakaotalk-chat-analyzer": "0.2.10"
   },
   "keywords": [
     "kakaotalk",

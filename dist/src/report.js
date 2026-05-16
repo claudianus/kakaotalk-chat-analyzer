@@ -682,26 +682,42 @@ export function renderReportHtml(data) {
     </script>
     <script>
     (function () {
-      function openExternal(url) {
+      function inFrame() {
+        try {
+          return window.self !== window.top;
+        } catch (e) {
+          return true;
+        }
+      }
+      function openExternal(url, ev) {
+        if (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
         var opened = null;
         try {
           opened = window.open(url, "_blank", "noopener,noreferrer");
         } catch (e) {}
-        if (opened) return;
-        try {
-          if (window.top && window.top !== window) {
-            window.top.location.href = url;
-            return;
-          }
-        } catch (e2) {}
-        window.location.href = url;
+        if (opened) {
+          try {
+            opened.opener = null;
+          } catch (e2) {}
+          return;
+        }
+        // iframe에서는 window.open이 성공해도 null을 반환하는 경우가 있어
+        // 부모/현재 창으로 이동시키면 BrewPage가 흰 화면이 됩니다.
+        if (!inFrame()) {
+          window.location.href = url;
+        }
       }
       document.querySelectorAll("a[data-kca-external]").forEach(function (link) {
+        var url = link.getAttribute("data-kca-external-url");
+        if (!url || !/^https?:/i.test(url)) return;
         link.addEventListener("click", function (ev) {
-          var url = link.getAttribute("href");
-          if (!url || !/^https?:/i.test(url)) return;
-          ev.preventDefault();
-          openExternal(url);
+          openExternal(url, ev);
+        });
+        link.addEventListener("auxclick", function (ev) {
+          if (ev.button === 1) openExternal(url, ev);
         });
       });
     })();
@@ -1018,7 +1034,7 @@ function formatTimestamp(value) {
     }
 }
 function externalLink(href, label) {
-    return `<a href="${escapeHtml(href)}" data-kca-external target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+    return `<a href="#" role="link" data-kca-external data-kca-external-url="${escapeHtml(href)}" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
 }
 function escapeHtml(value) {
     return value
