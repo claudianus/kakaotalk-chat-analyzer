@@ -1,0 +1,32 @@
+README.md
+  s_d404882750412e::t_689f9989b74986 54,57,60,63,66,69
+src/cli.ts
+  s_d404882750412e::t_fd59b6a524e9f6 29-32
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/cli.js
+  s_d404882750412e::t_5438f8a0d9b14c 21-24
+docs/index.html
+  s_d404882750412e::t_f836b271146fa5 137
+  s_d404882750412e::t_2fb6b1bf8f95c3 234,238
+  s_d404882750412e::t_85faeaaf004c35 141-143,145-146
+  s_d404882750412e::t_7119f2e372f873 221,227,230-233,235-237,239-245
+  s_d404882750412e::t_6822181934cafd 126-136,138-140,144,147-149,151-152,155-156,158-166,168
+  s_d404882750412e::t_e9e12dc5fec5f2 62-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "30b2e8ad025c886dc1157b27cd7f8b89f19f084a",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
