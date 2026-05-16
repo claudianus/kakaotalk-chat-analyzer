@@ -23,7 +23,7 @@
 
 ### A. GitHub Actions (기본 경로)
 
-1. 저장소 **Settings → Secrets and variables → Actions**에 **`NPM_TOKEN`**이 있어야 한다(위 **§0** 또는 스크립트로 등록).  
+1. 저장소 **Settings → Secrets and variables → Actions**에 **`NPM_TOKEN`**이 있어야 한다(위 **`0. 최초 세팅`** 또는 스크립트로 등록).  
    - **새 패키지 이름**(`kcachat` 최초 등록)까지 CI에서 올리려면, 일반 로그인용 토큰이 아니라 npm 문서 기준의 **Automation / Granular publish** 토큰을 쓴다.
 2. 푸시가 `.github/workflows/npm-publish.yml`의 `paths`에 걸리면 워크플로가 돌고, **레지스트리 버전보다 `package.json`의 `version`이 새로울 때만** `npm publish`한다.
 3. 에이전트는 푸시 직후 **Actions 탭에서 해당 워크플로 성공 여부**를 확인하거나, 사용자에게 확인을 요청한다.
