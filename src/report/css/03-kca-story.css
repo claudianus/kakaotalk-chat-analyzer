@@ -287,7 +287,7 @@
     .gh-cal-cell[data-level="2"] { background: var(--gh-cell-2); }
     .gh-cal-cell[data-level="3"] { background: var(--gh-cell-3); }
     .gh-cal-cell[data-level="4"] { background: var(--gh-cell-4); }
-    .gh-cal-cell[data-level="0"] { background: var(--gh-cell-0); border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+    .gh-cal-cell[data-level="0"] { background: var(--gh-cell-0); }
     .gh-cal-cell--pad {
       pointer-events: none;
       border: none;

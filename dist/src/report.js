@@ -45,6 +45,7 @@ export function renderReportHtml(data) {
       <div class="card side-card">
         <p><strong>채팅방</strong><br>${escapeHtml(data.source.chatRoomName)}</p>
         <p><strong>생성 시각</strong><br>${escapeHtml(formatTimestamp(data.generatedAt))}</p>
+        ${data.buildTiming ? `<p><strong>생성 소요</strong><br>${escapeHtml(formatBuildTiming(data.buildTiming))}</p>` : ""}
         <p><strong>첫 메시지</strong><br>${escapeHtml(data.summary.firstMessage ?? "—")}</p>
         <p><strong>마지막 메시지</strong><br>${escapeHtml(data.summary.lastMessage ?? "—")}</p>
       </div>
@@ -221,7 +222,7 @@ export function renderReportHtml(data) {
     ${REPORT_EXPLORER_SCRIPT}
     </script>
 
-    <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
+    <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건${data.buildTiming ? ` · 생성 ${escapeHtml(formatBuildTimingShort(data.buildTiming))}` : ""} · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
   </main>
 </body>
 </html>`;
@@ -639,7 +640,8 @@ function renderTopicMap(data) {
         const chips = t.terms
             .map((term) => `<span class="topic-chip">${escapeHtml(term)}</span>`)
             .join("");
-        return `<article class="topic-card">
+        const sizeClass = t.messagePercent >= 18 ? " topic-card--lg" : t.messagePercent >= 8 ? " topic-card--md" : "";
+        return `<article class="topic-card${sizeClass}">
         <header>${kind}<strong>${escapeHtml(t.title)}</strong><span class="topic-pct">~${t.messagePercent}%</span></header>
         <div class="topic-chips">${chips}</div>
       </article>`;
@@ -653,7 +655,7 @@ function renderTopicMap(data) {
 }
 function renderKeywordCssFold(data) {
     const body = renderKeywordSnapshot(data.keywords, data);
-    return `<details class="kw-css-fold">
+    return `<details class="kw-css-fold" open>
     <summary>키워드 막대 (간단 보기)<small>워드클라우드·전체 표는 위 「④ 인터랙티브 차트」</small></summary>
     <div class="kw-css-body">
       <p class="chart-hint" style="margin:0 0 10px">숫자는 메시지 등장 횟수입니다.</p>
@@ -689,6 +691,22 @@ function formatTimestamp(value) {
     catch {
         return value;
     }
+}
+function formatBuildTiming(t) {
+    const total = formatDurationMs(t.totalMs);
+    const agg = formatDurationMs(t.parseAggregateMs);
+    const html = formatDurationMs(t.renderHtmlMs);
+    const write = formatDurationMs(t.writeFileMs);
+    return `${total} (집계 ${agg} · HTML ${html} · 저장 ${write})`;
+}
+function formatBuildTimingShort(t) {
+    return formatDurationMs(t.totalMs);
+}
+function formatDurationMs(ms) {
+    if (ms < 1000)
+        return `${ms}ms`;
+    const sec = ms / 1000;
+    return sec < 10 ? `${sec.toFixed(1)}초` : `${Math.round(sec)}초`;
 }
 function externalLink(href, label) {
     return `<a href="#" role="link" data-kca-external data-kca-external-url="${escapeHtml(href)}" rel="noopener noreferrer">${escapeHtml(label)}</a>`;

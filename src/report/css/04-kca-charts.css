@@ -60,6 +60,23 @@
     }
     .chart-box.tall { height: min(52vh, 440px); min-height: 320px; }
     .chart-box.compact { height: 240px; min-height: 220px; }
+    #chart-daily-heat.chart-box { min-height: 280px; height: min(42vh, 360px); }
+    .pie-legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 6px 10px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .pie-legend li {
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--ink);
+    }
+    .pie-legend .pie-legend-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pie-legend .pie-legend-pct { color: var(--muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
     .kw-table-wrap {
       max-height: 520px;
       overflow: auto;

@@ -15,10 +15,13 @@ export interface BuildEventSpineInput {
   dailyPlanSignals: { date: string; hits: number }[];
 }
 
+const MIN_EVENTS_BEFORE_ENRICH = 8;
+const MAX_EVENTS = 24;
+
 export function buildEventSpine(input: BuildEventSpineInput): ReportTimelineEvent[] {
   const events: ReportTimelineEvent[] = [];
 
-  for (const b of input.burstDays.slice(0, 5)) {
+  for (const b of input.burstDays.slice(0, 8)) {
     events.push({
       date: b.date,
       kind: "burst",
@@ -65,8 +68,9 @@ export function buildEventSpine(input: BuildEventSpineInput): ReportTimelineEven
   }
 
   for (const r of input.repeatedPhrases.slice(0, 3)) {
+    const memeDate = findPhrasePeakDate(input.daily);
     events.push({
-      date: input.daily[0]?.date ?? "—",
+      date: memeDate,
       kind: "meme",
       title: "반복 문구",
       detail: `「${r.label}」 ${r.count}회`,
@@ -84,20 +88,108 @@ export function buildEventSpine(input: BuildEventSpineInput): ReportTimelineEven
     });
   }
 
-  return events
+  let merged = dedupeByDateKind(events);
+
+  if (merged.length < MIN_EVENTS_BEFORE_ENRICH) {
+    merged = enrichSparseTimeline(merged, input);
+  }
+
+  return merged
     .sort((a, b) => a.date.localeCompare(b.date) || kindOrder(a.kind) - kindOrder(b.kind))
-    .slice(0, 24);
+    .slice(0, MAX_EVENTS);
+}
+
+/** 타임라인 힌트용 활동 범위 */
+export function timelineActivityRange(daily: DailyCount[]): { first: string; last: string } | null {
+  const active = daily.filter((d) => d.count > 0).sort((a, b) => a.date.localeCompare(b.date));
+  if (active.length === 0) return null;
+  return { first: active[0]!.date, last: active[active.length - 1]!.date };
+}
+
+function enrichSparseTimeline(
+  existing: ReportTimelineEvent[],
+  input: BuildEventSpineInput,
+): ReportTimelineEvent[] {
+  const out = [...existing];
+  const have = new Set(out.map((e) => `${e.date}\t${e.kind}`));
+
+  const active = input.daily.filter((d) => d.count > 0).sort((a, b) => a.date.localeCompare(b.date));
+  if (active.length > 0) {
+    const first = active[0]!;
+    const last = active[active.length - 1]!;
+    const milestones: ReportTimelineEvent[] = [
+      {
+        date: first.date,
+        kind: "milestone",
+        title: "대화 시작",
+        detail: `첫 활동일 · ${first.count}건`,
+        metric: first.count,
+      },
+      {
+        date: last.date,
+        kind: "milestone",
+        title: "최근 활동",
+        detail: `마지막 활동일 · ${last.count}건`,
+        metric: last.count,
+      },
+    ];
+    for (const m of milestones) {
+      const key = `${m.date}\tmilestone`;
+      if (!have.has(key)) {
+        out.push(m);
+        have.add(key);
+      }
+    }
+  }
+
+  const byMonth = new Map<string, DailyCount>();
+  for (const d of active) {
+    const ym = d.date.slice(0, 7);
+    const cur = byMonth.get(ym);
+    if (!cur || d.count > cur.count) byMonth.set(ym, d);
+  }
+  for (const peak of byMonth.values()) {
+    const key = `${peak.date}\tpeak`;
+    if (have.has(key) || out.some((e) => e.date === peak.date && e.kind === "burst")) continue;
+    out.push({
+      date: peak.date,
+      kind: "peak",
+      title: "월간 최고 활동",
+      detail: `${peak.date.slice(0, 7)} 구간 중 ${peak.count}건`,
+      metric: peak.count,
+    });
+    have.add(key);
+  }
+
+  return dedupeByDateKind(out);
+}
+
+function dedupeByDateKind(events: ReportTimelineEvent[]): ReportTimelineEvent[] {
+  const best = new Map<string, ReportTimelineEvent>();
+  for (const e of events) {
+    const key = `${e.date}\t${e.kind}`;
+    const prev = best.get(key);
+    if (!prev || (e.metric ?? 0) > (prev.metric ?? 0)) best.set(key, e);
+  }
+  return [...best.values()];
+}
+
+function findPhrasePeakDate(daily: DailyCount[]): string {
+  const active = daily.filter((d) => d.count > 0).sort((a, b) => b.count - a.count);
+  return active[0]?.date ?? daily[0]?.date ?? "—";
 }
 
 function kindOrder(kind: string): number {
   const o: Record<string, number> = {
+    milestone: -1,
     burst: 0,
-    silence: 1,
-    room: 2,
-    newcomer: 3,
-    links: 4,
-    plan: 5,
-    meme: 6,
+    peak: 1,
+    silence: 2,
+    room: 3,
+    newcomer: 4,
+    links: 5,
+    plan: 6,
+    meme: 7,
   };
   return o[kind] ?? 9;
 }

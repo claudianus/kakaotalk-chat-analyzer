@@ -15,3 +15,8 @@ export interface BuildEventSpineInput {
     }[];
 }
 export declare function buildEventSpine(input: BuildEventSpineInput): ReportTimelineEvent[];
+/** 타임라인 힌트용 활동 범위 */
+export declare function timelineActivityRange(daily: DailyCount[]): {
+    first: string;
+    last: string;
+} | null;

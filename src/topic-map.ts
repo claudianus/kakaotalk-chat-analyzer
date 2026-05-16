@@ -63,11 +63,13 @@ export class TopicMapAccumulator {
     const themes = this.buildCooccurrenceThemes(totalMessages, stopwords);
     const periods = this.buildMonthlyPeriods(totalMessages, stopwords);
 
-    const merged = [...themes, ...periods]
-      .sort((a, b) => b.messagePercent - a.messagePercent || b.terms.length - a.terms.length)
-      .slice(0, MAX_TOPICS);
+    const merged = refineTopics(
+      [...themes, ...periods].sort(
+        (a, b) => b.messagePercent - a.messagePercent || b.terms.length - a.terms.length,
+      ),
+    );
 
-    return merged;
+    return merged.slice(0, MAX_TOPICS);
   }
 
   private buildCooccurrenceThemes(totalMessages: number, stopwords: ReadonlySet<string>): ReportTopic[] {
@@ -133,10 +135,12 @@ export class TopicMapAccumulator {
       let msgHits = 0;
       for (const t of community) msgHits += this.tokenDocFreq.get(t) ?? 0;
       const messagePercent = Math.round(Math.min(100, (msgHits / Math.max(totalMessages, 1)) * 100) * 10) / 10;
+      const lead = terms[0] ?? "주제";
+      const sub = terms[1];
       topics.push({
         id: classId,
         kind: "theme",
-        title: terms.slice(0, 3).join(" · "),
+        title: sub && sub !== lead ? `${lead} · ${sub}` : lead,
         terms: terms.slice(0, 8),
         messagePercent,
       });
@@ -184,4 +188,62 @@ export class TopicMapAccumulator {
 
     return topics.slice(0, 4);
   }
+}
+
+function refineTopics(topics: ReportTopic[]): ReportTopic[] {
+  const usedTerms = new Set<string>();
+  const out: ReportTopic[] = [];
+
+  for (const t of topics) {
+    const terms = t.terms.filter((term) => !usedTerms.has(term));
+    if (terms.length < 2) continue;
+
+    const overlap = jaccard(terms, [...usedTerms]);
+    if (overlap > 0.55 && t.kind === "theme") continue;
+
+    for (const term of terms) usedTerms.add(term);
+
+    const lead = terms[0]!;
+    const title =
+      t.kind === "period"
+        ? (t.periodLabel ?? t.title)
+        : terms[1] && terms[1] !== lead
+          ? `${lead} · ${terms[1]}`
+          : lead;
+
+    out.push({ ...t, title, terms: terms.slice(0, 8) });
+  }
+
+  return mergeSimilarTopics(out);
+}
+
+function mergeSimilarTopics(topics: ReportTopic[]): ReportTopic[] {
+  const merged: ReportTopic[] = [];
+  for (const t of topics) {
+    const hit = merged.find(
+      (m) =>
+        m.kind === t.kind &&
+        t.kind === "period" &&
+        m.periodLabel === t.periodLabel &&
+        jaccard(m.terms, t.terms) > 0.6,
+    );
+    if (hit) {
+      hit.messagePercent = Math.max(hit.messagePercent, t.messagePercent);
+      const terms = [...new Set([...hit.terms, ...t.terms])].slice(0, 8);
+      hit.terms = terms;
+      hit.title = hit.periodLabel ?? hit.title;
+    } else {
+      merged.push({ ...t });
+    }
+  }
+  return merged;
+}
+
+function jaccard(a: string[], b: string[] | Iterable<string>): number {
+  const setB = b instanceof Set ? b : new Set(b);
+  if (a.length === 0) return 0;
+  let inter = 0;
+  for (const x of a) if (setB.has(x)) inter += 1;
+  const union = new Set([...a, ...setB]).size;
+  return union > 0 ? inter / union : 0;
 }

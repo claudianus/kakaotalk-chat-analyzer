@@ -1,3 +1,4 @@
+import { timelineActivityRange } from "./event-spine.js";
 import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
 export function renderInnovationDeck(data) {
     return [
@@ -35,9 +36,13 @@ function renderTimelineBlock(data) {
       </li>`;
     })
         .join("");
+    const range = timelineActivityRange(data.daily);
+    const rangeLine = range
+        ? `활동 <strong>${escapeHtml(range.first)}</strong>~<strong>${escapeHtml(range.last)}</strong> · 이벤트 <strong>${data.timeline.length}</strong>건 — `
+        : "";
     return `<section id="s-timeline" class="card spine-card anim-enter" style="margin-bottom:14px;--enter-delay:0.045s" aria-label="이벤트 타임라인">
     <h2 class="section-glow">이벤트 스파인</h2>
-    <p class="chart-hint">급증·침묵·입퇴장·링크·약속 신호 등 <strong>날짜 단위</strong> 이벤트만 표시합니다.</p>
+    <p class="chart-hint">${rangeLine}급증·침묵·입퇴장·링크·약속 신호 등 <strong>임계값을 넘은 날</strong>만 나열합니다(전 기간 달력 아님).</p>
     <ol class="spine-list">${items}</ol>
   </section>`;
 }

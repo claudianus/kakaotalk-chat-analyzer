@@ -195,57 +195,90 @@ function trimYmd(ymd) {
 }
 function buildPersonas(participants, laughBySender, shortBySender) {
     const out = [];
+    const usedTitles = new Map();
     for (const p of participants.slice(0, 8)) {
         const laugh = laughBySender.get(p.alias) ?? 0;
         const short = shortBySender.get(p.alias) ?? 0;
         const msg = Math.max(p.messages, 1);
         const nightPct = round((p.nightMessages / msg) * 100, 1);
+        const dayPct = round(100 - nightPct, 1);
         const attachPct = round((p.attachmentMessages / msg) * 100, 1);
         const linkPct = round((p.linkMessages / msg) * 100, 1);
         const laughPct = round((laugh / msg) * 100, 1);
         const shortPct = round((short / msg) * 100, 1);
         const cands = [];
-        if (p.sharePercent >= 28) {
+        if (p.sharePercent >= 22) {
             cands.push({
                 score: p.sharePercent,
                 title: "대화의 중심",
                 reason: `전체 메시지의 ${p.sharePercent}%`,
             });
         }
-        if (nightPct >= 22) {
+        if (nightPct >= 18) {
             cands.push({ score: nightPct, title: "새벽 요정", reason: `심야 메시지 ${nightPct}%` });
         }
-        if (attachPct >= 16) {
+        if (dayPct >= 88 && nightPct <= 8) {
+            cands.push({ score: dayPct, title: "낮 활동가", reason: `주간 메시지 ${dayPct}%` });
+        }
+        if (attachPct >= 12) {
             cands.push({ score: attachPct, title: "사진·첨부 장인", reason: `첨부 포함 ${attachPct}%` });
         }
-        if (linkPct >= 10) {
+        if (linkPct >= 8) {
             cands.push({ score: linkPct, title: "링크 큐레이터", reason: `링크 공유 ${linkPct}%` });
         }
-        if (p.maxConsecutive >= 12) {
+        if (p.maxConsecutive >= 8) {
             cands.push({
-                score: p.maxConsecutive * 4,
+                score: p.maxConsecutive * 3,
                 title: "연속 발화",
                 reason: `최대 ${p.maxConsecutive}연속 메시지`,
             });
         }
-        if (p.averageLength >= 42) {
+        if (p.averageLength >= 36) {
             cands.push({
                 score: p.averageLength,
                 title: "긴 글 작가",
                 reason: `평균 ${p.averageLength}자`,
             });
         }
-        if (laughPct >= 10) {
+        if (p.averageLength <= 12 && msg >= 30) {
+            cands.push({
+                score: 100 - p.averageLength,
+                title: "한 줄 스나이퍼",
+                reason: `평균 ${p.averageLength}자`,
+            });
+        }
+        if (laughPct >= 8) {
             cands.push({ score: laughPct, title: "분위기 메이커", reason: `리액션 톤 ${laughPct}%` });
         }
-        if (shortPct >= 22) {
+        if (shortPct >= 18) {
             cands.push({ score: shortPct, title: "짧답 요정", reason: `3자 이하 ${shortPct}%` });
         }
-        const best = cands.sort((a, b) => b.score - a.score)[0];
+        if (p.messages >= 40 && p.sharePercent < 12 && p.maxConsecutive <= 4) {
+            cands.push({
+                score: p.messages * 0.4,
+                title: "조용한 관찰자",
+                reason: `꾸준히 ${p.messages}건 · 점유 ${p.sharePercent}%`,
+            });
+        }
+        cands.sort((a, b) => b.score - a.score);
+        let pick;
+        for (const c of cands) {
+            const used = usedTitles.get(c.title) ?? 0;
+            if (used < 2) {
+                pick = c;
+                usedTitles.set(c.title, used + 1);
+                break;
+            }
+        }
+        if (!pick) {
+            pick = cands.find((c) => !usedTitles.has(c.title)) ?? cands[0];
+            if (pick)
+                usedTitles.set(pick.title, (usedTitles.get(pick.title) ?? 0) + 1);
+        }
         out.push({
             alias: p.alias,
-            title: best?.title ?? "다재다능 상인",
-            reason: best?.reason ?? "여러 패턴이 고르게 섞였어요",
+            title: pick?.title ?? "다재다능 상인",
+            reason: pick?.reason ?? "여러 패턴이 고르게 섞였어요",
         });
     }
     return out;

@@ -242,23 +242,44 @@ async function generateReport(
     semanticKeywords: options.semanticKeywords,
     since: options.since,
   });
-  log("parse+aggregate", performance.now() - t0);
+  const parseAggregateMs = Math.round(performance.now() - t0);
+  log("parse+aggregate", parseAggregateMs);
+
+  const outDir = resolve(options.outDir);
+  const htmlPath = resolve(outDir, "index.html");
+
+  const buildTiming = {
+    parseAggregateMs,
+    renderHtmlMs: 0,
+    writeFileMs: 0,
+    totalMs: parseAggregateMs,
+  };
 
   t0 = performance.now();
-  const html = renderReportHtml(data);
-  log("render HTML", performance.now() - t0);
+  let html = renderReportHtml({ ...data, buildTiming });
+  buildTiming.renderHtmlMs = Math.round(performance.now() - t0);
+  log("render HTML", buildTiming.renderHtmlMs);
 
   if (options.profile) {
     console.error(`[kca] messages: ${data.summary.totalMessages.toLocaleString("ko-KR")}`);
   }
 
-  const outDir = resolve(options.outDir);
-  const htmlPath = resolve(outDir, "index.html");
-
   t0 = performance.now();
   await mkdir(outDir, { recursive: true });
   await writeFile(htmlPath, html, "utf8");
-  log("write file", performance.now() - t0);
+  buildTiming.writeFileMs = Math.round(performance.now() - t0);
+  log("write file", buildTiming.writeFileMs);
+
+  buildTiming.totalMs =
+    buildTiming.parseAggregateMs + buildTiming.renderHtmlMs + buildTiming.writeFileMs;
+  html = renderReportHtml({ ...data, buildTiming });
+  await writeFile(htmlPath, html, "utf8");
+
+  if (options.profile) {
+    console.error(
+      `[kca] build total: ${buildTiming.totalMs}ms (aggregate ${buildTiming.parseAggregateMs} · html ${buildTiming.renderHtmlMs} · write ${buildTiming.writeFileMs})`,
+    );
+  }
 
   return htmlPath;
 }

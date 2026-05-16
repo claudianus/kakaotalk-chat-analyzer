@@ -20,4 +20,38 @@ describe("buildEventSpine", () => {
     assert.ok(events.some((e) => e.kind === "burst"));
     assert.ok(events.some((e) => e.kind === "silence"));
   });
+
+  it("enriches sparse timelines with milestones", () => {
+    const events = buildEventSpine({
+      burstDays: [],
+      daily: [
+        { date: "2024-04-13", count: 10 },
+        { date: "2024-05-16", count: 20 },
+      ],
+      roomPulse: [],
+      repeatedPhrases: [],
+      maxSilenceBetweenActiveDays: null,
+      dailyLinkSpikes: [],
+      dailyPlanSignals: [],
+    });
+    assert.ok(events.length >= 2);
+    assert.ok(events.some((e) => e.kind === "milestone"));
+  });
+
+  it("uses busiest day for meme events", () => {
+    const events = buildEventSpine({
+      burstDays: [],
+      daily: [
+        { date: "2024-04-01", count: 2 },
+        { date: "2024-04-15", count: 50 },
+      ],
+      roomPulse: [],
+      repeatedPhrases: [{ label: "ㅋㅋ", count: 9 }],
+      maxSilenceBetweenActiveDays: null,
+      dailyLinkSpikes: [],
+      dailyPlanSignals: [],
+    });
+    const meme = events.find((e) => e.kind === "meme");
+    assert.equal(meme?.date, "2024-04-15");
+  });
 });

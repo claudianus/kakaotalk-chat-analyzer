@@ -299,8 +299,18 @@ export interface ExplorerPayload {
   range: { min: string; max: string };
 }
 
+/** 리포트 생성 단계별 소요(ms) — CLI가 채움 */
+export interface ReportBuildTiming {
+  parseAggregateMs: number;
+  renderHtmlMs: number;
+  writeFileMs: number;
+  totalMs: number;
+}
+
 export interface ReportData {
   generatedAt: string;
+  /** 분석·HTML·저장 소요 (없으면 표시 생략) */
+  buildTiming?: ReportBuildTiming;
   privacy: PrivacyMode;
   source: {
     fileName: string;

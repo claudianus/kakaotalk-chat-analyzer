@@ -621,10 +621,19 @@ a:hover {
       margin-top: 12px;
     }
     .topic-card {
-      border: 1px solid var(--line);
-      border-radius: 12px;
+      border: none;
+      border-radius: 14px;
       padding: 12px 14px;
-      background: var(--bar-bg);
+      background: color-mix(in srgb, var(--panel) 88%, transparent);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 45%, transparent);
+    }
+    .topic-card--md { grid-column: span 1; }
+    .topic-card--lg {
+      grid-column: span 2;
+      background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+    }
+    @media (max-width: 640px) {
+      .topic-card--lg { grid-column: span 1; }
     }
     .topic-card header {
       display: flex;
@@ -650,8 +659,8 @@ a:hover {
       font-size: 12px;
       padding: 4px 9px;
       border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.5);
+      border: none;
+      background: color-mix(in srgb, var(--accent) 12%, var(--panel));
       color: var(--ink);
     }
     :root[data-theme="dark"] .topic-chip { background: rgba(255, 255, 255, 0.06); }
@@ -1235,7 +1244,7 @@ a:hover {
     .gh-cal-cell[data-level="2"] { background: var(--gh-cell-2); }
     .gh-cal-cell[data-level="3"] { background: var(--gh-cell-3); }
     .gh-cal-cell[data-level="4"] { background: var(--gh-cell-4); }
-    .gh-cal-cell[data-level="0"] { background: var(--gh-cell-0); border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+    .gh-cal-cell[data-level="0"] { background: var(--gh-cell-0); }
     .gh-cal-cell--pad {
       pointer-events: none;
       border: none;
@@ -1333,6 +1342,23 @@ a:hover {
     }
     .chart-box.tall { height: min(52vh, 440px); min-height: 320px; }
     .chart-box.compact { height: 240px; min-height: 220px; }
+    #chart-daily-heat.chart-box { min-height: 280px; height: min(42vh, 360px); }
+    .pie-legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 6px 10px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .pie-legend li {
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--ink);
+    }
+    .pie-legend .pie-legend-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pie-legend .pie-legend-pct { color: var(--muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
     .kw-table-wrap {
       max-height: 520px;
       overflow: auto;

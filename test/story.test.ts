@@ -111,6 +111,48 @@ test("buildReportStory produces wrapped cards and headline", () => {
   assert.ok(story.tone.laughPer100 > 0);
 });
 
+test("buildReportStory limits duplicate persona titles", () => {
+  const many: ParticipantStat[] = Array.from({ length: 8 }, (_, i) => ({
+    alias: `U${i}`,
+    messages: 100 - i * 5,
+    characters: 1000,
+    averageLength: i % 2 === 0 ? 45 : 8,
+    attachmentMessages: i === 2 ? 30 : 2,
+    linkMessages: i === 3 ? 20 : 1,
+    sharePercent: i === 0 ? 35 : 8,
+    nightMessages: i === 1 ? 40 : i === 4 ? 5 : 12,
+    maxConsecutive: i === 5 ? 15 : 4,
+  }));
+  const story = buildReportStory({
+    chatRoomName: "다양성",
+    totalMessages: 800,
+    activeDays: 10,
+    firstMessage: "2026-04-01 09:00:00",
+    lastMessage: "2026-05-01 22:00:00",
+    longestStreak: 3,
+    peakHour: 14,
+    busiestWeekdayLabel: "월요일",
+    nightSharePercent: 15,
+    emojiMessages: 10,
+    participants: many,
+    daily: [{ date: "2026-04-01", count: 80 }],
+    dailySenderCounts: new Map(),
+    senderAliases: new Map(),
+    insights: baseInsights,
+    laughMessages: 50,
+    shortMessages: 40,
+    laughBySender: new Map(many.map((p, i) => [p.alias, i === 6 ? 25 : 2])),
+    shortBySender: new Map(many.map((p, i) => [p.alias, i === 7 ? 30 : 3])),
+    burstDays: [],
+    activityArc: [],
+    conversationPace: { label: "혼합", emoji: "🌊", detail: "" },
+    roomPulse: [],
+  });
+  const titles = story.personas.map((p) => p.title);
+  const dup = titles.filter((t, i) => titles.indexOf(t) !== i);
+  assert.ok(dup.length <= 2, `too many duplicate personas: ${dup.join(", ")}`);
+});
+
 test("buildReportStory uses Korean compact stats not k suffix", () => {
   const story = buildReportStory({
     chatRoomName: "대형방",
