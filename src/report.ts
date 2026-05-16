@@ -60,17 +60,35 @@ export function renderReportHtml(data: ReportData): string {
       border-radius: inherit;
     }
     .bar-value { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
-    .calendar { display: grid; gap: 3px; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); }
-    .day {
-      aspect-ratio: 1;
-      border-radius: 6px;
+    .chart-hint { margin: 0 0 10px; font-size: 12px; color: var(--muted); line-height: 1.45; }
+    .chart-hint strong { color: var(--ink); font-weight: 700; }
+    .calendar-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; margin: 0 -2px; }
+    .calendar {
       display: grid;
-      place-items: center;
-      font-size: 9px;
+      gap: 4px;
+      width: max-content;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .day {
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-width: 42px;
+      min-height: 46px;
+      padding: 4px 3px;
       font-weight: 650;
       border: 1px solid rgba(15, 107, 92, 0.12);
     }
-    .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 140px; }
+    .day-k { font-size: 10px; line-height: 1.15; font-weight: 750; letter-spacing: -0.02em; }
+    .day-n { font-size: 12px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .hours-wrap { display: flex; flex-direction: column; gap: 0; }
+    .hours-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; margin: 0 -2px; }
+    .hours-chart-inner { min-width: 520px; display: flex; flex-direction: column; gap: 5px; }
+    .hours-bars { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 140px; }
     .hour {
       min-width: 0;
       width: 100%;
@@ -78,6 +96,17 @@ export function renderReportHtml(data: ReportData): string {
       background: linear-gradient(180deg, var(--accent2), #e07a45);
       border-radius: 3px 3px 0 0;
     }
+    .hours-labels {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 2px;
+      font-size: 9px;
+      line-height: 1.15;
+      color: var(--muted);
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .hours-labels span { min-width: 0; }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .table th, .table td { text-align: left; border-bottom: 1px solid var(--line); padding: 9px 6px; }
     .table th { color: var(--muted); font-weight: 650; font-size: 11px; text-transform: none; }
@@ -85,7 +114,7 @@ export function renderReportHtml(data: ReportData): string {
     footer { margin-top: 28px; color: var(--muted); font-size: 11px; line-height: 1.5; }
     @media (max-width: 900px) {
       .hero, .two, .three, .metrics, .metrics6 { grid-template-columns: 1fr; }
-      .hours { grid-template-columns: repeat(12, 1fr); height: 120px; }
+      .hours-chart-inner { min-width: 480px; }
     }
   </style>
 </head>
@@ -180,15 +209,23 @@ function panel(title: string, content: string): string {
 function renderDaily(days: DailyCount[]): string {
   if (days.length === 0) return `<p style="margin:0;color:var(--muted);font-size:13px">날짜가 있는 메시지가 없습니다.</p>`;
   const max = Math.max(...days.map((day) => day.count), 1);
-  return `<div class="calendar">${days
+  const cols = `repeat(${days.length}, minmax(42px, 1fr))`;
+  const cells = days
     .map((day) => {
       const ratio = day.count / max;
       const alpha = Math.min(0.92, Math.max(0.1, 0.1 + ratio * 0.82));
       const bg = `rgba(15, 107, 92, ${alpha.toFixed(2)})`;
       const fg = ratio > 0.42 ? "#f4f8f7" : "#0c2a24";
-      return `<div class="day" title="${escapeHtml(day.date)} · ${day.count}건" style="background-color:${bg};color:${fg}">${day.count}</div>`;
+      const short = formatDayMd(day.date);
+      return `<div class="day" title="${escapeHtml(day.date)} · ${day.count}건" style="background-color:${bg};color:${fg}"><span class="day-k">${escapeHtml(short)}</span><span class="day-n">${day.count}</span></div>`;
     })
-    .join("")}</div>`;
+    .join("");
+  return `<div class="calendar-wrap">
+    <p class="chart-hint">각 칸: <strong>월/일</strong>(위) · 해당일 <strong>메시지 수</strong>(아래). 온전한 날짜는 칸에 마우스를 올리면 툴팁으로 보입니다.</p>
+    <div class="calendar-scroll">
+      <div class="calendar" style="grid-template-columns:${cols}">${cells}</div>
+    </div>
+  </div>`;
 }
 
 function renderMonthly(months: DailyCount[]): string {
@@ -198,12 +235,29 @@ function renderMonthly(months: DailyCount[]): string {
 
 function renderHours(hours: number[]): string {
   const max = Math.max(...hours, 1);
-  return `<div class="hours">${hours
+  const bars = hours
     .map((count, hour) => {
       const height = Math.max(2, Math.round((count / max) * 100));
-      return `<div class="hour" title="${hour}시 · ${count}건" style="height:${height}%"></div>`;
+      return `<div class="hour" title="${hour}시 · ${formatNumber(count)}건" style="height:${height}%"></div>`;
     })
-    .join("")}</div>`;
+    .join("");
+  const labels = Array.from({ length: 24 }, (_, hour) => `<span title="${hour}시">${hour}</span>`).join("");
+  return `<div class="hours-wrap">
+    <p class="chart-hint">가로 한 칸이 <strong>1시간</strong>입니다. 아래 숫자는 <strong>시각(0~23시)</strong>이며, 막대 높이는 해당 시간대 메시지 수 비율입니다.</p>
+    <div class="hours-scroll">
+      <div class="hours-chart-inner">
+        <div class="hours-bars">${bars}</div>
+        <div class="hours-labels">${labels}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/** YYYY-MM-DD → M/D (앞자리 0 제거) */
+function formatDayMd(ymd: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd.trim());
+  if (!m) return ymd;
+  return `${Number(m[2])}/${Number(m[3])}`;
 }
 
 function renderParticipants(participants: ParticipantStat[]): string {
