@@ -53,3 +53,44 @@
 ## 4. GitHub Pages
 
 `docs/` 변경은 기존 **Deploy GitHub Pages** 워크플로로 배포된다. npm과 별개이다.
+
+## 5. 리포트 시각 QA (강제 — 사용자 노가다 금지)
+
+리포트 HTML·차트·Wrapped·키워드·테마·레이아웃에 **조금이라도** 손댄 뒤 `main` 푸시·배포 전에, 에이전트가 **직접** 아래를 수행한다. “`npm test`만 통과했습니다”로 끝내지 않는다.
+
+### A. 자동 생성
+
+1. `npm test` 통과 후 **`npm run report:qa`** 실행한다.  
+   - 기본: `~/Downloads`의 `KakaoTalk*.csv` 중 **최신 2개** → `.qa-reports/<slug>/index.html`  
+   - 전부: `npm run report:qa -- --all`  
+   - 시맨틱 끄고 빠르게: `KCA_NO_SEMANTIC=1 npm run report:qa`  
+   - CSV 폴더 변경: `KCA_QA_CSV_DIR=~/Downloads npm run report:qa`
+2. 스크립트가 HTML 구조( Wrapped·ECharts·키워드·참여자 ) 1차 검사를 한다. 실패 시 수정 후 재실행.
+3. **별도 터미널(백그라운드)** 에 `npm run report:qa:serve` → `http://127.0.0.1:18765/<slug>/`  
+   (브라우저 MCP는 `file://` 불가. manifest의 `httpUrl` 사용.)
+
+### B. 브라우저 검수 (에이전트 필수)
+
+`manifest.json`의 각 **`httpUrl`** 에 대해 **cursor-ide-browser**로 연다 (`browser_navigate` → 스냅샷·스크린샷).
+
+| 확인 항목 | 기준 |
+|-----------|------|
+| Wrapped | 카드·한글 수치·빈 블록 없음 |
+| ECharts | 워드클라우드·시간대·잔디·키워드·**주제 맵** 로드, 빈 차트 없음 |
+| 키워드 | 상위어가 방 주제와 맞음, 잡음·깨진 2-gram 없음 |
+| 참여자 | 말풍선·마스킹·랭킹 표 |
+| 테마 | 라이트 / 다크 / 시스템 |
+| 반응형 | ~390px 폭에서 겹침·가로 스크롤 폭주 없음 |
+| 콘솔 | `browser_console_messages`에 치명적 에러 없음 |
+
+스크린샷 또는 스냅샷으로 **최소 1장면(Wrapped + 차트 1개 + 키워드)** 을 확인한 뒤, 이슈가 있으면 고치고 **report:qa 재실행**한다.
+
+### C. 완료 보고
+
+PR·커밋·배포 완료 메시지에 반드시 포함:
+
+- 실행한 명령 (`report:qa` 옵션, CSV 개수)
+- 검수한 `http://127.0.0.1:18765/...` URL(또는 slug)
+- 시각 QA에서 본 문제·수정 여부 (없으면 “시각 QA 이상 없음”)
+
+**사용자에게 “브라우저에서 직접 확인해 주세요”만 남기고 끝내는 것은 금지**한다. 확인은 에이전트 몫이다.

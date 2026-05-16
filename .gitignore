@@ -5,6 +5,7 @@ node_modules/
 .env
 .secrets/
 .kca/
+.qa-reports/
 .maru/
 kcachat/node_modules/
 # 테스트 산출물만 제외(npx·GitHub 직접 실행용으로 dist/src 는 커밋)
