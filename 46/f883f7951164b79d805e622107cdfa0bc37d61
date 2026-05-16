@@ -1,0 +1,127 @@
+dist/src/repeat-phrase-counter.d.ts
+  s_d404882750412e::t_5b87f1e035885b 1-8
+dist/src/system-notices.d.ts
+  s_d404882750412e::t_5b87f1e035885b 1-24
+dist/src/repeat-phrase-counter.js
+  s_d404882750412e::t_5b87f1e035885b 1-33
+dist/src/bubble-layout.js
+  s_d404882750412e::t_5b87f1e035885b 1-40
+test/parser-report.test.ts
+  s_d404882750412e::t_60eee1987947f0 245-252,257-258,260-262
+dist/src/repeat-phrase-counter.js.map
+  ai_agent 1
+dist/src/aggregator.js
+  s_d404882750412e::t_5b87f1e035885b 5-6,20-22,79-80,100-108,129-134,136,145-147,149-151,153-213,218,230-268,444-447,488-503,558-596,824-828,833-835,837-843
+src/types.ts
+  s_d404882750412e::t_d11b00e871a1fd 248-253
+  s_d404882750412e::t_30bbbe6508052f 57,62-69,74-81
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_5b87f1e035885b 22-23,43-51,60
+dist/src/report-story.js.map
+  ai_agent 1
+dist/src/story.js
+  s_d404882750412e::t_5b87f1e035885b 1-2,263-264,266-269,274-276,281,283,285,287,301,341
+scripts/explore-export.mjs
+  s_d404882750412e::t_453e352ec1aedd 1-141,148,150-273
+  s_d404882750412e::t_6783e8ba3ae4f0 149
+  s_d404882750412e::t_0f63dc39b2a1db 142-147
+dist/src/room-events.js.map
+  ai_agent 1
+src/repeat-phrase-counter.ts
+  s_d404882750412e::t_472aebf64b6c90 1-35
+test/story.test.ts
+  s_d404882750412e::t_af3f2b7868fd20 99-100
+dist/src/report-story.js
+  s_d404882750412e::t_5b87f1e035885b 246,286,297-298,309,313
+dist/src/bubble-layout.d.ts
+  s_d404882750412e::t_5b87f1e035885b 1-11
+dist/src/system-notices.js
+  s_d404882750412e::t_9e55a6e3e3f46c 100-101,107-126,128
+  s_d404882750412e::t_7ea4189d2c255e 3
+  s_d404882750412e::t_5b87f1e035885b 1-2,4,6-99,102-106,127,129-155
+  s_d404882750412e::t_e53c2e4e54be4e 5
+src/story.ts
+  s_d404882750412e::t_0298f1b63771b3 438
+  s_d404882750412e::t_0fcde4c3a02606 15-16
+  s_d404882750412e::t_63f347580ebb74 360,363-366,372-373,375,380,382,384,386,401
+src/aggregator.ts
+  s_d404882750412e::t_949f34501f0c2d 941-946,951-953,956,959-963
+  s_d404882750412e::t_0af7cf4e792376 171-175,177
+  s_d404882750412e::t_6f195e6ca006f3 625-680
+  s_d404882750412e::t_b5955b29129330 187,189-192,194-200,202-206,208-210,212-214,216-219,221-223,225-238,240,242-244,246-250,252-256,258-266,272,285-322
+  s_d404882750412e::t_5d8e1e2c4982b3 509-512
+  s_d404882750412e::t_f9fe6e979ebf03 15-20
+  s_d404882750412e::t_54fc173894cc1d 115-116
+  s_d404882750412e::t_c51e0237dc5d8e 554-569
+  s_d404882750412e::t_d2c5f319c8c617 890-893
+  s_d404882750412e::t_ebf48929629c89 137-145
+  s_d404882750412e::t_1c9d38d69a0c40 36-38
+dist/src/report-story.d.ts
+  s_d404882750412e::t_5b87f1e035885b 2
+src/room-events.ts
+  s_d404882750412e::t_28edbdd7898db0 1-12
+test/room-events.test.ts
+  s_d404882750412e::t_7a074a26d6cdd2 52
+dist/src/bubble-layout.js.map
+  ai_agent 1
+src/report-story.ts
+  s_d404882750412e::t_c6343be247ebd0 306-307
+  s_d404882750412e::t_c1d988c76e27a6 319,323
+  s_d404882750412e::t_cc1e521ef97d76 249
+  s_d404882750412e::t_c223db556c8842 291
+dist/src/system-notices.js.map
+  ai_agent 1
+dist/src/aggregator.js.map
+  ai_agent 1
+test/system-notices.test.ts
+  s_d404882750412e::t_e3cfccde53df56 1-10,12-24,32
+  s_d404882750412e::t_e54ec7d7f219d8 31
+  s_d404882750412e::t_a2f1fa411e1684 11
+  s_d404882750412e::t_9f01804faca14f 25-30
+dist/src/room-events.d.ts
+  s_d404882750412e::t_5b87f1e035885b 1-2
+dist/src/report.js
+  s_d404882750412e::t_5b87f1e035885b 1-2,758-760,762-764,1047,1051-1055,1073-1076,1179-1192,1194-1196,1198,1202-1219,1221
+package.json
+  s_d404882750412e::t_8597580f4ea3d6 3
+src/bubble-layout.ts
+  s_d404882750412e::t_136e57f2c7b085 13
+  s_d404882750412e::t_e1f8748576d795 1-12,14-57
+dist/src/types.d.ts
+  s_d404882750412e::t_5b87f1e035885b 49,54-61,66-72,232-237
+src/system-notices.ts
+  s_d404882750412e::t_2493958438bd3a 1-21,23,25-123,126,129,153,167-181
+  s_d404882750412e::t_eec6f41984f6e3 127-128,130,152,154-166
+  s_d404882750412e::t_948822e51d752e 22
+  s_d404882750412e::t_7502d1685d0ce6 24
+  s_d404882750412e::t_fa129e4a69cf3e 124-125,131-151
+dist/src/report.js.map
+  ai_agent 1
+src/report.ts
+  s_d404882750412e::t_e831205e4da649 1109-1112
+  s_d404882750412e::t_339d9576f83c08 769-771,773-777
+  s_d404882750412e::t_3b04d1f9d0ceb8 1-2
+  s_d404882750412e::t_b9c39b590cf49e 1254
+  s_d404882750412e::t_fafd5c5a51b7a1 1081-1082,1086-1091
+  s_d404882750412e::t_1c3664819e4fbb 1225,1227-1238,1240-1242,1245,1250-1253,1255-1269,1272
+dist/src/room-events.js
+  s_d404882750412e::t_5b87f1e035885b 1-2
+dist/src/story.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "46f883f7951164b79d805e622107cdfa0bc37d61",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
