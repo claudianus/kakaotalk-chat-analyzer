@@ -1708,6 +1708,61 @@ main {
   }
 }
 
+/* 모바일 말풍선 맵 — 랭킹 리스트 */
+@media (max-width: 559px) {
+  .sc-plot {
+    padding: 12px 10px 14px;
+    background-image: none;
+    min-height: 0;
+  }
+
+  .sc-grid-label,
+  .sc-quadrant {
+    display: none;
+  }
+
+  .sc-plot-list {
+    gap: 8px;
+  }
+
+  .bubble-node {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--panel-solid);
+  }
+
+  .bubble-shape {
+    display: none;
+  }
+
+  .bubble-content {
+    display: contents;
+  }
+
+  .bubble-content strong {
+    grid-column: 1;
+    white-space: normal;
+    font-size: 12px;
+  }
+
+  .bubble-content .bubble-pct {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    font-size: 18px;
+    text-align: right;
+  }
+
+  .bubble-content small {
+    grid-column: 1;
+    font-size: 10px;
+  }
+}
+
 /* 터치 타깃 */
 @media (hover: none) and (pointer: coarse) {
   .theme-btn,

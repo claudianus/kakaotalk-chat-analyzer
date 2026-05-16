@@ -345,7 +345,7 @@ function renderFactMatrix(data: ReportData): string {
   return `<section id="s-facts" class="card fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>① 숫자 요약 (팩트 매트릭스)</h2>
     ${strip}
-    <p class="fact-hint">외부 AI나 서버 없이, <strong>보낸 CSV 안의 숫자만</strong>으로 만든 표예요. 아래 칸이 많아 보여도, 위 세 칸만 봐도 대화 규모와 “살아 있는 정도” 감이 잡힙니다.</p>
+    <p class="fact-hint">외부 AI나 서버 없이, <strong>보낸 CSV 안의 숫자만</strong>으로 만든 표예요. 지니 계수·리듬 점수는 표본(메시지·참여자) 기준 <strong>상대 비교</strong>용이며, 아래 ③에서 분포·쏠림을 함께 보세요.</p>
     <div class="fact-grid">${inner}</div>
   </section>`;
 }

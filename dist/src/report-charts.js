@@ -138,9 +138,13 @@ export const CHARTS_INIT_SCRIPT = `
       }
       function layout(el) {
         var w = (el && el.clientWidth) || 400;
-        if (w < 380) return { left: 28, right: 8, top: 14, bottom: 42, fs: 9, rot: 38 };
-        if (w < 640) return { left: 40, right: 10, top: 18, bottom: 32, fs: 10, rot: 24 };
-        return { left: 48, right: 14, top: 22, bottom: 28, fs: 11, rot: 0 };
+        if (w < 380) {
+          return { w: w, left: 28, right: 8, top: 14, bottom: 44, fs: 9, rot: 40, leftCat: 56, bottomRot: 42 };
+        }
+        if (w < 640) {
+          return { w: w, left: 40, right: 10, top: 18, bottom: 34, fs: 10, rot: 26, leftCat: 72, bottomRot: 32 };
+        }
+        return { w: w, left: 48, right: 14, top: 22, bottom: 28, fs: 11, rot: 0, leftCat: 96, bottomRot: 28 };
       }
       function init(id, opt) {
         var el = document.getElementById(id);
@@ -196,57 +200,68 @@ export const CHARTS_INIT_SCRIPT = `
       }
 
       if (data.weekdays && document.getElementById("chart-weekday")) {
+        var wdEl = document.getElementById("chart-weekday");
+        var wg = layout(wdEl);
         init("chart-weekday", Object.assign(baseOpt(), {
-          grid: { left: 48, right: 12, top: 24, bottom: 28 },
-          xAxis: { type: "value", axisLabel: { color: muted } },
-          yAxis: { type: "category", data: data.weekdays.map(function (w) { return w.label; }), axisLabel: { color: muted } },
+          grid: { left: wg.leftCat, right: wg.right, top: wg.top, bottom: wg.bottom },
+          xAxis: { type: "value", axisLabel: { color: muted, fontSize: wg.fs } },
+          yAxis: { type: "category", data: data.weekdays.map(function (w) { return w.label; }), axisLabel: { color: muted, fontSize: wg.fs } },
           series: [{ type: "bar", data: data.weekdays.map(function (w) { return w.count; }), itemStyle: { color: accent, borderRadius: [0, 6, 6, 0] } }],
         }));
       }
 
       if (data.monthly && document.getElementById("chart-monthly")) {
+        var moEl = document.getElementById("chart-monthly");
+        var mg = layout(moEl);
         init("chart-monthly", Object.assign(baseOpt(), {
-          grid: { left: 40, right: 12, top: 20, bottom: 36 },
-          xAxis: { type: "category", data: data.monthly.map(function (m) { return m.label; }), axisLabel: { color: muted, fontSize: 10, rotate: 35 } },
-          yAxis: { type: "value", axisLabel: { color: muted }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
+          grid: { left: mg.left, right: mg.right, top: mg.top, bottom: mg.bottom },
+          xAxis: { type: "category", data: data.monthly.map(function (m) { return m.label; }), axisLabel: { color: muted, fontSize: mg.fs, rotate: mg.bottomRot } },
+          yAxis: { type: "value", axisLabel: { color: muted, fontSize: mg.fs }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
           series: [{ type: "line", smooth: true, data: data.monthly.map(function (m) { return m.count; }), areaStyle: { opacity: 0.12 }, lineStyle: { width: 2, color: accent2 }, itemStyle: { color: accent2 } }],
         }));
       }
 
       if (data.daily && document.getElementById("chart-daily-heat")) {
+        var heatEl = document.getElementById("chart-daily-heat");
+        var dg = layout(heatEl);
+        var cellH = dg.w < 380 ? 9 : dg.w < 640 ? 11 : 14;
         var heat = data.daily.map(function (d) { return [d.date, d.count]; });
-        var burst = {};
-        (data.burstDates || []).forEach(function (d) { burst[d] = true; });
         init("chart-daily-heat", Object.assign(baseOpt(), {
           tooltip: { position: "top" },
-          visualMap: { min: 0, max: Math.max.apply(null, data.daily.map(function (d) { return d.count; })), calculable: true, orient: "horizontal", left: "center", bottom: 0, textStyle: { color: muted }, inRange: { color: dark ? ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"] : ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"] } },
-          calendar: { top: 36, left: 40, right: 20, cellSize: ["auto", 14], range: data.daily.length ? [data.daily[0].date, data.daily[data.daily.length - 1].date] : undefined, itemStyle: { borderWidth: 0.5, borderColor: dark ? "#30363d" : "#fff" }, dayLabel: { color: muted, fontSize: 10 }, monthLabel: { color: muted } },
+          visualMap: { min: 0, max: Math.max.apply(null, data.daily.map(function (d) { return d.count; })), calculable: true, orient: "horizontal", left: "center", bottom: 0, textStyle: { color: muted, fontSize: dg.fs }, itemWidth: dg.w < 380 ? 10 : 14, itemHeight: dg.w < 380 ? 60 : 80, inRange: { color: dark ? ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"] : ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"] } },
+          calendar: { top: dg.w < 380 ? 28 : 36, left: dg.left, right: dg.right, cellSize: ["auto", cellH], range: data.daily.length ? [data.daily[0].date, data.daily[data.daily.length - 1].date] : undefined, itemStyle: { borderWidth: 0.5, borderColor: dark ? "#30363d" : "#fff" }, dayLabel: { color: muted, fontSize: dg.fs }, monthLabel: { color: muted, fontSize: dg.fs } },
           series: [{ type: "heatmap", coordinateSystem: "calendar", data: heat }],
         }));
       }
 
       if (data.keywords && document.getElementById("chart-kw-bar")) {
-        var topBar = data.keywords.slice(0, 80);
+        var kwEl = document.getElementById("chart-kw-bar");
+        var kg = layout(kwEl);
+        var topBar = data.keywords.slice(0, kg.w < 380 ? 24 : 80);
         init("chart-kw-bar", Object.assign(baseOpt(), {
-          grid: { left: 96, right: 16, top: 12, bottom: 12 },
-          xAxis: { type: "value", axisLabel: { color: muted } },
-          yAxis: { type: "category", data: topBar.map(function (k) { return k.label; }).reverse(), axisLabel: { color: text, fontSize: 11 } },
+          grid: { left: kg.leftCat, right: kg.right, top: kg.top, bottom: kg.bottom },
+          xAxis: { type: "value", axisLabel: { color: muted, fontSize: kg.fs } },
+          yAxis: { type: "category", data: topBar.map(function (k) { return k.label; }).reverse(), axisLabel: { color: text, fontSize: kg.fs } },
           series: [{ type: "bar", data: topBar.map(function (k) { return k.count; }).reverse(), itemStyle: { color: accent2, borderRadius: [0, 4, 4, 0] } }],
         }));
       }
 
       if (data.keywords && document.getElementById("chart-kw-cloud")) {
+        var cloudEl = document.getElementById("chart-kw-cloud");
+        var cg = layout(cloudEl);
         var cloud = data.keywords.slice(0, 100).map(function (k) {
           return { name: k.label, value: k.count };
         });
+        var sizeLo = cg.w < 380 ? 10 : 12;
+        var sizeHi = cg.w < 380 ? 34 : cg.w < 640 ? 46 : 56;
         init("chart-kw-cloud", {
           textStyle: baseOpt().textStyle,
           tooltip: { show: true },
           series: [{
             type: "wordCloud",
             shape: "circle",
-            gridSize: 6,
-            sizeRange: [12, 56],
+            gridSize: cg.w < 380 ? 8 : 6,
+            sizeRange: [sizeLo, sizeHi],
             rotationRange: [-45, 45],
             textStyle: {
               fontFamily: "Pretendard, Apple SD Gothic Neo, sans-serif",
@@ -261,28 +276,33 @@ export const CHARTS_INIT_SCRIPT = `
       }
 
       if (data.participants && document.getElementById("chart-participants")) {
-        var p = data.participants.slice(0, 16);
+        var pieEl = document.getElementById("chart-participants");
+        var pg = layout(pieEl);
+        var p = data.participants.slice(0, pg.w < 380 ? 8 : 16);
+        var pieR = pg.w < 380 ? ["46%", "72%"] : ["42%", "70%"];
         init("chart-participants", Object.assign(baseOpt(), {
           tooltip: { trigger: "item" },
           series: [{
             type: "pie",
-            radius: ["42%", "70%"],
+            radius: pieR,
             data: p.map(function (x) { return { name: x.alias, value: x.messages }; }),
-            label: { color: text, fontSize: 10 },
+            label: { color: text, fontSize: pg.fs },
             itemStyle: { borderRadius: 4, borderColor: dark ? "#0d1117" : "#fff", borderWidth: 2 },
           }],
         }));
       }
 
       if (data.topics && data.topics.length && document.getElementById("chart-topics")) {
+        var topEl = document.getElementById("chart-topics");
+        var tg = layout(topEl);
         var topics = data.topics.slice(0, 8);
         init("chart-topics", Object.assign(baseOpt(), {
-          grid: { left: 120, right: 24, top: 16, bottom: 24 },
-          xAxis: { type: "value", axisLabel: { color: muted, formatter: "{value}%" } },
+          grid: { left: Math.max(tg.leftCat, tg.w < 380 ? 72 : 96), right: tg.right, top: tg.top, bottom: tg.bottom },
+          xAxis: { type: "value", axisLabel: { color: muted, fontSize: tg.fs, formatter: "{value}%" } },
           yAxis: {
             type: "category",
             data: topics.map(function (t) { return t.title; }).reverse(),
-            axisLabel: { color: text, fontSize: 11 },
+            axisLabel: { color: text, fontSize: tg.fs },
           },
           series: [{
             type: "bar",
