@@ -1,3 +1,5 @@
+import { resolveBubbleOverlaps } from "./bubble-layout.js";
+import { SYSTEM_NOTICE_LABELS } from "./system-notices.js";
 import { STORY_CSS, buildOgDescription, renderStoryHeadline, renderStorySections, storyNavLinks, } from "./report-story.js";
 import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
 const FIVE_MIB = 5 * 1024 * 1024;
@@ -753,9 +755,13 @@ export function renderReportHtml(data) {
       ${panel("키워드 스냅샷", "사람이 직접 입력한 본문 단어만 집계해요.", renderKeywordSnapshot(data.keywords))}
     </section>
 
-    <section style="margin-bottom:14px">
-      ${panel("카카오톡 시스템 알림", "입·퇴장(들어왔습니다·나갔습니다)과 「메시지가 삭제되었습니다」 삭제 로그만 집계합니다. 키워드와 섞지 않습니다.", renderRoomEvents(data.roomEvents, data.summary.totalMessages))}
+    <section class="grid two" style="margin-bottom:14px">
+      ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴, 슬로우모드, 운영 임명, 샵검색, 사진 묶음 등 CSV 시스템 문구를 본문과 분리해 집계합니다.", renderRoomEvents(data.roomEvents, data.summary.totalMessages))}
+      ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 동일 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
     </section>
+    ${data.shopSearchTopics.length > 0
+        ? `<section style="margin-bottom:14px">${panel("샵검색 키워드", "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(data.shopSearchTopics))}</section>`
+        : ""}
     </div>
 
     ${renderSelfServeCallout()}
@@ -1038,13 +1044,16 @@ function renderParticipantScatter(parts) {
 }
 function renderParticipantBubbleMap(top, maxShare, minLen, lenSpan) {
     const maxMessages = Math.max(...top.map((p) => p.messages), 1);
-    const bubbles = top
-        .map((p, i) => {
+    const layouts = resolveBubbleOverlaps(top.map((p) => {
         const x = 14 + (p.sharePercent / maxShare) * 72;
         const yRaw = (p.averageLength - minLen) / lenSpan;
         const y = 16 + (1 - yRaw) * 68;
+        return { x, y, scale: scatterScale(p.messages, maxMessages) };
+    }));
+    const bubbles = top
+        .map((p, i) => {
+        const { x, y, scale } = layouts[i];
         const hue = (i * 53) % 360;
-        const scale = scatterScale(p.messages, maxMessages);
         const title = `${p.alias} · ${p.sharePercent}% · 평균 ${p.averageLength}자 · ${formatNumber(p.messages)}건`;
         return `<div class="bubble-node" style="left:${x}%;top:${y}%;--bubble-scale:${scale};--bubble-hue:${hue}" title="${escapeHtml(title)}">
         <span class="bubble-shape" aria-hidden="true"></span>
@@ -1061,10 +1070,10 @@ function renderParticipantBubbleMap(top, maxShare, minLen, lenSpan) {
     <span class="sc-grid-label sc-lbl-bottom">평균 글자 ↓</span>
     <span class="sc-grid-label sc-lbl-left">비중 ↓</span>
     <span class="sc-grid-label sc-lbl-right">비중 ↑</span>
-    <span class="sc-quadrant sc-q-tl">짧게 · 적게</span>
-    <span class="sc-quadrant sc-q-tr">짧게 · 많이</span>
-    <span class="sc-quadrant sc-q-bl">길게 · 적게</span>
-    <span class="sc-quadrant sc-q-br">길게 · 많이</span>
+    <span class="sc-quadrant sc-q-tl">길게 · 적게</span>
+    <span class="sc-quadrant sc-q-tr">길게 · 많이</span>
+    <span class="sc-quadrant sc-q-bl">짧게 · 적게</span>
+    <span class="sc-quadrant sc-q-br">짧게 · 많이</span>
     <div class="sc-plot-list">${bubbles}</div>
   </div>`;
 }
@@ -1167,20 +1176,49 @@ function renderParticipants(participants) {
 }
 function renderRoomEvents(stats, totalMessages) {
     if (stats.total === 0) {
-        return '<p style="margin:0;color:var(--muted);font-size:13px">입·퇴장·삭제 알림 형태의 시스템 메시지가 없거나, 보내기 형식에서 감지되지 않았습니다.</p>';
+        return '<p style="margin:0;color:var(--muted);font-size:13px">시스템·운영 알림이 없거나, 보내기 형식에서 감지되지 않았습니다.</p>';
     }
-    const items = [
-        { label: "들어왔습니다 (입장)", count: stats.joinCount },
-        { label: "나갔습니다 (퇴장)", count: stats.leaveCount },
-        { label: "메시지가 삭제되었습니다", count: stats.deletedCount },
+    const pairs = [
+        ["joinCount", SYSTEM_NOTICE_LABELS.join],
+        ["leaveCount", SYSTEM_NOTICE_LABELS.leave],
+        ["deletedCount", SYSTEM_NOTICE_LABELS.deleted],
+        ["hiddenCount", SYSTEM_NOTICE_LABELS.hidden],
+        ["kickCount", SYSTEM_NOTICE_LABELS.kick],
+        ["slowModeOnCount", SYSTEM_NOTICE_LABELS.slowModeOn],
+        ["slowModeOffCount", SYSTEM_NOTICE_LABELS.slowModeOff],
+        ["subManagerCount", SYSTEM_NOTICE_LABELS.subManager],
+        ["managerCount", SYSTEM_NOTICE_LABELS.manager],
+        ["shopSearchCount", SYSTEM_NOTICE_LABELS.shopSearch],
+        ["photoBundleCount", SYSTEM_NOTICE_LABELS.photoBundle],
     ];
+    const items = pairs
+        .map(([key, label]) => ({ label, count: stats[key] }))
+        .filter((item) => item.count > 0);
     const ofAll = totalMessages > 0
-        ? `<p class="kw-note" style="margin-top:10px">전체 메시지 <strong>${formatNumber(totalMessages)}</strong>건 중 입장 <strong>${stats.joinSharePercent}%</strong> · 퇴장 <strong>${stats.leaveSharePercent}%</strong> · 삭제 알림 <strong>${stats.deletedSharePercent}%</strong> (각각 전체 대비).</p>`
+        ? `<p class="kw-note" style="margin-top:10px">전체 <strong>${formatNumber(totalMessages)}</strong>건 중 시스템·운영 알림 합계 <strong>${stats.total}</strong>건 (입장 ${stats.joinSharePercent}% · 퇴장 ${stats.leaveSharePercent}% · 가림 ${stats.hiddenSharePercent}% · 강퇴 ${stats.kickSharePercent}%).</p>`
         : "";
     return renderCountBars(items) + ofAll;
 }
+function renderReactionsPanel(data) {
+    const parts = [];
+    const total = data.summary.totalMessages;
+    if (data.pureLaughMessages > 0) {
+        const pct = total > 0 ? Math.round((data.pureLaughMessages / total) * 1000) / 10 : 0;
+        parts.push(`<p style="margin:0 0 8px"><strong>ㅋㅋ·ㅎㅎ만</strong> · ${formatNumber(data.pureLaughMessages)}건 (${pct}%)</p>`);
+    }
+    if (data.story.tone.laughPer100 > 0) {
+        parts.push(`<p style="margin:0 0 8px">웃음 패턴 포함 · 100건당 ${data.story.tone.laughPer100}건</p>`);
+    }
+    if (data.repeatedPhrases.length > 0) {
+        parts.push(renderCountBars(data.repeatedPhrases.map((r) => ({ label: r.label, count: r.count }))));
+    }
+    else if (parts.length === 0) {
+        return '<p style="margin:0;color:var(--muted);font-size:13px">반복 문구·순수 ㅋㅋ 리액션이 거의 없습니다.</p>';
+    }
+    return parts.join("");
+}
 function renderKeywordSnapshot(items) {
-    const note = '<p class="kw-note"><strong>본문 단어만</strong> 집계해요. 첨부·입퇴장·「메시지가 삭제되었습니다」 같은 시스템 문구는 <strong>각각 다른 차트</strong>에서 봅니다.</p>';
+    const note = '<p class="kw-note"><strong>본문 단어만</strong> 집계해요. 첨부·시스템·운영 알림·샵검색은 <strong>각각 다른 차트</strong>에서 봅니다.</p>';
     if (items.length === 0) {
         return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
     }

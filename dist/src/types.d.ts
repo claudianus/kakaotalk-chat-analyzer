@@ -46,17 +46,30 @@ export interface CountItem {
     label: string;
     count: number;
 }
-/** 카카오톡 시스템 알림(입·퇴장·삭제 로그 등) */
+/** 카카오톡 시스템·운영 알림 집계 */
 export interface RoomEventStats {
     joinCount: number;
     leaveCount: number;
     deletedCount: number;
-    /** join + leave + deleted */
+    hiddenCount: number;
+    kickCount: number;
+    slowModeOnCount: number;
+    slowModeOffCount: number;
+    subManagerCount: number;
+    managerCount: number;
+    shopSearchCount: number;
+    photoBundleCount: number;
     total: number;
-    /** 전체 메시지 대비 비율(%) */
     joinSharePercent: number;
     leaveSharePercent: number;
     deletedSharePercent: number;
+    hiddenSharePercent: number;
+    kickSharePercent: number;
+}
+/** 동일 문구 반복(카피페asta·환영문 등) */
+export interface RepeatedPhraseStat {
+    label: string;
+    count: number;
 }
 export interface DailyCount {
     date: string;
@@ -216,6 +229,12 @@ export interface ReportData {
     domains: CountItem[];
     keywords: CountItem[];
     roomEvents: RoomEventStats;
+    /** 3회 이상 동일 본문 */
+    repeatedPhrases: RepeatedPhraseStat[];
+    /** 샵검색 #주제 상위 */
+    shopSearchTopics: CountItem[];
+    /** ㅋㅎ만 있는 짧은 리액션 */
+    pureLaughMessages: number;
     /** 리포트 상단에 보여줄 한 줄 인사이트(한국어) */
     highlights: string[];
     /** Wrapped·챕터·페르소나 등 스토리 레이어 */

@@ -19,6 +19,8 @@ export declare class ReportAggregator {
     private readonly attachments;
     private readonly domains;
     private readonly keywordCounter;
+    private readonly repeatPhraseCounter;
+    private readonly shopSearchTopics;
     private readonly gapStats;
     private readonly dailySenderCounts;
     private readonly laughBySender;
@@ -38,6 +40,15 @@ export declare class ReportAggregator {
     private roomJoinMessages;
     private roomLeaveMessages;
     private roomDeletedMessages;
+    private roomHiddenMessages;
+    private roomKickMessages;
+    private roomSlowOnMessages;
+    private roomSlowOffMessages;
+    private roomSubManagerMessages;
+    private roomManagerMessages;
+    private roomShopSearchMessages;
+    private roomPhotoBundleMessages;
+    private pureLaughMessages;
     private prevMs;
     private prevSender;
     private runSender;
@@ -46,5 +57,6 @@ export declare class ReportAggregator {
     private lastDate;
     constructor(filePath: string, privacy: PrivacyMode, top: number);
     consume(record: ChatRecord): void;
+    private bumpSystemNotice;
     finalize(meta: FinalizeSourceMeta): ReportData;
 }

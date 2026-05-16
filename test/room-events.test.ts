@@ -49,7 +49,7 @@ test("system notices are excluded from keywords", async () => {
     assert.equal(data.keywords.some((k) => k.label === "메시지가"), false);
 
     const html = renderReportHtml(data);
-    assert.equal(html.includes("카카오톡 시스템 알림"), true);
+    assert.equal(html.includes("카카오톡 시스템·운영 알림"), true);
     assert.equal(html.includes("메시지가 삭제되었습니다"), true);
     assert.equal(isSystemNoticeMessage("메시지가 삭제되었습니다."), true);
   } finally {

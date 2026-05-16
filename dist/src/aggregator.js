@@ -2,7 +2,8 @@ import { formatDate, formatDateTime, partsToUtcMs, weekdayIndex } from "./date.j
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats } from "./gap-stats.js";
 import { KeywordCounter } from "./keyword-counter.js";
-import { detectSystemNotice, ROOM_EVENT_KEYWORD_STOP } from "./room-events.js";
+import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
+import { splitMessageForAnalysis, SYSTEM_NOTICE_KEYWORD_STOP, } from "./system-notices.js";
 import { buildReportStory } from "./story.js";
 const ATTACHMENT_MARKERS = [
     "사진",
@@ -16,7 +17,9 @@ const ATTACHMENT_MARKERS = [
     "음성메시지",
     "삭제된 메시지",
 ];
-const KEYWORD_EXCLUDE = new Set([...ATTACHMENT_MARKERS, ...ROOM_EVENT_KEYWORD_STOP]);
+const KEYWORD_EXCLUDE = new Set([...ATTACHMENT_MARKERS, ...SYSTEM_NOTICE_KEYWORD_STOP]);
+const PHOTO_BUNDLE_RE = /^사진\s+\d+\s*장$/;
+const PURE_LAUGH_RE = /^[ㅋㅎㅠㅜ]+$/u;
 const WEEKDAY_LABELS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const URL_RE = /\bhttps?:\/\/[^\s<>"']+|www\.[^\s<>"']+/gi;
 const EMAIL_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
@@ -73,6 +76,8 @@ export class ReportAggregator {
     attachments = new Map();
     domains = new Map();
     keywordCounter = new KeywordCounter();
+    repeatPhraseCounter = new RepeatPhraseCounter();
+    shopSearchTopics = new Map();
     gapStats = new GapStreamStats();
     dailySenderCounts = new Map();
     laughBySender = new Map();
@@ -92,6 +97,15 @@ export class ReportAggregator {
     roomJoinMessages = 0;
     roomLeaveMessages = 0;
     roomDeletedMessages = 0;
+    roomHiddenMessages = 0;
+    roomKickMessages = 0;
+    roomSlowOnMessages = 0;
+    roomSlowOffMessages = 0;
+    roomSubManagerMessages = 0;
+    roomManagerMessages = 0;
+    roomShopSearchMessages = 0;
+    roomPhotoBundleMessages = 0;
+    pureLaughMessages = 0;
     prevMs = null;
     prevSender = null;
     runSender = null;
@@ -112,15 +126,14 @@ export class ReportAggregator {
             this.sendersRegistered.add(record.sender);
             this.senderNamesNormalized.add(normalizeToken(record.sender));
         }
-        const msg = record.message;
+        const split = splitMessageForAnalysis(record.message);
+        for (const kind of split.notices)
+            this.bumpSystemNotice(kind);
+        for (const tag of split.shopSearchTags)
+            increment(this.shopSearchTopics, tag);
+        const msg = split.userText.length > 0 ? split.userText : record.message;
         const messageLength = msg.length;
-        const systemNotice = detectSystemNotice(msg);
-        if (systemNotice === "join")
-            this.roomJoinMessages += 1;
-        if (systemNotice === "leave")
-            this.roomLeaveMessages += 1;
-        if (systemNotice === "deleted")
-            this.roomDeletedMessages += 1;
+        const isPureSystem = split.notices.length > 0 && split.userText.length === 0;
         const foundAttachments = getAttachmentMarkers(msg);
         const foundDomains = LINK_HINT_RE.test(msg) ? getDomains(msg) : [];
         const ms = partsToUtcMs(record.date);
@@ -128,75 +141,81 @@ export class ReportAggregator {
             this.firstDate = record.date;
         this.lastDate = record.date;
         this.total += 1;
-        if (messageLength > 0 && EMOJI_RE.test(msg)) {
-            this.emojiMessages += 1;
-        }
-        if (messageLength > 0 && LAUGH_RE.test(msg)) {
-            this.laughMessages += 1;
-            increment(this.laughBySender, record.sender);
-        }
-        const trimmed = msg.trim();
-        if (trimmed.length > 0 && trimmed.length <= 3) {
-            this.shortMessages += 1;
-            increment(this.shortBySender, record.sender);
-        }
-        if (msg.includes("?") || msg.includes("？")) {
-            this.questionMessages += 1;
-        }
         const wi = weekdayIndex(record.date);
-        if (wi === 0 || wi === 6) {
-            this.weekendMessages += 1;
-        }
-        if (NIGHT_HOURS.has(record.date.hour)) {
-            this.nightMessages += 1;
-            stat.nightMessages += 1;
-        }
-        if (this.prevMs !== null) {
-            const delta = ms - this.prevMs;
-            this.gapStats.add(delta);
-        }
-        this.prevMs = ms;
-        if (record.sender === this.prevSender) {
-            this.runLen += 1;
-            if (this.runLen >= 3) {
-                this.monologueMessages += 1;
+        if (!isPureSystem) {
+            if (messageLength > 0 && EMOJI_RE.test(msg)) {
+                this.emojiMessages += 1;
             }
-        }
-        else {
-            if (this.prevSender !== null && this.runSender !== null) {
-                const prevStat = getParticipantStat(this.senderStats, this.prevSender);
-                prevStat.maxConsecutive = Math.max(prevStat.maxConsecutive, this.runLen);
+            if (messageLength > 0 && LAUGH_RE.test(msg)) {
+                this.laughMessages += 1;
+                increment(this.laughBySender, record.sender);
             }
-            this.runSender = record.sender;
-            this.runLen = 1;
-        }
-        this.prevSender = record.sender;
-        stat.messages += 1;
-        stat.characters += messageLength;
-        this.totalCharacters += messageLength;
-        if (foundAttachments.length > 0) {
-            stat.attachmentMessages += 1;
-            this.messagesWithAttachments += 1;
-            for (const marker of foundAttachments)
-                increment(this.attachments, marker);
-        }
-        if (foundDomains.length > 0) {
-            stat.linkMessages += 1;
-            this.messagesWithLinks += 1;
-            for (const domain of foundDomains)
-                increment(this.domains, domain);
-        }
-        if (systemNotice === null &&
-            messageLength >= 2 &&
-            HAS_TOKEN_CHAR_RE.test(msg) &&
-            shouldExtractKeywords(msg, foundAttachments)) {
-            for (const keyword of extractKeywords(msg, this.senderNamesNormalized)) {
-                this.keywordCounter.add(keyword);
+            if (messageLength > 0 && PURE_LAUGH_RE.test(msg.trim())) {
+                this.pureLaughMessages += 1;
+            }
+            const trimmed = msg.trim();
+            if (trimmed.length > 0 && trimmed.length <= 3) {
+                this.shortMessages += 1;
+                increment(this.shortBySender, record.sender);
+            }
+            if (msg.includes("?") || msg.includes("？")) {
+                this.questionMessages += 1;
+            }
+            if (wi === 0 || wi === 6) {
+                this.weekendMessages += 1;
+            }
+            if (NIGHT_HOURS.has(record.date.hour)) {
+                this.nightMessages += 1;
+                stat.nightMessages += 1;
+            }
+            if (this.prevMs !== null) {
+                const delta = ms - this.prevMs;
+                this.gapStats.add(delta);
+            }
+            this.prevMs = ms;
+            if (record.sender === this.prevSender) {
+                this.runLen += 1;
+                if (this.runLen >= 3) {
+                    this.monologueMessages += 1;
+                }
+            }
+            else {
+                if (this.prevSender !== null && this.runSender !== null) {
+                    const prevStat = getParticipantStat(this.senderStats, this.prevSender);
+                    prevStat.maxConsecutive = Math.max(prevStat.maxConsecutive, this.runLen);
+                }
+                this.runSender = record.sender;
+                this.runLen = 1;
+            }
+            this.prevSender = record.sender;
+            stat.messages += 1;
+            stat.characters += messageLength;
+            this.totalCharacters += messageLength;
+            if (foundAttachments.length > 0) {
+                stat.attachmentMessages += 1;
+                this.messagesWithAttachments += 1;
+                for (const marker of foundAttachments)
+                    increment(this.attachments, marker);
+            }
+            if (foundDomains.length > 0) {
+                stat.linkMessages += 1;
+                this.messagesWithLinks += 1;
+                for (const domain of foundDomains)
+                    increment(this.domains, domain);
+            }
+            if (messageLength >= 2 &&
+                HAS_TOKEN_CHAR_RE.test(msg) &&
+                shouldExtractKeywords(msg, foundAttachments)) {
+                for (const keyword of extractKeywords(msg, this.senderNamesNormalized)) {
+                    this.keywordCounter.add(keyword);
+                }
+                if (messageLength >= 12)
+                    this.repeatPhraseCounter.add(msg);
             }
         }
         const dayKey = formatDate(record.date);
         increment(this.daily, dayKey);
-        {
+        if (!isPureSystem) {
             let perDay = this.dailySenderCounts.get(dayKey);
             if (!perDay) {
                 perDay = new Map();
@@ -207,6 +226,45 @@ export class ReportAggregator {
         increment(this.monthly, `${record.date.year}-${pad2(record.date.month)}`);
         this.hourly[record.date.hour] = (this.hourly[record.date.hour] ?? 0) + 1;
         this.weekdays[wi] = (this.weekdays[wi] ?? 0) + 1;
+    }
+    bumpSystemNotice(kind) {
+        switch (kind) {
+            case "join":
+                this.roomJoinMessages += 1;
+                break;
+            case "leave":
+                this.roomLeaveMessages += 1;
+                break;
+            case "deleted":
+                this.roomDeletedMessages += 1;
+                break;
+            case "hidden":
+                this.roomHiddenMessages += 1;
+                break;
+            case "kick":
+                this.roomKickMessages += 1;
+                break;
+            case "slowModeOn":
+                this.roomSlowOnMessages += 1;
+                break;
+            case "slowModeOff":
+                this.roomSlowOffMessages += 1;
+                break;
+            case "subManager":
+                this.roomSubManagerMessages += 1;
+                break;
+            case "manager":
+                this.roomManagerMessages += 1;
+                break;
+            case "shopSearch":
+                this.roomShopSearchMessages += 1;
+                break;
+            case "photoBundle":
+                this.roomPhotoBundleMessages += 1;
+                break;
+            default:
+                break;
+        }
     }
     finalize(meta) {
         if (this.prevSender !== null && this.runSender !== null) {
@@ -383,6 +441,10 @@ export class ReportAggregator {
             roomJoinMessages: this.roomJoinMessages,
             roomLeaveMessages: this.roomLeaveMessages,
             roomDeletedMessages: this.roomDeletedMessages,
+            roomHiddenMessages: this.roomHiddenMessages,
+            roomKickMessages: this.roomKickMessages,
+            pureLaughMessages: this.pureLaughMessages,
+            repeatedPhraseCount: this.repeatPhraseCounter.top(1, 3)[0]?.count ?? 0,
         });
         return {
             generatedAt: new Date().toISOString(),
@@ -423,15 +485,22 @@ export class ReportAggregator {
             attachments: topCounts(this.attachments, this.top),
             domains: topCounts(this.domains, this.top),
             keywords: this.keywordCounter.topCounts(this.top),
-            roomEvents: {
-                joinCount: this.roomJoinMessages,
-                leaveCount: this.roomLeaveMessages,
-                deletedCount: this.roomDeletedMessages,
-                total: this.roomJoinMessages + this.roomLeaveMessages + this.roomDeletedMessages,
-                joinSharePercent: total > 0 ? round((this.roomJoinMessages / total) * 100, 2) : 0,
-                leaveSharePercent: total > 0 ? round((this.roomLeaveMessages / total) * 100, 2) : 0,
-                deletedSharePercent: total > 0 ? round((this.roomDeletedMessages / total) * 100, 2) : 0,
-            },
+            roomEvents: buildRoomEventStats(total, {
+                join: this.roomJoinMessages,
+                leave: this.roomLeaveMessages,
+                deleted: this.roomDeletedMessages,
+                hidden: this.roomHiddenMessages,
+                kick: this.roomKickMessages,
+                slowModeOn: this.roomSlowOnMessages,
+                slowModeOff: this.roomSlowOffMessages,
+                subManager: this.roomSubManagerMessages,
+                manager: this.roomManagerMessages,
+                shopSearch: this.roomShopSearchMessages,
+                photoBundle: this.roomPhotoBundleMessages,
+            }),
+            repeatedPhrases: this.repeatPhraseCounter.top(8, 3),
+            shopSearchTopics: topCounts(this.shopSearchTopics, 10),
+            pureLaughMessages: this.pureLaughMessages,
             highlights,
             story,
         };
@@ -486,7 +555,45 @@ function shouldExtractKeywords(message, attachmentMarkers) {
     return true;
 }
 function getAttachmentMarkers(message) {
-    return ATTACHMENT_MARKERS.filter((marker) => message.includes(marker));
+    const found = ATTACHMENT_MARKERS.filter((marker) => message.includes(marker));
+    const t = message.trim();
+    if (PHOTO_BUNDLE_RE.test(t) && !found.includes("사진")) {
+        found.push("사진");
+    }
+    return found;
+}
+function buildRoomEventStats(total, c) {
+    const sum = c.join +
+        c.leave +
+        c.deleted +
+        c.hidden +
+        c.kick +
+        c.slowModeOn +
+        c.slowModeOff +
+        c.subManager +
+        c.manager +
+        c.shopSearch +
+        c.photoBundle;
+    const pct = (n) => (total > 0 ? round((n / total) * 100, 2) : 0);
+    return {
+        joinCount: c.join,
+        leaveCount: c.leave,
+        deletedCount: c.deleted,
+        hiddenCount: c.hidden,
+        kickCount: c.kick,
+        slowModeOnCount: c.slowModeOn,
+        slowModeOffCount: c.slowModeOff,
+        subManagerCount: c.subManager,
+        managerCount: c.manager,
+        shopSearchCount: c.shopSearch,
+        photoBundleCount: c.photoBundle,
+        total: sum,
+        joinSharePercent: pct(c.join),
+        leaveSharePercent: pct(c.leave),
+        deletedSharePercent: pct(c.deleted),
+        hiddenSharePercent: pct(c.hidden),
+        kickSharePercent: pct(c.kick),
+    };
 }
 function getDomains(message) {
     const matches = message.match(URL_RE) ?? [];
@@ -714,14 +821,26 @@ function buildHighlights(input) {
     if (input.monologueMessagesPercent >= 25) {
         out.push(`같은 사람 **3연속 이상** 메시지가 전체의 **${input.monologueMessagesPercent}%** — 긴 설명·정리 구간이 잦을 수 있어요.`);
     }
-    const sysTotal = input.roomJoinMessages + input.roomLeaveMessages + input.roomDeletedMessages;
+    const sysTotal = input.roomJoinMessages +
+        input.roomLeaveMessages +
+        input.roomDeletedMessages +
+        input.roomHiddenMessages +
+        input.roomKickMessages;
     if (sysTotal > 0) {
         const parts = [
             input.roomJoinMessages > 0 ? `들어옴 ${input.roomJoinMessages}` : "",
             input.roomLeaveMessages > 0 ? `나감 ${input.roomLeaveMessages}` : "",
-            input.roomDeletedMessages > 0 ? `삭제 알림 ${input.roomDeletedMessages}` : "",
+            input.roomDeletedMessages > 0 ? `삭제 ${input.roomDeletedMessages}` : "",
+            input.roomHiddenMessages > 0 ? `가림 ${input.roomHiddenMessages}` : "",
+            input.roomKickMessages > 0 ? `강퇴 ${input.roomKickMessages}` : "",
         ].filter(Boolean);
-        out.push(`카카오톡 **시스템 알림** **${sysTotal}**건(${parts.join(" · ")}) — 키워드와는 따로 집계했어요.`);
+        out.push(`카카오톡 **시스템·운영 알림** **${sysTotal}**건(${parts.join(" · ")}) — 본문 키워드와 분리했어요.`);
+    }
+    if (input.pureLaughMessages > 0) {
+        out.push(`**ㅋㅋ만** 보낸 리액션 메시지는 **${input.pureLaughMessages}**건이에요.`);
+    }
+    if (input.repeatedPhraseCount >= 10) {
+        out.push(`같은 문장이 **${input.repeatedPhraseCount}회** 반복된 카피페asta급 문구도 있어요.`);
     }
     return out.slice(0, 12);
 }

@@ -246,6 +246,7 @@ export const STORY_CSS = `
     .gh-cal-cell[data-level="2"] { background: var(--gh-cell-2); }
     .gh-cal-cell[data-level="3"] { background: var(--gh-cell-3); }
     .gh-cal-cell[data-level="4"] { background: var(--gh-cell-4); }
+    .gh-cal-cell[data-level="0"] { background: var(--gh-cell-0); border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
     .gh-cal-legend {
       display: flex;
       align-items: center;
@@ -287,7 +288,7 @@ function renderGitHubCalendar(data: ReportData): string {
     return `<span class="gh-cal-month">${hit ? escapeHtml(hit.label) : ""}</span>`;
   }).join("");
 
-  const dayLabels = ["", "Mon", "", "Wed", "", "Fri", ""]
+  const dayLabels = ["", "월", "", "수", "", "금", ""]
     .map((d) => `<span>${d}</span>`)
     .join("");
 
@@ -302,8 +303,8 @@ function renderGitHubCalendar(data: ReportData): string {
 
   const summary =
     s.calendarTotalMessages > 0
-      ? `<p class="gh-contrib-summary"><strong>${formatNumber(s.calendarTotalMessages)}</strong> messages in this period<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`
-      : `<p class="gh-contrib-summary">No activity in this period<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`;
+      ? `<p class="gh-contrib-summary">이 기간 메시지 <strong>${formatNumber(s.calendarTotalMessages)}</strong>건<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`
+      : `<p class="gh-contrib-summary">이 기간 활동 없음<span class="gh-contrib-span">${escapeHtml(s.calendarSpanLabel)}</span></p>`;
 
   return `<div class="gh-contrib">
     ${summary}
@@ -315,11 +316,11 @@ function renderGitHubCalendar(data: ReportData): string {
       </div>
     </div>
     <footer class="gh-cal-legend" aria-hidden="true">
-      <span>Less</span>
+      <span>적음</span>
       <span class="gh-cal-legend-scale">
         <i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i>
       </span>
-      <span>More</span>
+      <span>많음</span>
     </footer>
   </div>`;
 }

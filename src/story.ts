@@ -12,7 +12,8 @@ import type {
   WrappedCard,
 } from "./types.js";
 
-const GH_MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+const GH_MONTH_KO = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"] as const;
+const GITHUB_WEEKS = 53;
 
 const CHAPTER_GAP_DAYS = 7;
 
@@ -356,37 +357,39 @@ function buildCalendarGrid(daily: DailyCount[]): {
   const first = sorted[0]!;
   const last = sorted[sorted.length - 1]!;
   let totalMessages = 0;
+  for (const c of map.values()) totalMessages += c;
 
-  const start = new Date(`${first}T12:00:00Z`);
   const end = new Date(`${last}T12:00:00Z`);
-  const padStart = start.getUTCDay();
-  const cursor = new Date(start);
+  const windowStart = new Date(end);
+  windowStart.setUTCDate(windowStart.getUTCDate() - (GITHUB_WEEKS * 7 - 1));
+  const padStart = windowStart.getUTCDay();
+  const cursor = new Date(windowStart);
   cursor.setUTCDate(cursor.getUTCDate() - padStart);
 
   const weeks: CalendarWeek[] = [];
   let week: CalendarCell[] = [];
   const levelThresholds = buildContributionLevelThresholds([...map.values()]);
+  const targetCells = GITHUB_WEEKS * 7;
+  let filled = 0;
 
-  while (cursor.getTime() <= end.getTime() + 6 * 86_400_000) {
+  while (filled < targetCells) {
     const y = cursor.getUTCFullYear();
     const m = pad2(cursor.getUTCMonth() + 1);
     const d = pad2(cursor.getUTCDate());
     const key = `${y}-${m}-${d}`;
-    const inRange = key >= first && key <= last;
-    const count = inRange ? (map.get(key) ?? 0) : 0;
-    if (inRange && count > 0) totalMessages += count;
+    const count = map.get(key) ?? 0;
     week.push({
-      date: inRange ? key : null,
+      date: key,
       count,
-      level: inRange && count > 0 ? levelFromCount(count, levelThresholds) : 0,
+      level: count > 0 ? levelFromCount(count, levelThresholds) : 0,
     });
+    filled += 1;
 
     if (week.length === 7) {
       weeks.push({ cells: week });
       week = [];
     }
     cursor.setUTCDate(cursor.getUTCDate() + 1);
-    if (cursor.getTime() > end.getTime() + 7 * 86_400_000 && week.length === 0) break;
   }
   if (week.length > 0) {
     while (week.length < 7) week.push({ date: null, count: 0, level: 0 });
@@ -395,7 +398,7 @@ function buildCalendarGrid(daily: DailyCount[]): {
 
   return {
     weeks,
-    spanLabel: `${first} ~ ${last}`,
+    spanLabel: `${first} ~ ${last} · 잔디 ${GITHUB_WEEKS}주`,
     totalMessages,
     monthLabels: buildMonthLabels(weeks),
   };
@@ -432,7 +435,7 @@ function buildMonthLabels(weeks: CalendarWeek[]): CalendarMonthLabel[] {
     if (!firstInWeek?.date) continue;
     const month = Number.parseInt(firstInWeek.date.slice(5, 7), 10) - 1;
     if (month !== lastMonth && month >= 0 && month < 12) {
-      labels.push({ weekIndex: wi, label: GH_MONTH_SHORT[month]! });
+      labels.push({ weekIndex: wi, label: GH_MONTH_KO[month]! });
       lastMonth = month;
     }
   }

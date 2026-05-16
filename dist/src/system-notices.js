@@ -1,0 +1,155 @@
+const JOIN_LINE = /^(?:.+님이\s*)?들어왔습니다\.?$|^.+님이\s+들어왔습니다\.?$/u;
+const LEAVE_LINE = /^(?:.+님이\s*)?나갔습니다\.?$|^.+님이\s+나갔습니다\.?$/u;
+const DELETED_LINE = /^메시지가\s+삭제되었습니다\.?$/u;
+const HIDDEN_LINE = /^관리자가\s+메시지를\s+가렸습니다\.?$/u;
+const KICK_LINE = /^.{0,48}님을\s*(?:내)?보냈습니다\.?$/u;
+const SLOW_ON_LINE = /^관리자만\s+말하기\s+기능이\s+활성화되었습니다\.?$/u;
+const SLOW_OFF_LINE = /^관리자만\s+말하기\s+기능이\s+해제되었습니다\.?$/u;
+const SUB_MANAGER_LINE = /^.+님이\s+부방장이\s+되었습니다\.?$/u;
+const MANAGER_LINE = /^.+님이\s+방장이\s+되었습니다\.?$/u;
+const SHOP_SEARCH_LINE = /^샵검색:\s*(.+)$/u;
+const PHOTO_BUNDLE_LINE = /^사진\s+\d+\s*장$/u;
+/** CSV 연속 줄에 붙는 시스템 꼬리 (`,"","…"`) */
+const EMBEDDED_SYS_RE = /,\s*"",\s*"([^"]+)"/g;
+export const SYSTEM_NOTICE_KEYWORD_STOP = new Set([
+    "들어왔습니다",
+    "나갔습니다",
+    "삭제되었습니다",
+    "가렸습니다",
+    "메시지가",
+    "보냈습니다",
+    "활성화되었습니다",
+    "해제되었습니다",
+    "부방장이",
+    "방장이",
+    "샵검색",
+]);
+/** @deprecated */
+export const ROOM_EVENT_KEYWORD_STOP = SYSTEM_NOTICE_KEYWORD_STOP;
+export function normalizeNoticeLine(line) {
+    return line
+        .trim()
+        .replace(/^"+|"+$/g, "")
+        .replace(/\s+/g, " ");
+}
+export function detectSystemNoticeLine(line) {
+    const t = normalizeNoticeLine(line);
+    if (!t)
+        return null;
+    if (DELETED_LINE.test(t))
+        return "deleted";
+    if (HIDDEN_LINE.test(t))
+        return "hidden";
+    if (SLOW_ON_LINE.test(t))
+        return "slowModeOn";
+    if (SLOW_OFF_LINE.test(t))
+        return "slowModeOff";
+    if (SUB_MANAGER_LINE.test(t))
+        return "subManager";
+    if (MANAGER_LINE.test(t))
+        return "manager";
+    if (SHOP_SEARCH_LINE.test(t))
+        return "shopSearch";
+    if (PHOTO_BUNDLE_LINE.test(t))
+        return "photoBundle";
+    if (KICK_LINE.test(t) && !/선물과\s+메시지를\s+보냈습니다/.test(t))
+        return "kick";
+    if (LEAVE_LINE.test(t))
+        return "leave";
+    if (JOIN_LINE.test(t))
+        return "join";
+    return null;
+}
+/** @deprecated */
+export function detectSystemNotice(message) {
+    return detectSystemNoticeLine(message);
+}
+export function detectRoomEvent(message) {
+    const kind = detectSystemNoticeLine(message);
+    if (kind === "join" || kind === "leave")
+        return kind;
+    return null;
+}
+export function isSystemNoticeMessage(message) {
+    return splitMessageForAnalysis(message).notices.length > 0;
+}
+export function isRoomEventMessage(message) {
+    return isSystemNoticeMessage(message);
+}
+function extractEmbeddedSystemLines(raw) {
+    const out = [];
+    for (const m of raw.matchAll(EMBEDDED_SYS_RE)) {
+        const body = m[1];
+        if (body)
+            out.push(body);
+    }
+    return out;
+}
+export function extractShopSearchTag(line) {
+    const t = normalizeNoticeLine(line);
+    const m = t.match(SHOP_SEARCH_LINE);
+    if (!m?.[1])
+        return null;
+    return m[1].trim().slice(0, 80);
+}
+/** 멀티라인·CSV 꼬리에서 시스템 알림 분리 */
+export function splitMessageForAnalysis(message) {
+    const notices = [];
+    const shopSearchTags = [];
+    const userParts = [];
+    for (const rawLine of message.split("\n")) {
+        const line = normalizeNoticeLine(rawLine.replace(/,\s*"",\s*"/g, "").replace(/"$/g, ""));
+        if (!line)
+            continue;
+        if (pushDetectedLine(line, notices, shopSearchTags))
+            continue;
+        userParts.push(rawLine);
+    }
+    const userText = userParts.join("\n").trim();
+    const collapsed = collapseModerationTails(notices, userText.length > 0);
+    return { userText, notices: collapsed, shopSearchTags };
+}
+/** 본문 뒤 CSV 꼬리(가림·삭제)는 한 번만 hidden 으로 집계 */
+function collapseModerationTails(notices, hasUserText) {
+    if (!hasUserText)
+        return notices;
+    const out = [];
+    let moderation = false;
+    for (const kind of notices) {
+        if (kind === "hidden" || kind === "deleted") {
+            if (!moderation) {
+                out.push("hidden");
+                moderation = true;
+            }
+            continue;
+        }
+        out.push(kind);
+    }
+    return out;
+}
+function pushDetectedLine(line, notices, shopSearchTags) {
+    const kind = detectSystemNoticeLine(line);
+    if (!kind)
+        return false;
+    notices.push(kind);
+    if (kind === "shopSearch") {
+        const tag = extractShopSearchTag(line);
+        if (tag)
+            shopSearchTags.push(tag);
+    }
+    return true;
+}
+export const SYSTEM_NOTICE_LABELS = {
+    join: "들어왔습니다 (입장)",
+    leave: "나갔습니다 (퇴장)",
+    deleted: "메시지가 삭제되었습니다",
+    hidden: "관리자가 메시지를 가렸습니다",
+    kick: "님을보냈습니다 (강퇴)",
+    slowModeOn: "관리자만 말하기 (켜짐)",
+    slowModeOff: "관리자만 말하기 (꺼짐)",
+    subManager: "부방장 임명",
+    manager: "방장 임명",
+    shopSearch: "샵검색",
+    photoBundle: "사진 묶음",
+};
+//# sourceMappingURL=system-notices.js.map
