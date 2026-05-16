@@ -1,0 +1,89 @@
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_b1019232bb84a0 2
+dist/src/version.js
+  s_d404882750412e::t_b1019232bb84a0 1
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/types.d.ts
+  s_d404882750412e::t_b1019232bb84a0 284-315,320-321
+dist/src/report-styles.js
+  s_d404882750412e::t_b1019232bb84a0 961-976
+dist/src/report-provenance.d.ts
+  s_d404882750412e::t_b1019232bb84a0 1-17
+dist/src/report-provenance.js
+  s_d404882750412e::t_ae04436d0d13c0 41-42,44-46
+  s_d404882750412e::t_b1019232bb84a0 1-40,43,47-105
+src/version.ts
+  s_d404882750412e::t_efada06d2df8b6 1
+dist/src/report.js
+  s_d404882750412e::t_b1019232bb84a0 11-12,25-26,54,57,232-233,709-726
+test/parser-report.test.ts
+  s_d404882750412e::t_7a403de9ab8814 14,16
+  s_d404882750412e::t_ff252b9b9891b9 90-105
+src/types.ts
+  s_d404882750412e::t_69057fc46741a6 310-335,340-341
+dist/src/cli.js
+  s_d404882750412e::t_b1019232bb84a0 5-7,171,178-181,206-217,228-240
+src/analysis.ts
+  s_d404882750412e::t_36e598170e17ec 275-282
+src/report-styles.ts
+  s_d404882750412e::t_b1019232bb84a0 961-976
+src/report-provenance.ts
+  s_d404882750412e::t_db755c1cfba46e 2
+  s_d404882750412e::t_c0d6ee738c447a 1,3-17,19-65,68,71-134
+  s_d404882750412e::t_470adee0f20a99 66-67,69-70
+  s_d404882750412e::t_32ab6d3dbd0f1d 18
+src/report.ts
+  s_d404882750412e::t_7e6ff9fade7957 38-42
+  s_d404882750412e::t_1c6e11ab5ad35a 57-58
+  s_d404882750412e::t_a8ae02b85aee36 270-271
+  s_d404882750412e::t_c5dac1dd558f6d 86,89
+  s_d404882750412e::t_3118aea69f134c 807-825
+dist/src/analysis.js.map
+  ai_agent 1
+test/report-provenance.test.ts
+  s_d404882750412e::t_6bab8d9cf38434 1-51
+src/report/css/02-kca-components.css
+  s_d404882750412e::t_f6a7444b2acc1c 610-625
+dist/src/analysis.d.ts
+  s_d404882750412e::t_b1019232bb84a0 11-12
+dist/src/version.d.ts
+  s_d404882750412e::t_b1019232bb84a0 1-2
+dist/src/report.js.map
+  ai_agent 1
+src/cli.ts
+  s_d404882750412e::t_195d3d2f750d5d 310-323
+  s_d404882750412e::t_5de9464a9a71a3 5-7
+  s_d404882750412e::t_01643c2d5a0eff 280,289-290
+  s_d404882750412e::t_e3df6f74d526ab 238,245-249,281-288,291-293
+package.json
+  s_d404882750412e::t_568a2382cc12a8 25
+  s_d404882750412e::t_624a9827cf87e7 3
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/version.js.map
+  ai_agent 1
+kcachat/cli.mjs
+  s_d404882750412e::t_21a8ed3e106a30 30
+  s_d404882750412e::t_5eecad9c9fc286 47
+dist/src/report-provenance.js.map
+  ai_agent 1
+dist/src/analysis.js
+  s_d404882750412e::t_b1019232bb84a0 229-232
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "3d81f60c9f781cdc2b29ac311df1e60172b0bff0",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
