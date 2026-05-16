@@ -10,6 +10,8 @@ export interface BuildReportOptions {
   top?: number;
   /** false면 메인 스레드만 사용 */
   worker?: boolean;
+  /** 집계 중 진행 건수 stderr 출력 */
+  progress?: boolean;
 }
 
 export async function shouldUseAnalyzeWorker(

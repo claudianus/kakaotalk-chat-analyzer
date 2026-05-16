@@ -4,16 +4,28 @@ import { createInterface } from "node:readline";
 import { detectEncodingFromBytes, openDecodedStream } from "./encoding.js";
 import { DATE_LINE_RE, parseHeaderLine, parseRecordStart } from "./kakao-line.js";
 const SAMPLE_BYTES = 512 * 1024;
-export async function* streamKakaoExport(filePath) {
+const READ_HIGH_WATER_MARK = 1024 * 1024;
+function toChatRecord(pending) {
+    return {
+        line: pending.line,
+        rawDate: pending.rawDate,
+        date: pending.date,
+        sender: pending.sender,
+        message: pending.parts.length === 1 ? pending.parts[0] : pending.parts.join("\n"),
+    };
+}
+export async function* streamKakaoExport(filePath, options) {
     const sample = await readFileSample(filePath, SAMPLE_BYTES);
     const { encoding, skipBytes } = detectEncodingFromBytes(sample);
     const warnings = [];
-    const input = openDecodedStream(filePath, encoding, skipBytes);
+    const input = openDecodedStream(filePath, encoding, skipBytes, READ_HIGH_WATER_MARK);
     const rl = createInterface({ input, crlfDelay: Infinity });
     let lineNumber = 0;
     let header = [];
     let current = null;
     let physicalLines = 0;
+    let recordCount = 0;
+    const progressEvery = options?.progressEvery ?? 25_000;
     for await (const rawLine of rl) {
         lineNumber += 1;
         physicalLines += 1;
@@ -27,10 +39,21 @@ export async function* streamKakaoExport(filePath) {
         }
         if (DATE_LINE_RE.test(line)) {
             if (current) {
-                yield { type: "record", record: current };
+                recordCount += 1;
+                if (options?.onProgress && recordCount % progressEvery === 0) {
+                    options.onProgress(recordCount);
+                }
+                yield { type: "record", record: toChatRecord(current) };
                 current = null;
             }
-            current = parseRecordStart(line, lineNumber, warnings);
+            const started = parseRecordStart(line, lineNumber, warnings);
+            current = {
+                line: started.line,
+                rawDate: started.rawDate,
+                date: started.date,
+                sender: started.sender,
+                parts: [started.message],
+            };
             continue;
         }
         if (!current) {
@@ -43,10 +66,10 @@ export async function* streamKakaoExport(filePath) {
             }
             continue;
         }
-        current.message += `\n${line}`;
+        current.parts.push(line);
     }
     if (current) {
-        yield { type: "record", record: current };
+        yield { type: "record", record: toChatRecord(current) };
     }
     yield {
         type: "meta",

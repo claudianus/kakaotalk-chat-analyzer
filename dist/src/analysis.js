@@ -22,7 +22,15 @@ export async function buildReportFromExportSync(filePath, options) {
     const top = options?.top ?? DEFAULT_TOP;
     const agg = new ReportAggregator(filePath, privacy, top);
     let meta = null;
-    for await (const event of streamKakaoExport(filePath)) {
+    const streamOpts = options?.progress
+        ? {
+            progressEvery: 25_000,
+            onProgress: (count) => {
+                console.error(`[kca] 처리 중… ${count.toLocaleString("ko-KR")}건`);
+            },
+        }
+        : undefined;
+    for await (const event of streamKakaoExport(filePath, streamOpts)) {
         if (event.type === "record") {
             agg.consume(event.record);
         }
@@ -38,7 +46,11 @@ export async function buildReportFromExportSync(filePath, options) {
     if (!meta) {
         throw new Error(`No messages parsed from export: ${filePath}`);
     }
-    return agg.finalize(meta);
+    const report = agg.finalize(meta);
+    if (options?.progress && report.summary.totalMessages > 0) {
+        console.error(`[kca] 처리 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건`);
+    }
+    return report;
 }
 export async function buildReportFromExport(filePath, options) {
     if (await shouldUseAnalyzeWorker(filePath, options)) {

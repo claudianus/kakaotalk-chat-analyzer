@@ -1,3 +1,4 @@
+import type { StreamParseOptions } from "./stream-options.js";
 import type { ChatRecord, EncodingName, ParseWarning } from "./types.js";
 export interface StreamParseMeta {
     filePath: string;
@@ -13,7 +14,7 @@ export type StreamParseEvent = {
     type: "record";
     record: ChatRecord;
 };
-export declare function streamKakaoExport(filePath: string): AsyncGenerator<StreamParseEvent>;
+export declare function streamKakaoExport(filePath: string, options?: StreamParseOptions): AsyncGenerator<StreamParseEvent>;
 export declare function describeStreamedExport(filePath: string): Promise<{
     text: string;
     warnings: ParseWarning[];

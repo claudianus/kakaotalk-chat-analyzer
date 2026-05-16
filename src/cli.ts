@@ -48,6 +48,7 @@ main
   .option("-o, --out <dir>", "리포트 출력 폴더", DEFAULT_OUT)
   .option("--profile", "파싱·집계·HTML 단계별 소요 시간을 출력합니다.", false)
   .option("--no-worker", "3MB 이상 파일도 Worker 없이 메인 스레드에서 집계합니다.", false)
+  .option("--progress", "대용량 처리 시 2.5만 건마다 진행 상황을 stderr에 출력합니다.", false)
   .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
   .action(async (csv: string, options: MainOptions) => {
     const host = parseHostName(options.host);
@@ -62,6 +63,7 @@ main
       top,
       profile: options.profile,
       worker: options.noWorker || options.profile ? false : undefined,
+      progress: options.progress,
     });
     console.log(`리포트: ${htmlPath}`);
     console.log(`크기: ${await formatFileSize(htmlPath)}`);
@@ -160,6 +162,7 @@ interface MainOptions {
   out: string;
   profile: boolean;
   noWorker: boolean;
+  progress: boolean;
 }
 
 interface TokenOptions {
@@ -169,7 +172,14 @@ interface TokenOptions {
 
 async function generateReport(
   csv: string,
-  options: { outDir: string; privacy: PrivacyMode; top: number; profile: boolean; worker?: boolean },
+  options: {
+    outDir: string;
+    privacy: PrivacyMode;
+    top: number;
+    profile: boolean;
+    worker?: boolean;
+    progress?: boolean;
+  },
 ): Promise<string> {
   const csvPath = resolve(csv);
   const log = options.profile ? (label: string, ms: number) => console.error(`[kca] ${label}: ${ms}ms`) : () => {};
@@ -179,6 +189,7 @@ async function generateReport(
     privacy: options.privacy,
     top: options.top,
     worker: options.worker,
+    progress: options.progress,
   });
   log("parse+aggregate", performance.now() - t0);
 

@@ -68,7 +68,8 @@ const STOPWORDS = new Set([
 
 const NIGHT_HOURS = new Set([23, 0, 1, 2, 3, 4, 5]);
 const EMOJI_RE = /\p{Extended_Pictographic}/u;
-const QUESTION_RE = /\?|？/;
+const LINK_HINT_RE = /https?:\/\/|www\./i;
+const HAS_TOKEN_CHAR_RE = /[가-힣A-Za-z]/;
 
 export interface FinalizeSourceMeta {
   filePath: string;
@@ -93,6 +94,7 @@ export class ReportAggregator {
 
   private readonly senderStats = new Map<string, MutableParticipantStat>();
   private readonly senderNamesNormalized = new Set<string>();
+  private readonly sendersRegistered = new Set<string>();
   private readonly daily = new Map<string, number>();
   private readonly monthly = new Map<string, number>();
   private readonly hourly = Array.from({ length: 24 }, () => 0);
@@ -132,21 +134,26 @@ export class ReportAggregator {
     }
 
     const stat = getParticipantStat(this.senderStats, record.sender);
-    this.senderNamesNormalized.add(normalizeToken(record.sender));
-    const messageLength = record.message.length;
-    const foundAttachments = getAttachmentMarkers(record.message);
-    const foundDomains = getDomains(record.message);
+    if (!this.sendersRegistered.has(record.sender)) {
+      this.sendersRegistered.add(record.sender);
+      this.senderNamesNormalized.add(normalizeToken(record.sender));
+    }
+
+    const msg = record.message;
+    const messageLength = msg.length;
+    const foundAttachments = getAttachmentMarkers(msg);
+    const foundDomains = LINK_HINT_RE.test(msg) ? getDomains(msg) : [];
     const ms = partsToUtcMs(record.date);
 
     if (this.firstDate === null) this.firstDate = record.date;
     this.lastDate = record.date;
     this.total += 1;
 
-    if (EMOJI_RE.test(record.message)) {
+    if (messageLength > 0 && EMOJI_RE.test(msg)) {
       this.emojiMessages += 1;
     }
 
-    if (QUESTION_RE.test(record.message)) {
+    if (msg.includes("?") || msg.includes("？")) {
       this.questionMessages += 1;
     }
 
@@ -197,8 +204,12 @@ export class ReportAggregator {
       for (const domain of foundDomains) increment(this.domains, domain);
     }
 
-    if (shouldExtractKeywords(record.message, foundAttachments)) {
-      for (const keyword of extractKeywords(record.message, this.senderNamesNormalized)) {
+    if (
+      messageLength >= 2 &&
+      HAS_TOKEN_CHAR_RE.test(msg) &&
+      shouldExtractKeywords(msg, foundAttachments)
+    ) {
+      for (const keyword of extractKeywords(msg, this.senderNamesNormalized)) {
         this.keywordCounter.add(keyword);
       }
     }

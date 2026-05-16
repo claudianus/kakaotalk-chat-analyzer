@@ -11,6 +11,7 @@ export declare class ReportAggregator {
     private readonly top;
     private readonly senderStats;
     private readonly senderNamesNormalized;
+    private readonly sendersRegistered;
     private readonly daily;
     private readonly monthly;
     private readonly hourly;

@@ -22,8 +22,8 @@ export function detectEncodingFromBytes(bytes) {
     }
     return { encoding: best.encoding, skipBytes: 0 };
 }
-export function openDecodedStream(filePath, encoding, skipBytes) {
-    const raw = createReadStream(filePath, { start: skipBytes });
+export function openDecodedStream(filePath, encoding, skipBytes, highWaterMark = 64 * 1024) {
+    const raw = createReadStream(filePath, { start: skipBytes, highWaterMark });
     if (encoding === "cp949" || encoding === "euc-kr") {
         return raw.pipe(iconv.decodeStream(encoding));
     }

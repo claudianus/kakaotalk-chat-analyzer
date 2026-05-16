@@ -1,6 +1,7 @@
 import { ReportAggregator } from "./aggregator.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker, type BuildReportOptions } from "./analyze-pool.js";
+import type { StreamParseOptions } from "./stream-options.js";
 import { streamKakaoExport } from "./stream-parser.js";
 import type { EncodingName, ParseResult, PrivacyMode, ReportData } from "./types.js";
 
@@ -33,7 +34,16 @@ export async function buildReportFromExportSync(
   let meta: { filePath: string; encoding: EncodingName; physicalLines: number; warningCount: number } | null =
     null;
 
-  for await (const event of streamKakaoExport(filePath)) {
+  const streamOpts: StreamParseOptions | undefined = options?.progress
+    ? {
+        progressEvery: 25_000,
+        onProgress: (count) => {
+          console.error(`[kca] 처리 중… ${count.toLocaleString("ko-KR")}건`);
+        },
+      }
+    : undefined;
+
+  for await (const event of streamKakaoExport(filePath, streamOpts)) {
     if (event.type === "record") {
       agg.consume(event.record);
     } else {
@@ -50,7 +60,11 @@ export async function buildReportFromExportSync(
     throw new Error(`No messages parsed from export: ${filePath}`);
   }
 
-  return agg.finalize(meta);
+  const report = agg.finalize(meta);
+  if (options?.progress && report.summary.totalMessages > 0) {
+    console.error(`[kca] 처리 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건`);
+  }
+  return report;
 }
 
 export async function buildReportFromExport(
