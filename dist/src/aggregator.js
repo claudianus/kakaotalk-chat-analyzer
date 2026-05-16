@@ -3,7 +3,8 @@ import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName 
 import { GapStreamStats } from "./gap-stats.js";
 import { KeywordCounter } from "./keyword-counter.js";
 import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
-import { splitMessageForAnalysis, SYSTEM_NOTICE_KEYWORD_STOP, } from "./system-notices.js";
+import { buildRoomPulse, computeActivityArc, computeBurstDays, computeConversationPace, } from "./report-enrichment.js";
+import { isOpenChatBoilerplate, splitMessageForAnalysis, SYSTEM_NOTICE_KEYWORD_STOP, } from "./system-notices.js";
 import { buildReportStory } from "./story.js";
 const ATTACHMENT_MARKERS = [
     "사진",
@@ -56,6 +57,13 @@ const STOPWORDS = new Set([
     "from",
     "http",
     "https",
+    "정치성향",
+    "강퇴됩니다",
+    "가려짐",
+    "초중반",
+    "비속어",
+    "반가워",
+    "닉네임",
 ]);
 const NIGHT_HOURS = new Set([23, 0, 1, 2, 3, 4, 5]);
 const EMOJI_RE = /\p{Extended_Pictographic}/u;
@@ -82,6 +90,11 @@ export class ReportAggregator {
     dailySenderCounts = new Map();
     laughBySender = new Map();
     shortBySender = new Map();
+    dailyJoin = new Map();
+    dailyLeave = new Map();
+    dailyHidden = new Map();
+    dailyKick = new Map();
+    dailyNewSenders = new Map();
     total = 0;
     totalCharacters = 0;
     messagesWithLinks = 0;
@@ -121,14 +134,16 @@ export class ReportAggregator {
         if (this.prevSender !== null && record.sender !== this.prevSender) {
             this.speakerSwitches += 1;
         }
+        const dayKey = formatDate(record.date);
         const stat = getParticipantStat(this.senderStats, record.sender);
         if (!this.sendersRegistered.has(record.sender)) {
             this.sendersRegistered.add(record.sender);
             this.senderNamesNormalized.add(normalizeToken(record.sender));
+            increment(this.dailyNewSenders, dayKey);
         }
         const split = splitMessageForAnalysis(record.message);
         for (const kind of split.notices)
-            this.bumpSystemNotice(kind);
+            this.bumpSystemNotice(kind, dayKey);
         for (const tag of split.shopSearchTags)
             increment(this.shopSearchTopics, tag);
         const msg = split.userText.length > 0 ? split.userText : record.message;
@@ -205,15 +220,15 @@ export class ReportAggregator {
             }
             if (messageLength >= 2 &&
                 HAS_TOKEN_CHAR_RE.test(msg) &&
+                !isOpenChatBoilerplate(msg) &&
                 shouldExtractKeywords(msg, foundAttachments)) {
                 for (const keyword of extractKeywords(msg, this.senderNamesNormalized)) {
                     this.keywordCounter.add(keyword);
                 }
-                if (messageLength >= 12)
+                if (messageLength >= 12 && !isOpenChatBoilerplate(msg))
                     this.repeatPhraseCounter.add(msg);
             }
         }
-        const dayKey = formatDate(record.date);
         increment(this.daily, dayKey);
         if (!isPureSystem) {
             let perDay = this.dailySenderCounts.get(dayKey);
@@ -227,22 +242,26 @@ export class ReportAggregator {
         this.hourly[record.date.hour] = (this.hourly[record.date.hour] ?? 0) + 1;
         this.weekdays[wi] = (this.weekdays[wi] ?? 0) + 1;
     }
-    bumpSystemNotice(kind) {
+    bumpSystemNotice(kind, dayKey) {
         switch (kind) {
             case "join":
                 this.roomJoinMessages += 1;
+                increment(this.dailyJoin, dayKey);
                 break;
             case "leave":
                 this.roomLeaveMessages += 1;
+                increment(this.dailyLeave, dayKey);
                 break;
             case "deleted":
                 this.roomDeletedMessages += 1;
                 break;
             case "hidden":
                 this.roomHiddenMessages += 1;
+                increment(this.dailyHidden, dayKey);
                 break;
             case "kick":
                 this.roomKickMessages += 1;
+                increment(this.dailyKick, dayKey);
                 break;
             case "slowModeOn":
                 this.roomSlowOnMessages += 1;
@@ -361,6 +380,7 @@ export class ReportAggregator {
         const uniqueDomainCount = this.domains.size;
         const replyGapCoeffVariation = this.gapStats.coeffVariation();
         const monologueMessagesPercent = total > 0 ? round((this.monologueMessages / total) * 100, 1) : 0;
+        const lexicalTypeRichnessPercent = this.keywordCounter.typeTokenRichnessPercent();
         const insights = {
             weekendSharePercent,
             participantGini,
@@ -385,8 +405,13 @@ export class ReportAggregator {
             peakDaySharePercent,
             uniqueDomainCount,
             replyGapCoeffVariation,
+            lexicalTypeRichnessPercent,
         };
         const dailySorted = [...this.daily.entries()].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
+        const burstDays = computeBurstDays(dailySorted);
+        const activityArc = computeActivityArc(dailySorted);
+        const conversationPace = computeConversationPace(insights);
+        const roomPulse = buildRoomPulse(sortedDays, this.dailyJoin, this.dailyLeave, this.dailyHidden, this.dailyKick, this.dailyNewSenders);
         const laughByAlias = new Map();
         const shortByAlias = new Map();
         for (const [raw, c] of this.laughBySender) {
@@ -419,6 +444,10 @@ export class ReportAggregator {
             shortMessages: this.shortMessages,
             laughBySender: laughByAlias,
             shortBySender: shortByAlias,
+            burstDays,
+            activityArc,
+            conversationPace,
+            roomPulse,
         });
         const highlights = buildHighlights({
             total,
@@ -445,6 +474,12 @@ export class ReportAggregator {
             roomKickMessages: this.roomKickMessages,
             pureLaughMessages: this.pureLaughMessages,
             repeatedPhraseCount: this.repeatPhraseCounter.top(1, 3)[0]?.count ?? 0,
+            burstDays,
+            activityArc,
+            conversationPace,
+            roomPulse,
+            lexicalTypeRichnessPercent,
+            speakerSwitchRatePer100,
         });
         return {
             generatedAt: new Date().toISOString(),
@@ -501,6 +536,10 @@ export class ReportAggregator {
             repeatedPhrases: this.repeatPhraseCounter.top(8, 3),
             shopSearchTopics: topCounts(this.shopSearchTopics, 10),
             pureLaughMessages: this.pureLaughMessages,
+            conversationPace,
+            burstDays,
+            activityArc,
+            roomPulse,
             highlights,
             story,
         };
@@ -842,6 +881,51 @@ function buildHighlights(input) {
     if (input.repeatedPhraseCount >= 10) {
         out.push(`같은 문장이 **${input.repeatedPhraseCount}회** 반복된 카피페asta급 문구도 있어요.`);
     }
-    return out.slice(0, 12);
+    if (input.burstDays.length > 0) {
+        const top = input.burstDays[0];
+        const labels = input.burstDays
+            .slice(0, 3)
+            .map((d) => formatDayMdHighlight(d.date))
+            .join(" · ");
+        out.push(`메시지가 평소보다 몰린 날 **${input.burstDays.length}일** — 최고는 **${formatDayMdHighlight(top.date)}**(${formatCompactCount(top.count)}건). ${labels}`);
+    }
+    const head = input.activityArc.find((a) => a.id === "head");
+    const tail = input.activityArc.find((a) => a.id === "tail");
+    if (head && tail && head.messages > 0 && tail.messages > 0) {
+        const ratio = round(tail.messages / head.messages, 2);
+        if (ratio >= 1.25) {
+            out.push(`마지막 7일이 처음 7일보다 **${ratio}배** 활발 — 대화가 뜨거워지는 구간이 있었어요.`);
+        }
+        else if (ratio <= 0.8) {
+            out.push(`처음 7일이 마지막보다 더 붐볐어요(후반은 처음의 **${Math.round(ratio * 100)}%** 수준).`);
+        }
+    }
+    if (input.lexicalTypeRichnessPercent !== null && input.lexicalTypeRichnessPercent >= 18) {
+        out.push(`본문 단어는 **${input.lexicalTypeRichnessPercent}%** 정도로 서로 다른 표현이 많이 섞였어요.`);
+    }
+    const pace = input.conversationPace;
+    out.push(`대화 템포는 **${pace.emoji} ${pace.label}** — ${pace.detail}`);
+    const peakHidden = [...input.roomPulse].sort((a, b) => b.hidden - a.hidden)[0];
+    if (peakHidden && peakHidden.hidden >= 5) {
+        out.push(`가림 알림이 가장 많았던 날은 **${formatDayMdHighlight(peakHidden.date)}**(${peakHidden.hidden}건)이에요.`);
+    }
+    const peakJoin = [...input.roomPulse].sort((a, b) => b.join - a.join)[0];
+    if (peakJoin && peakJoin.join >= 20) {
+        out.push(`입장이 가장 몰린 날은 **${formatDayMdHighlight(peakJoin.date)}** — **${peakJoin.join}**명 들어왔어요.`);
+    }
+    return out.slice(0, 14);
+}
+function formatDayMdHighlight(ymd) {
+    const p = ymd.split("-");
+    if (p.length === 3)
+        return `${Number(p[1])}/${Number(p[2])}`;
+    return ymd;
+}
+function formatCompactCount(n) {
+    if (n >= 10_000)
+        return `${Math.round(n / 1000) / 10}만`;
+    if (n >= 1000)
+        return `${(n / 1000).toFixed(1)}k`;
+    return String(n);
 }
 //# sourceMappingURL=aggregator.js.map

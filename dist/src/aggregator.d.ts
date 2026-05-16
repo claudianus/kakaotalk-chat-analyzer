@@ -25,6 +25,11 @@ export declare class ReportAggregator {
     private readonly dailySenderCounts;
     private readonly laughBySender;
     private readonly shortBySender;
+    private readonly dailyJoin;
+    private readonly dailyLeave;
+    private readonly dailyHidden;
+    private readonly dailyKick;
+    private readonly dailyNewSenders;
     private total;
     private totalCharacters;
     private messagesWithLinks;

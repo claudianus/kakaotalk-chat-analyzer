@@ -7,5 +7,7 @@ export declare class KeywordCounter {
     add(token: string): void;
     topCounts(limit: number): CountItem[];
     top1SharePercent(): number | null;
+    /** 서로 다른 토큰 수 ÷ 전체 토큰 히트(%) — 높을수록 어휘가 분산됨 */
+    typeTokenRichnessPercent(): number | null;
     private prune;
 }

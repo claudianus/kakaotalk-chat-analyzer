@@ -182,6 +182,30 @@ export interface ReportInsights {
     uniqueDomainCount: number;
     /** 응답 간격 변동계수(σ/μ, 무차원). 클수록 템포 들쭉날쭉 */
     replyGapCoeffVariation: number | null;
+    /** 키워드 토큰 다양성(유형÷히트, %) — 높을수록 단어가 고르게 퍼짐 */
+    lexicalTypeRichnessPercent: number | null;
+}
+/** 대화 템포 한 줄 라벨(리포트 배지용) */
+export interface ConversationPace {
+    label: string;
+    emoji: string;
+    detail: string;
+}
+/** 기간 구간별 메시지·활동일(처음/마지막 7일 vs 전체) */
+export interface ActivityArcSegment {
+    id: "head" | "tail" | "whole";
+    label: string;
+    messages: number;
+    activeDays: number;
+}
+/** 일별 입퇴장·가림·신규 참여(운영·유입 펄스) */
+export interface DailyRoomPulse {
+    date: string;
+    join: number;
+    leave: number;
+    hidden: number;
+    kick: number;
+    newSenders: number;
 }
 export interface ReportData {
     generatedAt: string;
@@ -235,6 +259,14 @@ export interface ReportData {
     shopSearchTopics: CountItem[];
     /** ㅋㅎ만 있는 짧은 리액션 */
     pureLaughMessages: number;
+    /** 템포·패턴 한 줄 요약 */
+    conversationPace: ConversationPace;
+    /** 평소 대비 메시지 급증일 */
+    burstDays: DailyCount[];
+    /** 처음·마지막 7일 vs 전체 비교 */
+    activityArc: ActivityArcSegment[];
+    /** 일별 운영·유입 펄스 */
+    roomPulse: DailyRoomPulse[];
     /** 리포트 상단에 보여줄 한 줄 인사이트(한국어) */
     highlights: string[];
     /** Wrapped·챕터·페르소나 등 스토리 레이어 */

@@ -1,9 +1,12 @@
 import type {
+  ActivityArcSegment,
   CalendarCell,
   CalendarMonthLabel,
   CalendarWeek,
+  ConversationPace,
   ConversationTone,
   DailyCount,
+  DailyRoomPulse,
   ParticipantPersona,
   ParticipantStat,
   ReportInsights,
@@ -37,6 +40,10 @@ export interface BuildStoryInput {
   shortMessages: number;
   laughBySender: Map<string, number>;
   shortBySender: Map<string, number>;
+  burstDays: DailyCount[];
+  activityArc: ActivityArcSegment[];
+  conversationPace: ConversationPace;
+  roomPulse: DailyRoomPulse[];
 }
 
 export function buildReportStory(input: BuildStoryInput): ReportStory {
@@ -199,6 +206,49 @@ function buildWrappedCards(input: BuildStoryInput, tone: ConversationTone): Wrap
   }
 
   cards.push({
+    id: "pace",
+    emoji: input.conversationPace.emoji,
+    title: input.conversationPace.label,
+    stat: `${input.insights.speakerSwitchRatePer100}`,
+    sub: `화자 전환/100 · ${input.conversationPace.detail.slice(0, 42)}${input.conversationPace.detail.length > 42 ? "…" : ""}`,
+  });
+
+  if (input.burstDays.length > 0) {
+    const peak = input.burstDays[0]!;
+    cards.push({
+      id: "burst",
+      emoji: "🔥",
+      title: "붐비는 날",
+      stat: formatCompact(peak.count),
+      sub: `${trimYmd(peak.date)} · 급증일 ${input.burstDays.length}일`,
+    });
+  }
+
+  const head = input.activityArc.find((a) => a.id === "head");
+  const tail = input.activityArc.find((a) => a.id === "tail");
+  if (head && tail && head.messages > 0 && tail.messages > 0) {
+    const ratio = Math.round((tail.messages / head.messages) * 100);
+    cards.push({
+      id: "arc",
+      emoji: ratio >= 110 ? "📈" : ratio <= 90 ? "📉" : "↔️",
+      title: "처음 vs 마지막 7일",
+      stat: `${ratio}%`,
+      sub: `후반/전반 메시지 · ${formatCompact(tail.messages)} vs ${formatCompact(head.messages)}`,
+    });
+  }
+
+  const modPeak = [...input.roomPulse].sort((a, b) => b.hidden + b.kick - (a.hidden + a.kick))[0];
+  if (modPeak && modPeak.hidden + modPeak.kick >= 3) {
+    cards.push({
+      id: "mod",
+      emoji: "🛡️",
+      title: "운영이 바빴던 날",
+      stat: `${modPeak.hidden + modPeak.kick}`,
+      sub: `${trimYmd(modPeak.date)} · 가림 ${modPeak.hidden} · 강퇴 ${modPeak.kick}`,
+    });
+  }
+
+  cards.push({
     id: "deep",
     emoji: "📊",
     title: "더 깊게",
@@ -206,7 +256,13 @@ function buildWrappedCards(input: BuildStoryInput, tone: ConversationTone): Wrap
     sub: "숫자 요약 · 챕터 · 연간 그리드 · 차트가 이어집니다",
   });
 
-  return cards.slice(0, 12);
+  return cards.slice(0, 14);
+}
+
+function trimYmd(ymd: string): string {
+  const p = ymd.split("-");
+  if (p.length === 3) return `${Number(p[1])}/${Number(p[2])}`;
+  return ymd;
 }
 
 function buildPersonas(

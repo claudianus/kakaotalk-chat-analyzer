@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   detectSystemNoticeLine,
+  isOpenChatBoilerplate,
   splitMessageForAnalysis,
 } from "../src/system-notices.js";
 
@@ -29,4 +30,14 @@ test("pure deleted line stays deleted", () => {
   const split = splitMessageForAnalysis("메시지가 삭제되었습니다.");
   assert.equal(split.userText, "");
   assert.deepEqual(split.notices, ["deleted"]);
+});
+
+test("isOpenChatBoilerplate flags welcome and rule copypasta", () => {
+  assert.equal(
+    isOpenChatBoilerplate(
+      "반가워! 닉 옆에 정치성향 라벨을 붙여 주세요. 비속어·욕설은 가려짐·강퇴 대상입니다.",
+    ),
+    true,
+  );
+  assert.equal(isOpenChatBoilerplate("오늘 점심 뭐 먹었어?"), false);
 });

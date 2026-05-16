@@ -26,6 +26,12 @@ export class KeywordCounter {
         const factor = 10;
         return Math.round((this.maxCount / this.totalHits) * 100 * factor) / factor;
     }
+    /** 서로 다른 토큰 수 ÷ 전체 토큰 히트(%) — 높을수록 어휘가 분산됨 */
+    typeTokenRichnessPercent() {
+        if (this.totalHits === 0)
+            return null;
+        return Math.round((this.map.size / this.totalHits) * 1000) / 10;
+    }
     prune() {
         const kept = [...this.map.entries()]
             .sort((a, b) => b[1] - a[1])

@@ -27,6 +27,7 @@ const baseInsights: ReportInsights = {
   peakDaySharePercent: 9,
   uniqueDomainCount: 3,
   replyGapCoeffVariation: 1.1,
+  lexicalTypeRichnessPercent: 22,
 };
 
 const participants: ParticipantStat[] = [
@@ -87,6 +88,14 @@ test("buildReportStory produces wrapped cards and headline", () => {
     shortMessages: 20,
     laughBySender: new Map([["A***e", 10], ["B*b", 2]]),
     shortBySender: new Map([["B*b", 12]]),
+    burstDays: [{ date: "2026-05-01", count: 50 }],
+    activityArc: [
+      { id: "head", label: "처음 7일", messages: 80, activeDays: 2 },
+      { id: "tail", label: "마지막 7일", messages: 20, activeDays: 1 },
+      { id: "whole", label: "전체", messages: 100, activeDays: 3 },
+    ],
+    conversationPace: { label: "혼합 리듬", emoji: "🌊", detail: "테스트" },
+    roomPulse: [],
   });
 
   assert.ok(story.headline.includes("테스트방"));

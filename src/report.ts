@@ -1,6 +1,14 @@
 import { resolveBubbleOverlaps } from "./bubble-layout.js";
 import { SYSTEM_NOTICE_LABELS } from "./system-notices.js";
-import type { CountItem, DailyCount, ParticipantStat, ReportData, RoomEventStats } from "./types.js";
+import type {
+  ActivityArcSegment,
+  CountItem,
+  DailyCount,
+  DailyRoomPulse,
+  ParticipantStat,
+  ReportData,
+  RoomEventStats,
+} from "./types.js";
 import {
   STORY_CSS,
   buildOgDescription,
@@ -350,6 +358,30 @@ export function renderReportHtml(data: ReportData): string {
     }
     .day-k { font-size: 9px; line-height: 1.15; font-weight: 750; letter-spacing: -0.02em; }
     .day-n { font-size: 11px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .day-burst { box-shadow: inset 0 0 0 2px #e85d04; position: relative; }
+    .pace-ribbon {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+      margin: 0 0 14px; padding: 12px 14px; border-radius: 12px;
+      background: linear-gradient(120deg, rgba(232,93,4,0.1), rgba(15,107,92,0.08));
+      border: 1px solid rgba(232,93,4,0.22);
+    }
+    .pace-ribbon strong { font-size: 15px; font-weight: 800; }
+    .pace-ribbon span { font-size: 13px; color: var(--muted); line-height: 1.45; }
+    .arc-strip { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 0; }
+    .arc-chip {
+      flex: 1 1 140px; min-width: 120px; padding: 10px 12px; border-radius: 10px;
+      background: var(--card-elev); border: 1px solid var(--border);
+    }
+    .arc-chip b { display: block; font-size: 18px; font-weight: 850; color: var(--accent); }
+    .arc-chip small { font-size: 11px; color: var(--muted); }
+    .pulse-mini { margin-top: 12px; }
+    .pulse-mini h4 { margin: 0 0 6px; font-size: 12px; font-weight: 750; color: var(--muted); }
+    .pulse-row { display: flex; align-items: flex-end; gap: 3px; height: 52px; overflow-x: auto; padding-bottom: 4px; }
+    .pulse-bar {
+      flex: 0 0 10px; min-height: 4px; border-radius: 3px 3px 1px 1px;
+      background: linear-gradient(180deg, #ea580c 55%, #0f6b5c 100%);
+      opacity: 0.85;
+    }
     .hours-wrap { display: flex; flex-direction: column; gap: 8px; }
     .hours-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 560px) { .hours-split { grid-template-columns: 1fr; } }
@@ -747,7 +779,7 @@ export function renderReportHtml(data: ReportData): string {
 
     <div id="s-charts" class="chart-stack anim-enter" style="--enter-delay:0.06s">
     <section class="grid two" style="margin-bottom:14px">
-      ${panel("일별 활동 히트맵", "날짜마다 메시지가 얼마나 쌓였는지 색으로 보여요.", renderDaily(data.daily))}
+      ${panel("일별 활동 히트맵", "날짜마다 메시지가 쌓인 양이에요. 테두리·🔥는 평소보다 급증한 날입니다.", renderDaily(data.daily, data.burstDays))}
       ${panel("시간대 리듬 (0~23시)", "청록=오전(0~11시), 주황=오후(12~23시). 막대 높이는 해당 시간 메시지 비중이에요.", renderHours(data.hourly))}
     </section>
 
@@ -767,7 +799,7 @@ export function renderReportHtml(data: ReportData): string {
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
-      ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴, 슬로우모드, 운영 임명, 샵검색, 사진 묶음 등 CSV 시스템 문구를 본문과 분리해 집계합니다.", renderRoomEvents(data.roomEvents, data.summary.totalMessages))}
+      ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구를 본문과 분리해 집계합니다. 아래 막대는 일별 운영·유입 펄스예요.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
       ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 동일 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
     </section>
     ${
@@ -997,7 +1029,15 @@ function renderInsightDeck(data: ReportData): string {
     })
     .join("");
   const scatter = renderParticipantScatter(data.participants);
+  const pace = data.conversationPace;
+  const richness =
+    ins.lexicalTypeRichnessPercent === null ? "—" : `${ins.lexicalTypeRichnessPercent}%`;
   return `<section id="s-ai" class="card insight-hero anim-enter" style="margin-bottom:14px;--enter-delay:0.05s">
+    <div class="pace-ribbon" role="note">
+      <strong>${escapeHtml(pace.emoji)} ${escapeHtml(pace.label)}</strong>
+      <span>${escapeHtml(pace.detail)}</span>
+    </div>
+    ${renderActivityArcStrip(data.activityArc)}
     <div class="insight-head">
       <div>
         <h2>③ 분위기·리듬 (고급 인사이트)</h2>
@@ -1018,6 +1058,7 @@ function renderInsightDeck(data: ReportData): string {
       ${insMetric("캘린더 밀도", density, "달력 하루당 평균 메시지")}
       ${insMetric("질문 느낌", `${ins.questionLikeMessagesPer100}/100`, "물음표 포함 비슷한 톤")}
       ${insMetric("화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
+      ${insMetric("어휘 분산", richness, "서로 다른 키워드 비중")}
     </div>
     <div class="insight-split">
       <div>
@@ -1152,9 +1193,10 @@ function renderSelfServeCallout(): string {
   </section>`;
 }
 
-function renderDaily(days: DailyCount[]): string {
+function renderDaily(days: DailyCount[], burstDays: DailyCount[] = []): string {
   if (days.length === 0) return `<p style="margin:0;color:var(--muted);font-size:13px">날짜가 있는 메시지가 없습니다.</p>`;
   const max = Math.max(...days.map((day) => day.count), 1);
+  const burstSet = new Set(burstDays.map((d) => d.date));
   const cells = days
     .map((day) => {
       const ratio = day.count / max;
@@ -1162,13 +1204,26 @@ function renderDaily(days: DailyCount[]): string {
       const bg = `rgba(15, 107, 92, ${alpha.toFixed(2)})`;
       const fg = ratio > 0.42 ? "#f4f8f7" : "#0c2a24";
       const short = formatDayMd(day.date);
-      return `<div class="day" title="${escapeHtml(day.date)} · ${day.count}건" style="background-color:${bg};color:${fg}"><span class="day-k">${escapeHtml(short)}</span><span class="day-n">${day.count}</span></div>`;
+      const burst = burstSet.has(day.date);
+      const burstCls = burst ? " day-burst" : "";
+      const burstMark = burst ? " 🔥" : "";
+      return `<div class="day${burstCls}" title="${escapeHtml(day.date)} · ${day.count}건${burst ? " · 급증일" : ""}" style="background-color:${bg};color:${fg}"><span class="day-k">${escapeHtml(short)}${burstMark}</span><span class="day-n">${day.count}</span></div>`;
     })
     .join("");
   return `<div class="calendar-wrap">
-    <p class="chart-hint">날짜 순으로 칸이 채워져요. <strong>월/일</strong>(위) · <strong>메시지 수</strong>(아래). 가로 스크롤 없이 화면 너비에 맞춥니다.</p>
+    <p class="chart-hint">날짜 순으로 칸이 채워져요. <strong>월/일</strong>(위) · <strong>메시지 수</strong>(아래). 테두리·🔥는 급증일입니다.</p>
     <div class="calendar">${cells}</div>
   </div>`;
+}
+
+function renderActivityArcStrip(arc: ActivityArcSegment[]): string {
+  if (arc.length <= 1) return "";
+  return `<div class="arc-strip" aria-label="기간별 메시지 비교">${arc
+    .map(
+      (a) =>
+        `<div class="arc-chip"><small>${escapeHtml(a.label)}</small><b>${formatNumber(a.messages)}</b><small>${a.activeDays}일 활동</small></div>`,
+    )
+    .join("")}</div>`;
 }
 
 function renderMonthly(months: DailyCount[]): string {
@@ -1220,7 +1275,11 @@ function renderParticipants(participants: ParticipantStat[]): string {
 }
 
 
-function renderRoomEvents(stats: RoomEventStats, totalMessages: number): string {
+function renderRoomEvents(
+  stats: RoomEventStats,
+  totalMessages: number,
+  pulse: DailyRoomPulse[] = [],
+): string {
   if (stats.total === 0) {
     return '<p style="margin:0;color:var(--muted);font-size:13px">시스템·운영 알림이 없거나, 보내기 형식에서 감지되지 않았습니다.</p>';
   }
@@ -1244,7 +1303,22 @@ function renderRoomEvents(stats: RoomEventStats, totalMessages: number): string 
     totalMessages > 0
       ? `<p class="kw-note" style="margin-top:10px">전체 <strong>${formatNumber(totalMessages)}</strong>건 중 시스템·운영 알림 합계 <strong>${stats.total}</strong>건 (입장 ${stats.joinSharePercent}% · 퇴장 ${stats.leaveSharePercent}% · 가림 ${stats.hiddenSharePercent}% · 강퇴 ${stats.kickSharePercent}%).</p>`
       : "";
-  return renderCountBars(items) + ofAll;
+  return renderCountBars(items) + renderRoomPulseMini(pulse) + ofAll;
+}
+
+function renderRoomPulseMini(pulse: DailyRoomPulse[]): string {
+  const active = pulse.filter((p) => p.join + p.leave + p.hidden + p.kick > 0);
+  if (active.length === 0) return "";
+  const max = Math.max(...active.map((p) => p.join + p.leave + p.hidden + p.kick), 1);
+  const bars = active
+    .map((p) => {
+      const sum = p.join + p.leave + p.hidden + p.kick;
+      const h = Math.max(8, Math.round((sum / max) * 100));
+      const title = `${p.date} 입장 ${p.join} · 퇴장 ${p.leave} · 가림 ${p.hidden} · 강퇴 ${p.kick}`;
+      return `<div class="pulse-bar" style="height:${h}%" title="${escapeHtml(title)}"></div>`;
+    })
+    .join("");
+  return `<div class="pulse-mini"><h4>일별 운영·유입 펄스 (입·퇴·가림·강퇴 합)</h4><div class="pulse-row" role="img" aria-label="일별 시스템 알림 강도">${bars}</div></div>`;
 }
 
 function renderReactionsPanel(data: ReportData): string {
