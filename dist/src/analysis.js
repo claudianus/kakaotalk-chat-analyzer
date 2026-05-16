@@ -4,6 +4,10 @@ export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName 
 import { runAnalyzeWorker, shouldUseAnalyzeWorker } from "./analyze-pool.js";
 import { streamKakaoExport } from "./stream-parser.js";
 const DEFAULT_TOP = 30;
+/** Kiwi 등 리포트 엔진 준비(스트리밍 분석 전 1회 호출) */
+export async function prepareReportEngine() {
+    await initKiwiRuntime();
+}
 export function buildReportData(result, options) {
     const privacy = options?.privacy ?? "public-masked";
     const top = options?.top ?? DEFAULT_TOP;
@@ -17,6 +21,10 @@ export function buildReportData(result, options) {
         physicalLines: result.physicalLines,
         warningCount: result.warnings.length,
     });
+}
+export async function buildReportDataAsync(result, options) {
+    await prepareReportEngine();
+    return buildReportData(result, options);
 }
 export async function buildReportFromExportSync(filePath, options) {
     await initKiwiRuntime();

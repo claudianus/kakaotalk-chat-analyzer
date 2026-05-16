@@ -107,10 +107,12 @@ npm run bench:stream -- 100000
 
 원문 메시지·전체 URL은 HTML에 넣지 않습니다(BrewPage 5MiB 한도 고려). **이미 올린 링크는 재업로드해야** UI가 바뀝니다.
 
-### 최근 (v0.3.x)
+### 최근
 
 | 버전 | 요약 |
 |------|------|
+| **0.4.1** | Kiwi CI 캐시, `keyword:diff` 스크립트, `KCA_NO_KIWI`, 잡음어·장문 절단 |
+| **0.4.0** | **Kiwi** 형태소 + TF-IDF·PMI 키워드 (KR-WordRank 제거) |
 | **0.3.3** | 하이라이트 문구, 키워드 꼬리 필터, 팩트 매트릭스 중복 정리 |
 | **0.3.2** | 키워드 메시지 히트수, 지니·만/억 표기, 차트 리사이즈 |
 | **0.3.1** | ECharts 로드 순서 수정(빈 차트), 복붙·환영 문구 한국어 |
@@ -150,7 +152,7 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.3.3`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.4.1`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
 
 전체 이름으로 실행해도 동일합니다:
 
@@ -256,7 +258,14 @@ npm test
 
 ## 문서 사이트 (GitHub Pages)
 
-랜딩 페이지(`docs/index.html`)는 **v0.3.x 리포트 UX·ECharts·TF-IDF** 요약과 **복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다.
+### Kiwi 모델·환경 변수
+
+- **최초 실행** 시 GitHub에서 Kiwi 한국어 모델을 **무료**로 받아 `~/.cache/kakaotalk-chat-analyzer/kiwi-base/`에 둡니다.
+- **`KCA_NO_KIWI=1`**: 형태소 없이 휴리스틱만(빠름, 품질↓).
+- **키워드 비교**: `npm run keyword:diff -- ./KakaoTalk_Chat_....csv 30`
+- LGPL 고지: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+
+랜딩 페이지(`docs/index.html`)는 **v0.4.x 리포트 UX·ECharts·Kiwi 키워드** 요약과 **복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다.
 
 - **공개 URL:** [https://claudianus.github.io/kakaotalk-chat-analyzer/](https://claudianus.github.io/kakaotalk-chat-analyzer/)
 - **워크플로:** [`.github/workflows/pages.yml`](.github/workflows/pages.yml)

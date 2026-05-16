@@ -32,6 +32,14 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Cache Kiwi language models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/kakaotalk-chat-analyzer
+          key: kiwi-base-v1-${{ runner.os }}-${{ hashFiles('src/kiwi-runtime.ts') }}
+          restore-keys: |
+            kiwi-base-v1-${{ runner.os }}-
+
       - name: Install and test (main)
         run: npm ci && npm test
 

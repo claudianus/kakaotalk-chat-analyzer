@@ -3,7 +3,6 @@ import type { Kiwi } from "kiwi-nlp";
 export declare function initKiwiRuntime(): Promise<Kiwi | null>;
 export declare function getKiwiRuntime(): Kiwi | null;
 export declare function isKiwiReady(): boolean;
-/** Kiwi가 켜져 있을 때만 호출 */
 export declare function kiwiKeywordTokens(text: string): string[];
 /** 캐시 디렉터리(테스트·진단용) */
 export declare function kiwiCacheDir(): string;

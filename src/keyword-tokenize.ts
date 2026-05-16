@@ -31,8 +31,28 @@ function heuristicExtra(token: string): string[] {
   return extras;
 }
 
-/** 본문 키워드용 토큰( Kiwi 우선, 없으면 공백+접미사 휴리스틱 ) */
+/** 공백·접미사 휴리스틱만 (비교·KCA_NO_KIWI용) */
+export function tokenizeHeuristicOnly(raw: string): string[] {
+  const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
+  if (!doc) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const push = (t: string) => {
+    if (seen.has(t)) return;
+    seen.add(t);
+    out.push(t);
+  };
+  for (const t of spaceTokens(doc)) {
+    push(t);
+    for (const extra of heuristicExtra(t)) push(extra);
+  }
+  return out;
+}
+
+/** 본문 키워드용 토큰( Kiwi 우선, 없으면 휴리스틱 ) */
 export function tokenizeForKeywords(raw: string): string[] {
+  if (process.env.KCA_NO_KIWI === "1") return tokenizeHeuristicOnly(raw);
+
   const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
   if (!doc) return [];
 
@@ -42,17 +62,5 @@ export function tokenizeForKeywords(raw: string): string[] {
     if (fromKiwi.length > 0) return fromKiwi;
   }
 
-  const out: string[] = [];
-  const seen = new Set<string>();
-  const push = (t: string) => {
-    if (seen.has(t)) return;
-    seen.add(t);
-    out.push(t);
-  };
-
-  for (const t of spaceTokens(doc)) {
-    push(t);
-    for (const extra of heuristicExtra(t)) push(extra);
-  }
-  return out;
+  return tokenizeHeuristicOnly(raw);
 }

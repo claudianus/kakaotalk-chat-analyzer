@@ -10,6 +10,11 @@ const DEFAULT_TOP = 30;
 
 export type { BuildReportOptions };
 
+/** Kiwi 등 리포트 엔진 준비(스트리밍 분석 전 1회 호출) */
+export async function prepareReportEngine(): Promise<void> {
+  await initKiwiRuntime();
+}
+
 export function buildReportData(result: ParseResult, options?: BuildReportOptions): ReportData {
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
@@ -23,6 +28,14 @@ export function buildReportData(result: ParseResult, options?: BuildReportOption
     physicalLines: result.physicalLines,
     warningCount: result.warnings.length,
   });
+}
+
+export async function buildReportDataAsync(
+  result: ParseResult,
+  options?: BuildReportOptions,
+): Promise<ReportData> {
+  await prepareReportEngine();
+  return buildReportData(result, options);
 }
 
 export async function buildReportFromExportSync(

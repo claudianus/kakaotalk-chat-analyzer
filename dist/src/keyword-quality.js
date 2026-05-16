@@ -29,6 +29,21 @@ const HANGUL_FRAGMENTS = new Set([
     "되면",
     "하면",
     "해서",
+    "이런",
+    "저런",
+    "그런",
+    "뭔가",
+    "약간",
+    "진짜",
+    "완전",
+    "되게",
+    "엄청",
+    "일단",
+    "근데",
+    "그냥",
+    "아니",
+    "맞아",
+    "오케이",
 ]);
 export function isNoiseKeyword(label) {
     const w = label.trim();

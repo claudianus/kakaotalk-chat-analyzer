@@ -80,16 +80,23 @@ function demoteSubsumedByPhrases(items: KeywordRankItem[]): KeywordRankItem[] {
   });
 }
 
+export type KeywordTokenizeFn = (raw: string) => string[];
+
 /** 메시지 스트림 → TF-IDF 어절·2-gram 키워드 */
 export class StreamingTfidfKeywords {
+  private readonly tokenize: KeywordTokenizeFn;
   private documents = 0;
   private readonly termFreq = new Map<string, number>();
   private readonly docFreq = new Map<string, number>();
   private readonly bigramTf = new Map<string, number>();
   private readonly bigramDf = new Map<string, number>();
 
+  constructor(tokenize: KeywordTokenizeFn = tokenizeForKeywords) {
+    this.tokenize = tokenize;
+  }
+
   addDocument(raw: string): void {
-    const tokens = tokenizeForKeywords(raw);
+    const tokens = this.tokenize(raw);
     if (tokens.length === 0) return;
     this.documents += 1;
 

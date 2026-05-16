@@ -97,6 +97,10 @@ async function buildKiwi(): Promise<Kiwi> {
 
 /** 형태소 분석기 준비(실패 시 null → 휴리스틱 폴백) */
 export async function initKiwiRuntime(): Promise<Kiwi | null> {
+  if (process.env.KCA_NO_KIWI === "1") {
+    initFailed = true;
+    return null;
+  }
   if (readyKiwi) return readyKiwi;
   if (initFailed) return null;
   if (!initPromise) {
@@ -125,12 +129,15 @@ export function isKiwiReady(): boolean {
 }
 
 /** Kiwi가 켜져 있을 때만 호출 */
+const KIWI_MAX_CHARS = 512;
+
 export function kiwiKeywordTokens(text: string): string[] {
   const kiwi = readyKiwi;
   if (!kiwi) return [];
 
+  const slice = text.length > KIWI_MAX_CHARS ? text.slice(0, KIWI_MAX_CHARS) : text;
   const tokens = kiwi.tokenize(
-    text,
+    slice,
     Match.joinNounSuffix |
       Match.url |
       Match.hashtag |

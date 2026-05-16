@@ -81,13 +81,17 @@ function demoteSubsumedByPhrases(items) {
 }
 /** 메시지 스트림 → TF-IDF 어절·2-gram 키워드 */
 export class StreamingTfidfKeywords {
+    tokenize;
     documents = 0;
     termFreq = new Map();
     docFreq = new Map();
     bigramTf = new Map();
     bigramDf = new Map();
+    constructor(tokenize = tokenizeForKeywords) {
+        this.tokenize = tokenize;
+    }
     addDocument(raw) {
-        const tokens = tokenizeForKeywords(raw);
+        const tokens = this.tokenize(raw);
         if (tokens.length === 0)
             return;
         this.documents += 1;

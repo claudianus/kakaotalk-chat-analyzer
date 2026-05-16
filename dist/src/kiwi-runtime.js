@@ -86,6 +86,10 @@ async function buildKiwi() {
 }
 /** 형태소 분석기 준비(실패 시 null → 휴리스틱 폴백) */
 export async function initKiwiRuntime() {
+    if (process.env.KCA_NO_KIWI === "1") {
+        initFailed = true;
+        return null;
+    }
     if (readyKiwi)
         return readyKiwi;
     if (initFailed)
@@ -114,11 +118,13 @@ export function isKiwiReady() {
     return readyKiwi !== null;
 }
 /** Kiwi가 켜져 있을 때만 호출 */
+const KIWI_MAX_CHARS = 512;
 export function kiwiKeywordTokens(text) {
     const kiwi = readyKiwi;
     if (!kiwi)
         return [];
-    const tokens = kiwi.tokenize(text, Match.joinNounSuffix |
+    const slice = text.length > KIWI_MAX_CHARS ? text.slice(0, KIWI_MAX_CHARS) : text;
+    const tokens = kiwi.tokenize(slice, Match.joinNounSuffix |
         Match.url |
         Match.hashtag |
         Match.mention |

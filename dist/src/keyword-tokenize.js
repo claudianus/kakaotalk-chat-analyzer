@@ -29,17 +29,11 @@ function heuristicExtra(token) {
     }
     return extras;
 }
-/** 본문 키워드용 토큰( Kiwi 우선, 없으면 공백+접미사 휴리스틱 ) */
-export function tokenizeForKeywords(raw) {
+/** 공백·접미사 휴리스틱만 (비교·KCA_NO_KIWI용) */
+export function tokenizeHeuristicOnly(raw) {
     const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
     if (!doc)
         return [];
-    const kiwi = getKiwiRuntime();
-    if (kiwi) {
-        const fromKiwi = kiwiKeywordTokens(doc);
-        if (fromKiwi.length > 0)
-            return fromKiwi;
-    }
     const out = [];
     const seen = new Set();
     const push = (t) => {
@@ -54,5 +48,20 @@ export function tokenizeForKeywords(raw) {
             push(extra);
     }
     return out;
+}
+/** 본문 키워드용 토큰( Kiwi 우선, 없으면 휴리스틱 ) */
+export function tokenizeForKeywords(raw) {
+    if (process.env.KCA_NO_KIWI === "1")
+        return tokenizeHeuristicOnly(raw);
+    const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
+    if (!doc)
+        return [];
+    const kiwi = getKiwiRuntime();
+    if (kiwi) {
+        const fromKiwi = kiwiKeywordTokens(doc);
+        if (fromKiwi.length > 0)
+            return fromKiwi;
+    }
+    return tokenizeHeuristicOnly(raw);
 }
 //# sourceMappingURL=keyword-tokenize.js.map
