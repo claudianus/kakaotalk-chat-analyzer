@@ -1,0 +1,60 @@
+src/aggregator.ts
+  s_d404882750412e::t_e1a0df28c58e6d 77
+src/cli.ts
+  s_d404882750412e::t_d2a638a7eb9e8b 54
+  s_d404882750412e::t_2ef5eb0b16cbad 59
+test/semantic-policy.test.ts
+  s_d404882750412e::t_e38225f415bf78 1-41
+README.md
+  s_d404882750412e::t_4a3d5bc8ab746f 119
+  s_d404882750412e::t_bd34d51d4d3698 83,85
+src/semantic-policy.ts
+  s_d404882750412e::t_61d95913c06972 7-13,21-33
+package.json
+  s_d404882750412e::t_e52504daf29b96 3
+src/semantic-keywords.ts
+  s_d404882750412e::t_b2990093968449 68-71
+  s_d404882750412e::t_a3d59ac98d2bcb 38
+  s_d404882750412e::t_dfedd273e6ba7d 6
+THIRD_PARTY_NOTICES.md
+  s_d404882750412e::t_578d19af5146db 16
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_e7041e5a7970c2 13
+dist/src/cli.js
+  s_d404882750412e::t_e7041e5a7970c2 41-42
+kcachat/package.json
+  s_d404882750412e::t_7b966e7c90d395 15
+  s_d404882750412e::t_8c595e75511bc1 3
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/semantic-policy.d.ts
+  s_d404882750412e::t_e7041e5a7970c2 3-6,8-10
+src/types.ts
+  s_d404882750412e::t_5ec7ef11f4ac92 274
+dist/src/types.d.ts
+  s_d404882750412e::t_e7041e5a7970c2 254
+dist/src/semantic-keywords.js
+  s_d404882750412e::t_e7041e5a7970c2 5,29,54-57
+dist/src/semantic-policy.js
+  s_d404882750412e::t_e7041e5a7970c2 3-7,14-28
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/semantic-policy.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "4d814d8a6ba17f7180837a8b5b0e785177365eb3",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
