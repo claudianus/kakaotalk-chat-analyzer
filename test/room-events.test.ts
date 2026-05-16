@@ -5,7 +5,11 @@ import { join } from "node:path";
 import test from "node:test";
 import { buildReportData } from "../src/analysis.js";
 import { parseKakaoExport } from "../src/parser.js";
-import { detectRoomEvent, detectSystemNotice, isSystemNoticeMessage } from "../src/room-events.js";
+import {
+  detectRoomEvent,
+  detectSystemNotice,
+  isSystemNoticeMessage,
+} from "../src/system-notices.js";
 import { renderReportHtml } from "../src/report.js";
 
 test("detectSystemNotice matches join, leave, and deleted lines", () => {

@@ -2,7 +2,7 @@ import { formatDate, formatDateTime, partsToUtcMs, weekdayIndex } from "./date.j
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats } from "./gap-stats.js";
 import { KrWordRankStream } from "./kr-wordrank-stream.js";
-import { extractSupplementalKeywords } from "./korean-keywords.js";
+import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
 import { KeywordCounter } from "./keyword-counter.js";
@@ -192,7 +192,7 @@ export class ReportAggregator {
                     senderNames: this.senderNamesNormalized,
                     exclude: KEYWORD_EXCLUDE,
                 };
-                for (const keyword of extractSupplementalKeywords(msg, kwOpts)) {
+                for (const keyword of extractHashtagKeywords(msg, kwOpts)) {
                     this.keywordSupplement.add(keyword);
                 }
                 if (messageLength >= 12 && !isOpenChatBoilerplate(msg))

@@ -9,3 +9,6 @@ node_modules/
 kcachat/node_modules/
 # 테스트 산출물만 제외(npx·GitHub 직접 실행용으로 dist/src 는 커밋)
 dist/test/
+# 로컬 벤치·프로파일 (제품 CLI에 노출하지 않음)
+scripts/deep-profile.mjs
+scripts/explore-export.mjs
