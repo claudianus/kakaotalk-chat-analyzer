@@ -226,26 +226,29 @@ export class ReportAggregator {
                 for (const domain of foundDomains)
                     increment(this.domains, domain);
             }
-            if (!opts?.skipKeywords &&
-                messageLength >= 2 &&
+            if (messageLength >= 2 &&
                 HAS_TOKEN_CHAR_RE.test(msg) &&
                 !isOpenChatBoilerplate(msg) &&
                 shouldExtractKeywords(msg, foundAttachments)) {
-                const kwTokens = tokenizeForKeywords(msg);
-                this.keywordStream.addDocumentTokens(kwTokens);
-                const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
-                this.topicMap.addMessage(kwTokens, monthKey);
-                const kwOpts = {
-                    senderNames: this.senderNamesNormalized,
-                    exclude: KEYWORD_EXCLUDE,
-                };
-                for (const keyword of extractHashtagKeywords(msg, kwOpts)) {
-                    this.keywordSupplement.add(keyword);
+                if (!opts?.skipKeywords) {
+                    const kwTokens = tokenizeForKeywords(msg);
+                    this.keywordStream.addDocumentTokens(kwTokens);
+                    const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
+                    this.topicMap.addMessage(kwTokens, monthKey);
                 }
-                if (messageLength >= 12 && !isOpenChatBoilerplate(msg))
-                    this.repeatPhraseCounter.add(msg);
-                if (this.semanticReservoir && messageLength >= 12)
-                    this.semanticReservoir.push(msg);
+                if (!opts?.keywordsOnly) {
+                    const kwOpts = {
+                        senderNames: this.senderNamesNormalized,
+                        exclude: KEYWORD_EXCLUDE,
+                    };
+                    for (const keyword of extractHashtagKeywords(msg, kwOpts)) {
+                        this.keywordSupplement.add(keyword);
+                    }
+                    if (messageLength >= 12)
+                        this.repeatPhraseCounter.add(msg);
+                    if (this.semanticReservoir && messageLength >= 12)
+                        this.semanticReservoir.push(msg);
+                }
             }
         }
         increment(this.daily, dayKey);

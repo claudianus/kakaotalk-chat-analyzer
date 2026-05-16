@@ -115,6 +115,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.8.1** | 키워드 랭킹 **메시지 등장 수 우선** (BM25 dl 버그 수정)·떨림 2-gram 제거 |
 | **0.8.0** | **한국어 우선**: 다국어 임베딩·한국어 방 **자동 시맨틱**·userWords 완화 |
 | **0.7.0** | **2단계 스트림**(집계→Kiwi 키워드)·`.kca-glossary`·주제 ECharts·`keyword:audit` CI |
 | **0.6.0** | **`--semantic-keywords`** MiniLM 클러스터 키워드 보조(opt-in) |

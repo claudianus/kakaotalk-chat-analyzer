@@ -17,6 +17,12 @@ const BIGRAM_SCORE_BOOST = 1.12;
 
 export { adaptiveMinCount, type KeywordExtractOptions, type KeywordRankItem };
 
+function adaptiveBigramMinDf(messageCount: number, unigramMinDf: number): number {
+  if (messageCount < 500) return Math.max(2, unigramMinDf - 1);
+  if (messageCount < 10_000) return Math.max(3, unigramMinDf);
+  return Math.max(4, unigramMinDf);
+}
+
 function canBigramPair(a: string, b: string): boolean {
   if (a.length < 2 || b.length < 2) return false;
   if (a.length + b.length > 28) return false;
@@ -24,15 +30,26 @@ function canBigramPair(a: string, b: string): boolean {
   return true;
 }
 
-function bm25Score(tf: number, df: number, corpusMessages: number, avgDocLen: number): number {
-  const k1 = 1.25;
-  const b = 0.72;
-  const dl = Math.max(1, tf);
-  const avg = Math.max(1, avgDocLen);
+/** 동률·근소 df 구간에서만 쓰는 idf 보조 점수 */
+function keywordTieScore(tf: number, df: number, corpusMessages: number): number {
   const idf = Math.log(1 + (corpusMessages - df + 0.5) / (df + 0.5));
-  const numer = tf * (k1 + 1);
-  const denom = tf + k1 * (1 - b + (b * dl) / avg);
-  return Math.max(0, idf * (numer / denom));
+  const repeatBoost = df > 0 && tf > df ? 1 + Math.log1p(tf / df - 1) * 0.1 : 1;
+  return idf * repeatBoost;
+}
+
+function isStutterBigram(label: string): boolean {
+  if (!label.includes(" ")) return false;
+  const parts = label.split(" ");
+  if (parts.length !== 2) return false;
+  const [a, b] = parts;
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.startsWith(b) || b.startsWith(a)) {
+    const shorter = a.length < b.length ? a : b;
+    const longer = a.length >= b.length ? a : b;
+    return longer.length - shorter.length <= 4;
+  }
+  return false;
 }
 
 function pmiMultiplier(label: string, df: number, N: number, docFreq: Map<string, number>): number {
@@ -60,6 +77,7 @@ function passesFilters(
   if (df < minDf) return false;
   if (stop?.has(label)) return false;
   if (isNoiseKeyword(label)) return false;
+  if (isStutterBigram(label)) return false;
   if (label.includes(" ")) {
     for (const part of label.split(" ")) {
       if (stop?.has(part) || isNoiseKeyword(part)) return false;
@@ -123,30 +141,29 @@ export class StreamingTfidfKeywords {
   extractKeywordItems(options: KeywordExtractOptions = {}): KeywordRankItem[] {
     const N = Math.max(this.documents, 1);
     const minDf = options.minDocFreq ?? adaptiveMinCount(this.documents);
-    const bigramMinDf = Math.max(2, minDf - 1);
+    const bigramMinDf = adaptiveBigramMinDf(N, minDf);
     const stop = options.stopwords;
     const limit = options.limit ?? 100;
-    const avgDocLen = this.totalTokenHits / N;
     const items: KeywordRankItem[] = [];
 
     for (const [label, df] of this.docFreq) {
       if (!passesFilters(label, df, minDf, stop)) continue;
       const tf = this.termFreq.get(label) ?? 0;
-      items.push({ label, score: bm25Score(tf, df, N, avgDocLen), messageHits: df });
+      items.push({ label, score: keywordTieScore(tf, df, N), messageHits: df });
     }
 
     for (const [label, df] of this.bigramDf) {
       if (!passesFilters(label, df, bigramMinDf, stop)) continue;
       const tf = this.bigramTf.get(label) ?? 0;
-      const base = bm25Score(tf, df, N, avgDocLen) * BIGRAM_SCORE_BOOST * pmiMultiplier(label, df, N, this.docFreq);
+      const base = keywordTieScore(tf, df, N) * BIGRAM_SCORE_BOOST * pmiMultiplier(label, df, N, this.docFreq);
       items.push({ label, score: base, messageHits: df });
     }
 
     return items
       .sort(
         (a, b) =>
-          b.score - a.score ||
           b.messageHits - a.messageHits ||
+          b.score - a.score ||
           b.label.length - a.label.length ||
           a.label.localeCompare(b.label),
       )
