@@ -792,9 +792,9 @@ function renderSelfServeCallout() {
       <li>카카오톡에서 채팅방 → <strong>더보기(≡)</strong> → <strong>대화보내기</strong> → <strong>CSV 보내기</strong>로 파일 저장</li>
       <li><strong>Node.js 22+</strong>가 있는 Mac/Windows/Linux에서 터미널을 열고, 보낸 파일 경로를 넣어 실행해 보세요.</li>
     </ol>
-    <div class="cmd">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv" --local</div>
-    <p><code>--local</code> 은 PC에만 <code>index.html</code> 을 만들고 업로드는 건너뜁니다. BrewPage 등으로 올리고 싶다면 이 플래그만 빼면 됩니다.</p>
-    <p>짧은 이름이 부담스럽다면 전체 패키지명으로도 동일해요: <code>npx kakaotalk-chat-analyzer@latest "./파일.csv" --local</code></p>
+    <div class="cmd">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv"</div>
+    <p>기본은 리포트를 만든 뒤 <strong>BrewPage에 자동 업로드</strong>해 공유 링크를 출력합니다. PC에만 저장하려면 <code>--local</code> 을 붙이세요(업로드 생략, <code>index.html</code> 만 생성).</p>
+    <p>짧은 이름이 부담스럽다면: <code>npx kakaotalk-chat-analyzer@latest "./파일.csv"</code> · 로컬만: <code>… --local</code></p>
     <p class="links">
       <a href="${gh}">GitHub 소스</a>
       · <a href="${npmShort}">npm · kcachat</a>
