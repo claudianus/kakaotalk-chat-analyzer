@@ -1,0 +1,97 @@
+package.json
+  s_d404882750412e::t_520687709f7f6c 3
+  s_d404882750412e::t_e7d2cce77bb3ea 27
+src/keyword-counter.ts
+  s_d404882750412e::t_e93609ba7b17a4 1-44
+dist/src/analyze-pool.js
+  s_d404882750412e::t_ed3425b53c60d2 1-47
+dist/src/analyze-worker.d.ts
+  s_d404882750412e::t_ed3425b53c60d2 1
+src/analyze-pool.ts
+  s_d404882750412e::t_233cf79827cc2e 1-30,32-34,44,47,49,53-55
+  s_d404882750412e::t_ef2cb0c71de43a 31,35-43,45-46,48,50-52
+dist/src/analyze-pool.js.map
+  ai_agent 1
+dist/src/keyword-counter.js.map
+  ai_agent 1
+test/gap-stats.test.ts
+  s_d404882750412e::t_e32e6a657606d5 1-13,15-16
+  s_d404882750412e::t_d2b0779df177d5 14
+dist/src/gap-stats.d.ts
+  s_d404882750412e::t_ed3425b53c60d2 1-18
+dist/src/analysis.d.ts
+  s_d404882750412e::t_ed3425b53c60d2 2-7
+dist/src/analysis.js
+  s_d404882750412e::t_ed3425b53c60d2 3,20,43-47
+dist/src/analyze-worker.js
+  s_d404882750412e::t_ed3425b53c60d2 1-14
+dist/src/gap-stats.js
+  s_d404882750412e::t_ed3425b53c60d2 1-75
+dist/src/keyword-counter.js
+  s_d404882750412e::t_ed3425b53c60d2 1-42
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_ed3425b53c60d2 20-21
+src/cli.ts
+  s_d404882750412e::t_4e106a078df15f 50
+  s_d404882750412e::t_aa38bffa26b10a 59-63,65
+  s_d404882750412e::t_4bf2dd0444c29a 162
+  s_d404882750412e::t_b57ca78934300d 172
+  s_d404882750412e::t_a0d6b9a6814091 178-183
+  s_d404882750412e::t_fa935ba94ccf67 64
+dist/src/analysis.js.map
+  ai_agent 1
+src/analyze-worker.ts
+  s_d404882750412e::t_976328d12bd330 1-19
+dist/src/cli.js.map
+  ai_agent 1
+src/gap-stats.ts
+  s_d404882750412e::t_23a2ff4d685932 1-82
+src/aggregator.ts
+  s_d404882750412e::t_072fc34a12e88b 399
+  s_d404882750412e::t_5b5c179402a3f9 70-71
+  s_d404882750412e::t_c0d68cfccdd36f 312
+  s_d404882750412e::t_1eb498ed763e97 264-265
+  s_d404882750412e::t_8aa7f2efb21ebb 13-14
+  s_d404882750412e::t_bde4c7b60aeec7 145,149
+  s_d404882750412e::t_984010c7ac3e67 440-452
+  s_d404882750412e::t_6e50e889a963ee 102-103
+  s_d404882750412e::t_349f0379954a5f 302
+  s_d404882750412e::t_35c99e97257ff2 200-203
+  s_d404882750412e::t_b218362e57a3b3 165
+  s_d404882750412e::t_d0f11cca8b4c4f 273-274
+  s_d404882750412e::t_c21e3718f90677 296-297
+dist/src/aggregator.js
+  s_d404882750412e::t_ed3425b53c60d2 3-4,56-57,70-71,107,110,123,156-159,214-215,221-222,242-243,249,260,344,383-395
+scripts/bench-stream.mjs
+  s_d404882750412e::t_24ad8bab2798ed 1-31
+dist/src/gap-stats.js.map
+  ai_agent 1
+src/analysis.ts
+  s_d404882750412e::t_a8e1fde28ef9c4 3,9-11,26,28,33-34,55-63
+dist/src/analyze-worker.js.map
+  ai_agent 1
+dist/src/keyword-counter.d.ts
+  s_d404882750412e::t_ed3425b53c60d2 1-11
+dist/src/analyze-pool.d.ts
+  s_d404882750412e::t_ed3425b53c60d2 1-9
+dist/src/cli.js
+  s_d404882750412e::t_ed3425b53c60d2 39,47-53,135-140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "b09d0c1989b2a7ec003d04071e97884784788c0f",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
