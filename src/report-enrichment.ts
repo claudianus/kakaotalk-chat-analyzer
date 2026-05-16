@@ -73,7 +73,7 @@ export function computeConversationPace(ins: ReportInsights): ConversationPace {
     return {
       label: "소수 집중형",
       emoji: "🎯",
-      detail: `참여 Gini ${gini} — 핵심 멤버 몇 명이 흐름을 잡는 방`,
+      detail: `참여 지니 ${gini} — 핵심 멤버 몇 명이 흐름을 잡는 방`,
     };
   }
   if (ins.rhythmScore >= 62) {

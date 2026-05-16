@@ -5,7 +5,7 @@ import { KrWordRankStream } from "./kr-wordrank-stream.js";
 import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
-import { formatCompactNumber } from "./report-util.js";
+import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
 import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
 import { buildRoomPulse, computeActivityArc, computeBurstDays, computeConversationPace, } from "./report-enrichment.js";
@@ -800,7 +800,7 @@ function buildHighlights(input) {
         out.push(`시간대는 **${input.peakHour}시**대에 메시지가 가장 몰렸습니다.`);
     }
     if (input.medianReplyGapMinutes !== null) {
-        out.push(`연속 메시지 사이 간격의 중앙값은 약 **${input.medianReplyGapMinutes}분**이에요.`);
+        out.push(`연속 메시지 사이 간격의 중앙값은 약 **${formatReplyGapMinutes(input.medianReplyGapMinutes)}**이에요.`);
     }
     if (input.nightSharePercent > 0) {
         out.push(`심야(23~05시) 메시지 비중은 **${input.nightSharePercent}%**입니다.`);
@@ -818,7 +818,7 @@ function buildHighlights(input) {
         out.push(`주말(토·일) 메시지 비중은 **${input.weekendSharePercent}%**예요.`);
     }
     if (input.participantGini !== null && input.participantGini >= 0.35) {
-        out.push(`참여도는 소수에게 조금 몰린 편이에요(Gini **${input.participantGini}** 근처).`);
+        out.push(`참여도는 소수에게 조금 몰린 편이에요(지니 **${input.participantGini}** — 1에 가까울수록 쏠림).`);
     }
     if (input.replyGapP90Minutes !== null && input.replyGapP90Minutes >= 30) {
         out.push(`가끔 긴 침묵도 있어요 — 응답 간격 **상위 10%**가 약 **${input.replyGapP90Minutes}분** 이상입니다.`);

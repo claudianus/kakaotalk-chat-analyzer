@@ -2,7 +2,7 @@ import { resolveBubbleOverlaps } from "./bubble-layout.js";
 import { SYSTEM_NOTICE_LABELS } from "./system-notices.js";
 import { GH_CONTRIB_SCRIPT, STORY_CSS, buildOgDescription, renderStoryHeadline, renderStorySections, storyNavLinks, } from "./report-story.js";
 import { CHART_CDN_BODY, CHART_CDN_HEAD, CHARTS_INIT_SCRIPT, REPORT_VIZ_CSS, renderChartDeck, serializeChartPayload, } from "./report-charts.js";
-import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
+import { escapeHtml, formatNumber, formatReplyGapMinutes, renderHighlightLine } from "./report-util.js";
 const FIVE_MIB = 5 * 1024 * 1024;
 export function renderReportHtml(data) {
     const html = `<!doctype html>
@@ -946,10 +946,9 @@ function renderHelpGlossary() {
     <details>
       <summary>용어가 낯설 때 — 한 번에 펼쳐보기</summary>
       <dl>
-        <dt>Gini (지니)</dt><dd>참여가 얼마나 한쪽에 쏠렸는지 0~1에 가까운 숫자예요. 0에 가까우면 비슷하게 나눠 말하고, 높을수록 소수가 더 많이 말한 편이에요.</dd>
-        <dt>P90 간격</dt><dd>메시지 사이 시간 간격을 작은 순으로 줄 세웠을 때, 위에서 10% 지점(느린 쪽) 값이에요. “가끔 아주 느린 응답”이 있는지 볼 때 씁니다.</dd>
-        <dt>CV (변동계수)</dt><dd>간격이 들쭉날쭉한 정도예요. 숫자가 크면 리듬이 불규칙한 편입니다.</dd>
-        <dt>도메인 H (엔트로피)</dt><dd>공유한 링크가 몇 종류 사이트로 퍼져 있는지 “다양함”을 bit 단위로 요약한 값이에요. 높을수록 여러 종류의 사이트가 나온 거예요.</dd>
+        <dt>지니 계수</dt><dd>참여가 얼마나 한쪽에 쏠렸는지 0~1에 가까운 숫자예요. 0에 가까우면 비슷하게 나눠 말하고, 높을수록 소수가 더 많이 말한 편이에요.</dd>
+        <dt>응답 상위 10%</dt><dd>메시지 사이 시간 간격을 작은 순으로 줄 세웠을 때, 느린 쪽 10% 지점 값이에요. “가끔 아주 느린 응답”이 있는지 볼 때 씁니다.</dd>
+        <dt>링크 다양성(bit)</dt><dd>공유한 링크가 몇 종류 사이트로 퍼져 있는지 요약한 값이에요. 높을수록 여러 종류의 사이트가 나온 거예요.</dd>
         <dt>리듬 점수</dt><dd>활동일·메시지 밀도·시간대 분산 등을 섞은 내부 요약 점수(0~100)로, “이 방이 얼마나 꾸준히 살아 있는지” 감으로 보기 위한 지표입니다.</dd>
         <dt>화자 전환 (100메시지당)</dt><dd>말하는 사람이 바뀐 횟수를 메시지 100개당으로 나눈 거예요. 숫자가 클수록 빠르게 교대하며 대화하는 스타일에 가깝습니다.</dd>
       </dl>
@@ -968,32 +967,21 @@ function renderFactMatrix(data) {
         ["링크·100", String(ins.linksPer100)],
         ["첨부·100", String(ins.attachmentsPer100)],
         ["사진÷첨부%", ins.photoShareOfAllAttachmentMarkers === null ? "—" : `${ins.photoShareOfAllAttachmentMarkers}%`],
-        ["참여 중앙값", ins.medianMessagesPerParticipant === null ? "—" : String(ins.medianMessagesPerParticipant)],
         ["리듬 점수", `${ins.rhythmScore}/100`],
         ["주말%", `${ins.weekendSharePercent}%`],
         ["심야%", `${s.nightSharePercent}%`],
         ["1분내 응답%", ins.burstGapUnder1mPercent === null ? "—" : `${ins.burstGapUnder1mPercent}%`],
-        ["60분+ 간격%", ins.gapOver60mPercent === null ? "—" : `${ins.gapOver60mPercent}%`],
-        ["독백3+%", `${ins.monologueMessagesPercent}%`],
-        ["간격 중앙", s.medianReplyGapMinutes === null ? "—" : `${s.medianReplyGapMinutes}분`],
-        ["간격 P90", ins.replyGapP90Minutes === null ? "—" : `${ins.replyGapP90Minutes}분`],
-        ["간격 CV", ins.replyGapCoeffVariation === null ? "—" : String(ins.replyGapCoeffVariation)],
-        ["활성 시각 수", String(ins.activeHoursCount)],
+        ["독백 3연속+%", `${ins.monologueMessagesPercent}%`],
+        ["응답 간격 중앙", formatReplyGapMinutes(s.medianReplyGapMinutes)],
+        ["응답 상위10%", ins.replyGapP90Minutes === null ? "—" : formatReplyGapMinutes(ins.replyGapP90Minutes)],
         ["피크 시각", s.peakHour === null ? "—" : `${s.peakHour}시`],
         ["최장 연속일", String(s.longestActiveStreakDays)],
-        ["최장 공백", ins.maxSilenceBetweenActiveDays === null ? "—" : `${ins.maxSilenceBetweenActiveDays}일`],
-        ["피크일 점유", `${ins.peakDaySharePercent}%`],
-        ["도메인 종류", String(ins.uniqueDomainCount)],
-        ["도메인 H", ins.linkDomainEntropyBits === null ? "—" : `${ins.linkDomainEntropyBits} bit`],
-        ["키워드 1위%", ins.keywordTop1SharePercent === null ? "—" : `${ins.keywordTop1SharePercent}%`],
         ["상위3 점유", `${ins.top3ParticipantSharePercent}%`],
-        ["Gini", ins.participantGini === null ? "—" : String(ins.participantGini)],
+        ["참여 지니", ins.participantGini === null ? "—" : String(ins.participantGini)],
         ["화자전환·100", String(ins.speakerSwitchRatePer100)],
-        ["질문느낌·100", String(ins.questionLikeMessagesPer100)],
+        ["질문 느낌·100", String(ins.questionLikeMessagesPer100)],
         ["이모지", formatNumber(s.emojiMessages)],
         ["평균 길이", String(s.averageMessageLength)],
-        ["URL 포함 건", formatNumber(s.messagesWithLinks)],
-        ["첨부 포함 건", formatNumber(s.messagesWithAttachments)],
     ];
     const inner = cells
         .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
@@ -1013,7 +1001,7 @@ function renderFactMatrix(data) {
 function renderInsightDeck(data) {
     const ins = data.insights;
     const giniStr = ins.participantGini === null ? "—" : String(ins.participantGini);
-    const p90 = ins.replyGapP90Minutes === null ? "—" : `${ins.replyGapP90Minutes}분`;
+    const p90 = formatReplyGapMinutes(ins.replyGapP90Minutes);
     const silence = ins.maxSilenceBetweenActiveDays === null ? "—" : `${ins.maxSilenceBetweenActiveDays}일`;
     const entropy = ins.linkDomainEntropyBits === null ? "—" : `${ins.linkDomainEntropyBits} bit`;
     const density = ins.densityMessagesPerCalendarDay === null ? "—" : String(ins.densityMessagesPerCalendarDay);
@@ -1045,11 +1033,11 @@ function renderInsightDeck(data) {
     </div>
     <div class="insight-grid">
       ${insMetric("주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
-      ${insMetric("참여 Gini", giniStr, "0에 가까우면 고르게 참여")}
-      ${insMetric("간격 P90", p90, "느린 쪽 10% 구간")}
+      ${insMetric("참여 지니", giniStr, "0에 가까우면 고르게 참여")}
+      ${insMetric("응답 상위10%", p90, "느린 쪽 10% 구간")}
       ${insMetric("최장 공백", silence, "활동일 사이 최대 휴지")}
       ${insMetric("상위3 점유", `${ins.top3ParticipantSharePercent}%`, "메시지 많이 보낸 3명 합")}
-      ${insMetric("도메인 H", entropy, "링크 사이트 다양성(bit)")}
+      ${insMetric("링크 다양성", entropy, "공유 사이트 종류(bit)")}
       ${insMetric("캘린더 밀도", density, "달력 하루당 평균 메시지")}
       ${insMetric("질문 느낌", `${ins.questionLikeMessagesPer100}/100`, "물음표 포함 비슷한 톤")}
       ${insMetric("화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}

@@ -1,6 +1,6 @@
 {
   "name": "kakaotalk-chat-analyzer",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "카카오톡 CSV 보내기 → 한글 리포트 → 선택적 임시 공유. npx 한 줄로 실행 가능한 CLI.",
   "type": "module",
   "homepage": "https://claudianus.github.io/kakaotalk-chat-analyzer/",

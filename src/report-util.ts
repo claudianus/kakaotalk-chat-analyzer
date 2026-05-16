@@ -30,6 +30,21 @@ function trimCompactDecimal(value: number): string {
   return value.toFixed(1).replace(/\.0$/, "");
 }
 
+/** 응답 간격(분)을 읽기 쉬운 한국어로 */
+export function formatReplyGapMinutes(minutes: number | null): string {
+  if (minutes === null || !Number.isFinite(minutes)) return "—";
+  if (minutes < 1 / 60) return "1초 미만";
+  if (minutes < 1) {
+    const sec = Math.max(1, Math.round(minutes * 60));
+    return `${sec}초`;
+  }
+  if (minutes < 10) {
+    const rounded = Math.round(minutes * 10) / 10;
+    return rounded < 1 ? `${Math.round(minutes * 60)}초` : `${rounded}분`;
+  }
+  return `${Math.round(minutes)}분`;
+}
+
 export function renderHighlightLine(line: string): string {
   const parts = line.split("**");
   return parts.map((part, i) => (i % 2 === 1 ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part))).join("");

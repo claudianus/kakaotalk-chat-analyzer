@@ -233,15 +233,25 @@ export const CHARTS_INIT_SCRIPT = `
         };
       }
 
+      var charts = [];
+      function resizeAll() {
+        charts.forEach(function (c) {
+          try { c.resize(); } catch (e) {}
+        });
+      }
       function init(id, opt) {
         var el = document.getElementById(id);
-        if (!el) return;
+        if (!el) return null;
         try {
           var chart = echarts.init(el, null, { renderer: "canvas" });
           chart.setOption(opt);
-          window.addEventListener("resize", function () { chart.resize(); });
+          charts.push(chart);
+          return chart;
         } catch (err) {
           console.error("[kca-chart]", id, err);
+          el.setAttribute("data-chart-failed", "1");
+          el.innerHTML = '<p style="margin:0;padding:12px;font-size:12px;color:var(--muted);text-align:center">차트를 불러오지 못했어요. 새로고침하거나 네트워크(CDN)를 확인해 주세요.</p>';
+          return null;
         }
       }
 
@@ -304,7 +314,7 @@ export const CHARTS_INIT_SCRIPT = `
         }));
       }
 
-      if (data.keywords && document.getElementById("chart-kw-cloud") && typeof echarts.graphic !== "undefined") {
+      if (data.keywords && document.getElementById("chart-kw-cloud")) {
         var cloud = data.keywords.slice(0, 100).map(function (k) {
           return { name: k.label, value: k.count };
         });
@@ -354,6 +364,10 @@ export const CHARTS_INIT_SCRIPT = `
           }],
         }));
       }
+      requestAnimationFrame(resizeAll);
+      setTimeout(resizeAll, 150);
+      window.addEventListener("resize", resizeAll);
+      window.addEventListener("load", resizeAll);
       }
       if (typeof echarts !== "undefined") {
         run();
@@ -362,7 +376,14 @@ export const CHARTS_INIT_SCRIPT = `
           var tries = 0;
           (function wait() {
             if (typeof echarts !== "undefined") { run(); return; }
-            if (++tries > 120) return;
+            if (++tries > 120) {
+              document.querySelectorAll(".chart-box").forEach(function (el) {
+                if (!el.querySelector("canvas")) {
+                  el.innerHTML = '<p style="margin:0;padding:12px;font-size:12px;color:var(--muted);text-align:center">ECharts CDN을 불러오지 못했습니다.</p>';
+                }
+              });
+              return;
+            }
             setTimeout(wait, 50);
           })();
         });

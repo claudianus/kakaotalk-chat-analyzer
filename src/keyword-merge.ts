@@ -1,3 +1,4 @@
+import { isNoiseKeyword } from "./keyword-quality.js";
 import type { KeywordRankItem } from "./kr-wordrank-stream.js";
 import type { CountItem } from "./types.js";
 import type { KeywordCounter } from "./keyword-counter.js";
@@ -8,15 +9,18 @@ export function mergeKeywordRankings(
   supplement: KeywordCounter,
   limit: number,
 ): CountItem[] {
-  const items: CountItem[] = ranked.slice(0, limit).map((item) => ({
-    label: item.label,
-    count: Math.max(item.messageHits, 1),
-  }));
+  const items: CountItem[] = ranked
+    .filter((item) => !isNoiseKeyword(item.label))
+    .slice(0, limit)
+    .map((item) => ({
+      label: item.label,
+      count: Math.max(item.messageHits, 1),
+    }));
 
   const floor = items[items.length - 1]?.count ?? 1;
   const seen = new Set(items.map((i) => i.label));
   for (const { label, count } of supplement.topCounts(Math.max(8, Math.floor(limit / 5)))) {
-    if (seen.has(label)) continue;
+    if (seen.has(label) || isNoiseKeyword(label)) continue;
     items.push({ label, count: Math.min(count, floor) });
     seen.add(label);
   }

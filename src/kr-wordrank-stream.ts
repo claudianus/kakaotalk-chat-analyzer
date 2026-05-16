@@ -3,6 +3,7 @@
  * @see https://github.com/lovit/KR-WordRank
  * @see https://lovit.github.io/nlp/2018/04/16/krwordrank/
  */
+import { isNoiseKeyword } from "./keyword-quality.js";
 import { normalizeKoreanText } from "./korean-normalize.js";
 
 export type SubwordPos = "L" | "R";
@@ -135,6 +136,7 @@ export class KrWordRankStream {
     const out = new Map<string, number>();
     for (const [word, score] of [...keywords.entries()].sort((a, b) => b[1] - a[1])) {
       if (stop?.has(word)) continue;
+      if (isNoiseKeyword(word)) continue;
       if (word.length < 2) continue;
       out.set(word, score);
       if (out.size >= limit) break;

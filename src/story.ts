@@ -191,8 +191,8 @@ function buildWrappedCards(input: BuildStoryInput, tone: ConversationTone): Wrap
       id: "vibe",
       emoji: "😂",
       title: "분위기",
-      stat: `${tone.laughPer100}`,
-      sub: `웃음·리액션 느낌 100건당 · 이모지 ${tone.emojiPer100}건당`,
+      stat: `100건당 ${tone.laughPer100}건`,
+      sub: `웃음·리액션 패턴 · 이모지 ${tone.emojiPer100}건/100`,
     });
   }
 
