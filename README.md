@@ -54,7 +54,7 @@
 |------|------|
 | **인코딩** | UTF-8 BOM, UTF-8, CP949/EUC-KR 등 보내기 인코딩 자동 감지 |
 | **파싱** | `Date,User,Message` 헤더 기반 CSV + 멀티라인 메시지 처리 |
-| **리포트** | Wrapped·**ECharts** 차트(워드클라우드·히트맵)·**KR-WordRank** 키워드 120개·잔디 그리드·인사이트 등 **집계 전용** 시각화 |
+| **리포트** | Wrapped·**ECharts** 차트(워드클라우드·히트맵)·**TF-IDF** 키워드 120개·잔디 그리드·인사이트 등 **집계 전용** 시각화 |
 | **성능** | 줄 단위 스트림 파싱 · 단일 패스 집계 · 3MB+ Worker · 진행 표시(`--progress`) |
 | **배포** | BrewPage(기본) / TempFile / Cloudflare 등 **TTL 기반** 임시 호스팅 · iframe 공유 링크 안전 처리 |
 | **npx** | 짧은 별칭 **[`kcachat`](https://www.npmjs.com/package/kcachat)** 또는 본체 **`kakaotalk-chat-analyzer`** |
@@ -71,7 +71,7 @@
 | **스트리밍 파싱** | 파일 전체를 문자열/배열로 펼치지 않음 |
 | **단일 패스 집계** | `Map`·히스토그램·온라인 통계(간격 P90 등)만 유지 |
 | **Worker (≥3MB)** | 대용량일 때 메인 스레드 멈춤 완화 |
-| **키워드** | KR-WordRank 스트리밍 + 메시지 등장 횟수 + 잡음·불용어 필터(최대 120개) |
+| **키워드** | TF-IDF 스트리밍 + 메시지 등장 횟수 + 잡음·불용어 필터(최대 120개) |
 | **kcachat@latest** | 실행 시 `kakaotalk-chat-analyzer@latest` 본체를 받아 최신 CLI 사용 |
 
 로컬 벤치(합성 20만 메시지, 집계만): **약 0.4초대** — 환경·디스크·실제 대화 밀도에 따라 달라집니다.
@@ -100,7 +100,7 @@ npm run bench:stream -- 100000
 - **인터랙티브 차트**: 워드클라우드, 시간대·요일·월별, 일별 캘린더 히트맵, 키워드 막대(80) + **전체 120개 표**
 - **연간 잔디**: 활동 **기간만** 주 단위(53주 고정 아님), 호버 시 건수 툴팁
 - **숫자·인사이트**: 지니(참여 쏠림)·리듬 점수·응답 간격(초/분 한국어) 등
-- **키워드**: **KR-WordRank** + 메시지 **등장 횟수**(상대 점수 아님), 오픈채팅·잡음어 필터
+- **키워드**: **TF-IDF** + 메시지 **등장 횟수**(상대 점수 아님), 오픈채팅·잡음어 필터
 - **참여자**: 말풍선 맵 + 마스킹 닉네임 + 랭킹 테이블
 - **BrewPage**: iframe 섹션 점프·외부 링크 안전 처리
 - **테마**: 라이트 / 다크 / 시스템
@@ -256,7 +256,7 @@ npm test
 
 ## 문서 사이트 (GitHub Pages)
 
-랜딩 페이지(`docs/index.html`)는 **v0.3.x 리포트 UX·ECharts·KR-WordRank** 요약과 **복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다.
+랜딩 페이지(`docs/index.html`)는 **v0.3.x 리포트 UX·ECharts·TF-IDF** 요약과 **복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다.
 
 - **공개 URL:** [https://claudianus.github.io/kakaotalk-chat-analyzer/](https://claudianus.github.io/kakaotalk-chat-analyzer/)
 - **워크플로:** [`.github/workflows/pages.yml`](.github/workflows/pages.yml)

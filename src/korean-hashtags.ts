@@ -5,7 +5,7 @@ export interface HashtagKeywordOptions {
   exclude?: ReadonlySet<string>;
 }
 
-/** KR-WordRank 보조: 메시지당 해시태그 1회 */
+/** 키워드 보조: 메시지당 해시태그 1회 */
 export function extractHashtagKeywords(message: string, options: HashtagKeywordOptions): string[] {
   const bag = new Set<string>();
   for (const m of message.matchAll(HASHTAG_RE)) {

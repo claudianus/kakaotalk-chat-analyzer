@@ -11,7 +11,7 @@ import type {
 } from "./types.js";
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats } from "./gap-stats.js";
-import { KrWordRankStream } from "./kr-wordrank-stream.js";
+import { adaptiveMinCount, StreamingTfidfKeywords } from "./streaming-tfidf-keywords.js";
 import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
@@ -88,7 +88,7 @@ export class ReportAggregator {
   private readonly weekdays = Array.from({ length: 7 }, () => 0);
   private readonly attachments = new Map<string, number>();
   private readonly domains = new Map<string, number>();
-  private readonly krWordRank = new KrWordRankStream({ minCount: 3 });
+  private readonly keywordStream = new StreamingTfidfKeywords();
   private readonly keywordSupplement = new KeywordCounter();
   private readonly repeatPhraseCounter = new RepeatPhraseCounter();
   private readonly shopSearchTopics = new Map<string, number>();
@@ -245,7 +245,7 @@ export class ReportAggregator {
         !isOpenChatBoilerplate(msg) &&
         shouldExtractKeywords(msg, foundAttachments)
       ) {
-        this.krWordRank.addDocument(msg);
+        this.keywordStream.addDocument(msg);
         const kwOpts = {
           senderNames: this.senderNamesNormalized,
           exclude: KEYWORD_EXCLUDE,
@@ -406,9 +406,10 @@ export class ReportAggregator {
     }
     const keywordStop = buildKeywordStopwords();
     const keywordLimit = Math.max(120, this.top * 3);
-    const wordRankItems = this.krWordRank.extractKeywordItems({
+    const wordRankItems = this.keywordStream.extractKeywordItems({
       stopwords: keywordStop,
       limit: keywordLimit,
+      minDocFreq: adaptiveMinCount(total),
     });
     const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit);
     const keywordTop1SharePercent = top1ShareFromCounts(keywords, total);

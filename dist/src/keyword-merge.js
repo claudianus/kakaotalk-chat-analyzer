@@ -1,5 +1,5 @@
 import { isNoiseKeyword } from "./keyword-quality.js";
-/** KR-WordRank 점수 순 + 실제 메시지 등장 횟수(count) */
+/** TF-IDF 점수 순 + 메시지 등장 횟수(count) */
 export function mergeKeywordRankings(ranked, supplement, limit) {
     const items = ranked
         .filter((item) => !isNoiseKeyword(item.label))

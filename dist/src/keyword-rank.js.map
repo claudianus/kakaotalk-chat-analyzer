@@ -1,0 +1,1 @@
+{"version":3,"file":"keyword-rank.js","sourceRoot":"","sources":["../../src/keyword-rank.ts"],"names":[],"mappings":"AAcA,yBAAyB;AACzB,MAAM,UAAU,gBAAgB,CAAC,YAAoB;IACnD,IAAI,YAAY,GAAG,GAAG;QAAE,OAAO,CAAC,CAAC;IACjC,IAAI,YAAY,GAAG,KAAK;QAAE,OAAO,CAAC,CAAC;IACnC,IAAI,YAAY,GAAG,MAAM;QAAE,OAAO,CAAC,CAAC;IACpC,OAAO,CAAC,CAAC;AACX,CAAC"}

@@ -1,4 +1,4 @@
-/** KR-WordRank / soynlp 스타일 한국어 전처리 (lovit/krwordrank hangle.normalize 포팅) */
+/** 한국어 전처리 (lovit/krwordrank hangle.normalize 포팅) */
 const DOUBLESPACE_RE = /\s+/g;
 const REPEAT_CHARS_RE = /(\S)\1{3,}/gu;
 
