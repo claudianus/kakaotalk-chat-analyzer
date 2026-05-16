@@ -2,9 +2,9 @@
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Command } from "commander";
-import { buildReportData } from "./analysis.js";
+import { buildReportFromExport } from "./analysis.js";
 import { clearOwnerToken, getConfigPath, getOwnerToken, saveOwnerToken } from "./config.js";
-import { describeParseResult, parseKakaoExport } from "./parser.js";
+import { describeStreamedExport } from "./stream-parser.js";
 import { createProvider, parseHostName } from "./providers/index.js";
 import { renderReportHtml } from "./report.js";
 import { VERSION } from "./version.js";
@@ -46,6 +46,7 @@ main
   .option("--privacy <mode>", "public-masked | public-anonymous", "public-masked")
   .option("--top <count>", "랭킹·상위 목록 길이", String(DEFAULT_TOP))
   .option("-o, --out <dir>", "리포트 출력 폴더", DEFAULT_OUT)
+  .option("--profile", "파싱·집계·HTML 단계별 소요 시간을 출력합니다.", false)
   .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
   .action(async (csv: string, options: MainOptions) => {
     const host = parseHostName(options.host);
@@ -54,7 +55,7 @@ main
     const privacy = parsePrivacy(options.privacy);
     const top = parsePositiveInt(options.top, DEFAULT_TOP);
 
-    const htmlPath = await generateReport(csv, { outDir: options.out, privacy, top });
+    const htmlPath = await generateReport(csv, { outDir: options.out, privacy, top, profile: options.profile });
     console.log(`리포트: ${htmlPath}`);
     console.log(`크기: ${await formatFileSize(htmlPath)}`);
 
@@ -107,15 +108,15 @@ program
   .argument("<csv>", "카카오톡 CSV 보내기")
   .description("보내기 구조만 점검합니다(대화 원문은 출력하지 않음).")
   .action(async (csv: string) => {
-    const result = await parseKakaoExport(resolve(csv));
-    console.log(describeParseResult(result));
-    if (result.warnings.length > 0) {
+    const summary = await describeStreamedExport(resolve(csv));
+    console.log(summary.text);
+    if (summary.warnings.length > 0) {
       console.log("\n경고 상세:");
-      for (const warning of result.warnings.slice(0, 10)) {
+      for (const warning of summary.warnings.slice(0, 10)) {
         console.log(`- ${warning.line}행: ${warning.code}`);
       }
-      if (result.warnings.length > 10) {
-        console.log(`- … 외 ${result.warnings.length - 10}건`);
+      if (summary.warnings.length > 10) {
+        console.log(`- … 외 ${summary.warnings.length - 10}건`);
       }
     }
   });
@@ -150,6 +151,7 @@ interface MainOptions {
   privacy: string;
   top: string;
   out: string;
+  profile: boolean;
 }
 
 interface TokenOptions {
@@ -157,15 +159,33 @@ interface TokenOptions {
   ns: string;
 }
 
-async function generateReport(csv: string, options: { outDir: string; privacy: PrivacyMode; top: number }): Promise<string> {
-  const result = await parseKakaoExport(resolve(csv));
-  const data = buildReportData(result, { privacy: options.privacy, top: options.top });
+async function generateReport(
+  csv: string,
+  options: { outDir: string; privacy: PrivacyMode; top: number; profile: boolean },
+): Promise<string> {
+  const csvPath = resolve(csv);
+  const log = options.profile ? (label: string, ms: number) => console.error(`[kca] ${label}: ${ms}ms`) : () => {};
+
+  let t0 = performance.now();
+  const data = await buildReportFromExport(csvPath, { privacy: options.privacy, top: options.top });
+  log("parse+aggregate (stream)", performance.now() - t0);
+
+  t0 = performance.now();
   const html = renderReportHtml(data);
+  log("render HTML", performance.now() - t0);
+
+  if (options.profile) {
+    console.error(`[kca] messages: ${data.summary.totalMessages.toLocaleString("ko-KR")}`);
+  }
+
   const outDir = resolve(options.outDir);
   const htmlPath = resolve(outDir, "index.html");
 
+  t0 = performance.now();
   await mkdir(outDir, { recursive: true });
   await writeFile(htmlPath, html, "utf8");
+  log("write file", performance.now() - t0);
+
   return htmlPath;
 }
 

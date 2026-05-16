@@ -1,3 +1,5 @@
+import { createReadStream } from "node:fs";
+import type { Readable } from "node:stream";
 import { TextDecoder } from "node:util";
 import iconv from "iconv-lite";
 import type { EncodingName } from "./types.js";
@@ -10,23 +12,20 @@ interface DecodedCandidate {
 
 const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
 
-export function decodeChatExport(bytes: Buffer): { encoding: EncodingName; text: string } {
+export function detectEncodingFromBytes(bytes: Buffer): { encoding: EncodingName; skipBytes: number } {
   if (bytes.subarray(0, 3).equals(UTF8_BOM)) {
-    return {
-      encoding: "utf-8-bom",
-      text: bytes.subarray(3).toString("utf8"),
-    };
+    return { encoding: "utf-8-bom", skipBytes: 3 };
   }
 
-  const candidates: DecodedCandidate[] = [];
+  const candidates: { encoding: EncodingName; score: number }[] = [];
   const utf8 = decodeUtf8(bytes);
   if (utf8) {
-    candidates.push({ encoding: "utf-8", text: utf8, score: scoreDecodedText(utf8) });
+    candidates.push({ encoding: "utf-8", score: scoreDecodedText(utf8) });
   }
 
   for (const encoding of ["cp949", "euc-kr"] as const) {
     const text = iconv.decode(bytes, encoding);
-    candidates.push({ encoding, text, score: scoreDecodedText(text) });
+    candidates.push({ encoding, score: scoreDecodedText(text) });
   }
 
   candidates.sort((a, b) => b.score - a.score);
@@ -35,7 +34,28 @@ export function decodeChatExport(bytes: Buffer): { encoding: EncodingName; text:
     throw new Error("Unable to decode file with utf-8, cp949, or euc-kr.");
   }
 
-  return { encoding: best.encoding, text: stripBom(best.text) };
+  return { encoding: best.encoding, skipBytes: 0 };
+}
+
+export function openDecodedStream(filePath: string, encoding: EncodingName, skipBytes: number): Readable {
+  const raw = createReadStream(filePath, { start: skipBytes });
+  if (encoding === "cp949" || encoding === "euc-kr") {
+    return raw.pipe(iconv.decodeStream(encoding)) as unknown as Readable;
+  }
+  return raw;
+}
+
+export function decodeChatExport(bytes: Buffer): { encoding: EncodingName; text: string } {
+  const { encoding, skipBytes } = detectEncodingFromBytes(bytes);
+  const body = bytes.subarray(skipBytes);
+
+  if (encoding === "utf-8-bom" || encoding === "utf-8") {
+    const utf8 = decodeUtf8(body) ?? body.toString("utf8");
+    return { encoding, text: stripBom(utf8) };
+  }
+
+  const text = iconv.decode(body, encoding);
+  return { encoding, text: stripBom(text) };
 }
 
 function decodeUtf8(bytes: Buffer): string | null {

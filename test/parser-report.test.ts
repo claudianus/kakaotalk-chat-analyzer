@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import {
   buildReportData,
+  buildReportFromExport,
   maskPartialDisplayName,
   parseChatRoomNameFromExportPath,
 } from "../src/analysis.js";
@@ -70,6 +71,11 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
       /data-kca-external-url="https:\/\/github\.com\/claudianus\/kakaotalk-chat-analyzer"/,
     );
     assert.equal(html.includes("window.top.location"), false);
+    assert.equal(html.includes("report-data"), false);
+
+    const streamed = await buildReportFromExport(csvPath, { privacy: "public-masked" });
+    assert.equal(streamed.summary.totalMessages, data.summary.totalMessages);
+    assert.equal(streamed.summary.participants, data.summary.participants);
     assert.equal(html.includes("hours-split"), true);
     assert.equal(html.includes("table-rank"), true);
     assert.equal(html.includes("본문 단어만"), true);

@@ -734,7 +734,6 @@ export function renderReportHtml(data) {
     })();
     </script>
 
-    <script type="application/json" id="report-data">${escapeJsonForHtml(data)}</script>
     <footer>${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
   </main>
 </body>
@@ -1054,13 +1053,5 @@ function escapeHtml(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
-}
-function escapeJsonForHtml(value) {
-    return JSON.stringify(value)
-        .replace(/</g, "\\u003c")
-        .replace(/>/g, "\\u003e")
-        .replace(/&/g, "\\u0026")
-        .replace(/\u2028/g, "\\u2028")
-        .replace(/\u2029/g, "\\u2029");
 }
 //# sourceMappingURL=report.js.map

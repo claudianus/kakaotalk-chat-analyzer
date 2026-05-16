@@ -1,28 +1,43 @@
+import { createReadStream } from "node:fs";
 import { TextDecoder } from "node:util";
 import iconv from "iconv-lite";
 const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
-export function decodeChatExport(bytes) {
+export function detectEncodingFromBytes(bytes) {
     if (bytes.subarray(0, 3).equals(UTF8_BOM)) {
-        return {
-            encoding: "utf-8-bom",
-            text: bytes.subarray(3).toString("utf8"),
-        };
+        return { encoding: "utf-8-bom", skipBytes: 3 };
     }
     const candidates = [];
     const utf8 = decodeUtf8(bytes);
     if (utf8) {
-        candidates.push({ encoding: "utf-8", text: utf8, score: scoreDecodedText(utf8) });
+        candidates.push({ encoding: "utf-8", score: scoreDecodedText(utf8) });
     }
     for (const encoding of ["cp949", "euc-kr"]) {
         const text = iconv.decode(bytes, encoding);
-        candidates.push({ encoding, text, score: scoreDecodedText(text) });
+        candidates.push({ encoding, score: scoreDecodedText(text) });
     }
     candidates.sort((a, b) => b.score - a.score);
     const best = candidates[0];
     if (!best) {
         throw new Error("Unable to decode file with utf-8, cp949, or euc-kr.");
     }
-    return { encoding: best.encoding, text: stripBom(best.text) };
+    return { encoding: best.encoding, skipBytes: 0 };
+}
+export function openDecodedStream(filePath, encoding, skipBytes) {
+    const raw = createReadStream(filePath, { start: skipBytes });
+    if (encoding === "cp949" || encoding === "euc-kr") {
+        return raw.pipe(iconv.decodeStream(encoding));
+    }
+    return raw;
+}
+export function decodeChatExport(bytes) {
+    const { encoding, skipBytes } = detectEncodingFromBytes(bytes);
+    const body = bytes.subarray(skipBytes);
+    if (encoding === "utf-8-bom" || encoding === "utf-8") {
+        const utf8 = decodeUtf8(body) ?? body.toString("utf8");
+        return { encoding, text: stripBom(utf8) };
+    }
+    const text = iconv.decode(body, encoding);
+    return { encoding, text: stripBom(text) };
 }
 function decodeUtf8(bytes) {
     try {
