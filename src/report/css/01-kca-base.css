@@ -1,0 +1,105 @@
+/* kca 리셋·타이포·모션 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: clip;
+  max-width: 100%;
+  background:
+    radial-gradient(1200px 600px at 8% -12%, var(--glow), transparent 58%),
+    radial-gradient(900px 480px at 96% 0%, color-mix(in oklab, var(--accent2) 14%, transparent), transparent 48%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-1);
+  line-height: var(--font-lineheight-3);
+  transition:
+    background 0.28s var(--ease-out),
+    color 0.2s var(--ease-out);
+}
+
+main {
+  width: min(var(--size-content-3, 72rem), calc(100% - var(--size-4)));
+  margin: 0 auto;
+  padding: var(--size-6) 0 var(--size-8);
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(var(--font-size-5), 4.2vw, var(--font-size-8));
+  line-height: var(--font-lineheight-00);
+  letter-spacing: var(--font-letterspacing-0);
+  font-weight: var(--font-weight-8);
+}
+
+h2 {
+  margin: 0 0 var(--size-2);
+  font-size: var(--font-size-3);
+  font-weight: var(--font-weight-7);
+  letter-spacing: var(--font-letterspacing-0);
+}
+
+a {
+  color: var(--accent);
+}
+
+@keyframes kca-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--size-3));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kca-ring-in {
+  from {
+    transform: scale(0.92);
+    opacity: 0.75;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.anim-enter {
+  animation: kca-fade-up 0.52s var(--ease-out) forwards;
+  opacity: 0;
+  animation-delay: var(--enter-delay, 0s);
+}
+
+.rh-wrap.anim-ring {
+  animation: kca-ring-in 0.65s var(--ease-out) forwards;
+}
+
+.anim-enter:target {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .anim-enter,
+  .rh-wrap.anim-ring {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

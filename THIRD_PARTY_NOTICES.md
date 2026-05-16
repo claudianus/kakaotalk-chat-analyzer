@@ -16,4 +16,11 @@ This project (`kakaotalk-chat-analyzer`) is distributed under the **MIT License*
 - **Use in kca:** Korean-primary chats use multilingual sentence embeddings for semantic keyword clusters by default. Default model `Xenova/multilingual-e5-small` (E5 `query:` prefix; override with `KCA_SEMANTIC_MODEL`, legacy MiniLM: `Xenova/paraphrase-multilingual-MiniLM-L12-v2`). Downloaded at runtime (free).
 - **Source:** https://github.com/xenova/transformers.js
 
+## Open Props (report CSS, build-time bundle)
+
+- **Package:** [open-props](https://www.npmjs.com/package/open-props) v1.7.x
+- **License:** MIT
+- **Use in kca:** Design tokens and gradients are bundled into the standalone HTML report at build time (`scripts/bundle-report-css.mjs`). Not a runtime npm dependency for end users.
+- **Source:** https://github.com/argyleink/open-props
+
 Other runtime dependencies: `commander` (MIT), `csv-parse` (MIT), `iconv-lite` (MIT).

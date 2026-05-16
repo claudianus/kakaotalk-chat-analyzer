@@ -1,0 +1,52 @@
+/* kca 시맨틱 토큰 — Open Props 위에 매핑 (https://open-props.style/) */
+:root {
+  color-scheme: light dark;
+  --bg: var(--surface-1);
+  --bg2: var(--surface-2);
+  --ink: var(--text-1);
+  --muted: var(--text-2);
+  --line: var(--surface-3);
+  --panel: color-mix(in oklab, var(--surface-2) 92%, var(--surface-1));
+  --panel-solid: var(--surface-2);
+  --accent: var(--teal-6);
+  --accent2: var(--violet-5);
+  --warm: var(--orange-5);
+  --gold: var(--amber-6);
+  --shadow: var(--shadow-4);
+  --bar-bg: var(--surface-3);
+  --glow: color-mix(in oklab, var(--teal-5) 18%, transparent);
+  --glass: color-mix(in oklab, var(--surface-2) 78%, transparent);
+  --glass-border: color-mix(in oklab, var(--surface-4) 55%, transparent);
+  --accent-grad: var(--gradient-21);
+  --radius-card: var(--radius-3);
+  --radius-pill: var(--radius-round);
+  --font-sans: var(--font-sans);
+  --ease-out: var(--ease-out-3);
+  font-family: var(--font-sans);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --accent: var(--teal-4);
+    --accent2: var(--violet-4);
+    --glow: color-mix(in oklab, var(--teal-4) 22%, transparent);
+    --glass: color-mix(in oklab, var(--surface-2) 55%, transparent);
+    --accent-grad: var(--gradient-27);
+  }
+}
+
+:root[data-theme="dark"] {
+  --accent: var(--teal-4);
+  --accent2: var(--violet-4);
+  --glow: color-mix(in oklab, var(--teal-4) 22%, transparent);
+  --glass: color-mix(in oklab, var(--surface-2) 55%, transparent);
+  --accent-grad: var(--gradient-27);
+}
+
+:root[data-theme="light"] {
+  --accent: var(--teal-6);
+  --accent2: var(--violet-5);
+  --glow: color-mix(in oklab, var(--teal-5) 18%, transparent);
+  --glass: color-mix(in oklab, var(--surface-2) 78%, transparent);
+  --accent-grad: var(--gradient-21);
+}

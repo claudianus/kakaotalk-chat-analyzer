@@ -1,0 +1,89 @@
+.viz-hero {
+      margin: 0 0 18px;
+      padding: 20px 22px;
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+    .viz-hero h2 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+      background: var(--accent-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .viz-hero p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.55; }
+    .viz-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(12, 1fr);
+    }
+    .viz-card {
+      grid-column: span 12;
+      border-radius: 18px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 16px 16px 12px;
+      box-shadow: var(--shadow);
+    }
+    @media (min-width: 900px) {
+      .viz-card.span-6 { grid-column: span 6; }
+      .viz-card.span-8 { grid-column: span 8; }
+      .viz-card.span-4 { grid-column: span 4; }
+    }
+    .viz-card h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .viz-card .viz-hint {
+      margin: 0 0 10px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .chart-box {
+      width: 100%;
+      min-height: 280px;
+      height: min(42vh, 360px);
+    }
+    .chart-box.tall { height: min(52vh, 440px); min-height: 320px; }
+    .chart-box.compact { height: 240px; min-height: 220px; }
+    .kw-table-wrap {
+      max-height: 520px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    .kw-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .kw-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--panel-solid);
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+    }
+    .kw-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .kw-table tbody tr:nth-child(even) { background: rgba(94, 234, 212, 0.04); }
+    .kw-table .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; }
+    .kw-rank { color: var(--muted); width: 2.5rem; }
