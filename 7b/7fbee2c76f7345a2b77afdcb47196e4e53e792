@@ -1,0 +1,61 @@
+AGENTS.md
+  s_d404882750412e::t_296fb5aa56d833 86
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_5e552c208a6f58 50
+package.json
+  s_d404882750412e::t_d34b63ae1890c4 53
+  s_d404882750412e::t_bb9557e5a6434b 3
+  s_d404882750412e::t_0c3f204b4ec179 34
+dist/src/report-styles.js
+  s_d404882750412e::t_5e552c208a6f58 249-273
+dist/src/report-charts.js.map
+  ai_agent 1
+src/report.ts
+  s_d404882750412e::t_6047b019120c94 393
+  s_d404882750412e::t_394b0a08b766fd 423-427
+  s_d404882750412e::t_4ecfde792c8a18 390
+  s_d404882750412e::t_fad4582e0b1a1d 421-422,428-443
+  s_d404882750412e::t_69bf424889b434 347
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_5e552c208a6f58 2
+dist/src/report.js
+  s_d404882750412e::t_5e552c208a6f58 305,346,349,373-374,379-389
+  s_d404882750412e::t_14b800dc7f3dd7 375-378
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/report.js.map
+  ai_agent 1
+package-lock.json
+  ai_agent 3,9,24,474-488,702-732
+scripts/report-viewport-screenshots.mjs
+  s_d404882750412e::t_3605227ebf4f03 1-76
+kcachat/package.json
+  s_d404882750412e::t_01a91d4c31f3ab 15
+  s_d404882750412e::t_2c7614c323dda3 3
+dist/src/report-charts.js
+  s_d404882750412e::t_5e552c208a6f58 334-365,369
+src/report/css/02-kca-components.css
+  s_d404882750412e::t_90049d8f830029 17-41
+src/report-charts.ts
+  s_d404882750412e::t_e8f0c9a0456cda 362-393,397
+.github/workflows/report-visual-qa.yml
+  s_d404882750412e::t_a6093b2e4d4050 1-61
+src/report-styles.ts
+  s_d404882750412e::t_5e552c208a6f58 249-273
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "7b7fbee2c76f7345a2b77afdcb47196e4e53e792",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
