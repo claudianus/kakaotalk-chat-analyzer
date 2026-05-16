@@ -2,6 +2,7 @@ import { formatDate, formatDateTime, partsToUtcMs, weekdayIndex } from "./date.j
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats } from "./gap-stats.js";
 import { KeywordCounter } from "./keyword-counter.js";
+import { detectSystemNotice, ROOM_EVENT_KEYWORD_STOP } from "./room-events.js";
 import { buildReportStory } from "./story.js";
 const ATTACHMENT_MARKERS = [
     "사진",
@@ -15,7 +16,7 @@ const ATTACHMENT_MARKERS = [
     "음성메시지",
     "삭제된 메시지",
 ];
-const KEYWORD_EXCLUDE = new Set(ATTACHMENT_MARKERS);
+const KEYWORD_EXCLUDE = new Set([...ATTACHMENT_MARKERS, ...ROOM_EVENT_KEYWORD_STOP]);
 const WEEKDAY_LABELS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const URL_RE = /\bhttps?:\/\/[^\s<>"']+|www\.[^\s<>"']+/gi;
 const EMAIL_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
@@ -88,6 +89,9 @@ export class ReportAggregator {
     monologueMessages = 0;
     laughMessages = 0;
     shortMessages = 0;
+    roomJoinMessages = 0;
+    roomLeaveMessages = 0;
+    roomDeletedMessages = 0;
     prevMs = null;
     prevSender = null;
     runSender = null;
@@ -110,6 +114,13 @@ export class ReportAggregator {
         }
         const msg = record.message;
         const messageLength = msg.length;
+        const systemNotice = detectSystemNotice(msg);
+        if (systemNotice === "join")
+            this.roomJoinMessages += 1;
+        if (systemNotice === "leave")
+            this.roomLeaveMessages += 1;
+        if (systemNotice === "deleted")
+            this.roomDeletedMessages += 1;
         const foundAttachments = getAttachmentMarkers(msg);
         const foundDomains = LINK_HINT_RE.test(msg) ? getDomains(msg) : [];
         const ms = partsToUtcMs(record.date);
@@ -175,7 +186,8 @@ export class ReportAggregator {
             for (const domain of foundDomains)
                 increment(this.domains, domain);
         }
-        if (messageLength >= 2 &&
+        if (systemNotice === null &&
+            messageLength >= 2 &&
             HAS_TOKEN_CHAR_RE.test(msg) &&
             shouldExtractKeywords(msg, foundAttachments)) {
             for (const keyword of extractKeywords(msg, this.senderNamesNormalized)) {
@@ -368,6 +380,9 @@ export class ReportAggregator {
             rhythmScore,
             burstGapUnder1mPercent,
             monologueMessagesPercent,
+            roomJoinMessages: this.roomJoinMessages,
+            roomLeaveMessages: this.roomLeaveMessages,
+            roomDeletedMessages: this.roomDeletedMessages,
         });
         return {
             generatedAt: new Date().toISOString(),
@@ -408,6 +423,15 @@ export class ReportAggregator {
             attachments: topCounts(this.attachments, this.top),
             domains: topCounts(this.domains, this.top),
             keywords: this.keywordCounter.topCounts(this.top),
+            roomEvents: {
+                joinCount: this.roomJoinMessages,
+                leaveCount: this.roomLeaveMessages,
+                deletedCount: this.roomDeletedMessages,
+                total: this.roomJoinMessages + this.roomLeaveMessages + this.roomDeletedMessages,
+                joinSharePercent: total > 0 ? round((this.roomJoinMessages / total) * 100, 2) : 0,
+                leaveSharePercent: total > 0 ? round((this.roomLeaveMessages / total) * 100, 2) : 0,
+                deletedSharePercent: total > 0 ? round((this.roomDeletedMessages / total) * 100, 2) : 0,
+            },
             highlights,
             story,
         };
@@ -689,6 +713,15 @@ function buildHighlights(input) {
     }
     if (input.monologueMessagesPercent >= 25) {
         out.push(`같은 사람 **3연속 이상** 메시지가 전체의 **${input.monologueMessagesPercent}%** — 긴 설명·정리 구간이 잦을 수 있어요.`);
+    }
+    const sysTotal = input.roomJoinMessages + input.roomLeaveMessages + input.roomDeletedMessages;
+    if (sysTotal > 0) {
+        const parts = [
+            input.roomJoinMessages > 0 ? `들어옴 ${input.roomJoinMessages}` : "",
+            input.roomLeaveMessages > 0 ? `나감 ${input.roomLeaveMessages}` : "",
+            input.roomDeletedMessages > 0 ? `삭제 알림 ${input.roomDeletedMessages}` : "",
+        ].filter(Boolean);
+        out.push(`카카오톡 **시스템 알림** **${sysTotal}**건(${parts.join(" · ")}) — 키워드와는 따로 집계했어요.`);
     }
     return out.slice(0, 12);
 }

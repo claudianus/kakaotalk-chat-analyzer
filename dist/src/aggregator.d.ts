@@ -35,6 +35,9 @@ export declare class ReportAggregator {
     private monologueMessages;
     private laughMessages;
     private shortMessages;
+    private roomJoinMessages;
+    private roomLeaveMessages;
+    private roomDeletedMessages;
     private prevMs;
     private prevSender;
     private runSender;

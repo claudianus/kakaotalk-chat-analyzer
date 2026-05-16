@@ -14,19 +14,12 @@ export const STORY_CSS = `
     .wrapped-section h2 { margin: 0 0 6px; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
     .wrapped-lede { margin: 0 0 14px; font-size: 13px; color: var(--muted); line-height: 1.5; }
     .wrapped-deck {
-      display: flex;
+      display: grid;
       gap: 12px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scroll-padding: 12px;
-      padding: 4px 4px 14px;
-      -webkit-overflow-scrolling: touch;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+      padding: 0;
     }
-    .wrapped-deck::-webkit-scrollbar { height: 6px; }
-    .wrapped-deck::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
     .wrapped-card {
-      flex: 0 0 min(280px, 78vw);
-      scroll-snap-align: start;
       border-radius: 18px;
       border: 1px solid var(--line);
       padding: 22px 20px;
@@ -121,16 +114,18 @@ export const STORY_CSS = `
     .chapter-meta { font-size: 13px; line-height: 1.45; color: var(--ink); }
     .chapter-meta small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
     .chapter-stat { text-align: right; font-size: 13px; font-weight: 750; color: var(--muted); font-variant-numeric: tabular-nums; }
-    .cal-wrap { overflow-x: auto; padding-bottom: 8px; }
+    .cal-wrap { width: 100%; max-width: 100%; padding-bottom: 4px; }
     .cal-grid {
       display: flex;
-      gap: 3px;
+      flex-wrap: wrap;
+      gap: 6px 4px;
       align-items: flex-start;
+      width: 100%;
     }
-    .cal-week { display: flex; flex-direction: column; gap: 3px; }
+    .cal-week { display: grid; grid-template-rows: repeat(7, minmax(0, 1fr)); gap: 2px; }
     .cal-cell {
-      width: 12px;
-      height: 12px;
+      width: clamp(8px, 2.2vw, 12px);
+      height: clamp(8px, 2.2vw, 12px);
       border-radius: 3px;
       border: 1px solid transparent;
       display: block;
@@ -153,16 +148,14 @@ export const STORY_CSS = `
     }
     .cal-legend i { display: inline-flex; gap: 2px; align-items: center; }
     .cal-legend span { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
-    @media (prefers-reduced-motion: reduce) {
-      .wrapped-deck { scroll-snap-type: none; }
-    }
+
 `;
 export function renderStorySections(data) {
     const s = data.story;
     const parts = [];
     parts.push(`<section id="s-wrapped" class="wrapped-section anim-enter" style="--enter-delay:0.02s" aria-label="대화 Wrapped">
     <h2>⓪ ${escapeHtml(data.source.chatRoomName)} Wrapped</h2>
-    <p class="wrapped-lede">스크롤하거나 옆으로 넘기며 핵심 장면만 먼저 보세요. 원문 메시지는 없습니다.</p>
+    <p class="wrapped-lede">핵심 장면 카드가 화면 너비에 맞게 배열됩니다. 원문 메시지는 없습니다.</p>
     <div class="wrapped-deck" role="list">
       ${s.wrapped
         .map((c) => `<article class="wrapped-card" role="listitem" data-emoji="${escapeHtml(c.emoji)}" aria-label="${escapeHtml(c.title)}">

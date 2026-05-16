@@ -46,6 +46,18 @@ export interface CountItem {
     label: string;
     count: number;
 }
+/** 카카오톡 시스템 알림(입·퇴장·삭제 로그 등) */
+export interface RoomEventStats {
+    joinCount: number;
+    leaveCount: number;
+    deletedCount: number;
+    /** join + leave + deleted */
+    total: number;
+    /** 전체 메시지 대비 비율(%) */
+    joinSharePercent: number;
+    leaveSharePercent: number;
+    deletedSharePercent: number;
+}
 export interface DailyCount {
     date: string;
     count: number;
@@ -195,6 +207,7 @@ export interface ReportData {
     attachments: CountItem[];
     domains: CountItem[];
     keywords: CountItem[];
+    roomEvents: RoomEventStats;
     /** 리포트 상단에 보여줄 한 줄 인사이트(한국어) */
     highlights: string[];
     /** Wrapped·챕터·페르소나 등 스토리 레이어 */

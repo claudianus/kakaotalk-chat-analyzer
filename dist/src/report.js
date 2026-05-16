@@ -75,7 +75,15 @@ export function renderReportHtml(data) {
       --glow: rgba(15, 107, 92, 0.18);
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: clip;
+      max-width: 100%;
+    }
+    main {
+      overflow-x: clip;
+      max-width: 100%;
+    }
     #s-facts, #s-story, #s-hl, #s-ai, #s-charts, #s-help { scroll-margin-top: 76px; }
     .skip-link {
       position: absolute;
@@ -236,6 +244,8 @@ export function renderReportHtml(data) {
     ${STORY_CSS}
     body {
       margin: 0;
+      overflow-x: clip;
+      max-width: 100%;
       background:
         radial-gradient(1000px 520px at 12% -8%, var(--glow), transparent 55%),
         radial-gradient(800px 420px at 92% 0%, rgba(196, 92, 42, 0.12), transparent 45%),
@@ -366,7 +376,7 @@ export function renderReportHtml(data) {
     }
     .hours-labels span { min-width: 0; }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .table-rank { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    .table-rank { width: 100%; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; table-layout: fixed; }
     .table-rank thead th {
       color: var(--muted);
       font-weight: 700;
@@ -419,10 +429,10 @@ export function renderReportHtml(data) {
       font-size: 12px;
       line-height: 1.45;
       color: var(--ink);
-      overflow-x: auto;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
       word-break: break-word;
+      max-width: 100%;
     }
     .self-serve .links { margin: 10px 0 0; font-size: 12px; }
     .self-serve .links a { font-weight: 650; }
@@ -501,48 +511,153 @@ export function renderReportHtml(data) {
     .rh-cap small { font-size: 11px; font-weight: 700; color: var(--muted); margin-left: 1px; }
     .sc-plot {
       position: relative;
-      height: min(280px, 52vw);
-      min-height: 220px;
-      border-radius: 12px;
-      border: 1px dashed var(--line);
-      background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
+      width: 100%;
+      max-width: 100%;
       margin-top: 4px;
+      padding: 32px 8px 36px 8px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background-color: var(--panel);
+      background-image:
+        linear-gradient(to right, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
+      background-size: 25% 25%;
+      overflow: hidden;
     }
-    .sc-point {
+    @media (min-width: 560px) {
+      .sc-plot {
+        aspect-ratio: 5 / 4;
+        min-height: 240px;
+        max-height: 380px;
+        padding: 28px 12px 40px 12px;
+      }
+    }
+    .sc-grid-label {
       position: absolute;
-      transform: translate(-50%, -50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      max-width: 72px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      line-height: 1.2;
+    }
+    .sc-lbl-top { left: 50%; top: 6px; transform: translateX(-50%); }
+    .sc-lbl-bottom { left: 50%; bottom: 8px; transform: translateX(-50%); }
+    .sc-lbl-left { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: left center; }
+    .sc-lbl-right { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: right center; }
+    .sc-quadrant {
+      position: absolute;
+      font-size: 9px;
+      font-weight: 650;
+      color: color-mix(in srgb, var(--muted) 75%, transparent);
       pointer-events: none;
     }
-    .sc-label {
-      font-size: 9px;
+    .sc-q-tl { left: 12%; top: 14%; }
+    .sc-q-tr { right: 10%; top: 14%; }
+    .sc-q-bl { left: 12%; bottom: 18%; }
+    .sc-q-br { right: 10%; bottom: 18%; }
+    .bubble-node {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      max-width: 100%;
+      z-index: 1;
+    }
+    @media (min-width: 560px) {
+      .bubble-node {
+        position: absolute;
+        transform: translate(-50%, -50%) scale(var(--bubble-scale, 1));
+        max-width: min(34%, 140px);
+      }
+    }
+    .bubble-shape {
+      flex-shrink: 0;
+      width: 10px;
+      height: 10px;
+      margin-top: 12px;
+      background: hsl(var(--bubble-hue, 168) 62% 42%);
+      border-radius: 0 0 0 3px;
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+    @media (min-width: 560px) {
+      .bubble-shape {
+        position: absolute;
+        inset: 0;
+        width: auto;
+        height: auto;
+        margin: 0;
+        clip-path: none;
+        border-radius: 14px 14px 14px 4px;
+        background: hsl(var(--bubble-hue, 168) 48% 94%);
+        border: 2px solid hsl(var(--bubble-hue, 168) 58% 40%);
+        opacity: 0.98;
+        z-index: 0;
+      }
+      :root[data-theme="dark"] .bubble-shape {
+        background: hsl(var(--bubble-hue, 168) 35% 22%);
+        border-color: hsl(var(--bubble-hue, 168) 55% 48%);
+      }
+    }
+    .bubble-content {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 11px;
+      border-radius: 14px;
+      border: 2px solid hsl(var(--bubble-hue, 168) 58% 40%);
+      background: hsl(var(--bubble-hue, 168) 48% 96%);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    :root[data-theme="dark"] .bubble-content {
+      background: hsl(var(--bubble-hue, 168) 35% 20%);
+      border-color: hsl(var(--bubble-hue, 168) 55% 48%);
+    }
+    @media (min-width: 560px) {
+      .bubble-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        padding: 6px 8px;
+      }
+    }
+    .bubble-content strong {
+      display: block;
+      font-size: 11px;
       font-weight: 800;
-      line-height: 1.2;
       color: var(--ink);
-      text-align: center;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 100%;
-      padding: 1px 4px;
-      border-radius: 4px;
-      background: var(--panel);
-      border: 1px solid var(--line);
     }
-    .sc-dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      box-shadow: 0 0 0 2px var(--panel), 0 4px 12px rgba(0, 0, 0, 0.18);
-      flex-shrink: 0;
+    .bubble-content .bubble-pct {
+      display: block;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: hsl(var(--bubble-hue, 168) 55% 32%);
+      font-variant-numeric: tabular-nums;
     }
-    .sc-axis { position: absolute; font-size: 10px; color: var(--muted); font-weight: 650; }
-    .sc-x { right: 8px; bottom: 6px; }
-    .sc-y { left: 8px; top: 8px; }
+    :root[data-theme="dark"] .bubble-content .bubble-pct {
+      color: hsl(var(--bubble-hue, 168) 70% 72%);
+    }
+    .bubble-content small {
+      display: block;
+      margin-top: 2px;
+      font-size: 9px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .sc-plot-list {
+      display: grid;
+      gap: 10px;
+    }
+    @media (min-width: 560px) {
+      .sc-plot-list { display: block; position: absolute; inset: 0; }
+      .sc-plot-list .bubble-node { margin: 0; }
+    }
     .fact-card { margin-bottom: 14px; padding: 14px 16px; }
     .fact-card h2 { margin: 0 0 6px; font-size: 15px; }
     .fact-hint { margin: 0 0 10px; font-size: 11px; color: var(--muted); line-height: 1.45; }
@@ -635,7 +750,11 @@ export function renderReportHtml(data) {
 
     <section class="grid two" style="margin-bottom:14px">
       ${panel("자주 나온 도메인", "공유 링크의 사이트 이름 일부만 집계했어요.", renderCountBars(data.domains))}
-      ${panel("키워드 스냅샷", "사람이 직접 입력한 본문 단어만 집계해요(카톡 첨부 시스템 문구는 제외).", renderKeywordSnapshot(data.keywords))}
+      ${panel("키워드 스냅샷", "사람이 직접 입력한 본문 단어만 집계해요.", renderKeywordSnapshot(data.keywords))}
+    </section>
+
+    <section style="margin-bottom:14px">
+      ${panel("카카오톡 시스템 알림", "입·퇴장(들어왔습니다·나갔습니다)과 「메시지가 삭제되었습니다」 삭제 로그만 집계합니다. 키워드와 섞지 않습니다.", renderRoomEvents(data.roomEvents, data.summary.totalMessages))}
     </section>
     </div>
 
@@ -883,7 +1002,7 @@ function renderInsightDeck(data) {
       </div>
       <div>
         <h3 class="insight-sub">참여자 말풍선 맵</h3>
-        <p class="chart-hint">가로는 <strong>비율(%)</strong>, 세로는 <strong>평균 글자 수</strong> (상위 12명).</p>
+        <p class="chart-hint">말풍선 <strong>크기·위치</strong>로 비중(가로)과 평균 글자 수(세로)를 봅니다. 좁은 화면에서는 채팅 목록형으로 펼쳐져요.</p>
         ${scatter}
       </div>
     </div>
@@ -915,16 +1034,42 @@ function renderParticipantScatter(parts) {
     const maxLen = Math.max(...top.map((p) => p.averageLength), 1);
     const minLen = Math.min(...top.map((p) => p.averageLength));
     const lenSpan = Math.max(maxLen - minLen, 0.1);
-    const dots = top
+    return renderParticipantBubbleMap(top, maxShare, minLen, lenSpan);
+}
+function renderParticipantBubbleMap(top, maxShare, minLen, lenSpan) {
+    const maxMessages = Math.max(...top.map((p) => p.messages), 1);
+    const bubbles = top
         .map((p, i) => {
-        const x = 8 + (p.sharePercent / maxShare) * 82;
+        const x = 14 + (p.sharePercent / maxShare) * 72;
         const yRaw = (p.averageLength - minLen) / lenSpan;
-        const y = 12 + (1 - yRaw) * 76;
+        const y = 16 + (1 - yRaw) * 68;
         const hue = (i * 53) % 360;
-        return `<div class="sc-point" style="left:${x}%;top:${y}%"><span class="sc-label">${escapeHtml(p.alias)}</span><span class="sc-dot" style="background:hsl(${hue} 72% 52%)" title="${escapeHtml(p.alias)} · ${p.sharePercent}% · 평균 ${p.averageLength}자"></span></div>`;
+        const scale = scatterScale(p.messages, maxMessages);
+        const title = `${p.alias} · ${p.sharePercent}% · 평균 ${p.averageLength}자 · ${formatNumber(p.messages)}건`;
+        return `<div class="bubble-node" style="left:${x}%;top:${y}%;--bubble-scale:${scale};--bubble-hue:${hue}" title="${escapeHtml(title)}">
+        <span class="bubble-shape" aria-hidden="true"></span>
+        <div class="bubble-content">
+          <strong>${escapeHtml(p.alias)}</strong>
+          <span class="bubble-pct">${p.sharePercent}%</span>
+          <small>평균 ${p.averageLength}자 · ${formatNumber(p.messages)}건</small>
+        </div>
+      </div>`;
     })
         .join("");
-    return `<div class="sc-plot">${dots}<span class="sc-axis sc-x">점유 →</span><span class="sc-axis sc-y">길이 ↑</span></div>`;
+    return `<div class="sc-plot" role="img" aria-label="참여자 말풍선 맵: 가로 메시지 비중, 세로 평균 글자 수">
+    <span class="sc-grid-label sc-lbl-top">평균 글자 ↑</span>
+    <span class="sc-grid-label sc-lbl-bottom">평균 글자 ↓</span>
+    <span class="sc-grid-label sc-lbl-left">비중 ↓</span>
+    <span class="sc-grid-label sc-lbl-right">비중 ↑</span>
+    <span class="sc-quadrant sc-q-tl">짧게 · 적게</span>
+    <span class="sc-quadrant sc-q-tr">짧게 · 많이</span>
+    <span class="sc-quadrant sc-q-bl">길게 · 적게</span>
+    <span class="sc-quadrant sc-q-br">길게 · 많이</span>
+    <div class="sc-plot-list">${bubbles}</div>
+  </div>`;
+}
+function scatterScale(messages, maxMessages) {
+    return Math.round((0.72 + (messages / maxMessages) * 0.45) * 100) / 100;
 }
 function privacyLabel(mode) {
     if (mode === "public-masked")
@@ -1020,8 +1165,22 @@ function renderParticipants(participants) {
         .map((p) => `<tr><td>${escapeHtml(p.alias)}</td><td class="num">${formatNumber(p.messages)}</td><td class="num">${p.sharePercent}%</td><td class="num">${p.averageLength}</td><td class="num">${formatNumber(p.linkMessages)}</td><td class="num">${formatNumber(p.attachmentMessages)}</td><td class="num">${formatNumber(p.nightMessages)}</td><td class="num">${formatNumber(p.maxConsecutive)}</td></tr>`)
         .join("")}</tbody></table>`;
 }
+function renderRoomEvents(stats, totalMessages) {
+    if (stats.total === 0) {
+        return '<p style="margin:0;color:var(--muted);font-size:13px">입·퇴장·삭제 알림 형태의 시스템 메시지가 없거나, 보내기 형식에서 감지되지 않았습니다.</p>';
+    }
+    const items = [
+        { label: "들어왔습니다 (입장)", count: stats.joinCount },
+        { label: "나갔습니다 (퇴장)", count: stats.leaveCount },
+        { label: "메시지가 삭제되었습니다", count: stats.deletedCount },
+    ];
+    const ofAll = totalMessages > 0
+        ? `<p class="kw-note" style="margin-top:10px">전체 메시지 <strong>${formatNumber(totalMessages)}</strong>건 중 입장 <strong>${stats.joinSharePercent}%</strong> · 퇴장 <strong>${stats.leaveSharePercent}%</strong> · 삭제 알림 <strong>${stats.deletedSharePercent}%</strong> (각각 전체 대비).</p>`
+        : "";
+    return renderCountBars(items) + ofAll;
+}
 function renderKeywordSnapshot(items) {
-    const note = '<p class="kw-note"><strong>본문 단어만</strong> 집계해요. 카카오톡에서 사진·이모티콘·동영상을 보낼 때 CSV에 적히는 「사진」「이모티콘」 같은 <strong>시스템 문구</strong>는 여기 넣지 않고, <strong>첨부 유형</strong> 차트에서만 봅니다.</p>';
+    const note = '<p class="kw-note"><strong>본문 단어만</strong> 집계해요. 첨부·입퇴장·「메시지가 삭제되었습니다」 같은 시스템 문구는 <strong>각각 다른 차트</strong>에서 봅니다.</p>';
     if (items.length === 0) {
         return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
     }

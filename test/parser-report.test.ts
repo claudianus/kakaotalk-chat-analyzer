@@ -75,6 +75,9 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.equal(html.includes("report-data"), false);
     assert.equal(html.includes('id="s-wrapped"'), true);
     assert.equal(html.includes("wrapped-card"), true);
+    assert.equal(html.includes("overflow-x: auto"), false);
+    assert.equal(html.includes("bubble-node"), true);
+    assert.equal(html.includes("sc-plot-list"), true);
     assert.equal(html.includes("persona-chip"), true);
     assert.equal(html.includes("story-headline"), true);
     assert.ok(data.story.wrapped.length >= 3);
@@ -232,5 +235,14 @@ function emptyReport() {
       laughBySender: new Map(),
       shortBySender: new Map(),
     }),
+    roomEvents: {
+      joinCount: 0,
+      leaveCount: 0,
+      deletedCount: 0,
+      total: 0,
+      joinSharePercent: 0,
+      leaveSharePercent: 0,
+      deletedSharePercent: 0,
+    },
   };
 }
