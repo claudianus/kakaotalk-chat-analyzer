@@ -1,0 +1,99 @@
+dist/src/keyword-rank.js
+  s_d404882750412e::t_429646dab2c8eb 1-11
+package.json
+  s_d404882750412e::t_6dc7752ddcdabe 3
+dist/src/streaming-tfidf-keywords.js
+  s_d404882750412e::t_429646dab2c8eb 2,5,7-15,17-29,31-54,56-64,70,73-78,81-85,87-92,94-102,105-107,109-110,112-113,115-134,136-139,143
+dist/src/report.js.map
+  ai_agent 1
+dist/src/keyword-merge.d.ts
+  s_d404882750412e::t_429646dab2c8eb 1,4
+src/report.ts
+  s_d404882750412e::t_d50917d5d027b3 1381
+src/keyword-merge.ts
+  s_d404882750412e::t_bce618e68b71c2 2,6
+README.md
+  s_d404882750412e::t_165d7988edb690 57,74,103,259
+dist/src/keyword-rank.d.ts
+  s_d404882750412e::t_429646dab2c8eb 3,5,8-11,13
+dist/src/report.js
+  s_d404882750412e::t_429646dab2c8eb 1303
+dist/src/keyword-rank.js.map
+  ai_agent 1
+kcachat/package.json
+  s_d404882750412e::t_af0b00b6f196ff 3
+  s_d404882750412e::t_25aeaf45498fbb 15
+src/streaming-tfidf-keywords.ts
+  s_d404882750412e::t_cb684d2c27d099 2,5-9,12-17,19,21-22,25-34,37-41,44-45,48-63,65-66,68-71,77,80-85,89-98,102-103,106-112,114-117,120-127,130-138,141-149
+src/version.ts
+  s_d404882750412e::t_429646dab2c8eb 1
+src/aggregator.ts
+  s_d404882750412e::t_9f8abb1ad6b8af 14
+  s_d404882750412e::t_6d98106eca1b42 91
+  s_d404882750412e::t_89481bca7e4cbf 248
+  s_d404882750412e::t_ff95e74632199f 409,412
+src/keyword-rank.ts
+  s_d404882750412e::t_ab3b3f380b1a4b 1-21
+dist/src/version.js
+  s_d404882750412e::t_429646dab2c8eb 1
+kcachat/README.md
+  s_d404882750412e::t_04471ae5505eb9 12
+dist/src/korean-hashtags.js
+  s_d404882750412e::t_429646dab2c8eb 2
+src/korean-normalize.ts
+  s_d404882750412e::t_77cc5b16990c37 1
+dist/src/version.d.ts
+  s_d404882750412e::t_429646dab2c8eb 1-2
+dist/src/keyword-merge.js.map
+  ai_agent 1
+dist/src/aggregator.js
+  s_d404882750412e::t_429646dab2c8eb 4,51,191,343,346
+dist/src/korean-normalize.js
+  s_d404882750412e::t_429646dab2c8eb 1
+dist/src/report-charts.js
+  s_d404882750412e::t_429646dab2c8eb 139
+dist/src/aggregator.js.map
+  ai_agent 1
+test/streaming-tfidf-keywords.test.ts
+  s_d404882750412e::t_76af54506ad744 4,13,23-26,32-44
+src/report-charts.ts
+  s_d404882750412e::t_bfefa5e406a666 160
+dist/src/korean-normalize.js.map
+  ai_agent 1
+dist/src/version.js.map
+  ai_agent 1
+dist/src/aggregator.d.ts
+  s_d404882750412e::t_429646dab2c8eb 21
+dist/src/keyword-merge.js
+  s_d404882750412e::t_429646dab2c8eb 2
+test/parser-report.test.ts
+  s_d404882750412e::t_d6c109b469260b 93
+src/korean-hashtags.ts
+  s_d404882750412e::t_583cd10f75ca1b 8
+dist/src/streaming-tfidf-keywords.d.ts
+  s_d404882750412e::t_429646dab2c8eb 1-13
+dist/src/korean-hashtags.js.map
+  ai_agent 1
+docs/index.html
+  s_d404882750412e::t_480c2e37014919 6,318,395
+dist/src/korean-hashtags.d.ts
+  s_d404882750412e::t_429646dab2c8eb 5
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "eea9d0c975c0b55b223ee3ee63d6d85165898c2e",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
