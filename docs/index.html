@@ -3,8 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="카카오톡 CSV보내기를 분석해 익명화된 HTML 리포트를 만들고, 가입 없이 임시 공유까지 한 번에.">
+  <meta name="description" content="카카오톡 CSV 보내기를 읽어 익명화된 한글 HTML 리포트를 만들고, npx 한 줄로 로컬 저장 또는 BrewPage 임시 공유까지.">
   <meta name="theme-color" content="#0a0e14">
+  <link rel="canonical" href="https://claudianus.github.io/kakaotalk-chat-analyzer/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://claudianus.github.io/kakaotalk-chat-analyzer/">
+  <meta property="og:title" content="KakaoTalk Chat Analyzer · kca">
+  <meta property="og:description" content="카카오톡 CSV 보내기 → 집계 전용 한글 리포트 → 선택적 임시 공유. 메시지 원문은 HTML에 저장하지 않습니다.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="KakaoTalk Chat Analyzer · kca">
+  <meta name="twitter:description" content="카카오톡 CSV 보내기 → 집계 전용 한글 리포트 → 선택적 임시 공유.">
   <title>KakaoTalk Chat Analyzer · kca</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,16 +63,25 @@
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       box-shadow: 0 8px 32px rgba(62, 232, 197, 0.35);
     }
-    nav { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
+    nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; align-items: center; }
     nav a { color: var(--muted); }
     nav a:hover { color: var(--text); text-decoration: none; }
     .hero {
       padding: 40px 0 52px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 28px;
       align-items: flex-start;
-      max-width: 720px;
+      max-width: 900px;
+    }
+    @media (min-width: 900px) {
+      .hero {
+        display: grid;
+        grid-template-columns: 1fr minmax(280px, 340px);
+        align-items: start;
+        gap: 36px;
+        max-width: none;
+      }
     }
     h1 {
       margin: 0 0 16px;
@@ -98,6 +115,8 @@
       font-weight: 650;
       font-size: 15px;
       border: 1px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
     }
     .btn-primary {
       background: linear-gradient(135deg, var(--accent), #2bd4a8);
@@ -123,10 +142,7 @@
       padding: 22px;
     }
     .panel h3 { margin: 0 0 12px; font-size: 15px; color: var(--muted); font-weight: 600; }
-    .cmd-card {
-      width: 100%;
-      max-width: 28rem;
-    }
+    .cmd-card { width: 100%; }
     .cmd-rows {
       display: flex;
       flex-direction: column;
@@ -134,16 +150,26 @@
     }
     .cmd-row {
       display: grid;
-      grid-template-columns: 3.75rem minmax(0, 1fr);
-      gap: 10px 12px;
-      align-items: start;
+      grid-template-columns: 3.75rem 1fr auto;
+      gap: 10px 10px;
+      align-items: stretch;
+    }
+    @media (max-width: 520px) {
+      .cmd-row { grid-template-columns: 1fr auto; }
+      .cmd-row .cmd-tag { grid-column: 1 / -1; }
     }
     .cmd-row .cmd-tag {
       font-size: 12px;
       font-weight: 750;
       color: var(--accent);
-      padding-top: 4px;
+      padding-top: 10px;
       white-space: nowrap;
+    }
+    .cmd-row .cmd-body {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
     .cmd-row code {
       display: block;
@@ -159,6 +185,22 @@
       overflow-wrap: anywhere;
       word-break: break-word;
     }
+    .copy-btn {
+      align-self: stretch;
+      min-width: 52px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.1); }
+    .copy-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .copy-btn[data-done="1"] { border-color: rgba(62, 232, 197, 0.45); color: var(--accent); }
     .cmd-foot {
       margin: 14px 0 0;
       font-size: 12px;
@@ -169,10 +211,10 @@
     .grid {
       display: grid;
       gap: 16px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      padding: 0 0 64px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: 0 0 48px;
     }
-    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
     .card {
       padding: 22px;
       border-radius: var(--radius);
@@ -182,6 +224,15 @@
     .card h2 { margin: 0 0 10px; font-size: 18px; letter-spacing: -0.02em; }
     .card p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 14px; }
     .tag { color: var(--warn); font-weight: 650; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .steps {
+      margin: 0;
+      padding-left: 1.15rem;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 14px;
+    }
+    .steps li { margin-bottom: 6px; }
+    .steps strong { color: var(--text); font-weight: 600; }
     footer {
       padding: 32px 0 48px;
       border-top: 1px solid var(--stroke);
@@ -193,6 +244,7 @@
       justify-content: space-between;
       align-items: center;
     }
+    .foot-links { display: flex; flex-wrap: wrap; gap: 12px 18px; }
   </style>
 </head>
 <body>
@@ -202,10 +254,13 @@
         <div class="logo" aria-hidden="true"></div>
         <span>kca</span>
       </div>
-      <nav>
+      <nav aria-label="주요 링크">
         <a href="#features">기능</a>
         <a href="#start">시작하기</a>
+        <a href="https://www.npmjs.com/package/kcachat">npm · kcachat</a>
+        <a href="https://www.npmjs.com/package/kakaotalk-chat-analyzer">npm · 본체</a>
         <a href="https://github.com/claudianus/kakaotalk-chat-analyzer">GitHub</a>
+        <a href="https://github.com/claudianus/kakaotalk-chat-analyzer/blob/main/README.md">README</a>
       </nav>
     </header>
 
@@ -213,35 +268,44 @@
       <div>
         <h1>대화는 그대로,<br>리포트는 안전하게.</h1>
         <p class="lede">
-          <strong style="color:var(--text)">KakaoTalk Chat Analyzer</strong>는 카카오톡 CSV보내기를 읽어
-          <strong>한글 프리미엄 리포트</strong>(하이라이트·월별·심야 비중 등)를 만들고, 기본은 <strong>참여자 부분 마스킹</strong>으로 누구인지 감은 오게 보여 줍니다.
-          원문 메시지와 전체 URL은 HTML에 남기지 않습니다.
+          <strong style="color:var(--text)">KakaoTalk Chat Analyzer</strong>(CLI 이름 <strong>kca</strong>)는 카카오톡
+          <strong>CSV 보내기</strong> 파일을 읽어 <strong>집계 전용 한글 리포트</strong>(월별·시간대·키워드·하이라이트 등)를 만듭니다.
+          기본은 참여자 <strong>부분 마스킹</strong>이고, 메시지 원문·전체 URL 문자열은 생성된 HTML에 넣지 않습니다.
         </p>
         <div class="pill-row">
-          <span class="pill">npx</span>
+          <span class="pill">npx · kcachat</span>
           <span class="pill">Node.js 22+</span>
-          <span class="pill">MIT License</span>
+          <span class="pill">MIT</span>
         </div>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://github.com/claudianus/kakaotalk-chat-analyzer">저장소 바로가기</a>
-          <a class="btn btn-ghost" href="#start">더 알아보기</a>
+          <a class="btn btn-primary" href="https://github.com/claudianus/kakaotalk-chat-analyzer">저장소</a>
+          <a class="btn btn-ghost" href="#start">보내기 → 실행</a>
+          <a class="btn btn-ghost" href="https://github.com/claudianus/kakaotalk-chat-analyzer/blob/main/README.md">전체 문서</a>
         </div>
       </div>
       <div class="panel cmd-card" aria-label="실행 예시">
-        <h3>실행 (복사)</h3>
+        <h3>터미널에서 (복사)</h3>
         <div class="cmd-rows">
           <div class="cmd-row">
             <span class="cmd-tag">로컬</span>
-            <code>npx kakaotalk-chat-analyzer@latest ./보내기.csv --local</code>
+            <div class="cmd-body">
+              <code id="cmd-local">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv" --local</code>
+            </div>
+            <button type="button" class="copy-btn" data-copy-target="cmd-local" aria-label="로컬 명령 복사">복사</button>
           </div>
           <div class="cmd-row">
             <span class="cmd-tag">업로드</span>
-            <code>npx kakaotalk-chat-analyzer@latest ./보내기.csv</code>
+            <div class="cmd-body">
+              <code id="cmd-upload">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv"</code>
+            </div>
+            <button type="button" class="copy-btn" data-copy-target="cmd-upload" aria-label="업로드 명령 복사">복사</button>
           </div>
         </div>
         <p class="cmd-foot">
-          출력 폴더는 기본 <code style="font-size:11px;color:var(--accent)">.tmp/kca-report</code> · <code style="font-size:11px;color:var(--accent)">-o ./report</code> 로 바꿀 수 있어요.
-          <a href="https://github.com/claudianus/kakaotalk-chat-analyzer#readme">inspect·GitHub 설치 등 → README</a>
+          <code>--local</code>이면 PC에만 <code>index.html</code>을 만들고 기본 BrewPage 업로드는 생략합니다.
+          출력 기본 <code>.tmp/kca-report</code> · 경로 바꾸기 <code>-o ./report</code>.
+          패키지 전체 이름은 <a href="https://www.npmjs.com/package/kakaotalk-chat-analyzer">kakaotalk-chat-analyzer</a>와 동일하게 동작합니다.
+          <a href="https://github.com/claudianus/kakaotalk-chat-analyzer#readme">inspect · 다른 호스트 → README</a>
         </p>
       </div>
     </section>
@@ -250,33 +314,71 @@
       <article class="card">
         <div class="tag">Privacy-first</div>
         <h2>부분 마스킹</h2>
-        <p>기본 모드는 이름 앞뒤만 남기고 가운데를 가려, 방 안에서 누구인지 감은 오게 공유할 수 있게 합니다. 완전 별칭 모드도 선택 가능합니다.</p>
+        <p>기본은 이름 앞뒤만 남기고 가운데를 가려, 방 안에서만 알아볼 수 있는 수준으로 공유할 수 있습니다. 완전 별칭 모드는 CLI 옵션으로 선택합니다.</p>
       </article>
       <article class="card">
         <div class="tag">Single file</div>
-        <h2>단일 HTML 리포트</h2>
-        <p>배포와 보관이 쉬운 하나의 <code>index.html</code>로 시각화합니다. 브라우저만 있으면 열어볼 수 있습니다.</p>
+        <h2>단일 HTML</h2>
+        <p>브라우저만 있으면 되는 하나의 <code>index.html</code>입니다. 리포트 하단에는 같은 방식으로 다시 만들어 볼 수 있는 짧은 안내가 들어갈 수 있습니다.</p>
+      </article>
+      <article class="card">
+        <div class="tag">Charts</div>
+        <h2>한글 집계 UI</h2>
+        <p>일별·시간대 히트맵, 응답 간격, 키워드·링크 도메인 등 대화 흐름을 읽기 쉽게 묶었습니다.</p>
       </article>
       <article class="card">
         <div class="tag">Publish</div>
         <h2>임시 공유</h2>
-        <p>BrewPage, TempFile, Cloudflare 등 호스트를 선택해 TTL 기반 임시 링크를 만들 수 있습니다.</p>
+        <p>기본은 BrewPage 업로드입니다. TempFile·Cloudflare 등 다른 호스트와 TTL은 README와 <code>kca --help</code>를 참고하세요.</p>
       </article>
     </section>
 
     <section id="start" class="panel" style="margin-bottom:48px">
-      <h3 style="margin:0 0 14px;color:var(--text);font-size:18px">오픈소스로 함께 다듬기</h3>
-      <p style="margin:0 0 16px;color:var(--muted);line-height:1.6;max-width:70ch">
-        이 사이트는 <strong>GitHub Pages</strong>로 자동 배포됩니다. 이슈·PR·스타는 언제나 환영입니다.
-        프로덕션 사용 전에는 반드시 개인정보·보안 정책을 확인하세요.
+      <h3 style="margin:0 0 14px;color:var(--text);font-size:18px">시작하기: 카카오톡에서 CSV 보내기 → 터미널</h3>
+      <ol class="steps">
+        <li>카카오톡에서 해당 채팅방 열기 → 우측 상단 <strong>더보기(≡)</strong></li>
+        <li><strong>대화 보내기</strong> → <strong>CSV 보내기</strong>로 파일 저장 (파일명은 보통 <code>KakaoTalk_Chat_…</code> 형태)</li>
+        <li><a href="https://nodejs.org/">Node.js 22 이상</a> 설치 후, 저장한 CSV 경로를 넣어 위 명령 실행</li>
+        <li>로컬이면 생성 폴더의 <code>index.html</code>을 브라우저로 열기 · 업로드 모드면 터미널에 출력된 링크 확인</li>
+      </ol>
+      <p style="margin:18px 0 0;color:var(--muted);line-height:1.6;font-size:14px;max-width:72ch">
+        이 사이트는 <strong>GitHub Pages</strong>로 <code>main</code> 브랜치 푸시 시 자동 배포됩니다.
+        버그·아이디어는 <a href="https://github.com/claudianus/kakaotalk-chat-analyzer/issues">Issues</a>,
+        기여는 <a href="https://github.com/claudianus/kakaotalk-chat-analyzer">Pull request</a>로 환영합니다.
+        카카오 공식 제품이 아니며, 보내기 형식이 바뀌면 파싱이 깨질 수 있으니 중요한 원본은 따로 보관하세요.
       </p>
-      <a class="btn btn-primary" href="https://github.com/claudianus/kakaotalk-chat-analyzer">GitHub에서 보기</a>
     </section>
 
     <footer>
       <span>© claudianus · <a href="https://github.com/claudianus/kakaotalk-chat-analyzer/blob/main/LICENSE">MIT</a></span>
-      <span><a href="https://github.com/claudianus/kakaotalk-chat-analyzer">github.com/claudianus/kakaotalk-chat-analyzer</a></span>
+      <div class="foot-links">
+        <a href="https://github.com/claudianus/kakaotalk-chat-analyzer">GitHub</a>
+        <a href="https://www.npmjs.com/package/kcachat">npm/kcachat</a>
+        <a href="https://www.npmjs.com/package/kakaotalk-chat-analyzer">npm/kakaotalk-chat-analyzer</a>
+      </div>
     </footer>
   </div>
+  <script>
+    document.querySelectorAll(".copy-btn[data-copy-target]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-copy-target");
+        var el = id && document.getElementById(id);
+        var text = el ? el.textContent.trim() : "";
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function () {
+          btn.setAttribute("data-done", "1");
+          var prev = btn.textContent;
+          btn.textContent = "완료";
+          setTimeout(function () {
+            btn.textContent = prev;
+            btn.removeAttribute("data-done");
+          }, 1600);
+        }).catch(function () {
+          btn.textContent = "실패";
+          setTimeout(function () { btn.textContent = "복사"; }, 1600);
+        });
+      });
+    });
+  </script>
 </body>
 </html>
