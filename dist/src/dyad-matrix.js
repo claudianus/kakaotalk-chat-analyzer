@@ -16,12 +16,15 @@ export class DyadAccumulator {
     buildMatrix(participants, aliasBySender) {
         if (this.totalReplies < 3 || participants.length < 2)
             return null;
-        const ranked = participants.slice(0, MAX_MATRIX);
+        const ranked = [...participants]
+            .sort((a, b) => b.messages - a.messages || a.alias.localeCompare(b.alias))
+            .slice(0, MAX_MATRIX);
         const senderByAlias = new Map();
         for (const [raw, alias] of aliasBySender)
             senderByAlias.set(alias, raw);
         const senders = ranked.map((p) => senderByAlias.get(p.alias) ?? p.alias);
         const aliases = ranked.map((p) => p.alias);
+        const messageCounts = ranked.map((p) => p.messages);
         const index = new Map(senders.map((s, i) => [s, i]));
         const matrix = aliases.map(() => aliases.map(() => 0));
         for (const [k, count] of this.edges) {
@@ -43,7 +46,7 @@ export class DyadAccumulator {
         })
             .sort((a, b) => b.replies - a.replies)
             .slice(0, 8);
-        return { aliases, matrix, topPairs, totalReplies: this.totalReplies };
+        return { aliases, matrix, topPairs, totalReplies: this.totalReplies, messageCounts };
     }
 }
 //# sourceMappingURL=dyad-matrix.js.map

@@ -48,6 +48,70 @@
   background: var(--glass);
 }
 
+.chart-box--dyad {
+  position: relative;
+  min-height: 320px;
+  height: min(42vh, 380px);
+}
+
+.chart-box--dyad.is-loading .chart-skeleton--heatmap {
+  display: grid;
+}
+
+.chart-box--dyad.is-ready .chart-skeleton--heatmap,
+.chart-box--dyad:not(.is-loading) .chart-skeleton--heatmap {
+  display: none;
+}
+
+.chart-skeleton--heatmap {
+  display: none;
+  position: absolute;
+  inset: 12px 16px 48px 72px;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 4px;
+  pointer-events: none;
+}
+
+.chart-skeleton--heatmap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: linear-gradient(
+    110deg,
+    color-mix(in oklab, var(--muted) 12%, transparent) 25%,
+    color-mix(in oklab, var(--accent) 18%, transparent) 50%,
+    color-mix(in oklab, var(--muted) 12%, transparent) 75%
+  );
+  background-size: 200% 100%;
+  animation: kca-dyad-skeleton 1.2s ease-in-out infinite;
+}
+
+.chart-skeleton--heatmap::after {
+  content: "상호작용 히트맵 불러오는 중…";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@keyframes kca-dyad-skeleton {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-skeleton--heatmap::before {
+    animation: none;
+    background: color-mix(in oklab, var(--muted) 14%, transparent);
+  }
+}
+
 .period-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

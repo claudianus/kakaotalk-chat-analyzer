@@ -30,6 +30,7 @@ export interface ChartPayload {
     aliases: string[];
     matrix: number[][];
     totalReplies: number;
+    messageCounts?: number[];
   } | null;
 }
 
@@ -78,6 +79,7 @@ export function buildChartPayload(data: ReportData): ChartPayload {
           aliases: data.interaction.aliases,
           matrix: data.interaction.matrix,
           totalReplies: data.interaction.totalReplies,
+          messageCounts: data.interaction.messageCounts,
         }
       : null,
   };
@@ -237,11 +239,104 @@ export const CHARTS_INIT_SCRIPT = `
       }
 
       var charts = [];
+      var dyadChartStarted = false;
       function disposeCharts() {
+        dyadChartStarted = false;
         charts.forEach(function (c) {
           try { c.dispose(); } catch (e) {}
         });
         charts.length = 0;
+      }
+      function markDyadReady(el) {
+        el.classList.remove("is-loading");
+        el.classList.add("is-ready");
+        el.setAttribute("aria-busy", "false");
+        var sk = el.querySelector(".chart-skeleton");
+        if (sk) sk.remove();
+      }
+      function initDyadChart(data) {
+        if (!data.interaction || !data.interaction.aliases.length) return null;
+        var el = document.getElementById("chart-dyad");
+        if (!el) return null;
+        var ix = data.interaction;
+        var dg = layout(el);
+        var heat = [];
+        var maxV = 1;
+        for (var ri = 0; ri < ix.matrix.length; ri += 1) {
+          for (var ci = 0; ci < ix.matrix[ri].length; ci += 1) {
+            var v = ix.matrix[ri][ci];
+            if (v > maxV) maxV = v;
+            if (v > 0) heat.push([ci, ri, v]);
+          }
+        }
+        var splitFill = dark ? ["rgba(255,255,255,0.03)", "rgba(255,255,255,0.06)"] : ["rgba(0,0,0,0.02)", "rgba(0,0,0,0.05)"];
+        var chart = init("chart-dyad", Object.assign(baseOpt(), {
+          animation: false,
+          tooltip: { position: "top", formatter: function (p) { var v = p.value[2]; return ix.aliases[p.value[1]] + " → " + ix.aliases[p.value[0]] + ": " + v; } },
+          grid: { left: Math.max(dg.leftCat, 80), right: dg.right, top: dg.top, bottom: 56 },
+          xAxis: {
+            type: "category",
+            data: ix.aliases,
+            axisLabel: { color: muted, fontSize: dg.fs, rotate: 32 },
+            splitArea: { show: true, areaStyle: { color: splitFill } },
+          },
+          yAxis: {
+            type: "category",
+            data: ix.aliases,
+            inverse: true,
+            axisLabel: { color: muted, fontSize: dg.fs },
+            splitArea: { show: true, areaStyle: { color: splitFill } },
+          },
+          visualMap: {
+            min: 0,
+            max: maxV,
+            calculable: true,
+            orient: "horizontal",
+            left: "center",
+            bottom: 4,
+            inRange: { color: [heatLo, dark ? "#2a9d8f" : "#7ecfc2", dark ? "#3ee8c5" : "#0f6b5c", heatHi] },
+          },
+          series: [{
+            type: "heatmap",
+            data: heat,
+            progressive: 0,
+            animation: false,
+            label: { show: false },
+            emphasis: {
+              label: { show: true, color: text, fontSize: dg.w < 380 ? 9 : 10 },
+              itemStyle: { shadowBlur: 12, shadowColor: dark ? "rgba(62,232,197,0.5)" : "rgba(15,107,92,0.35)" },
+            },
+            itemStyle: { borderWidth: 0 },
+          }],
+        }));
+        if (chart) markDyadReady(el);
+        return chart;
+      }
+      function bootDyadWhenVisible(data) {
+        if (!data.interaction || !data.interaction.aliases.length) return;
+        var el = document.getElementById("chart-dyad");
+        if (!el || dyadChartStarted) return;
+        function startDyad() {
+          if (dyadChartStarted) return;
+          dyadChartStarted = true;
+          requestAnimationFrame(function () { initDyadChart(data); });
+        }
+        if (typeof IntersectionObserver === "undefined") {
+          startDyad();
+          return;
+        }
+        var dyIo = new IntersectionObserver(function (entries) {
+          if (entries.some(function (e) { return e.isIntersecting; })) {
+            dyIo.disconnect();
+            startDyad();
+          }
+        }, { rootMargin: "200px 0px", threshold: 0.05 });
+        dyIo.observe(el);
+        setTimeout(function () {
+          if (dyadChartStarted) return;
+          var r = el.getBoundingClientRect();
+          if (r.top < window.innerHeight + 200 && r.bottom > 0) startDyad();
+        }, 200);
       }
       function resizeAll() {
         charts.forEach(function (c) {
@@ -294,6 +389,7 @@ export const CHARTS_INIT_SCRIPT = `
         if (document.documentElement.getAttribute("data-theme")) return;
         disposeCharts();
         run();
+        bootDyadWhenVisible(data);
       }
       if (mqOsTheme && mqOsTheme.addEventListener) {
         mqOsTheme.addEventListener("change", onOsThemeChange);
@@ -505,62 +601,6 @@ export const CHARTS_INIT_SCRIPT = `
         }));
       }
 
-      if (data.interaction && data.interaction.aliases.length && document.getElementById("chart-dyad")) {
-        var ix = data.interaction;
-        var dyEl = document.getElementById("chart-dyad");
-        var dg = layout(dyEl);
-        var dyLabelFs = dg.w < 380 ? 7 : 8;
-        var heat = [];
-        var maxV = 1;
-        for (var ri = 0; ri < ix.matrix.length; ri += 1) {
-          for (var ci = 0; ci < ix.matrix[ri].length; ci += 1) {
-            var v = ix.matrix[ri][ci];
-            if (v > maxV) maxV = v;
-            if (v > 0) heat.push({
-              value: [ci, ri, v],
-              label: {
-                show: true,
-                formatter: String(v),
-                color: text,
-                fontSize: dyLabelFs,
-              },
-            });
-          }
-        }
-        var splitFill = dark ? ["rgba(255,255,255,0.03)", "rgba(255,255,255,0.06)"] : ["rgba(0,0,0,0.02)", "rgba(0,0,0,0.05)"];
-        init("chart-dyad", Object.assign(baseOpt(), {
-          tooltip: { position: "top", formatter: function (p) { var v = p.value[2]; return ix.aliases[p.value[1]] + " → " + ix.aliases[p.value[0]] + ": " + v; } },
-          grid: { left: Math.max(dg.leftCat, 80), right: dg.right, top: dg.top, bottom: 56 },
-          xAxis: {
-            type: "category",
-            data: ix.aliases,
-            axisLabel: { color: muted, fontSize: dg.fs, rotate: 32 },
-            splitArea: { show: true, areaStyle: { color: splitFill } },
-          },
-          yAxis: {
-            type: "category",
-            data: ix.aliases,
-            axisLabel: { color: muted, fontSize: dg.fs },
-            splitArea: { show: true, areaStyle: { color: splitFill } },
-          },
-          visualMap: {
-            min: 0,
-            max: maxV,
-            calculable: true,
-            orient: "horizontal",
-            left: "center",
-            bottom: 4,
-            inRange: { color: [heatLo, dark ? "#2a9d8f" : "#7ecfc2", dark ? "#3ee8c5" : "#0f6b5c", heatHi] },
-          },
-          series: [{
-            type: "heatmap",
-            data: heat,
-            label: { show: true, hideOverlap: false },
-            itemStyle: { borderWidth: 0 },
-            emphasis: { itemStyle: { shadowBlur: 12, shadowColor: dark ? "rgba(62,232,197,0.5)" : "rgba(15,107,92,0.35)" } },
-          }],
-        }));
-      }
       requestAnimationFrame(resizeAll);
       setTimeout(resizeAll, 150);
       window.addEventListener("resize", resizeAll);
@@ -594,6 +634,7 @@ export const CHARTS_INIT_SCRIPT = `
       }
       function bootCharts() {
         if (typeof echarts === "undefined") return false;
+        bootDyadWhenVisible(data);
         whenVisible();
         return true;
       }

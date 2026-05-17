@@ -63,7 +63,9 @@ function renderDyadBlock(data: ReportData): string {
     <h2 class="section-glow">누가 누구에게 답하는가</h2>
     <p class="chart-hint">연속 메시지에서 화자가 바뀔 때 <strong>직전 화자 → 현재 화자</strong>로 응답 엣지를 셉니다(상위 ${m.aliases.length}명).</p>
     <ul class="dyad-pairs">${pairs}</ul>
-    <div id="chart-dyad" class="chart-box" role="img" aria-label="상호작용 히트맵"></div>
+    <div id="chart-dyad" class="chart-box chart-box--dyad is-loading" aria-busy="true" aria-label="상호작용 히트맵">
+      <div class="chart-skeleton chart-skeleton--heatmap" aria-hidden="true"></div>
+    </div>
   </section>`;
 }
 

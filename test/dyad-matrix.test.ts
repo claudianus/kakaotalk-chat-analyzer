@@ -42,5 +42,58 @@ describe("DyadAccumulator", () => {
     assert.equal(m!.totalReplies, 3);
     assert.equal(m!.matrix[0]![1], 2);
     assert.equal(m!.matrix[1]![0], 1);
+    assert.deepEqual(m!.messageCounts, [10, 8]);
+    assert.deepEqual(m!.aliases, ["A", "B"]);
+  });
+
+  it("orders matrix axes by message count descending", () => {
+    const d = new DyadAccumulator();
+    d.addReply("c", "a");
+    d.addReply("a", "b");
+    d.addReply("b", "c");
+    const participants: ParticipantStat[] = [
+      {
+        alias: "Low",
+        messages: 5,
+        characters: 50,
+        averageLength: 10,
+        attachmentMessages: 0,
+        linkMessages: 0,
+        sharePercent: 10,
+        nightMessages: 0,
+        maxConsecutive: 1,
+      },
+      {
+        alias: "High",
+        messages: 100,
+        characters: 500,
+        averageLength: 5,
+        attachmentMessages: 0,
+        linkMessages: 0,
+        sharePercent: 50,
+        nightMessages: 0,
+        maxConsecutive: 3,
+      },
+      {
+        alias: "Mid",
+        messages: 40,
+        characters: 200,
+        averageLength: 5,
+        attachmentMessages: 0,
+        linkMessages: 0,
+        sharePercent: 20,
+        nightMessages: 0,
+        maxConsecutive: 2,
+      },
+    ];
+    const aliasMap = new Map<string, string>([
+      ["a", "Low"],
+      ["b", "Mid"],
+      ["c", "High"],
+    ]);
+    const m = d.buildMatrix(participants, aliasMap);
+    assert.ok(m);
+    assert.deepEqual(m!.aliases, ["High", "Mid", "Low"]);
+    assert.deepEqual(m!.messageCounts, [100, 40, 5]);
   });
 });

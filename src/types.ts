@@ -257,6 +257,8 @@ export interface InteractionMatrix {
   matrix: number[][];
   topPairs: InteractionDyad[];
   totalReplies: number;
+  /** aliases[i] 참여자의 총 메시지 수(축 정렬 검증·차트용) */
+  messageCounts?: number[];
 }
 
 export interface ReportTimelineEvent {
