@@ -35,6 +35,7 @@ export async function prepareReportEngine() {
 async function applySemanticKeywords(agg, enabled, showProgress) {
     if (!enabled)
         return false;
+    const corpusMessages = agg.messageCount();
     const samples = agg.drainSemanticSamples();
     if (samples.length < 48)
         return false;
@@ -42,7 +43,7 @@ async function applySemanticKeywords(agg, enabled, showProgress) {
         logReportProgress({ phase: "시맨틱 키워드", current: 0 });
     const items = await extractSemanticKeywords(samples, {
         stopwords: buildKeywordStopwords(),
-        corpusMessages: agg.messageCount(),
+        corpusMessages,
         onProgress: showProgress
             ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
             : undefined,

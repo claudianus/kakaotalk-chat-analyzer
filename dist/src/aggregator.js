@@ -112,6 +112,7 @@ export class ReportAggregator {
         this.filePath = filePath;
         this.privacy = privacy;
         this.top = top;
+        // 임베딩 상한은 applySemanticKeywords → extractSemanticKeywords(corpusMessages)와 동일 정책
         this.semanticReservoir = options?.semanticSamples
             ? new MessageReservoir(semanticReservoirCap(options?.estimatedMessages))
             : null;

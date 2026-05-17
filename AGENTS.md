@@ -23,8 +23,9 @@
 
 1. `feat/…` / `fix/…` 브랜치 → `npm test` (+ 리포트 변경 시 §5 시각 QA)
 2. `gh pr create` → **cubic AI 리뷰**가 PR에 달릴 때까지 대기
-3. `get_pr_issues`(cubic MCP) 또는 PR 코멘트의 **미해결 이슈**를 수정·푸시 → 이슈 0 + CI green까지 반복(최대 5회)
-4. **`gh pr merge`로만** `main` 반영 — 리뷰·CI 전 머지 금지
+3. `gh pr checks`로 cubic·CI **pass** 확인(pending이면 대기) + `get_pr_issues`로 이슈 목록 확인
+4. Open Issues **> 0**이면 수정·푸시 후 3번 반복(최대 5회) → **이슈 0 + cubic pass**일 때만
+5. **`gh pr merge`로만** `main` 반영
 
 상세: [`.cursor/rules/cubic-pr-workflow.mdc`](.cursor/rules/cubic-pr-workflow.mdc)
 
