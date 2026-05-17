@@ -25,11 +25,13 @@ describe("TopicMapAccumulator", () => {
   it("omits weak discourse-heavy themes under message percent gate", () => {
     const acc = new TopicMapAccumulator();
     const stop = new Set<string>();
-    for (let i = 0; i < 80; i += 1) {
-      acc.addMessage(["감사합니다", "있어요", "부탁"], "2025-01");
+    for (let i = 0; i < 50; i += 1) {
       acc.addMessage(["클로드", "코덱스", "개발"], "2025-01");
+      acc.addMessage(["클로드", "api", "테스트"], "2025-01");
+      acc.addMessage(["감사합니다", "있어요", "부탁"], "2025-01");
     }
-    const topics = acc.buildTopics(160, stop).filter((t) => t.kind === "theme");
+    const topics = acc.buildTopics(150, stop).filter((t) => t.kind === "theme");
+    assert.ok(topics.length > 0, "expected at least one retained theme topic");
     for (const t of topics) {
       assert.ok(t.messagePercent >= 1.5, `weak theme: ${t.title} ${t.messagePercent}%`);
       assert.ok(!/^(감사합니다|있어요|부탁)$/.test(t.title.split(" · ")[0] ?? ""));

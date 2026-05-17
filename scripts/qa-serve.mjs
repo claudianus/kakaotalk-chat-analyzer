@@ -97,7 +97,18 @@ const server = createServer(async (req, res) => {
   }
 });
 
-freeListenPort(port);
+if (process.env.KCA_QA_KILL_EXISTING === "1") freeListenPort(port);
+
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(
+      `[qa-serve] port ${port} in use — stop the other process or set KCA_QA_KILL_EXISTING=1 / KCA_QA_PORT`,
+    );
+    process.exit(1);
+  }
+  throw err;
+});
+
 server.listen(port, "127.0.0.1", () => {
   console.error(`[qa-serve] http://127.0.0.1:${port}/`);
   console.error(`[qa-serve] root: ${root}`);

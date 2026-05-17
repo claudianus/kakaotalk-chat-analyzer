@@ -139,8 +139,7 @@ export class TopicMapAccumulator {
       classTf.set(`theme-${i}`, bag);
     });
 
-    const minDf = totalMessages >= LARGE_CORPUS_MESSAGES ? 3 : 1;
-    const ranked = classTfidfTopTerms(classTf, 6, { minDocFreq: minDf });
+    const ranked = classTfidfTopTerms(classTf, 6);
     const topics: ReportTopic[] = [];
 
     for (const [classId, termScores] of ranked) {

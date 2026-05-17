@@ -22,5 +22,5 @@ test("GapStreamStats uses exact quantiles at large sample sizes", () => {
   }
   assert.equal(stats.size, 50_001);
   const median = stats.medianMs();
-  assert.equal(median !== null && median >= 9_000 && median <= 21_000, true);
+  assert.equal(median, 10_000);
 });

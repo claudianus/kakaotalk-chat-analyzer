@@ -25,13 +25,15 @@ const phases = [
 ];
 
 console.log(`rows: ${rows.toLocaleString("ko-KR")}`);
-for (const phase of phases) {
-  const t0 = performance.now();
-  const data = await buildReportFromExportSync(csvPath, phase.opts);
-  const ms = performance.now() - t0;
-  console.log(
-    `[${phase.label}] ${Math.round(ms)}ms · ${Math.round((rows / ms) * 1000)} rows/s · msgs ${data.summary.totalMessages}`,
-  );
+try {
+  for (const phase of phases) {
+    const t0 = performance.now();
+    const data = await buildReportFromExportSync(csvPath, phase.opts);
+    const ms = performance.now() - t0;
+    console.log(
+      `[${phase.label}] ${Math.round(ms)}ms · ${Math.round((rows / ms) * 1000)} rows/s · msgs ${data.summary.totalMessages}`,
+    );
+  }
+} finally {
+  await rm(dir, { recursive: true, force: true });
 }
-
-await rm(dir, { recursive: true, force: true });

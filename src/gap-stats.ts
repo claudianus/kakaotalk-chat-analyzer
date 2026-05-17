@@ -71,7 +71,7 @@ export class GapStreamStats {
 
   private quantileMs(p: number): number | null {
     if (this.count === 0) return null;
-    if (this.exact.length >= EXACT_QUANTILE_MIN) {
+    if (this.exact.length >= EXACT_QUANTILE_MIN && this.count <= EXACT_STORE_MAX) {
       return exactQuantileMs(this.exact, p);
     }
     return histogramQuantileMs(this.histogram, this.count, p);
