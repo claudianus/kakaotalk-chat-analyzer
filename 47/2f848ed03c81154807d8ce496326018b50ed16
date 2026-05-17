@@ -1,0 +1,23 @@
+scripts/capture-docs-demo.mjs
+  s_23ea5bc305de1c::t_8aebfd7e6c096f 148,150-153,162-163
+  s_23ea5bc305de1c::t_96627d2c66ecc8 143-147,149,154-156,164-165,167-169
+docs/index.html
+  s_23ea5bc305de1c::t_e0d23e4d292d17 217-218,221-223
+  s_23ea5bc305de1c::t_2457a2e17d1f88 193-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "472f848ed03c81154807d8ce496326018b50ed16",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
