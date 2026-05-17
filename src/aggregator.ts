@@ -224,20 +224,22 @@ export class ReportAggregator {
     if (this.semanticReservoir && messageLength >= 12) this.semanticReservoir.push(msg);
   }
 
-  applySemanticKeywordBoost(
-    items: { label: string; messageHits: number; score?: number }[],
-    corpusMessages: number,
-  ): void {
-    const hitCap = semanticSupplementHitCap(corpusMessages);
+  applySemanticKeywordBoost(items: { label: string; messageHits: number; score?: number }[]): void {
     const valid = items.filter((item) => !isNoiseKeyword(item.label));
     this.semanticThemeCandidates = valid.map((item) => ({
       label: item.label,
       messageHits: item.messageHits,
       score: item.score ?? item.messageHits,
     }));
-    for (const item of valid) {
-      const hits = Math.max(2, Math.min(item.messageHits, hitCap));
-      this.keywordSupplement.addHits(item.label, hits);
+  }
+
+  /** finalize 직전 — BM25 후보에만 시맨틱 RRF 보강(표시 빈도는 코퍼스 df) */
+  applySemanticSupplementForRanked(wordRankItems: { label: string; messageHits: number }[]): void {
+    const allowed = new Map(wordRankItems.map((item) => [item.label, item.messageHits]));
+    for (const item of this.semanticThemeCandidates) {
+      const corpusHits = allowed.get(item.label);
+      if (corpusHits === undefined) continue;
+      this.keywordSupplement.addHits(item.label, corpusHits);
     }
   }
 
@@ -541,6 +543,7 @@ export class ReportAggregator {
       limit: keywordLimit,
       minDocFreq: adaptiveMinCount(total, finalizeOpts?.koreanPrimary !== false),
     });
+    this.applySemanticSupplementForRanked(wordRankItems);
     const keywords = mergeKeywordRankings(
       wordRankItems,
       this.keywordSupplement,

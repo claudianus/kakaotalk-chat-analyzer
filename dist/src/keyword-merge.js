@@ -21,16 +21,20 @@ export function mergeKeywordRankings(ranked, supplement, limit, semanticSuppleme
             messageHits: item.messageHits,
         });
     });
+    const bm25Hits = new Map(bm25.map((item) => [item.label, item.messageHits]));
     suppTop.forEach((item, i) => {
+        const corpusHits = bm25Hits.get(item.label);
+        if (corpusHits === undefined)
+            return;
         const prev = fused.get(item.label);
         fused.set(item.label, {
             rrf: (prev?.rrf ?? 0) + rrf(i + 1) * semanticSupplementWeight,
-            messageHits: Math.max(prev?.messageHits ?? 0, item.count),
+            messageHits: corpusHits,
         });
     });
     return [...fused.entries()]
-        .sort((a, b) => b[1].rrf - a[1].rrf ||
-        b[1].messageHits - a[1].messageHits ||
+        .sort((a, b) => b[1].messageHits - a[1].messageHits ||
+        b[1].rrf - a[1].rrf ||
         b[0].length - a[0].length ||
         a[0].localeCompare(b[0]))
         .slice(0, limit)

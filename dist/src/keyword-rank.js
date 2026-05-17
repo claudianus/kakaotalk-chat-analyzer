@@ -5,12 +5,14 @@ export function adaptiveMinCount(messageCount, koreanPrimary = true) {
         min = 2;
     else if (messageCount < 2_000)
         min = 3;
-    else if (messageCount < 100_000)
+    else if (messageCount < 10_000)
         min = 4;
+    else if (messageCount < 50_000)
+        min = 4;
+    else if (messageCount < 100_000)
+        min = 12;
     else
-        min = 5;
-    if (koreanPrimary && messageCount >= 50_000 && min > 4)
-        return 4;
+        min = 20;
     if (koreanPrimary && messageCount < 8_000 && min > 2)
         return min - 1;
     return min;

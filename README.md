@@ -216,6 +216,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.16.4** | 대용량 방 키워드: minDf 스케일·메시지 수 우선 정렬·시맨틱은 BM25 후보만 보강 |
 | **0.16.3** | 기본 **품질 우선** 프로필(메인 스레드·시맨틱 샘플 확대·RRF 완화·임베딩 주제). 가속은 `--worker` / `--fast` |
 | **0.16.1** | Windows 기본 CSV 폴더 `문서\카카오톡 받은 파일` |
 | **0.16.0** | 경로 생략·`latest --list/--pick`·진행률 추정·세션 gap |

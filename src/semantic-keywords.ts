@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./embedding-cluster.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import type { KeywordRankItem } from "./keyword-rank.js";
+import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import {
   formatTextForEmbedding,
@@ -124,11 +125,18 @@ export async function extractSemanticKeywords(
   const limit = options.limit ?? 24;
   const items: KeywordRankItem[] = [];
   const seen = new Set<string>();
+  const seenCanonical = new Set<string>();
 
   for (const cluster of labels) {
     const label = cluster.terms.slice(0, 2).join(" ");
     if (!label || seen.has(label) || options.stopwords.has(label) || isNoiseKeyword(label)) continue;
+    const canonKey = label
+      .split(" ")
+      .map((t) => canonicalKeywordToken(t))
+      .join(" ");
+    if (seenCanonical.has(canonKey)) continue;
     seen.add(label);
+    seenCanonical.add(canonKey);
     const score = (cluster.size / vectors.length) * 100;
     items.push({
       label,

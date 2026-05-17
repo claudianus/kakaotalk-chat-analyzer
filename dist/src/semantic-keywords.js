@@ -2,6 +2,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./embedding-cluster.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
+import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
 const MIN_SAMPLES = 48;
@@ -83,11 +84,19 @@ export async function extractSemanticKeywords(messages, options) {
     const limit = options.limit ?? 24;
     const items = [];
     const seen = new Set();
+    const seenCanonical = new Set();
     for (const cluster of labels) {
         const label = cluster.terms.slice(0, 2).join(" ");
         if (!label || seen.has(label) || options.stopwords.has(label) || isNoiseKeyword(label))
             continue;
+        const canonKey = label
+            .split(" ")
+            .map((t) => canonicalKeywordToken(t))
+            .join(" ");
+        if (seenCanonical.has(canonKey))
+            continue;
         seen.add(label);
+        seenCanonical.add(canonKey);
         const score = (cluster.size / vectors.length) * 100;
         items.push({
             label,

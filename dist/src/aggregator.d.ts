@@ -93,7 +93,12 @@ export declare class ReportAggregator {
         label: string;
         messageHits: number;
         score?: number;
-    }[], corpusMessages: number): void;
+    }[]): void;
+    /** finalize 직전 — BM25 후보에만 시맨틱 RRF 보강(표시 빈도는 코퍼스 df) */
+    applySemanticSupplementForRanked(wordRankItems: {
+        label: string;
+        messageHits: number;
+    }[]): void;
     consume(record: ChatRecord, opts?: {
         keywordsOnly?: boolean;
         skipKeywords?: boolean;

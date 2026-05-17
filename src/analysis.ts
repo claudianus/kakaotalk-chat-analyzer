@@ -76,7 +76,7 @@ async function applySemanticKeywords(
       ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
       : undefined,
   });
-  if (items.length > 0) agg.applySemanticKeywordBoost(items, corpusMessages);
+  if (items.length > 0) agg.applySemanticKeywordBoost(items);
   return items.length > 0;
 }
 

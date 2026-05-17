@@ -63,7 +63,7 @@ async function applySemanticKeywords(agg, enabled, showProgress, options) {
             : undefined,
     });
     if (items.length > 0)
-        agg.applySemanticKeywordBoost(items, corpusMessages);
+        agg.applySemanticKeywordBoost(items);
     return items.length > 0;
 }
 export function buildReportData(result, options) {

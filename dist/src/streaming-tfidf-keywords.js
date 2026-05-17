@@ -17,7 +17,8 @@ function adaptiveBigramMinDf(messageCount, unigramMinDf) {
         return Math.max(2, unigramMinDf - 1);
     if (messageCount < 10_000)
         return Math.max(3, unigramMinDf);
-    return Math.max(4, unigramMinDf);
+    const scaled = Math.floor(Math.sqrt(messageCount) / 30);
+    return Math.max(unigramMinDf + 2, scaled, 4);
 }
 function canBigramPair(a, b) {
     if (a.length < 2 || b.length < 2)
