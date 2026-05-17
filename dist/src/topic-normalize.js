@@ -13,7 +13,8 @@ const TOPIC_TERM_ALIASES = {
     토큰이: "토큰",
     토큰은: "토큰",
 };
-const TRAILING_PARTICLE_RE = /(?:이|가|은|는|을|를|에|의|로|와|과|도|만|요|죠|네|지|서|야|다|함|임|음|들)$/u;
+/** 조사·종결 어미만 (명사 어미 `지` 등은 제외) */
+const TRAILING_PARTICLE_RE = /(?:이|가|은|는|을|를|에|의|로|와|과|도|만|요|죠|네|함|임|음)$/u;
 export function normalizeTopicTerm(raw) {
     let t = canonicalKeywordToken(raw.trim());
     if (!t)

@@ -104,10 +104,10 @@ export function resolvePresetSource(
   messageCount: number,
   machine: MachineProfile,
 ): PresetSource {
-  if (worker === true || process.env.KCA_PROFILE === "fast") return "legacy-fast";
   if (cliPreset) return "cli";
   const env = process.env.KCA_PRESET?.trim().toLowerCase();
   if (env === "speed" || env === "balanced" || env === "quality" || env === "custom") return "env";
+  if (worker === true || process.env.KCA_PROFILE === "fast") return "legacy-fast";
   const auto = autoPresetFromMachine(machine, messageCount);
   const ramOnly = autoPresetFromMachine(machine, 0);
   if (auto !== ramOnly) return "auto-corpus";
@@ -213,7 +213,6 @@ export function buildAnalysisEffectiveConfig(
   const messageCount = data.summary.totalMessages;
   const preset = resolvePresetNameWithAuto(buildOpts, messageCount);
   const presetSource = resolvePresetSource(cli.preset, cli.worker, messageCount, profileMachine);
-  const flags = getPresetEffectiveFlags(buildOpts, messageCount);
   const profileSettings = getAnalysisProfileSettings(buildOpts);
   const semanticModel = semanticEmbeddingModelId(buildOpts, messageCount);
   const sentimentModel = sentimentModelId(preset);
@@ -226,7 +225,7 @@ export function buildAnalysisEffectiveConfig(
   return {
     preset,
     presetSource,
-    profile: flags.profile,
+    profile: profileSettings.profile,
     privacy: cli.privacy,
     top: cli.top,
     since: cli.since,
@@ -278,15 +277,21 @@ export function estimatePresetBeforeParse(
   messageEstimate?: number,
 ): { preset: AnalysisPresetName; source: PresetSource } {
   const machine = probeMachineProfileSync();
-  if (cli.preset || cli.worker === true || process.env.KCA_PROFILE === "fast") {
+  if (cli.preset) {
     return {
-      preset: resolvePresetName({ preset: cli.preset, worker: cli.worker }),
-      source: resolvePresetSource(cli.preset, cli.worker, messageEstimate ?? 0, machine),
+      preset: cli.preset,
+      source: "cli",
     };
   }
   const env = process.env.KCA_PRESET?.trim().toLowerCase();
   if (env === "speed" || env === "balanced" || env === "quality" || env === "custom") {
     return { preset: env, source: "env" };
+  }
+  if (cli.worker === true || process.env.KCA_PROFILE === "fast") {
+    return {
+      preset: resolvePresetName({ worker: cli.worker }),
+      source: "legacy-fast",
+    };
   }
   const n = messageEstimate ?? 0;
   return {

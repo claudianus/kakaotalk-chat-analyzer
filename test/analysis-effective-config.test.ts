@@ -45,3 +45,14 @@ test("buildAnalysisEffectiveConfig reports LLM off for balanced preset", () => {
 test("resolvePresetSource detects CLI preset", () => {
   assert.equal(resolvePresetSource("quality", undefined, 10_000, richMachine), "cli");
 });
+
+test("resolvePresetSource prefers env preset over legacy fast worker", () => {
+  const prev = process.env.KCA_PRESET;
+  process.env.KCA_PRESET = "balanced";
+  try {
+    assert.equal(resolvePresetSource(undefined, true, 10_000, richMachine), "env");
+  } finally {
+    if (prev === undefined) delete process.env.KCA_PRESET;
+    else process.env.KCA_PRESET = prev;
+  }
+});

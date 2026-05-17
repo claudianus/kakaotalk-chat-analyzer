@@ -14,6 +14,10 @@ test("normalizeTopicTerm merges 클코 into 클로드", () => {
   assert.equal(normalizeTopicTerm("토큰이"), "토큰");
 });
 
+test("normalizeTopicTerm does not strip noun endings like 지 in 메시지", () => {
+  assert.equal(normalizeTopicTerm("메시지"), "메시지");
+});
+
 test("mergeTopicLanes combines graph, keyword, semantic lanes", () => {
   const graph: ReportTopic[] = [
     {

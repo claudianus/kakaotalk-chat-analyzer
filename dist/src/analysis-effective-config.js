@@ -1,5 +1,5 @@
 import { analysisBudgetMs, probeMachineProfileSync, } from "./analysis-capability.js";
-import { autoPresetFromMachine, getPresetEffectiveFlags, presetForcesSemanticOff, presetForcesSentimentOff, resolvePresetName, resolvePresetNameWithAuto, } from "./analysis-preset.js";
+import { autoPresetFromMachine, presetForcesSemanticOff, presetForcesSentimentOff, resolvePresetName, resolvePresetNameWithAuto, } from "./analysis-preset.js";
 import { getAnalysisProfileSettings } from "./analysis-profile.js";
 import { resolveLlmTier, qwenModelIdForTier } from "./llm-policy.js";
 import { parseKcaInvokerEnv } from "./report-provenance.js";
@@ -34,13 +34,13 @@ function collectEnvOverrides() {
     return out;
 }
 export function resolvePresetSource(cliPreset, worker, messageCount, machine) {
-    if (worker === true || process.env.KCA_PROFILE === "fast")
-        return "legacy-fast";
     if (cliPreset)
         return "cli";
     const env = process.env.KCA_PRESET?.trim().toLowerCase();
     if (env === "speed" || env === "balanced" || env === "quality" || env === "custom")
         return "env";
+    if (worker === true || process.env.KCA_PROFILE === "fast")
+        return "legacy-fast";
     const auto = autoPresetFromMachine(machine, messageCount);
     const ramOnly = autoPresetFromMachine(machine, 0);
     if (auto !== ramOnly)
@@ -144,7 +144,6 @@ export function buildAnalysisEffectiveConfig(data, cli, machine) {
     const messageCount = data.summary.totalMessages;
     const preset = resolvePresetNameWithAuto(buildOpts, messageCount);
     const presetSource = resolvePresetSource(cli.preset, cli.worker, messageCount, profileMachine);
-    const flags = getPresetEffectiveFlags(buildOpts, messageCount);
     const profileSettings = getAnalysisProfileSettings(buildOpts);
     const semanticModel = semanticEmbeddingModelId(buildOpts, messageCount);
     const sentimentModel = sentimentModelId(preset);
@@ -156,7 +155,7 @@ export function buildAnalysisEffectiveConfig(data, cli, machine) {
     return {
         preset,
         presetSource,
-        profile: flags.profile,
+        profile: profileSettings.profile,
         privacy: cli.privacy,
         top: cli.top,
         since: cli.since,
@@ -200,15 +199,21 @@ export function withWorkerUsed(config, workerUsed) {
 /** 집계 전 예상 preset (stderr 힌트) */
 export function estimatePresetBeforeParse(cli, messageEstimate) {
     const machine = probeMachineProfileSync();
-    if (cli.preset || cli.worker === true || process.env.KCA_PROFILE === "fast") {
+    if (cli.preset) {
         return {
-            preset: resolvePresetName({ preset: cli.preset, worker: cli.worker }),
-            source: resolvePresetSource(cli.preset, cli.worker, messageEstimate ?? 0, machine),
+            preset: cli.preset,
+            source: "cli",
         };
     }
     const env = process.env.KCA_PRESET?.trim().toLowerCase();
     if (env === "speed" || env === "balanced" || env === "quality" || env === "custom") {
         return { preset: env, source: "env" };
+    }
+    if (cli.worker === true || process.env.KCA_PROFILE === "fast") {
+        return {
+            preset: resolvePresetName({ worker: cli.worker }),
+            source: "legacy-fast",
+        };
     }
     const n = messageEstimate ?? 0;
     return {
