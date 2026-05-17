@@ -1,3 +1,4 @@
+import { memoryHeadroomGb } from "./analysis-capability.js";
 /** Qwen3.5 Instruct GGUF — 텍스트 요약·주제 보강용 */
 export const QWEN35_MODELS = {
     "0.8b": "Qwen/Qwen3.5-0.8B-Instruct-GGUF",
@@ -22,17 +23,18 @@ export function resolveLlmTier(preset, profile) {
         return "off";
     if (preset === "custom" && process.env.KCA_LLM === "1" && forced !== "9b")
         return "2b";
-    if (profile.freeMemGb < 8)
+    const headroom = memoryHeadroomGb(profile);
+    if (headroom < 8)
         return "off";
     if (forced === "9b") {
         if (preset === "custom") {
             process.stderr.write("[kca] Qwen3.5-9B는 custom 전용입니다. node-llama-cpp 대신 KCA_LLM_BACKEND=ollama 를 권장합니다.\n");
         }
-        if (profile.freeMemGb >= 20)
+        if (headroom >= 20)
             return "4b";
         return "off";
     }
-    if (preset === "quality" && profile.freeMemGb >= 14)
+    if (preset === "quality" && headroom >= 14)
         return "4b";
     return "2b";
 }

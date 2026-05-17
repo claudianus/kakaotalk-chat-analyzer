@@ -1,4 +1,4 @@
-import type { MachineProfile } from "./analysis-capability.js";
+import { type MachineProfile } from "./analysis-capability.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
 /** Qwen3.5 Instruct GGUF — 텍스트 요약·주제 보강용 */
 export declare const QWEN35_MODELS: {

@@ -1,9 +1,11 @@
 import type { BuildReportOptions } from "./analyze-pool.js";
 import {
   analysisBudgetMs,
+  memoryHeadroomGb,
   type MachineProfile,
   probeMachineProfileSync,
 } from "./analysis-capability.js";
+import { formatMemoryLine } from "./memory-probe.js";
 import {
   autoPresetFromMachine,
   getPresetEffectiveFlags,
@@ -58,7 +60,7 @@ export interface AnalysisEffectiveConfig {
   envOverrides: string[];
   invokedVia?: { name: "kcachat"; version: string };
   messageCount: number;
-  machine: Pick<MachineProfile, "freeMemGb" | "totalMemGb" | "gpu">;
+  machine: Pick<MachineProfile, "freeMemGb" | "availableMemGb" | "totalMemGb" | "gpu">;
 }
 
 export interface CliPipelineOptions {
@@ -89,6 +91,7 @@ function collectEnvOverrides(): string[] {
     "KCA_LLM_BACKEND",
     "KCA_EMBEDDING_TOPICS",
     "KCA_INVOKER",
+    "KCA_MEMORY_PROBE",
   ];
   const out: string[] = [];
   for (const key of keys) {
@@ -192,7 +195,8 @@ function inferLlmSkipReason(
     return `${preset} preset (KCA_LLM=1 없음)`;
   }
   if (preset === "custom" && process.env.KCA_LLM !== "1") return "custom preset (KCA_LLM=1 필요)";
-  if (profile.freeMemGb < 8) return `여유 RAM ${profile.freeMemGb}GB (< 8GB)`;
+  const headroom = memoryHeadroomGb(profile);
+  if (headroom < 8) return `가용 RAM ${headroom}GB (< 8GB)`;
   return "LLM tier off";
 }
 
@@ -213,7 +217,7 @@ export function buildAnalysisEffectiveConfig(
   const messageCount = data.summary.totalMessages;
   const preset = resolvePresetNameWithAuto(buildOpts, messageCount);
   const presetSource = resolvePresetSource(cli.preset, cli.worker, messageCount, profileMachine);
-  const profileSettings = getAnalysisProfileSettings(buildOpts);
+  const profileSettings = getAnalysisProfileSettings(buildOpts, messageCount);
   const semanticModel = semanticEmbeddingModelId(buildOpts, messageCount);
   const sentimentModel = sentimentModelId(preset);
   const semanticCap = effectiveSemanticSampleCap(messageCount, buildOpts);
@@ -258,6 +262,7 @@ export function buildAnalysisEffectiveConfig(
     messageCount,
     machine: {
       freeMemGb: profileMachine.freeMemGb,
+      availableMemGb: profileMachine.availableMemGb,
       totalMemGb: profileMachine.totalMemGb,
       gpu: profileMachine.gpu,
     },
@@ -310,7 +315,11 @@ export function formatEstimatedPresetHint(
     messageEstimate !== undefined
       ? ` · 메시지 ~${messageEstimate.toLocaleString("ko-KR")}건`
       : "";
-  return `[kca] 예상 preset: ${preset} (${presetSourceLabel(source)} · RAM ${machine.freeMemGb}GB${n})`;
+  const ram =
+    Math.abs(machine.availableMemGb - machine.freeMemGb) < 0.3
+      ? `가용 RAM ${machine.availableMemGb}GB`
+      : `가용 RAM ${machine.availableMemGb}GB (free ${machine.freeMemGb}GB)`;
+  return `[kca] 예상 preset: ${preset} (${presetSourceLabel(source)} · ${ram}${n})`;
 }
 
 function formatRequested(req: boolean | "auto"): string {
@@ -323,7 +332,7 @@ export function formatConfigSummaryKo(config: AnalysisEffectiveConfig): string {
     "=== kca 분석 설정 ===",
     `preset: ${config.preset} (${presetSourceLabel(config.presetSource)})`,
     `프로필: ${config.profile} · 프라이버시: ${config.privacy} · 상위 목록: ${config.top}`,
-    `메시지: ${config.messageCount.toLocaleString("ko-KR")}건 · RAM ${config.machine.freeMemGb}/${config.machine.totalMemGb}GB · GPU ${config.machine.gpu}`,
+    `메시지: ${config.messageCount.toLocaleString("ko-KR")}건 · ${formatMemoryLine(config.machine).replace(/^RAM: /, "")} · GPU ${config.machine.gpu}`,
     `Worker: 요청 ${formatRequested(config.workerRequested)} · 실제 ${config.workerUsed ? "사용" : "미사용"}`,
   ];
   if (config.since) lines.push(`기간 필터: ${config.since} 이후`);

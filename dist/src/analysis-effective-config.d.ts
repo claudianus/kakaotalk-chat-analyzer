@@ -37,7 +37,7 @@ export interface AnalysisEffectiveConfig {
         version: string;
     };
     messageCount: number;
-    machine: Pick<MachineProfile, "freeMemGb" | "totalMemGb" | "gpu">;
+    machine: Pick<MachineProfile, "freeMemGb" | "availableMemGb" | "totalMemGb" | "gpu">;
 }
 export interface CliPipelineOptions {
     privacy: PrivacyMode;

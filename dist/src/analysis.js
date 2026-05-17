@@ -25,8 +25,8 @@ import { stat } from "node:fs/promises";
 import { estimateKakaoMessageCount, streamKakaoExport } from "./stream-parser.js";
 import { recordOnOrAfter } from "./report-date-filter.js";
 const DEFAULT_TOP = 30;
-function finalizeProfileOpts(options, extra) {
-    const settings = getAnalysisProfileSettings(options);
+function finalizeProfileOpts(options, extra, messageCount) {
+    const settings = getAnalysisProfileSettings(options, messageCount);
     return {
         ...extra,
         useEmbeddingTopics: settings.useEmbeddingTopics,
@@ -60,7 +60,7 @@ async function applySemanticKeywords(agg, enabled, showProgress, options) {
     const samples = agg.drainSemanticSamples(options);
     if (samples.length < 48)
         return false;
-    const profileSettings = getAnalysisProfileSettings(options);
+    const profileSettings = getAnalysisProfileSettings(options, corpusMessages);
     if (showProgress)
         logReportProgress({ phase: "시맨틱 키워드", current: 0 });
     try {
@@ -135,7 +135,7 @@ export function buildReportData(result, options) {
         encoding: result.encoding,
         physicalLines: result.physicalLines,
         warningCount: result.warnings.length,
-    }, finalizeProfileOpts(options, { koreanPrimary: korean })));
+    }, finalizeProfileOpts(options, { koreanPrimary: korean }, result.records.length)));
 }
 export async function buildReportDataAsync(result, options) {
     await prepareReportEngine();
@@ -167,7 +167,7 @@ export async function buildReportDataAsync(result, options) {
         usedSemanticKeywords: usedSemantic,
         usedSentimentAnalysis: usedSentiment,
         koreanPrimary: prepass.isPrimarilyKorean(),
-    })));
+    }, result.records.length)));
 }
 function messageTextFromRecord(record) {
     return record.message;
@@ -359,7 +359,7 @@ export async function buildReportFromExportSync(filePath, options) {
                 usedSemanticKeywords: usedSemanticOverlap,
                 usedSentimentAnalysis: usedSentimentOverlap,
                 koreanPrimary: prepass.isPrimarilyKorean(),
-            }));
+            }, prepass.messageCount));
             const llmTier = resolveLlmTier(preset, probeMachineProfileSync());
             phaseProfiler.start("llm");
             if (llmTier !== "off" && !budget.shouldSkip("llm")) {
@@ -432,7 +432,7 @@ export async function buildReportFromExportSync(filePath, options) {
             usedSemanticKeywords: usedSemantic,
             usedSentimentAnalysis: usedSentiment,
             koreanPrimary: prepass.isPrimarilyKorean(),
-        }));
+        }, prepass.messageCount));
         const llmTier = resolveLlmTier(preset, probeMachineProfileSync());
         phaseProfiler.start("llm");
         if (llmTier !== "off" && !budget.shouldSkip("llm")) {

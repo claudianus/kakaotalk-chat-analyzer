@@ -1,4 +1,4 @@
-import { probeMachineProfileSync } from "./analysis-capability.js";
+import { memoryHeadroomGb, probeMachineProfileSync, } from "./analysis-capability.js";
 function presetFromEnv() {
     const raw = process.env.KCA_PRESET?.trim().toLowerCase();
     if (raw === "speed" || raw === "balanced" || raw === "quality" || raw === "custom")
@@ -15,13 +15,23 @@ export function resolvePresetName(options) {
         return "speed";
     return "balanced";
 }
-/** CLI 인자 없을 때 RAM·메시지 수 기반 자동 preset */
+/** CLI 인자 없을 때 가용 RAM·총 RAM·메시지 수 기반 자동 preset (품질 우선) */
 export function autoPresetFromMachine(profile, messageCount) {
-    if (profile.freeMemGb < 6)
-        return "speed";
-    if (profile.freeMemGb < 12)
-        return "balanced";
+    const headroom = memoryHeadroomGb(profile);
+    const total = profile.totalMemGb;
     const n = messageCount ?? 0;
+    if (headroom < 4 || (headroom < 6 && total < 16))
+        return "speed";
+    if (total >= 32 && headroom >= 12) {
+        return n >= 80_000 ? "balanced" : "quality";
+    }
+    if (total >= 16 && headroom >= 10) {
+        return n >= 40_000 ? "balanced" : "quality";
+    }
+    if (headroom < 8)
+        return "speed";
+    if (headroom < 12)
+        return "balanced";
     if (n >= 30_000)
         return "balanced";
     return "quality";

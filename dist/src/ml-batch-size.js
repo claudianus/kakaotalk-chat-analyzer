@@ -1,4 +1,4 @@
-import { probeMachineProfileSync } from "./analysis-capability.js";
+import { memoryHeadroomGb, probeMachineProfileSync } from "./analysis-capability.js";
 import { probeOnnxGpu } from "./ml-runtime.js";
 function envInt(name) {
     const raw = process.env[name]?.trim();
@@ -13,7 +13,8 @@ export function resolveEmbedBatchSize() {
     if (forced)
         return Math.min(128, forced);
     const profile = probeMachineProfileSync();
-    let batch = profile.freeMemGb >= 20 ? 32 : profile.freeMemGb >= 12 ? 24 : profile.freeMemGb >= 8 ? 16 : 12;
+    const headroom = memoryHeadroomGb(profile);
+    let batch = headroom >= 20 ? 32 : headroom >= 12 ? 24 : headroom >= 8 ? 16 : 12;
     const gpu = process.env.KCA_ONNX_GPU?.trim().toLowerCase();
     if (gpu && gpu !== "none" && gpu !== "cpu")
         batch = Math.min(64, batch * 2);
@@ -24,7 +25,8 @@ export function resolveSentimentBatchSize() {
     if (forced)
         return Math.min(128, forced);
     const profile = probeMachineProfileSync();
-    let batch = profile.freeMemGb >= 20 ? 32 : profile.freeMemGb >= 12 ? 24 : 16;
+    const headroom = memoryHeadroomGb(profile);
+    let batch = headroom >= 20 ? 32 : headroom >= 12 ? 24 : 16;
     const gpu = process.env.KCA_ONNX_GPU?.trim().toLowerCase();
     if (gpu && gpu !== "none" && gpu !== "cpu")
         batch = Math.min(64, batch * 2);
@@ -36,8 +38,9 @@ export async function resolveEmbedBatchSizeAsync() {
     if (forced)
         return Math.min(128, forced);
     const profile = probeMachineProfileSync();
+    const headroom = memoryHeadroomGb(profile);
     const gpu = await probeOnnxGpu();
-    let batch = profile.freeMemGb >= 20 ? 32 : profile.freeMemGb >= 12 ? 24 : profile.freeMemGb >= 8 ? 16 : 12;
+    let batch = headroom >= 20 ? 32 : headroom >= 12 ? 24 : headroom >= 8 ? 16 : 12;
     if (gpu !== "none")
         batch = Math.min(64, batch * 2);
     return batch;

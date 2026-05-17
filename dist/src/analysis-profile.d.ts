@@ -6,5 +6,5 @@ export interface AnalysisProfileSettings {
     semanticSupplementRrfWeight: number;
     semanticClusterMinCoherence: number;
 }
-export declare function resolveAnalysisProfile(options?: BuildReportOptions): AnalysisProfile;
-export declare function getAnalysisProfileSettings(options?: BuildReportOptions): AnalysisProfileSettings;
+export declare function resolveAnalysisProfile(options?: BuildReportOptions, messageCount?: number): AnalysisProfile;
+export declare function getAnalysisProfileSettings(options?: BuildReportOptions, messageCount?: number): AnalysisProfileSettings;

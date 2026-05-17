@@ -1,14 +1,14 @@
 import { getPresetEffectiveFlags } from "./analysis-preset.js";
-export function resolveAnalysisProfile(options) {
-    const preset = getPresetEffectiveFlags(options);
+export function resolveAnalysisProfile(options, messageCount) {
+    const preset = getPresetEffectiveFlags(options, messageCount);
     if (preset.profile === "fast")
         return "fast";
     if (options?.worker === true || process.env.KCA_PROFILE === "fast")
         return "fast";
     return "quality";
 }
-export function getAnalysisProfileSettings(options) {
-    const profile = resolveAnalysisProfile(options);
+export function getAnalysisProfileSettings(options, messageCount) {
+    const profile = resolveAnalysisProfile(options, messageCount);
     if (profile === "fast") {
         return {
             profile,

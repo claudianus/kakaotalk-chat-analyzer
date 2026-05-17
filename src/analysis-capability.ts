@@ -1,23 +1,37 @@
 import { freemem, totalmem, cpus, platform, arch } from "node:os";
+import {
+  formatMemoryLine,
+  probeAvailableMemoryBytes,
+  probeFreeMemoryBytes,
+} from "./memory-probe.js";
 import { probeOnnxGpu } from "./ml-runtime.js";
 
 export type GpuKind = "none" | "cuda" | "dml" | "metal" | "webgpu";
 
 export interface MachineProfile {
   totalMemGb: number;
+  /** os.freemem() — 즉시 해제 가능( macOS에서 과소 ) */
   freeMemGb: number;
+  /** OS별 가용 추정 — preset·배치·LLM 판단 */
+  availableMemGb: number;
   cpuCores: number;
   platform: NodeJS.Platform;
   arch: string;
   gpu: GpuKind;
 }
 
+export function memoryHeadroomGb(profile: MachineProfile): number {
+  return profile.availableMemGb ?? profile.freeMemGb;
+}
+
 export function probeMachineProfileSync(): MachineProfile {
   const totalMemGb = totalmem() / 1024 ** 3;
-  const freeMemGb = freemem() / 1024 ** 3;
+  const freeMemGb = probeFreeMemoryBytes() / 1024 ** 3;
+  const availableMemGb = probeAvailableMemoryBytes() / 1024 ** 3;
   return {
     totalMemGb: Math.round(totalMemGb * 10) / 10,
     freeMemGb: Math.round(freeMemGb * 10) / 10,
+    availableMemGb: Math.round(availableMemGb * 10) / 10,
     cpuCores: cpus().length,
     platform: platform(),
     arch: arch(),
@@ -51,7 +65,8 @@ export function estimateAnalysisSeconds(
 ): number {
   const n = Math.max(messageCount, 1);
   const base = n / 900;
-  const memFactor = profile.freeMemGb < 6 ? 1.4 : profile.freeMemGb < 12 ? 1.1 : 1;
+  const headroom = memoryHeadroomGb(profile);
+  const memFactor = headroom < 6 ? 1.4 : headroom < 12 ? 1.1 : 1;
   const presetFactor =
     preset === "speed" ? 0.55 : preset === "balanced" ? 1 : preset === "quality" ? 1.45 : 1.1;
   return Math.max(1, Math.round(base * memFactor * presetFactor));
@@ -62,7 +77,7 @@ export function formatCapabilitiesReport(
   opts?: { preset?: string; messageCount?: number },
 ): string {
   const lines = [
-    `RAM: ${profile.freeMemGb} GiB free / ${profile.totalMemGb} GiB total`,
+    formatMemoryLine(profile),
     `CPU: ${profile.cpuCores} cores · ${profile.platform}/${profile.arch}`,
     `GPU (ONNX): ${profile.gpu}`,
   ];

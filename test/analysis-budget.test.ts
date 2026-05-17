@@ -7,6 +7,7 @@ test("analysisBudgetMs caps balanced at 5min for large corpus", () => {
   const profile = {
     totalMemGb: 16,
     freeMemGb: 8,
+    availableMemGb: 8,
     cpuCores: 8,
     platform: "darwin" as NodeJS.Platform,
     arch: "arm64",
@@ -21,6 +22,7 @@ test("AnalysisBudgetTracker skips when remaining below reserve", () => {
   const profile = {
     totalMemGb: 16,
     freeMemGb: 8,
+    availableMemGb: 8,
     cpuCores: 8,
     platform: "darwin" as NodeJS.Platform,
     arch: "arm64",

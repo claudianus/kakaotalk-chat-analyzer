@@ -37,8 +37,12 @@ const DEFAULT_TOP = 30;
 
 export type { BuildReportOptions };
 
-function finalizeProfileOpts(options?: BuildReportOptions, extra?: FinalizeOptions): FinalizeOptions {
-  const settings = getAnalysisProfileSettings(options);
+function finalizeProfileOpts(
+  options?: BuildReportOptions,
+  extra?: FinalizeOptions,
+  messageCount?: number,
+): FinalizeOptions {
+  const settings = getAnalysisProfileSettings(options, messageCount);
   return {
     ...extra,
     useEmbeddingTopics: settings.useEmbeddingTopics,
@@ -80,7 +84,7 @@ async function applySemanticKeywords(
   const samples = agg.drainSemanticSamples(options);
   if (samples.length < 48) return false;
 
-  const profileSettings = getAnalysisProfileSettings(options);
+  const profileSettings = getAnalysisProfileSettings(options, corpusMessages);
   if (showProgress) logReportProgress({ phase: "시맨틱 키워드", current: 0 });
   try {
     const items = await extractSemanticKeywords(samples, {
@@ -167,7 +171,7 @@ export function buildReportData(result: ParseResult, options?: BuildReportOption
         physicalLines: result.physicalLines,
         warningCount: result.warnings.length,
       },
-      finalizeProfileOpts(options, { koreanPrimary: korean }),
+      finalizeProfileOpts(options, { koreanPrimary: korean }, result.records.length),
     ),
   );
 }
@@ -207,11 +211,15 @@ export async function buildReportDataAsync(
         physicalLines: result.physicalLines,
         warningCount: result.warnings.length,
       },
-      finalizeProfileOpts(options, {
-        usedSemanticKeywords: usedSemantic,
-        usedSentimentAnalysis: usedSentiment,
-        koreanPrimary: prepass.isPrimarilyKorean(),
-      }),
+      finalizeProfileOpts(
+        options,
+        {
+          usedSemanticKeywords: usedSemantic,
+          usedSentimentAnalysis: usedSentiment,
+          koreanPrimary: prepass.isPrimarilyKorean(),
+        },
+        result.records.length,
+      ),
     ),
   );
 }
@@ -436,11 +444,15 @@ export async function buildReportFromExportSync(
 
     let report = agg.finalize(
       meta!,
-      finalizeProfileOpts(options, {
-        usedSemanticKeywords: usedSemanticOverlap,
-        usedSentimentAnalysis: usedSentimentOverlap,
-        koreanPrimary: prepass.isPrimarilyKorean(),
-      }),
+      finalizeProfileOpts(
+        options,
+        {
+          usedSemanticKeywords: usedSemanticOverlap,
+          usedSentimentAnalysis: usedSentimentOverlap,
+          koreanPrimary: prepass.isPrimarilyKorean(),
+        },
+        prepass.messageCount,
+      ),
     );
 
     const llmTier = resolveLlmTier(preset, probeMachineProfileSync());
@@ -512,11 +524,15 @@ export async function buildReportFromExportSync(
 
   let report = agg.finalize(
     meta!,
-    finalizeProfileOpts(options, {
-      usedSemanticKeywords: usedSemantic,
-      usedSentimentAnalysis: usedSentiment,
-      koreanPrimary: prepass.isPrimarilyKorean(),
-    }),
+    finalizeProfileOpts(
+      options,
+      {
+        usedSemanticKeywords: usedSemantic,
+        usedSentimentAnalysis: usedSentiment,
+        koreanPrimary: prepass.isPrimarilyKorean(),
+      },
+      prepass.messageCount,
+    ),
   );
 
   const llmTier = resolveLlmTier(preset, probeMachineProfileSync());

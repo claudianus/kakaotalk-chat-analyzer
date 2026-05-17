@@ -1,5 +1,9 @@
 import type { BuildReportOptions } from "./analyze-pool.js";
-import { probeMachineProfileSync, type MachineProfile } from "./analysis-capability.js";
+import {
+  memoryHeadroomGb,
+  probeMachineProfileSync,
+  type MachineProfile,
+} from "./analysis-capability.js";
 import type { AnalysisProfile } from "./analysis-profile.js";
 
 export type AnalysisPresetName = "speed" | "balanced" | "quality" | "custom";
@@ -26,14 +30,27 @@ export function resolvePresetName(options?: BuildReportOptions): AnalysisPresetN
   return "balanced";
 }
 
-/** CLI 인자 없을 때 RAM·메시지 수 기반 자동 preset */
+/** CLI 인자 없을 때 가용 RAM·총 RAM·메시지 수 기반 자동 preset (품질 우선) */
 export function autoPresetFromMachine(
   profile: MachineProfile,
   messageCount?: number,
 ): AnalysisPresetName {
-  if (profile.freeMemGb < 6) return "speed";
-  if (profile.freeMemGb < 12) return "balanced";
+  const headroom = memoryHeadroomGb(profile);
+  const total = profile.totalMemGb;
   const n = messageCount ?? 0;
+
+  if (headroom < 4 || (headroom < 6 && total < 16)) return "speed";
+
+  if (total >= 32 && headroom >= 12) {
+    return n >= 80_000 ? "balanced" : "quality";
+  }
+
+  if (total >= 16 && headroom >= 10) {
+    return n >= 40_000 ? "balanced" : "quality";
+  }
+
+  if (headroom < 8) return "speed";
+  if (headroom < 12) return "balanced";
   if (n >= 30_000) return "balanced";
   return "quality";
 }

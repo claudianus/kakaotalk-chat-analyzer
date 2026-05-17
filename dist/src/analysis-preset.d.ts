@@ -10,7 +10,7 @@ export interface PresetEffectiveFlags {
     preferWorker: boolean;
 }
 export declare function resolvePresetName(options?: BuildReportOptions): AnalysisPresetName;
-/** CLI 인자 없을 때 RAM·메시지 수 기반 자동 preset */
+/** CLI 인자 없을 때 가용 RAM·총 RAM·메시지 수 기반 자동 preset (품질 우선) */
 export declare function autoPresetFromMachine(profile: MachineProfile, messageCount?: number): AnalysisPresetName;
 export declare function resolvePresetNameWithAuto(options?: BuildReportOptions, messageCount?: number): AnalysisPresetName;
 export declare function getPresetEffectiveFlags(options?: BuildReportOptions, messageCount?: number): PresetEffectiveFlags;

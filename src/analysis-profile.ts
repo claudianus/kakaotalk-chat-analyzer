@@ -10,15 +10,21 @@ export interface AnalysisProfileSettings {
   semanticClusterMinCoherence: number;
 }
 
-export function resolveAnalysisProfile(options?: BuildReportOptions): AnalysisProfile {
-  const preset = getPresetEffectiveFlags(options);
+export function resolveAnalysisProfile(
+  options?: BuildReportOptions,
+  messageCount?: number,
+): AnalysisProfile {
+  const preset = getPresetEffectiveFlags(options, messageCount);
   if (preset.profile === "fast") return "fast";
   if (options?.worker === true || process.env.KCA_PROFILE === "fast") return "fast";
   return "quality";
 }
 
-export function getAnalysisProfileSettings(options?: BuildReportOptions): AnalysisProfileSettings {
-  const profile = resolveAnalysisProfile(options);
+export function getAnalysisProfileSettings(
+  options?: BuildReportOptions,
+  messageCount?: number,
+): AnalysisProfileSettings {
+  const profile = resolveAnalysisProfile(options, messageCount);
   if (profile === "fast") {
     return {
       profile,

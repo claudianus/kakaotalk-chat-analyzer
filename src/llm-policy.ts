@@ -1,4 +1,4 @@
-import type { MachineProfile } from "./analysis-capability.js";
+import { memoryHeadroomGb, type MachineProfile } from "./analysis-capability.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
 
 /** Qwen3.5 Instruct GGUF — 텍스트 요약·주제 보강용 */
@@ -26,17 +26,18 @@ export function resolveLlmTier(
   if (preset !== "quality" && preset !== "custom") return "off";
   if (process.env.KCA_LLM !== "1" && preset === "custom") return "off";
   if (preset === "custom" && process.env.KCA_LLM === "1" && forced !== "9b") return "2b";
-  if (profile.freeMemGb < 8) return "off";
+  const headroom = memoryHeadroomGb(profile);
+  if (headroom < 8) return "off";
   if (forced === "9b") {
     if (preset === "custom") {
       process.stderr.write(
         "[kca] Qwen3.5-9B는 custom 전용입니다. node-llama-cpp 대신 KCA_LLM_BACKEND=ollama 를 권장합니다.\n",
       );
     }
-    if (profile.freeMemGb >= 20) return "4b";
+    if (headroom >= 20) return "4b";
     return "off";
   }
-  if (preset === "quality" && profile.freeMemGb >= 14) return "4b";
+  if (preset === "quality" && headroom >= 14) return "4b";
   return "2b";
 }
 
