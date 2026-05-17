@@ -140,15 +140,33 @@ function startQaServe() {
   });
 }
 
+function clipForElement(box, vp) {
+  const isMobile = vp.width <= 400;
+  const minH = isMobile ? 320 : 360;
+  const maxH = isMobile ? 640 : 560;
+  const x = Math.max(0, Math.floor(box.x));
+  let y = Math.max(0, Math.floor(box.y));
+  const width = Math.min(Math.ceil(box.width), vp.width - x);
+  let height = Math.min(Math.max(Math.ceil(box.height), minH), maxH);
+  if (y + height > vp.height) {
+    y = Math.max(0, vp.height - height);
+  }
+  return { x, y, width, height };
+}
+
 async function captureShot(page, shot) {
   const vp = shot.viewport ?? { width: 1440, height: 900 };
   await page.setViewportSize(vp);
   const el = await firstVisible(page, shot.selectors);
   await el.scrollIntoViewIfNeeded();
-  await page.waitForTimeout(250);
+  await el.evaluate((node) => node.scrollIntoView({ block: "start", inline: "nearest" }));
+  await page.waitForTimeout(300);
+  const box = await el.boundingBox();
+  if (!box) throw new Error(`no bounding box for: ${shot.selectors.join(" | ")}`);
   const path = join(outDir, shot.file);
-  await el.screenshot({ path });
-  console.log(`screenshot: ${path}`);
+  const clip = clipForElement(box, vp);
+  await page.screenshot({ path, clip });
+  console.log(`screenshot: ${path} (${clip.width}×${clip.height})`);
   return { file: shot.file, title: shot.title, caption: shot.caption };
 }
 

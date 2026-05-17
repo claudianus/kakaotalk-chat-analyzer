@@ -190,6 +190,8 @@
       outline-offset: 3px;
     }
     .demo-frame {
+      position: relative;
+      aspect-ratio: 16 / 10;
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid var(--stroke);
@@ -212,10 +214,13 @@
     .demo-chrome span:nth-child(2) { background: #febc2e; }
     .demo-chrome span:nth-child(3) { background: #28c840; }
     .demo-frame img {
+      position: absolute;
+      inset: 0;
       display: block;
       width: 100%;
-      height: auto;
-      vertical-align: middle;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
     }
     .demo-thumb-label {
       display: block;
