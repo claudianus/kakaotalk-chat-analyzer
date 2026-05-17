@@ -178,6 +178,10 @@ export class ReportAggregator {
     return this.semanticReservoir?.drain() ?? [];
   }
 
+  messageCount(): number {
+    return this.total;
+  }
+
   resetKeywordPipeline(): void {
     this.keywordStream = new StreamingTfidfKeywords();
     this.topicMap = new TopicMapAccumulator();

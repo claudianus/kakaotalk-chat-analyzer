@@ -79,6 +79,7 @@ export declare class ReportAggregator {
     private lastDate;
     constructor(filePath: string, privacy: PrivacyMode, top: number, options?: AggregatorOptions);
     drainSemanticSamples(): string[];
+    messageCount(): number;
     resetKeywordPipeline(): void;
     private consumeKeywords;
     applySemanticKeywordBoost(items: {

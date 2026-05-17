@@ -54,6 +54,7 @@ async function applySemanticKeywords(
   if (showProgress) logReportProgress({ phase: "시맨틱 키워드", current: 0 });
   const items = await extractSemanticKeywords(samples, {
     stopwords: buildKeywordStopwords(),
+    corpusMessages: agg.messageCount(),
     onProgress: showProgress
       ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
       : undefined,
@@ -184,7 +185,6 @@ export async function buildReportFromExportSync(
   const prepass = new HeuristicPrepassCollector();
   const agg = new ReportAggregator(filePath, privacy, top, {
     semanticSamples: process.env.KCA_NO_SEMANTIC !== "1",
-    estimatedMessages: prepass.messageCount > 0 ? prepass.messageCount : undefined,
   });
   const useKiwi = process.env.KCA_NO_KIWI !== "1";
 

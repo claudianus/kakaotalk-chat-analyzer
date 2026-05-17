@@ -63,9 +63,9 @@ async function embedMessages(
   pipe: FeaturePipeline,
   messages: string[],
   onBatch?: (done: number, total: number) => void,
+  maxSamples = semanticSampleCap(messages.length),
 ): Promise<number[][]> {
   const modelId = semanticEmbeddingModelId();
-  const maxSamples = semanticSampleCap(messages.length);
   const clipped = messages
     .slice(0, maxSamples)
     .map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
@@ -81,6 +81,8 @@ async function embedMessages(
 
 export interface SemanticKeywordOptions {
   stopwords: ReadonlySet<string>;
+  /** 코퍼스 전체 메시지 수(임베딩 샘플 상한·리저보어 cap 정렬용) */
+  corpusMessages?: number;
   limit?: number;
   onProgress?: (current: number, total: number) => void;
 }
@@ -94,8 +96,9 @@ export async function extractSemanticKeywords(
   const samples = messages.filter((m) => m.length >= 12);
   if (samples.length < MIN_SAMPLES) return [];
 
+  const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
   const pipe = await loadPipeline();
-  const vectors = await embedMessages(pipe, samples, options.onProgress);
+  const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap);
   if (vectors.length < MIN_SAMPLES) return [];
 
   const tokenBags = samples.map((m) => tokenizeForKeywords(m));
@@ -116,7 +119,6 @@ export async function extractSemanticKeywords(
   const seen = new Set<string>();
 
   for (const cluster of labels) {
-    if (cluster.coherence < 0.32) continue;
     const label = cluster.terms.slice(0, 2).join(" ");
     if (!label || seen.has(label) || options.stopwords.has(label)) continue;
     seen.add(label);

@@ -8,6 +8,8 @@ test("isDiscourseTerm flags BrewPage noise tokens", () => {
   }
   assert.equal(isDiscourseTerm("클로드"), false);
   assert.equal(isDiscourseTerm("코덱스"), false);
+  assert.equal(isDiscourseTerm("이미지"), false);
+  assert.equal(isDiscourseTerm("코리아"), false);
 });
 
 test("discourseRatio measures term set quality", () => {

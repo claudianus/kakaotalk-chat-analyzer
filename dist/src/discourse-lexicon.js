@@ -67,7 +67,6 @@ export const DISCOURSE_LEXICON = new Set([
 /** 단독 키워드로 쓰이면 모호한 짧은 토큰 */
 export const AMBIGUOUS_UNIGRAMS = new Set(["프로"]);
 const CHAT_ENDING_RE = /(?:습니다|해요|했어요|거든요|인데요|하네요|습니다|요|임|음|네|지|거|데|고|면|는|은|을|를)$/u;
-const VERBISH_ENDING_RE = /(?:고|서|면|지|아|어|야)$/u;
 export function discourseStem(term) {
     let w = term.trim();
     for (let i = 0; i < 2; i += 1) {
@@ -90,8 +89,6 @@ export function isDiscourseTerm(term) {
     if (KOREAN_CHAT_STOPWORDS.has(w))
         return true;
     if (stem !== w && KOREAN_CHAT_STOPWORDS.has(stem))
-        return true;
-    if (w.length <= 3 && VERBISH_ENDING_RE.test(w) && !/^[A-Za-z]/.test(w))
         return true;
     return false;
 }

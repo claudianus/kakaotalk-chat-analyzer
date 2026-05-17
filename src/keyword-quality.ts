@@ -48,8 +48,6 @@ const HANGUL_FRAGMENTS = new Set([
   "오케이",
 ]);
 
-const VERB_FRAGMENT_RE = /^(?:쓰|있|없|하|되|보|말|듣|알|모)[가-힣]{0,2}$/u;
-
 export function isNoiseKeyword(label: string): boolean {
   const w = label.trim();
   if (w.length < 2) return true;
@@ -62,7 +60,6 @@ export function isNoiseKeyword(label: string): boolean {
   if (HANGUL_FRAGMENTS.has(w)) return true;
   if (isDiscourseTerm(w)) return true;
   if (!w.includes(" ") && AMBIGUOUS_UNIGRAMS.has(w)) return true;
-  if (!w.includes(" ") && w.length <= 3 && VERB_FRAGMENT_RE.test(w)) return true;
   if (w.length >= 8 && !/\s/.test(w) && !/^[A-Za-z]+$/.test(w)) return true;
   if (w.includes(" ")) {
     const parts = w.split(" ");

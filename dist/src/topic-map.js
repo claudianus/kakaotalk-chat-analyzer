@@ -195,11 +195,12 @@ function refineTopics(topics) {
             continue;
         for (const term of terms)
             usedTerms.add(term);
-        const lead = terms[0];
+        const lead = t.kind === "theme" ? pickThemeLead(terms) : terms[0];
+        const sub = t.kind === "theme" ? terms.find((term) => term !== lead && !isDiscourseTerm(term)) : terms[1];
         const title = t.kind === "period"
             ? (t.periodLabel ?? t.title)
-            : terms[1] && terms[1] !== lead
-                ? `${lead} · ${terms[1]}`
+            : sub && sub !== lead
+                ? `${lead} · ${sub}`
                 : lead;
         out.push({ ...t, title, terms: terms.slice(0, 8) });
     }

@@ -49,9 +49,8 @@ function tensorToRows(tensor) {
     }
     return out;
 }
-async function embedMessages(pipe, messages, onBatch) {
+async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampleCap(messages.length)) {
     const modelId = semanticEmbeddingModelId();
-    const maxSamples = semanticSampleCap(messages.length);
     const clipped = messages
         .slice(0, maxSamples)
         .map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
@@ -71,8 +70,9 @@ export async function extractSemanticKeywords(messages, options) {
     const samples = messages.filter((m) => m.length >= 12);
     if (samples.length < MIN_SAMPLES)
         return [];
+    const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
     const pipe = await loadPipeline();
-    const vectors = await embedMessages(pipe, samples, options.onProgress);
+    const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap);
     if (vectors.length < MIN_SAMPLES)
         return [];
     const tokenBags = samples.map((m) => tokenizeForKeywords(m));
@@ -83,8 +83,6 @@ export async function extractSemanticKeywords(messages, options) {
     const items = [];
     const seen = new Set();
     for (const cluster of labels) {
-        if (cluster.coherence < 0.32)
-            continue;
         const label = cluster.terms.slice(0, 2).join(" ");
         if (!label || seen.has(label) || options.stopwords.has(label))
             continue;
