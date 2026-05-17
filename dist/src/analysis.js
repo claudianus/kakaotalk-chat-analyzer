@@ -147,11 +147,19 @@ async function runStatsPass(filePath, agg, prepass, streamOpts, spoolPath) {
     }
     return meta;
 }
-async function runKeywordPassFromSpool(spoolPath, agg, since) {
+export async function runKeywordPassFromSpool(spoolPath, agg, opts) {
+    const since = opts?.since;
+    const progressEvery = opts?.progressEvery ?? 25_000;
+    const onProgress = opts?.onProgress;
+    let count = 0;
     for await (const record of iterateSpoolRecords(spoolPath)) {
         if (since && !recordOnOrAfter(record, since))
             continue;
         agg.consume(record, { keywordsOnly: true });
+        count += 1;
+        if (onProgress && count % progressEvery === 0) {
+            onProgress(count);
+        }
     }
 }
 async function runKeywordPass(filePath, agg, streamOpts) {
@@ -228,7 +236,12 @@ export async function buildReportFromExportSync(filePath, options) {
                 }
             }
             if (spoolPath && spoolReady) {
-                await runKeywordPassFromSpool(spoolPath, agg, since);
+                const kwProgress = progressOpts("키워드·주제", estimated);
+                await runKeywordPassFromSpool(spoolPath, agg, {
+                    since,
+                    progressEvery: kwProgress?.progressEvery,
+                    onProgress: kwProgress?.onProgress,
+                });
             }
             else {
                 await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));

@@ -1,3 +1,4 @@
+import { ReportAggregator } from "./aggregator.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { type BuildReportOptions } from "./analyze-pool.js";
 import type { ParseResult, ReportData } from "./types.js";
@@ -6,6 +7,12 @@ export type { BuildReportOptions };
 export declare function prepareReportEngine(): Promise<void>;
 export declare function buildReportData(result: ParseResult, options?: BuildReportOptions): ReportData;
 export declare function buildReportDataAsync(result: ParseResult, options?: BuildReportOptions): Promise<ReportData>;
+export interface SpoolKeywordPassOptions {
+    since?: string;
+    progressEvery?: number;
+    onProgress?: (count: number) => void;
+}
+export declare function runKeywordPassFromSpool(spoolPath: string, agg: ReportAggregator, opts?: SpoolKeywordPassOptions): Promise<void>;
 export declare function buildReportFromExportSync(filePath: string, options?: BuildReportOptions): Promise<ReportData>;
 export declare function buildReportFromExport(filePath: string, options?: BuildReportOptions): Promise<ReportData>;
 /** CLI provenance용 — buildReportFromExport와 동일 조건 */
