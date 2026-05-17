@@ -1,0 +1,43 @@
+scripts/report-visual-qa.mjs
+  s_d404882750412e::t_c4da702a67bc59 114-123
+  s_d404882750412e::t_cf245a6704f84c 17-18,20
+  s_d404882750412e::t_328e50d7d499c5 168
+  s_d404882750412e::t_1a4e4e7e110282 90-91
+package.json
+  s_d404882750412e::t_b7ebcbdca20676 31
+AGENTS.md
+  s_d404882750412e::t_f66ffeeccb5112 88,92-93,100
+  s_d404882750412e::t_d400c51624ac8d 108-117
+  s_d404882750412e::t_89010f5b3a9e21 48-50
+scripts/sync-docs-version.mjs
+  s_d404882750412e::t_d4a24cd524e172 1-22
+README.md
+  s_d404882750412e::t_7700d39406b4a4 102-107,109,111,113,119-129
+  s_d404882750412e::t_32eafbadde730f 226
+  s_d404882750412e::t_3affb364ac3a79 284
+  s_d404882750412e::t_c5798af54bdcd9 165
+  s_d404882750412e::t_f4ebbae7292260 266,270
+kcachat/README.md
+  s_d404882750412e::t_759a8e0081904d 12-19
+docs/index.html
+  s_d404882750412e::t_9876e633de6b7c 388
+  s_d404882750412e::t_27a1812030ac61 397-398
+  s_d404882750412e::t_553659e34f9e6a 318-319,322-324
+  s_d404882750412e::t_b6a5314bad223f 415-419
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "fa7e354167c5295dc51337afb31c8b29a8d4a3ef",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
