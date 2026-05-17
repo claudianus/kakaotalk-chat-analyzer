@@ -31,6 +31,9 @@ export function emptyReportData() {
         uniqueDomainCount: 0,
         replyGapCoeffVariation: null,
         lexicalTypeRichnessPercent: null,
+        sessionCount: 0,
+        avgMessagesPerSession: null,
+        medianSessionMinutes: null,
     };
     const story = buildReportStory({
         chatRoomName: "채팅방",

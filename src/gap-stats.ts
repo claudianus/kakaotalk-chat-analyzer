@@ -101,3 +101,74 @@ function round(value: number, decimals: number): number {
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
 }
+
+/** 30분 이상 침묵이면 새 대화 세션으로 분리 */
+export const SESSION_IDLE_MS = 30 * 60 * 1000;
+
+export interface SessionGapSnapshot {
+  sessionCount: number;
+  avgMessagesPerSession: number | null;
+  medianSessionMinutes: number | null;
+}
+
+export class SessionGapStats {
+  private sessionCount = 0;
+  private currentMessages = 0;
+  private readonly messageCounts: number[] = [];
+  private readonly durationMs: number[] = [];
+  private sessionStartMs: number | null = null;
+  private lastMs: number | null = null;
+
+  addMessage(ms: number): void {
+    if (this.lastMs === null) {
+      this.openSession(ms);
+    } else {
+      const delta = ms - this.lastMs;
+      if (delta > SESSION_IDLE_MS) {
+        this.closeSession();
+        this.openSession(ms);
+      }
+    }
+    this.currentMessages += 1;
+    this.lastMs = ms;
+  }
+
+  finalize(): SessionGapSnapshot {
+    this.closeSession();
+    return {
+      sessionCount: this.sessionCount,
+      avgMessagesPerSession:
+        this.messageCounts.length > 0
+          ? round(
+              this.messageCounts.reduce((a, b) => a + b, 0) / this.messageCounts.length,
+              1,
+            )
+          : null,
+      medianSessionMinutes:
+        this.durationMs.length > 0
+          ? round(medianSorted(this.durationMs) / 60_000, 1)
+          : null,
+    };
+  }
+
+  private openSession(ms: number): void {
+    this.sessionCount += 1;
+    this.currentMessages = 0;
+    this.sessionStartMs = ms;
+  }
+
+  private closeSession(): void {
+    if (this.currentMessages > 0) this.messageCounts.push(this.currentMessages);
+    if (this.sessionStartMs !== null && this.lastMs !== null && this.lastMs >= this.sessionStartMs) {
+      this.durationMs.push(this.lastMs - this.sessionStartMs);
+    }
+    this.currentMessages = 0;
+    this.sessionStartMs = null;
+  }
+}
+
+function medianSorted(sorted: number[]): number {
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) return sorted[mid] ?? 0;
+  return ((sorted[mid - 1] ?? 0) + (sorted[mid] ?? 0)) / 2;
+}

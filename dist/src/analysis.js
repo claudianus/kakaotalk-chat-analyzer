@@ -12,7 +12,7 @@ import { extractSemanticKeywords } from "./semantic-keywords.js";
 import { createMessageSpoolPath, iterateSpoolRecords, removeSpool } from "./analysis-spool.js";
 import { createWriteStream } from "node:fs";
 import { stat } from "node:fs/promises";
-import { streamKakaoExport } from "./stream-parser.js";
+import { estimateKakaoMessageCount, streamKakaoExport } from "./stream-parser.js";
 import { recordOnOrAfter } from "./report-date-filter.js";
 const DEFAULT_TOP = 30;
 function withKiwiAnalysisFlag(report) {
@@ -176,6 +176,13 @@ export async function buildReportFromExportSync(filePath, options) {
     });
     const useKiwi = process.env.KCA_NO_KIWI !== "1";
     const since = options?.since;
+    let messageEstimate;
+    if (showProgress) {
+        messageEstimate = await estimateKakaoMessageCount(filePath);
+        if (since && messageEstimate > 0) {
+            console.error("[kca] 진행률 분모는 CSV 전체 메시지 추정치입니다 (--since 필터 전).");
+        }
+    }
     const progressOpts = (phase, estimated) => {
         const base = since ? { since } : {};
         if (!showProgress)
@@ -193,7 +200,7 @@ export async function buildReportFromExportSync(filePath, options) {
         if (useKiwi) {
             if (showProgress)
                 logReportProgress({ phase: "대화 집계", current: 0 });
-            meta = await runStatsPass(filePath, agg, prepass, progressOpts("대화 집계"), spoolPath);
+            meta = await runStatsPass(filePath, agg, prepass, progressOpts("대화 집계", messageEstimate), spoolPath);
             if (!meta)
                 throw new Error(`No messages parsed from export: ${filePath}`);
             const estimated = prepass.messageCount;
@@ -235,7 +242,7 @@ export async function buildReportFromExportSync(filePath, options) {
                 logReportProgress({ phase: "대화 분석", current: 0 });
             await initKiwiRuntime([]);
             kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
-            for await (const event of streamKakaoExport(filePath, progressOpts("대화 분석"))) {
+            for await (const event of streamKakaoExport(filePath, progressOpts("대화 분석", messageEstimate))) {
                 if (event.type === "record") {
                     if (since && !recordOnOrAfter(event.record, since))
                         continue;

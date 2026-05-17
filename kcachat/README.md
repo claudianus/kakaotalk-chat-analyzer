@@ -3,9 +3,12 @@
 `kakaotalk-chat-analyzer`를 **짧은 npx 이름**으로 실행하기 위한 초경량 래퍼입니다. 기능·CLI·리포트는 전부 본 패키지에 있습니다.
 
 ```bash
-npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
+npx kcachat@latest --local
+npx kcachat@latest
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
+
+`KCA_CSV_DIR`(기본 `~/Downloads`)에서 최신 `KakaoTalk*.csv`를 고릅니다. `latest --list` / `--pick N` 지원(본체 **0.16.0+**).
 
 ### `npx`·버전
 

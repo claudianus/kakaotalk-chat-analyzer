@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
+import { join } from "node:path";
 import test from "node:test";
+import { buildReportFromExportSync } from "../src/analysis.js";
 import { inferOpenChatProfile } from "../src/open-chat-profile.js";
+
+const OPEN_CHAT_FIXTURE = join(process.cwd(), "test/fixtures/open-chat-room.csv");
 
 test("inferOpenChatProfile flags high join/leave traffic", () => {
   const profile = inferOpenChatProfile(
@@ -27,4 +31,15 @@ test("inferOpenChatProfile flags high join/leave traffic", () => {
   );
   assert.equal(profile.likely, true);
   assert.ok(profile.joinLeaveSharePercent >= 14);
+});
+
+test("open-chat-room fixture yields join/leave signals", async () => {
+  if (process.env.KCA_NO_KIWI === "1") return;
+
+  const data = await buildReportFromExportSync(OPEN_CHAT_FIXTURE, {
+    progress: false,
+    semanticKeywords: false,
+  });
+  assert.ok(data.summary.totalMessages >= 4);
+  assert.ok(data.openChatBoilerplateExcluded >= 1 || data.roomEvents.total >= 1);
 });

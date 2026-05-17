@@ -3,6 +3,13 @@ import { mkdir, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Command } from "commander";
 import { buildReportFromExport, reportUsedAnalyzeWorker } from "./analysis.js";
+import { parseChatRoomNameFromExportPath } from "./analysis-labels.js";
+import {
+  defaultKakaoCsvDir,
+  formatExportPickLine,
+  listKakaoExports,
+  resolveKakaoExport,
+} from "./kakao-export-discovery.js";
 import { buildReportProvenance, patchReportProvenance } from "./report-provenance.js";
 import { clearOwnerToken, getConfigPath, getOwnerToken, saveOwnerToken } from "./config.js";
 import { describeStreamedExport } from "./stream-parser.js";
@@ -25,112 +32,182 @@ program.name("kca").description("카카오톡 CSV 보내기 → 리포트 생성
 program.addHelpText(
   "after",
   `
-기본 사용법 (서브커맨드 없이):
-  kca <보내기.csv>                 HTML 리포트 생성 후 BrewPage에 업로드
-  kca <보내기.csv> --local         업로드 없이 로컬에만 저장 (-o 로 폴더 지정)
-  kca <보내기.csv> --dry-run       업로드 생략(미리 생성만)
+기본 사용법:
+  kca                            Downloads 등에서 최신 KakaoTalk CSV → 업로드
+  kca <보내기.csv>               지정 CSV → 업로드
+  kca --local                    최신 CSV로 로컬 HTML만 (-o 로 폴더 지정)
+  kca latest --list              후보 CSV 목록 (최신 10개)
+  kca latest --pick 1            두 번째로 최근 CSV
 
-npx 예시 (짧은 이름):
-  npx kcachat@latest <보내기.csv> --local
-  npx kcachat@latest <보내기.csv>
-  (전체 패키지명: npx kakaotalk-chat-analyzer@latest … 동일)
+npx 예시:
+  npx kcachat@latest
+  npx kcachat@latest --local
+  npx kcachat@latest ./KakaoTalk_Chat_....csv
+  KCA_CSV_DIR=~/Desktop npx kcachat@latest
 `,
 );
 
+function registerPipelineOptions(cmd: Command): void {
+  cmd
+    .option("--local", "HTML만 만들고 업로드는 하지 않습니다.", false)
+    .option("--dry-run", "업로드를 생략하고 리포트만 생성합니다.", false)
+    .option("--host <host>", "brewpage, tempfile, cloudflare", "brewpage")
+    .option("--ttl <days>", "임시 호스팅 TTL(일)", "30")
+    .option("--ns <namespace>", "호스팅 네임스페이스", DEFAULT_NAMESPACE)
+    .option("--privacy <mode>", "public-masked | public-anonymous", "public-masked")
+    .option("--top <count>", "랭킹·상위 목록 길이", String(DEFAULT_TOP))
+    .option("-o, --out <dir>", "리포트 출력 폴더", DEFAULT_OUT)
+    .option("--profile", "파싱·집계·HTML 단계별 소요 시간을 출력합니다.", false)
+    .option("--no-worker", "3MB 이상 파일도 Worker 없이 메인 스레드에서 집계합니다.", false)
+    .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
+    .option(
+      "--no-semantic-keywords",
+      "한국어 방 기본 시맨틱 키워드(multilingual-e5-small)를 끕니다.",
+      false,
+    )
+    .option(
+      "--semantic-keywords",
+      "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(e5-small, 최초 다운로드).",
+      false,
+    )
+    .option("--since <date>", "YYYY-MM-DD 이후 메시지만 집계합니다.");
+}
+
+function registerDiscoveryOptions(cmd: Command): void {
+  cmd
+    .option("--dir <path>", "KakaoTalk CSV 검색 폴더 (기본: KCA_CSV_DIR 또는 ~/Downloads)")
+    .option("--pick <n>", "0=최신, 1=두 번째로 최근 …", "0")
+    .option("--list", "후보 CSV 목록만 출력하고 종료합니다.", false);
+}
+
+async function resolveCsvPath(
+  csv: string | undefined,
+  options: DiscoveryOptions,
+): Promise<string | null> {
+  if (csv?.trim()) return resolve(csv);
+
+  if (options.list) {
+    const dir = options.dir ? resolve(options.dir) : defaultKakaoCsvDir();
+    const all = await listKakaoExports(dir);
+    if (all.length === 0) {
+      throw new Error(`${dir}에 KakaoTalk*.csv가 없습니다.`);
+    }
+    console.log(`CSV 폴더: ${dir}\n`);
+    for (let i = 0; i < Math.min(10, all.length); i += 1) {
+      const f = all[i]!;
+      const room = parseChatRoomNameFromExportPath(f.path);
+      console.log(`[${i}] ${formatExportPickLine(f, room)}`);
+      console.log(`    ${f.path}`);
+    }
+    if (all.length > 10) console.log(`… 외 ${all.length - 10}개`);
+    return null;
+  }
+
+  const pick = parsePickIndex(options.pick);
+  const picked = await resolveKakaoExport({
+    dir: options.dir,
+    index: pick,
+  });
+  const room = parseChatRoomNameFromExportPath(picked.path);
+  console.error(`[kca] 선택: ${formatExportPickLine(picked, room)}`);
+  console.error(`[kca] 경로: ${picked.path}`);
+  return picked.path;
+}
+
+async function runMainPipeline(csvPath: string, options: MainOptions): Promise<void> {
+  const host = parseHostName(options.host);
+  const ttlDays = parseTtl(options.ttl);
+  const namespace = sanitizeNamespace(options.ns);
+  const privacy = parsePrivacy(options.privacy);
+  const top = parsePositiveInt(options.top, DEFAULT_TOP);
+
+  const htmlPath = await generateReport(csvPath, {
+    outDir: options.out,
+    privacy,
+    top,
+    profile: options.profile,
+    worker: options.noWorker || options.profile ? false : undefined,
+    progress: !options.noProgress,
+    semanticKeywords: options.noSemanticKeywords
+      ? false
+      : options.semanticKeywords
+        ? true
+        : undefined,
+    since: parseSinceOption(options.since),
+  });
+  console.log(`리포트: ${htmlPath}`);
+  console.log(`크기: ${await formatFileSize(htmlPath)}`);
+
+  if (options.local) {
+    console.log("--local: 업로드를 하지 않습니다.");
+    return;
+  }
+  if (options.dryRun) {
+    console.log("드라이런: 업로드를 건너뜁니다.");
+    return;
+  }
+
+  try {
+    const provider = createProvider(host);
+    const owner = await getOwnerToken(host, namespace);
+    const html = await readReportHtml(htmlPath);
+    const result = await provider.publish({
+      html,
+      ttlDays,
+      namespace,
+      title: "카카오톡 대화 리포트",
+      ownerToken: owner?.ownerToken,
+    });
+
+    if (result.ownerToken) {
+      await saveOwnerToken({
+        provider: result.provider,
+        namespace,
+        ownerToken: result.ownerToken,
+        ownerLink: result.ownerLink,
+        id: result.id,
+        link: result.link,
+        expiresAt: result.expiresAt,
+      });
+    }
+
+    printPublishResult(result, namespace);
+  } catch (error) {
+    console.error(`업로드 실패: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`로컬 리포트는 그대로 있습니다: ${htmlPath}`);
+    if (host === "brewpage") {
+      console.error(
+        `TempFile로 시도하려면: npx kakaotalk-chat-analyzer "${csvPath}" --host tempfile --ttl ${ttlDays}`,
+      );
+    }
+    process.exitCode = 1;
+  }
+}
+
 const main = program.command("default", { isDefault: true, hidden: true });
 
+registerPipelineOptions(main);
+registerDiscoveryOptions(main);
 main
-  .argument("<csv>", "카카오톡 CSV 보내기 파일 경로")
-  .option("--local", "HTML만 만들고 업로드는 하지 않습니다.", false)
-  .option("--dry-run", "업로드를 생략하고 리포트만 생성합니다.", false)
-  .option("--host <host>", "brewpage, tempfile, cloudflare", "brewpage")
-  .option("--ttl <days>", "임시 호스팅 TTL(일)", "30")
-  .option("--ns <namespace>", "호스팅 네임스페이스", DEFAULT_NAMESPACE)
-  .option("--privacy <mode>", "public-masked | public-anonymous", "public-masked")
-  .option("--top <count>", "랭킹·상위 목록 길이", String(DEFAULT_TOP))
-  .option("-o, --out <dir>", "리포트 출력 폴더", DEFAULT_OUT)
-  .option("--profile", "파싱·집계·HTML 단계별 소요 시간을 출력합니다.", false)
-  .option("--no-worker", "3MB 이상 파일도 Worker 없이 메인 스레드에서 집계합니다.", false)
-  .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
-  .option(
-    "--no-semantic-keywords",
-    "한국어 방 기본 시맨틱 키워드(multilingual-e5-small)를 끕니다.",
-    false,
-  )
-  .option(
-    "--semantic-keywords",
-    "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(e5-small, 최초 다운로드).",
-    false,
-  )
-  .option("--since <date>", "YYYY-MM-DD 이후 메시지만 집계합니다.")
-  .description("기본: 리포트 생성 후 BrewPage로 업로드(로컬만은 --local).")
-  .action(async (csv: string, options: MainOptions) => {
-    const host = parseHostName(options.host);
-    const ttlDays = parseTtl(options.ttl);
-    const namespace = sanitizeNamespace(options.ns);
-    const privacy = parsePrivacy(options.privacy);
-    const top = parsePositiveInt(options.top, DEFAULT_TOP);
-
-    const htmlPath = await generateReport(csv, {
-      outDir: options.out,
-      privacy,
-      top,
-      profile: options.profile,
-      worker: options.noWorker || options.profile ? false : undefined,
-      progress: !options.noProgress,
-      semanticKeywords: options.noSemanticKeywords
-        ? false
-        : options.semanticKeywords
-          ? true
-          : undefined,
-      since: parseSinceOption(options.since),
-    });
-    console.log(`리포트: ${htmlPath}`);
-    console.log(`크기: ${await formatFileSize(htmlPath)}`);
-
-    if (options.local) {
-      console.log("--local: 업로드를 하지 않습니다.");
-      return;
-    }
-    if (options.dryRun) {
-      console.log("드라이런: 업로드를 건너뜁니다.");
-      return;
-    }
-
-    try {
-      const provider = createProvider(host);
-      const owner = await getOwnerToken(host, namespace);
-      const html = await readReportHtml(htmlPath);
-      const result = await provider.publish({
-        html,
-        ttlDays,
-        namespace,
-        title: "카카오톡 대화 리포트",
-        ownerToken: owner?.ownerToken,
-      });
-
-      if (result.ownerToken) {
-        await saveOwnerToken({
-          provider: result.provider,
-          namespace,
-          ownerToken: result.ownerToken,
-          ownerLink: result.ownerLink,
-          id: result.id,
-          link: result.link,
-          expiresAt: result.expiresAt,
-        });
-      }
-
-      printPublishResult(result, namespace);
-    } catch (error) {
-      console.error(`업로드 실패: ${error instanceof Error ? error.message : String(error)}`);
-      console.error(`로컬 리포트는 그대로 있습니다: ${htmlPath}`);
-      if (host === "brewpage") {
-        console.error(`TempFile로 시도하려면: npx kakaotalk-chat-analyzer "${csv}" --host tempfile --ttl ${ttlDays}`);
-      }
-      process.exitCode = 1;
-    }
+  .argument("[csv]", "카카오톡 CSV 보내기 (생략 시 최신 KakaoTalk*.csv 자동 선택)")
+  .description("리포트 생성 후 BrewPage 업로드 (--local로 로컬만).")
+  .action(async (csv: string | undefined, options: MainOptions & DiscoveryOptions) => {
+    const csvPath = await resolveCsvPath(csv, options);
+    if (csvPath === null) return;
+    await runMainPipeline(csvPath, options);
   });
+
+const latest = program
+  .command("latest")
+  .description("KCA_CSV_DIR(기본 ~/Downloads)에서 최신 KakaoTalk CSV로 리포트·업로드.");
+
+registerPipelineOptions(latest);
+registerDiscoveryOptions(latest);
+latest.action(async (options: MainOptions & DiscoveryOptions) => {
+  const csvPath = await resolveCsvPath(undefined, options);
+  if (csvPath === null) return;
+  await runMainPipeline(csvPath, options);
+});
 
 program
   .command("compare")
@@ -213,9 +290,23 @@ interface MainOptions {
   since?: string;
 }
 
+interface DiscoveryOptions {
+  dir?: string;
+  pick: string;
+  list: boolean;
+}
+
 interface TokenOptions {
   host: string;
   ns: string;
+}
+
+function parsePickIndex(value: string): number {
+  const n = Number.parseInt(value, 10);
+  if (!Number.isFinite(n) || n < 0) {
+    throw new Error(`--pick 값은 0 이상의 정수여야 합니다: "${value}"`);
+  }
+  return n;
 }
 
 async function generateReport(

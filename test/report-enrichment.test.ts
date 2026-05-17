@@ -34,6 +34,9 @@ function baseInsights(over: Partial<ReportInsights> = {}): ReportInsights {
     uniqueDomainCount: 0,
     replyGapCoeffVariation: null,
     lexicalTypeRichnessPercent: null,
+    sessionCount: 1,
+    avgMessagesPerSession: null,
+    medianSessionMinutes: null,
     ...over,
   };
 }

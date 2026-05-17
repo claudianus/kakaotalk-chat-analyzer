@@ -10,7 +10,7 @@ import type {
   ReportInsights,
 } from "./types.js";
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
-import { GapStreamStats } from "./gap-stats.js";
+import { GapStreamStats, SessionGapStats } from "./gap-stats.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { adaptiveMinCount, StreamingTfidfKeywords } from "./streaming-tfidf-keywords.js";
 import { TopicMapAccumulator } from "./topic-map.js";
@@ -121,6 +121,7 @@ export class ReportAggregator {
   private readonly repeatPhraseCounter = new RepeatPhraseCounter();
   private readonly shopSearchTopics = new Map<string, number>();
   private readonly gapStats = new GapStreamStats();
+  private readonly sessionGapStats = new SessionGapStats();
   private readonly dailySenderCounts = new Map<string, Map<string, number>>();
   private readonly laughBySender = new Map<string, number>();
   private readonly shortBySender = new Map<string, number>();
@@ -298,6 +299,7 @@ export class ReportAggregator {
         const delta = ms - this.prevMs;
         this.gapStats.add(delta);
       }
+      this.sessionGapStats.addMessage(ms);
       this.prevMs = ms;
 
       if (this.prevSender !== null && record.sender !== this.prevSender) {
@@ -546,6 +548,7 @@ export class ReportAggregator {
     const replyGapCoeffVariation = this.gapStats.coeffVariation();
     const monologueMessagesPercent = total > 0 ? round((this.monologueMessages / total) * 100, 1) : 0;
     const lexicalTypeRichnessPercent = typeRichnessFromKeywords(keywords, total);
+    const sessionGap = this.sessionGapStats.finalize();
 
     const insights: ReportInsights = {
       weekendSharePercent,
@@ -572,6 +575,9 @@ export class ReportAggregator {
       uniqueDomainCount,
       replyGapCoeffVariation,
       lexicalTypeRichnessPercent,
+      sessionCount: sessionGap.sessionCount,
+      avgMessagesPerSession: sessionGap.avgMessagesPerSession,
+      medianSessionMinutes: sessionGap.medianSessionMinutes,
     };
 
     const dailySorted = [...this.daily.entries()].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));

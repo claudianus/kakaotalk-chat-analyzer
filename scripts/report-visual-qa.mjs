@@ -6,24 +6,20 @@
  *   npm run report:qa
  *   npm run report:qa -- --all
  *   npm run report:qa -- --latest 3 --no-open
- *   KCA_QA_CSV_DIR=~/Downloads npm run report:qa
+ *   KCA_CSV_DIR=~/Downloads npm run report:qa
  */
 import { spawn } from "node:child_process";
-import { mkdir, readdir, stat, writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
+import { mkdir, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildReportFromExport } from "../dist/src/analysis.js";
+import { defaultKakaoCsvDir, listKakaoExports } from "../dist/src/kakao-export-discovery.js";
 import { buildReportProvenance } from "../dist/src/report-provenance.js";
 import { renderReportHtml } from "../dist/src/report.js";
 import { VERSION } from "../dist/src/version.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outRoot = resolve(process.env.KCA_QA_OUT ?? join(root, ".qa-reports"));
-
-function expandHome(p) {
-  return p.startsWith("~") ? join(homedir(), p.slice(1)) : p;
-}
 
 function normPath(s) {
   return s.normalize("NFC");
@@ -38,21 +34,6 @@ function slugFromCsv(name) {
       .replace(/^-+|-+$/g, "")
       .slice(0, 72) || "export",
   );
-}
-
-async function listKakaoCsvs(dir) {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const files = [];
-  for (const ent of entries) {
-    if (!ent.isFile()) continue;
-    const name = ent.name;
-    if (!/\.csv$/i.test(name)) continue;
-    if (!/^KakaoTalk/i.test(name)) continue;
-    const full = join(dir, name);
-    const st = await stat(full);
-    files.push({ full, name, mtime: st.mtimeMs, size: st.size });
-  }
-  return files.sort((a, b) => b.mtime - a.mtime);
 }
 
 function parseArgs(argv) {
@@ -169,15 +150,17 @@ const CHECKLIST = `
 
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
-  const csvDir = resolve(expandHome(process.env.KCA_QA_CSV_DIR ?? join(homedir(), "Downloads")));
+  const csvDir = defaultKakaoCsvDir();
 
-  const all = await listKakaoCsvs(csvDir);
+  const all = await listKakaoExports(csvDir);
   if (!all.length) {
     console.error(`No KakaoTalk*.csv in ${csvDir}`);
     process.exit(1);
   }
 
-  const picked = all.slice(0, Number.isFinite(opts.latest) ? opts.latest : 2);
+  const picked = all
+    .slice(0, Number.isFinite(opts.latest) ? opts.latest : 2)
+    .map((f) => ({ full: f.path, name: f.name, size: f.size }));
   console.error(`[report:qa] CSV dir: ${csvDir}`);
   console.error(`[report:qa] Generating ${picked.length}/${all.length} report(s) → ${outRoot}`);
   console.error(`[report:qa] semantic=${opts.semantic} open=${opts.open}`);

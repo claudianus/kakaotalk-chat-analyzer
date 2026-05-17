@@ -196,6 +196,12 @@ export interface ReportInsights {
     replyGapCoeffVariation: number | null;
     /** 키워드 토큰 다양성(유형÷히트, %) — 높을수록 단어가 고르게 퍼짐 */
     lexicalTypeRichnessPercent: number | null;
+    /** 30분 이상 침묵으로 나눈 대화 세션 수 */
+    sessionCount: number;
+    /** 세션당 평균 메시지 수 */
+    avgMessagesPerSession: number | null;
+    /** 세션 길이 중앙값(분) */
+    medianSessionMinutes: number | null;
 }
 /** 대화 템포 한 줄 라벨(리포트 배지용) */
 export interface ConversationPace {
@@ -307,6 +313,7 @@ export interface ReportProvenance {
         semanticRequested?: boolean | "auto";
         semanticUsed: boolean;
         kiwiAvailable: boolean;
+        topicModel?: "graph" | "embedding" | "hybrid";
     };
     output?: {
         htmlBytes: number;

@@ -28,6 +28,9 @@ const baseInsights: ReportInsights = {
   uniqueDomainCount: 3,
   replyGapCoeffVariation: 1.1,
   lexicalTypeRichnessPercent: 22,
+  sessionCount: 4,
+  avgMessagesPerSession: 25,
+  medianSessionMinutes: 90,
 };
 
 const participants: ParticipantStat[] = [

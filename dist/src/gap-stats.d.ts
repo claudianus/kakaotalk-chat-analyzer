@@ -17,3 +17,22 @@ export declare class GapStreamStats {
     coeffVariation(): number | null;
     private quantileMs;
 }
+/** 30분 이상 침묵이면 새 대화 세션으로 분리 */
+export declare const SESSION_IDLE_MS: number;
+export interface SessionGapSnapshot {
+    sessionCount: number;
+    avgMessagesPerSession: number | null;
+    medianSessionMinutes: number | null;
+}
+export declare class SessionGapStats {
+    private sessionCount;
+    private currentMessages;
+    private readonly messageCounts;
+    private readonly durationMs;
+    private sessionStartMs;
+    private lastMs;
+    addMessage(ms: number): void;
+    finalize(): SessionGapSnapshot;
+    private openSession;
+    private closeSession;
+}

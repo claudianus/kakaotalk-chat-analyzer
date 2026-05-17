@@ -5,6 +5,7 @@ import {
   formatGeneratorLine,
   parseKcaInvokerEnv,
   patchReportProvenance,
+  resolveTopicModel,
 } from "../src/report-provenance.js";
 import { emptyReportData } from "../src/report-empty.js";
 import { VERSION } from "../src/version.js";
@@ -49,6 +50,11 @@ test("formatGeneratorLine shows kcachat chain", () => {
     },
   });
   assert.match(line, /kcachat 0\.1\.31 → kca 0\.13\.3/);
+});
+
+test("resolveTopicModel defaults to graph", () => {
+  const data = emptyReportData();
+  assert.equal(resolveTopicModel(data), "graph");
 });
 
 test("patchReportProvenance updates timing lines in HTML", () => {

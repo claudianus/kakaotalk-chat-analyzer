@@ -15,10 +15,10 @@
 카카오톡 **CSV 보내기** → 터미널 **한 줄** → 브라우저에서 읽는 Wrapped·차트 리포트 링크.
 
 ```bash
-npx kcachat@latest "./KakaoTalk_Chat_....csv"
+npx kcachat@latest
 ```
 
-[Node.js 22+](https://nodejs.org/) · 경로는 저장한 CSV로 바꿉니다 · PC에만 저장하려면 [빠른 시작](#빠른-시작)의 `--local`
+[Node.js 22+](https://nodejs.org/) · CSV 생략 시 `KCA_CSV_DIR`(기본 Downloads) 최신 파일 · PC에만은 `--local` ([빠른 시작](#빠른-시작))
 
 <table>
   <tr>
@@ -130,6 +130,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.16.0** | **최신 CSV 자동**(`npx kcachat`·`latest --list/--pick`)·진행률 추정·30분 세션 gap·topicModel provenance·Facts/Wrapped DOM 정렬 |
 | **0.15.0** | Trust UX(조건부 네비·참여자 카드)·키워드 RRF·burst MAD·Kiwi 1×CSV read·오픈채팅 인사이트·임베딩 주제 옵션 |
 | **0.13.8** | burst 활동일 스케일·대용량 gap exact quantile·주제맵 PMI/약한 edge·벤치 **추정** UI·회귀 fixture |
 | **0.13.7** | **BM25** 키워드·**담화어** 통합 lexicon·주제맵 discourse 게이트·시맨틱 k-means++/coherence·타임라인 meme **peakDate** |
@@ -179,13 +180,17 @@ npm run bench:stream -- 100000
 **로컬에만** (`--local`: HTML만 만들고 기본 BrewPage 업로드는 생략. 출력 기본 `.tmp/kca-report`, `-o ./report`로 변경):
 
 ```bash
-npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
+npx kcachat@latest --local
+# 또는 경로 지정: npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 ```
 
-**리포트 생성 후 기본 호스트(BrewPage)로 업로드**:
+**리포트 생성 후 기본 호스트(BrewPage)로 업로드** (CSV 생략 시 `~/Downloads` 등 **KCA_CSV_DIR**에서 최신 `KakaoTalk*.csv` 자동 선택):
 
 ```bash
-npx kcachat@latest "./KakaoTalk_Chat_....csv"
+npx kcachat@latest
+npx kcachat@latest latest --list    # 후보 10개 목록
+npx kcachat@latest latest --pick 1  # 두 번째로 최근 파일
+KCA_CSV_DIR=~/Desktop npx kcachat@latest
 ```
 
 > **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.13.4`. 리포트 사이드 카드·`grep kca-provenance`로 실제 생성 버전을 확인하세요. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))

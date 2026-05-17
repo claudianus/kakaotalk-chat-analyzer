@@ -98,10 +98,10 @@ export function renderReportHtml(data: ReportData): string {
       </div>
     </header>
     ${renderStorySections(data)}
+    ${renderFactMatrix(data)}
     ${renderOpenChatInsightCard(data)}
     ${renderShopSearchPromoted(data)}
     ${renderInnovationDeck(data)}
-    ${renderFactMatrix(data)}
 
     ${
       data.highlights.length > 0
@@ -304,11 +304,11 @@ function renderSectionNav(data: ReportData): string {
     : "";
   return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
+    <a href="#s-story" data-kca-jump="s-story">개요</a>
     ${storyNavLinks(data)}
     ${narrative}
     ${timeline}
     <a href="#s-facts" data-kca-jump="s-facts">① 숫자 요약</a>
-    <a href="#s-story" data-kca-jump="s-story">개요</a>
     ${dyad}
     <a href="#s-compare" data-kca-jump="s-compare">기간 비교</a>
     ${explorer}
@@ -352,6 +352,14 @@ function renderFactMatrix(data: ReportData): string {
         ["일평균(활동일)", String(perActive)],
         ["달력 밀도", density === null ? "—" : String(density)],
       ];
+  const sessionRows: [string, string][] =
+    ins.sessionCount > 1
+      ? [
+          ["대화 세션", formatNumber(ins.sessionCount)],
+          ["세션당 메시지", ins.avgMessagesPerSession === null ? "—" : String(ins.avgMessagesPerSession)],
+          ["세션 길이 중앙", ins.medianSessionMinutes === null ? "—" : `${ins.medianSessionMinutes}분`],
+        ]
+      : [];
   const cells: [string, string][] = [
     ["총 메시지", formatNumber(s.totalMessages)],
     ["참여자", formatNumber(s.participants)],
@@ -367,6 +375,7 @@ function renderFactMatrix(data: ReportData): string {
     ["독백 3연속+%", `${ins.monologueMessagesPercent}%`],
     ["응답 간격 중앙", formatReplyGapMinutes(s.medianReplyGapMinutes)],
     ["응답 상위10%", ins.replyGapP90Minutes === null ? "—" : formatReplyGapMinutes(ins.replyGapP90Minutes)],
+    ...sessionRows,
     ["피크 시각", s.peakHour === null ? "—" : `${s.peakHour}시`],
     ["최장 연속일", String(s.longestActiveStreakDays)],
     ["상위3 점유", `${ins.top3ParticipantSharePercent}%`],

@@ -1,6 +1,15 @@
 import { escapeHtml } from "./report-util.js";
 import { VERSION } from "./version.js";
 export const REPORT_SCHEMA = "2026-05";
+export function resolveTopicModel(data) {
+    const embedEnv = process.env.KCA_EMBEDDING_TOPICS === "1";
+    const hasEmbedTheme = data.topics.some((t) => t.kind === "theme" && t.title.includes("임베딩"));
+    if (embedEnv && hasEmbedTheme && data.summary.usedSemanticKeywords)
+        return "hybrid";
+    if (embedEnv && hasEmbedTheme)
+        return "embedding";
+    return "graph";
+}
 export function parseKcaInvokerEnv(value) {
     if (!value?.trim())
         return undefined;
@@ -35,6 +44,7 @@ export function buildReportProvenance(data, options) {
                 : {}),
             semanticUsed: data.summary.usedSemanticKeywords === true,
             kiwiAvailable: options.kiwiAvailable,
+            topicModel: resolveTopicModel(data),
         },
         reportSchema: REPORT_SCHEMA,
     };
@@ -95,6 +105,14 @@ export function formatProvenanceDetails(provenance) {
             : "off";
     lines.push(`시맨틱 키워드: 요청 ${semReq} · 실제 ${a.semanticUsed ? "사용" : "미사용"}`);
     lines.push(`Kiwi 형태소: ${a.kiwiAvailable ? "사용 가능" : "미사용"}`);
+    if (a.topicModel) {
+        const labels = {
+            graph: "그래프(c-TF-IDF)",
+            embedding: "임베딩 클러스터",
+            hybrid: "그래프+임베딩",
+        };
+        lines.push(`주제 모델: ${labels[a.topicModel] ?? a.topicModel}`);
+    }
     if (provenance.reportSchema)
         lines.push(`리포트 스키마: ${provenance.reportSchema}`);
     if (provenance.output?.htmlBytes !== undefined) {

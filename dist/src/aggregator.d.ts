@@ -34,6 +34,7 @@ export declare class ReportAggregator {
     private readonly repeatPhraseCounter;
     private readonly shopSearchTopics;
     private readonly gapStats;
+    private readonly sessionGapStats;
     private readonly dailySenderCounts;
     private readonly laughBySender;
     private readonly shortBySender;

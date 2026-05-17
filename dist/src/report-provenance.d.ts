@@ -11,6 +11,7 @@ export interface BuildReportProvenanceOptions {
     buildTiming?: ReportBuildTiming;
     htmlBytes?: number;
 }
+export declare function resolveTopicModel(data: ReportData): "graph" | "embedding" | "hybrid";
 export declare function parseKcaInvokerEnv(value: string | undefined): ReportProvenance["generator"]["invokedVia"] | undefined;
 export declare function buildReportProvenance(data: ReportData, options: BuildReportProvenanceOptions): ReportProvenance;
 /** HTML 1회 생성 후 provenance JSON·상세·생성 소요·푸터 타이밍 갱신 */
