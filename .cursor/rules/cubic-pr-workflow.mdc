@@ -1,0 +1,32 @@
+---
+description: PR은 cubic AI 리뷰 통과 전까지 main에 직접 머지하지 않음
+alwaysApply: true
+---
+
+# Cubic PR 워크플로 (강제)
+
+`main`에 **직접 푸시·머지하지 않는다**. 배포 가치 있는 변경은 **항상 PR → cubic 리뷰 → 수정 루프 → 머지** 순서다.
+
+## 필수 순서
+
+1. **브랜치** — `feat/…` 또는 `fix/…` 에서 작업. `main`에 바로 커밋·푸시 금지.
+2. **검증** — `npm test` 통과. 리포트/UI 변경 시 `npm run report:qa` (+ 브라우저 시각 QA, AGENTS.md §5).
+3. **PR 생성** — `gh pr create`. 본문에 Summary·Test plan·시각 QA/BrewPage URL(해당 시) 포함.
+4. **Cubic 리뷰 대기** — PR 번호가 생긴 뒤 cubic이 코멘트할 때까지 대기(또는 `get_pr_issues` / `gh pr checks`로 확인). **리뷰 전 머지 금지.**
+5. **이슈 처리 루프** (최대 5회):
+   - `get_pr_issues`(MCP) 또는 `gh`로 **미해결 AI 리뷰** 수집
+   - 실제 버그·정확도·회귀만 수정(스타일만인 건 근거 들고 스킵 가능)
+   - 커밋·푸시 → cubic 재리뷰 대기
+   - **열린 이슈 0건** + CI green일 때만 다음 단계
+6. **머지** — `gh pr merge` (squash 또는 저장소 기본). 머지 후 `main`에서 npm publish·Actions 확인(AGENTS.md §1).
+
+## 금지
+
+- cubic·CI 실패/대기 중 머지
+- 리뷰 이슈를 사용자에게만 넘기고 에이전트가 수정하지 않음
+- PR 없이 `main`에 알고리즘·`dist/`·버전 bump 푸시
+
+## Cubic 도구
+
+- PR 이슈: MCP `user-cubic` → `get_pr_issues` (`repo`, `pullNumber`, 필요 시 `owner`)
+- 로컬 사전 검토: `cubic review -j`(미커밋) / `cubic review -b -j`(브랜치)

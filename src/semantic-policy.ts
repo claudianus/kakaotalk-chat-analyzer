@@ -3,6 +3,19 @@ import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 
 const MIN_SEMANTIC_MESSAGES = 48;
+const DEFAULT_SEMANTIC_SAMPLE_CAP = 480;
+const LARGE_CORPUS_SEMANTIC_CAP = 720;
+const LARGE_CORPUS_MESSAGES = 50_000;
+
+export function semanticSampleCap(messageCount: number): number {
+  return messageCount >= LARGE_CORPUS_MESSAGES ? LARGE_CORPUS_SEMANTIC_CAP : DEFAULT_SEMANTIC_SAMPLE_CAP;
+}
+
+/** 스트리밍·사전 집계 없을 때 리저보어 상한 */
+export function semanticReservoirCap(estimatedMessages?: number): number {
+  if (estimatedMessages === undefined || estimatedMessages === 0) return LARGE_CORPUS_SEMANTIC_CAP;
+  return semanticSampleCap(estimatedMessages);
+}
 
 /** 한국어 MTEB 경량 1위급 — intfloat/multilingual-e5-small (Xenova ONNX) */
 export const DEFAULT_KOREAN_SEMANTIC_MODEL = "Xenova/multilingual-e5-small";

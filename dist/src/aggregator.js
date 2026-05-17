@@ -8,6 +8,7 @@ import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
 import { buildTopicStopwords } from "./topic-stopwords.js";
 import { MessageReservoir } from "./message-reservoir.js";
+import { semanticReservoirCap } from "./semantic-policy.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
@@ -111,7 +112,9 @@ export class ReportAggregator {
         this.filePath = filePath;
         this.privacy = privacy;
         this.top = top;
-        this.semanticReservoir = options?.semanticSamples ? new MessageReservoir(480) : null;
+        this.semanticReservoir = options?.semanticSamples
+            ? new MessageReservoir(semanticReservoirCap(options?.estimatedMessages))
+            : null;
     }
     drainSemanticSamples() {
         return this.semanticReservoir?.drain() ?? [];
@@ -270,7 +273,7 @@ export class ReportAggregator {
                         this.keywordSupplement.add(keyword);
                     }
                     if (messageLength >= 12)
-                        this.repeatPhraseCounter.add(msg);
+                        this.repeatPhraseCounter.add(msg, dayKey);
                     if (this.semanticReservoir && messageLength >= 12)
                         this.semanticReservoir.push(msg);
                 }

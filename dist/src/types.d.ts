@@ -80,6 +80,8 @@ export interface RoomEventStats {
 export interface RepeatedPhraseStat {
     label: string;
     count: number;
+    /** 해당 문구가 가장 많이 반복된 날 (YYYY-MM-DD) */
+    peakDate?: string;
 }
 export interface DailyCount {
     date: string;

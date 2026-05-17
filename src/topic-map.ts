@@ -1,7 +1,11 @@
 import { classTfidfTopTerms } from "./ctfidf.js";
+import { discourseRatio, isDiscourseTerm } from "./discourse-lexicon.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { filterMeaningfulTopicTerms } from "./topic-stopwords.js";
 import type { ReportTopic } from "./types.js";
+
+const MIN_THEME_MESSAGE_PERCENT = 1.5;
+const MAX_THEME_DISCOURSE_RATIO = 0.5;
 
 const MAX_GRAPH_NODES = 140;
 const MAX_TOPICS = 8;
@@ -134,14 +138,16 @@ export class TopicMapAccumulator {
         stopwords,
       );
       if (terms.length < 2) continue;
+      if (discourseRatio(terms) > MAX_THEME_DISCOURSE_RATIO) continue;
       const idx = Number(classId.replace("theme-", ""));
       const community = communities[idx] ?? terms;
       let msgHits = 0;
       for (const t of community) msgHits += this.tokenDocFreq.get(t) ?? 0;
       const cappedHits = Math.min(msgHits, this.messages, totalMessages);
       const messagePercent = Math.round(Math.min(100, (cappedHits / Math.max(totalMessages, 1)) * 100) * 10) / 10;
-      const lead = terms[0] ?? "주제";
-      const sub = terms[1];
+      if (messagePercent < MIN_THEME_MESSAGE_PERCENT && terms.length < 4) continue;
+      const lead = pickThemeLead(terms);
+      const sub = terms.find((t) => t !== lead && !isDiscourseTerm(t));
       topics.push({
         id: classId,
         kind: "theme",
@@ -245,6 +251,11 @@ function mergeSimilarTopics(topics: ReportTopic[]): ReportTopic[] {
     }
   }
   return merged;
+}
+
+function pickThemeLead(terms: string[]): string {
+  const clean = terms.find((t) => !isDiscourseTerm(t));
+  return clean ?? terms[0] ?? "주제";
 }
 
 function jaccard(a: string[], b: string[] | Iterable<string>): number {

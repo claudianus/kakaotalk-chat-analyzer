@@ -18,6 +18,7 @@ import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
 import { buildTopicStopwords } from "./topic-stopwords.js";
 import { MessageReservoir } from "./message-reservoir.js";
+import { semanticReservoirCap } from "./semantic-policy.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
@@ -85,6 +86,8 @@ export interface FinalizeOptions {
 export interface AggregatorOptions {
   /** 시맨틱 키워드용 메시지 샘플 수집 */
   semanticSamples?: boolean;
+  /** 시맨틱 리저보어 상한 추정(스트리밍 시 생략 가능) */
+  estimatedMessages?: number;
 }
 
 interface MutableParticipantStat {
@@ -166,7 +169,9 @@ export class ReportAggregator {
     this.filePath = filePath;
     this.privacy = privacy;
     this.top = top;
-    this.semanticReservoir = options?.semanticSamples ? new MessageReservoir(480) : null;
+    this.semanticReservoir = options?.semanticSamples
+      ? new MessageReservoir(semanticReservoirCap(options?.estimatedMessages))
+      : null;
   }
 
   drainSemanticSamples(): string[] {
@@ -343,7 +348,7 @@ export class ReportAggregator {
           for (const keyword of extractHashtagKeywords(msg, kwOpts)) {
             this.keywordSupplement.add(keyword);
           }
-          if (messageLength >= 12) this.repeatPhraseCounter.add(msg);
+          if (messageLength >= 12) this.repeatPhraseCounter.add(msg, dayKey);
           if (this.semanticReservoir && messageLength >= 12) this.semanticReservoir.push(msg);
         }
       }

@@ -12,17 +12,45 @@ function cosineDistance(a, b) {
         dot += a[i] * b[i];
     return 1 - dot;
 }
-/** L2 정규화 벡터에 대한 간단 k-means */
-export function kMeansAssignments(vectors, k, maxIter = 12) {
+function cosineSimilarity(a, b) {
+    return 1 - cosineDistance(a, b);
+}
+function pickKMeansPlusPlusCentroids(vectors, k) {
+    const centroids = [];
+    const first = vectors[Math.floor(Math.random() * vectors.length)];
+    centroids.push([...first]);
+    while (centroids.length < k) {
+        const distSq = vectors.map((v) => {
+            let minD = Infinity;
+            for (const c of centroids)
+                minD = Math.min(minD, cosineDistance(v, c));
+            return minD * minD;
+        });
+        const total = distSq.reduce((s, x) => s + x, 0);
+        if (total <= 0) {
+            centroids.push([...vectors[centroids.length % vectors.length]]);
+            continue;
+        }
+        let r = Math.random() * total;
+        let pick = 0;
+        for (let i = 0; i < distSq.length; i += 1) {
+            r -= distSq[i];
+            if (r <= 0) {
+                pick = i;
+                break;
+            }
+        }
+        centroids.push([...vectors[pick]]);
+    }
+    return centroids;
+}
+/** L2 정규화 벡터에 대한 k-means (k-means++ 초기화) */
+export function kMeansAssignments(vectors, k, maxIter = 24) {
     if (vectors.length === 0)
         return [];
     const dim = vectors[0].length;
     k = Math.max(1, Math.min(k, vectors.length));
-    const centroids = [];
-    const step = Math.max(1, Math.floor(vectors.length / k));
-    for (let i = 0; i < k; i += 1) {
-        centroids.push([...vectors[Math.min(i * step, vectors.length - 1)]]);
-    }
+    const centroids = pickKMeansPlusPlusCentroids(vectors, k);
     const assignments = new Array(vectors.length).fill(0);
     for (let iter = 0; iter < maxIter; iter += 1) {
         let changed = false;
@@ -59,8 +87,27 @@ export function kMeansAssignments(vectors, k, maxIter = 12) {
     }
     return assignments;
 }
+/** 클러스터 내 평균 코사인 유사도 (0~1) */
+export function clusterMeanCoherence(vectors, assignments, clusterId) {
+    const members = [];
+    for (let i = 0; i < vectors.length; i += 1) {
+        if (assignments[i] === clusterId)
+            members.push(vectors[i]);
+    }
+    if (members.length < 2)
+        return 1;
+    let sum = 0;
+    let pairs = 0;
+    for (let i = 0; i < members.length; i += 1) {
+        for (let j = i + 1; j < members.length; j += 1) {
+            sum += cosineSimilarity(members[i], members[j]);
+            pairs += 1;
+        }
+    }
+    return pairs > 0 ? sum / pairs : 0;
+}
 /** 클러스터별 토큰 빈도 상위 용어 */
-export function labelClustersFromTokens(assignments, tokenBags, k, stopwords, topPerCluster = 4) {
+export function labelClustersFromTokens(assignments, tokenBags, k, stopwords, topPerCluster = 4, vectors, minCoherence = 0.32) {
     const buckets = Array.from({ length: k }, () => new Map());
     const sizes = new Array(k).fill(0);
     for (let i = 0; i < assignments.length; i += 1) {
@@ -79,13 +126,18 @@ export function labelClustersFromTokens(assignments, tokenBags, k, stopwords, to
     for (let c = 0; c < k; c += 1) {
         if (sizes[c] < 2)
             continue;
+        const coherence = vectors && vectors.length > 0
+            ? clusterMeanCoherence(vectors, assignments, c)
+            : 1;
+        if (coherence < minCoherence)
+            continue;
         const terms = [...(buckets[c]?.entries() ?? [])]
             .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)
             .slice(0, topPerCluster)
             .map(([term]) => term);
         if (terms.length === 0)
             continue;
-        out.push({ terms, size: sizes[c] });
+        out.push({ terms, size: sizes[c], coherence });
     }
     return out.sort((a, b) => b.size - a.size);
 }

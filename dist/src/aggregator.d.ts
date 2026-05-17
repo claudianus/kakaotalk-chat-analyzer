@@ -12,6 +12,8 @@ export interface FinalizeOptions {
 export interface AggregatorOptions {
     /** 시맨틱 키워드용 메시지 샘플 수집 */
     semanticSamples?: boolean;
+    /** 시맨틱 리저보어 상한 추정(스트리밍 시 생략 가능) */
+    estimatedMessages?: number;
 }
 export declare class ReportAggregator {
     private readonly filePath;

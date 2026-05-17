@@ -69,6 +69,7 @@ export function buildReportData(result: ParseResult, options?: BuildReportOption
   const korean = isPrimarilyKoreanMessages(texts);
   const agg = new ReportAggregator(result.filePath, privacy, top, {
     semanticSamples: shouldCollectSemanticSamples(result.records.length),
+    estimatedMessages: result.records.length,
   });
   const since = options?.since;
   for (const record of result.records) {
@@ -101,6 +102,7 @@ export async function buildReportDataAsync(
   const useSemantic = resolveSemanticKeywords(options, prepass, texts);
   const agg = new ReportAggregator(result.filePath, privacy, top, {
     semanticSamples: shouldCollectSemanticSamples(result.records.length),
+    estimatedMessages: result.records.length,
   });
   const since = options?.since;
   for (const record of result.records) {
@@ -182,6 +184,7 @@ export async function buildReportFromExportSync(
   const prepass = new HeuristicPrepassCollector();
   const agg = new ReportAggregator(filePath, privacy, top, {
     semanticSamples: process.env.KCA_NO_SEMANTIC !== "1",
+    estimatedMessages: prepass.messageCount > 0 ? prepass.messageCount : undefined,
   });
   const useKiwi = process.env.KCA_NO_KIWI !== "1";
 
