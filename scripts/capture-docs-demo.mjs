@@ -16,7 +16,7 @@ const outDir = join(root, "docs", "assets", "demo");
 const port = Number(process.env.KCA_DOCS_PORT ?? "18766");
 const baseUrl = `http://127.0.0.1:${port}/${encodeURIComponent(slug)}/`;
 
-/** @type {Array<{ file: string; title: string; caption: string; selectors: string[]; optional?: boolean; viewport?: { width: number; height: number }; clipMaxH?: number; waitChart?: string }>} */
+/** @type {Array<{ file: string; title: string; caption: string; selectors: string[]; optional?: boolean; viewport?: { width: number; height: number }; clipMaxH?: number; waitChart?: string; waitScatter?: string }>} */
 const shots = [
   {
     file: "wrapped.png",
@@ -77,7 +77,12 @@ const shots = [
     file: "participants.png",
     title: "참여자",
     caption: "랭킹·말풍선 맵",
-    selectors: ["section.grid.two:has(.rank-participants)"],
+    selectors: [
+      "#s-ai .insight-split > div:has(.sc-plot)",
+      "#s-charts .card:has(.rank-participants)",
+      "section.grid.two:has(.rank-participants)",
+    ],
+    waitScatter: ".sc-plot",
     clipMaxH: 720,
   },
   {
@@ -124,6 +129,20 @@ async function waitChartCanvas(page, selector) {
   );
 }
 
+async function waitScatterBubbles(page, selector) {
+  await page.waitForFunction(
+    (sel) => {
+      const plot = document.querySelector(sel);
+      if (!plot) return false;
+      const nodes = plot.querySelectorAll(".bubble-node");
+      if (nodes.length === 0) return false;
+      return Array.from(nodes).some((n) => n.getBoundingClientRect().width > 8);
+    },
+    selector,
+    { timeout: 20_000 },
+  );
+}
+
 function run(cmd, args, opts = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, { cwd: root, stdio: "inherit", ...opts });
@@ -159,17 +178,9 @@ function startQaServe() {
   });
 }
 
-function clipForElement(box, vp, shot) {
+function clipMaxHeight(shot, vp) {
   const isMobile = vp.width <= 400;
-  const maxH = shot.clipMaxH ?? (isMobile ? 640 : 560);
-  const x = Math.max(0, Math.floor(box.x));
-  let y = Math.max(0, Math.floor(box.y));
-  const width = Math.min(Math.ceil(box.width), vp.width - x);
-  let height = Math.min(Math.ceil(box.height), maxH);
-  if (y + height > vp.height) {
-    y = Math.max(0, vp.height - height);
-  }
-  return { x, y, width, height };
+  return shot.clipMaxH ?? (isMobile ? 640 : 560);
 }
 
 async function captureShot(page, shot) {
@@ -178,16 +189,24 @@ async function captureShot(page, shot) {
   if (shot.waitChart) {
     await waitChartCanvas(page, shot.waitChart);
   }
+  if (shot.waitScatter) {
+    await waitScatterBubbles(page, shot.waitScatter);
+  }
   const el = await firstVisible(page, shot.selectors);
   await el.scrollIntoViewIfNeeded();
-  await el.evaluate((node) => node.scrollIntoView({ block: "start", inline: "nearest" }));
+  await el.evaluate((node) => node.scrollIntoView({ block: "center", inline: "nearest" }));
   await page.waitForTimeout(400);
   const box = await el.boundingBox();
   if (!box) throw new Error(`no bounding box for: ${shot.selectors.join(" | ")}`);
   const path = join(outDir, shot.file);
-  const clip = clipForElement(box, vp, shot);
-  await page.screenshot({ path, clip });
-  console.log(`screenshot: ${path} (${clip.width}×${clip.height})`);
+  const maxH = clipMaxHeight(shot, vp);
+  const height = Math.min(Math.ceil(box.height), maxH);
+  const clip =
+    height < Math.ceil(box.height)
+      ? { x: 0, y: 0, width: Math.ceil(box.width), height }
+      : undefined;
+  await el.screenshot({ path, ...(clip ? { clip } : {}) });
+  console.log(`screenshot: ${path} (${Math.ceil(box.width)}×${height})`);
   return { file: shot.file, title: shot.title, caption: shot.caption };
 }
 
