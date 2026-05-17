@@ -1,0 +1,33 @@
+src/analysis.ts
+  s_23ea5bc305de1c::t_5b1a3ce3da54f3 51,58
+dist/src/analysis.js.map
+  ai_agent 1
+src/aggregator.ts
+  s_23ea5bc305de1c::t_581bd4d69258c3 172
+dist/src/aggregator.js
+  ai_agent 115
+.cursor/rules/cubic-pr-workflow.mdc
+  s_23ea5bc305de1c::t_215481495ad890 15-21
+AGENTS.md
+  s_23ea5bc305de1c::t_6c5e795129ff3b 26-28
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/analysis.js
+  ai_agent 38,46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "030c998252543d8abea3c35b9ddfc9f49a3ab66e",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
