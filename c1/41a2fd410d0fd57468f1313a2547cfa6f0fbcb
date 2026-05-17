@@ -1,0 +1,27 @@
+test/semantic-policy.test.ts
+  s_23ea5bc305de1c::t_a4a76be483a2bd 32-40
+  s_23ea5bc305de1c::t_d093486ca17909 8-9
+dist/src/semantic-keywords.js
+  ai_agent 52-62,85,87
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_583af0dfcee3a9 62-72
+  s_23ea5bc305de1c::t_0848fe8b613c37 111-112,114
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c141a2fd410d0fd57468f1313a2547cfa6f0fbcb",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
