@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { HeuristicPrepassCollector } from "../src/export-prepass.js";
 import {
   DEFAULT_KOREAN_SEMANTIC_MODEL,
+  QUALITY_KOREAN_SEMANTIC_MODEL,
   formatTextForEmbedding,
   needsE5QueryPrefix,
   resolveSemanticKeywords,
@@ -13,12 +14,24 @@ import {
 } from "../src/semantic-policy.js";
 
 describe("semantic-policy", () => {
-  it("defaults to Xenova multilingual-e5-small", () => {
+  it("defaults to Xenova multilingual-e5-small for balanced", () => {
     const prev = process.env.KCA_SEMANTIC_MODEL;
     delete process.env.KCA_SEMANTIC_MODEL;
     try {
       assert.equal(semanticEmbeddingModelId(), DEFAULT_KOREAN_SEMANTIC_MODEL);
+      assert.equal(semanticEmbeddingModelId({ preset: "balanced" }), DEFAULT_KOREAN_SEMANTIC_MODEL);
       assert.equal(DEFAULT_KOREAN_SEMANTIC_MODEL, "Xenova/multilingual-e5-small");
+    } finally {
+      if (prev === undefined) delete process.env.KCA_SEMANTIC_MODEL;
+      else process.env.KCA_SEMANTIC_MODEL = prev;
+    }
+  });
+
+  it("quality preset selects ko-v2 model id", () => {
+    const prev = process.env.KCA_SEMANTIC_MODEL;
+    delete process.env.KCA_SEMANTIC_MODEL;
+    try {
+      assert.equal(semanticEmbeddingModelId({ preset: "quality" }), QUALITY_KOREAN_SEMANTIC_MODEL);
     } finally {
       if (prev === undefined) delete process.env.KCA_SEMANTIC_MODEL;
       else process.env.KCA_SEMANTIC_MODEL = prev;

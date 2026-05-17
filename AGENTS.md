@@ -80,8 +80,9 @@
    - 전부: `npm run report:qa -- --all`  
    - 시맨틱 끄고 빠르게: `KCA_NO_SEMANTIC=1 npm run report:qa`  
    - CSV 폴더 변경: `KCA_QA_CSV_DIR=~/Downloads npm run report:qa`
-2. 스크립트가 HTML 구조( Wrapped·ECharts·키워드·참여자 ) 1차 검사를 한다. 실패 시 수정 후 재실행.
+2. 스크립트가 HTML 구조( Wrapped·ECharts·키워드·참여자 ) 1차 검사를 한다. 실패 시 수정 후 재실행. 대용량 코퍼스는 키워드 df 하한을 통과해야 한다.
 3. **별도 터미널(백그라운드)** 에 `npm run report:qa:serve` → `http://127.0.0.1:18765/<slug>/`  
+   Playwright 콘솔·canvas: `node scripts/report-viewport-check.mjs <slug> --playwright` (CI `report-visual-qa.yml`과 동일)  
    (브라우저 MCP는 `file://` 불가. manifest의 `httpUrl` 사용.)
 
 ### B. 브라우저 검수 (에이전트 필수)
@@ -96,7 +97,7 @@
 | 참여자 | 말풍선·마스킹·랭킹 표 |
 | 테마 | 라이트 / 다크 / 시스템 |
 | 반응형 | ~390px 폭에서 겹침·가로 스크롤 폭주 없음 |
-| 콘솔 | `browser_console_messages`에 치명적 에러 없음 |
+| 콘솔 | `browser_console_messages`에 치명적 에러 없음 (`bootDyadWhenVisible`, `[kca-chart]` 0건) |
 | **Provenance** | 사이드 카드 `kca x.y.z`, `<details>리포트 정보`, footer·`#kca-provenance` JSON 버전 일치 |
 
 스크린샷 또는 스냅샷으로 **최소 1장면(Wrapped + 차트 1개 + 키워드)** 을 확인한 뒤, 이슈가 있으면 고치고 **report:qa 재실행**한다. 로컬·CI 회귀용: `npm run report:screenshots -- <slug>` (Playwright, 390/834/1440/2560 full-page).

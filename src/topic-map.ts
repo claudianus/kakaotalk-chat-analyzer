@@ -1,16 +1,20 @@
 import { classTfidfTopTerms } from "./ctfidf.js";
 import { discourseRatio, isDiscourseTerm } from "./discourse-lexicon.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
+import { isGenericTopicLead } from "./topic-generic.js";
 import { filterMeaningfulTopicTerms } from "./topic-stopwords.js";
 import type { ReportTopic } from "./types.js";
 
-const MIN_THEME_MESSAGE_PERCENT = 1.5;
+const MIN_THEME_MESSAGE_PERCENT_DEFAULT = 1.5;
+const MIN_THEME_MESSAGE_PERCENT_LARGE = 0.8;
 const MAX_THEME_DISCOURSE_RATIO = 0.5;
 const LARGE_CORPUS_MESSAGES = 50_000;
+const VERY_LARGE_CORPUS_MESSAGES = 90_000;
 const MIN_EDGE_PMI = 0.35;
 
 const MAX_GRAPH_NODES = 140;
-const MAX_TOPICS = 8;
+/** graph 레인 상한 — 최종 slice는 topic-merge */
+export const MAX_GRAPH_TOPICS = 12;
 const MIN_MONTH_MESSAGES = 40;
 const COOC_WINDOW = 4;
 
@@ -70,16 +74,48 @@ export class TopicMapAccumulator {
     const themes = this.buildCooccurrenceThemes(totalMessages, stopwords);
     const periods = this.buildMonthlyPeriods(totalMessages, stopwords);
 
+    const minThemePct =
+      totalMessages >= LARGE_CORPUS_MESSAGES
+        ? MIN_THEME_MESSAGE_PERCENT_LARGE
+        : MIN_THEME_MESSAGE_PERCENT_DEFAULT;
     const merged = refineTopics(
       [...themes, ...periods].sort(
         (a, b) => b.messagePercent - a.messagePercent || b.terms.length - a.terms.length,
       ),
+      minThemePct,
     );
 
-    return merged.slice(0, MAX_TOPICS);
+    return merged.slice(0, MAX_GRAPH_TOPICS);
+  }
+
+  /** 키워드 시드용 공기 이웃 */
+  getCooccurrenceNeighbors(label: string, limit = 3): string[] {
+    const seeds = label
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 2);
+    const scores = new Map<string, number>();
+    for (const term of seeds) {
+      for (const [key, weight] of this.cooc) {
+        const [a, b] = key.split("\t");
+        if (!a || !b) continue;
+        if (a === term && b !== term) scores.set(b, (scores.get(b) ?? 0) + weight);
+        if (b === term && a !== term) scores.set(a, (scores.get(a) ?? 0) + weight);
+      }
+    }
+    return [...scores.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([t]) => t);
   }
 
   private buildCooccurrenceThemes(totalMessages: number, stopwords: ReadonlySet<string>): ReportTopic[] {
+    const minThemePct =
+      totalMessages >= LARGE_CORPUS_MESSAGES
+        ? MIN_THEME_MESSAGE_PERCENT_LARGE
+        : MIN_THEME_MESSAGE_PERCENT_DEFAULT;
+    const maxCommunities =
+      totalMessages >= VERY_LARGE_CORPUS_MESSAGES ? 10 : 12;
     const nodes = [...this.tokenDocFreq.entries()]
       .filter(([t]) => !stopwords.has(t) && !isNoiseKeyword(t))
       .sort((a, b) => b[1] - a[1])
@@ -127,7 +163,7 @@ export class TopicMapAccumulator {
         if (community.length >= 18) break;
       }
       if (community.length >= 2) communities.push(community);
-      if (communities.length >= 6) break;
+      if (communities.length >= maxCommunities) break;
     }
 
     const classTf = new Map<string, Map<string, number>>();
@@ -151,11 +187,11 @@ export class TopicMapAccumulator {
       if (discourseRatio(terms) > MAX_THEME_DISCOURSE_RATIO) continue;
       const idx = Number(classId.replace("theme-", ""));
       const community = communities[idx] ?? terms;
-      let msgHits = 0;
-      for (const t of community) msgHits += this.tokenDocFreq.get(t) ?? 0;
-      const cappedHits = Math.min(msgHits, this.messages, totalMessages);
+      let maxHits = 0;
+      for (const t of community) maxHits = Math.max(maxHits, this.tokenDocFreq.get(t) ?? 0);
+      const cappedHits = Math.min(maxHits, this.messages, totalMessages);
       const messagePercent = Math.round(Math.min(100, (cappedHits / Math.max(totalMessages, 1)) * 100) * 10) / 10;
-      if (messagePercent < MIN_THEME_MESSAGE_PERCENT) continue;
+      if (messagePercent < minThemePct) continue;
       const lead = pickThemeLead(terms);
       const sub = terms.find((t) => t !== lead && !isDiscourseTerm(t));
       topics.push({
@@ -214,24 +250,19 @@ export class TopicMapAccumulator {
   }
 }
 
-function refineTopics(topics: ReportTopic[]): ReportTopic[] {
-  const usedTerms = new Set<string>();
+function refineTopics(topics: ReportTopic[], minThemePct: number): ReportTopic[] {
   const out: ReportTopic[] = [];
 
   for (const t of topics) {
-    const terms = t.terms.filter((term) => !usedTerms.has(term));
+    const terms = t.terms;
     if (terms.length < 2) continue;
 
     if (t.kind === "theme") {
-      if (t.messagePercent < MIN_THEME_MESSAGE_PERCENT) continue;
+      if (t.messagePercent < minThemePct) continue;
       const lead = pickThemeLead(terms);
       if (isDiscourseTerm(lead) && discourseRatio(terms) >= 0.75) continue;
+      if (out.some((o) => o.kind === "theme" && jaccard(terms, o.terms) > 0.72)) continue;
     }
-
-    const overlap = jaccard(terms, [...usedTerms]);
-    if (overlap > 0.55 && t.kind === "theme") continue;
-
-    for (const term of terms) usedTerms.add(term);
 
     const lead = t.kind === "theme" ? pickThemeLead(terms) : terms[0]!;
     const sub =
@@ -272,6 +303,8 @@ function mergeSimilarTopics(topics: ReportTopic[]): ReportTopic[] {
 }
 
 function pickThemeLead(terms: string[]): string {
+  const specific = terms.find((t) => !isDiscourseTerm(t) && !isGenericTopicLead(t));
+  if (specific) return specific;
   const clean = terms.find((t) => !isDiscourseTerm(t));
   return clean ?? terms[0] ?? "주제";
 }

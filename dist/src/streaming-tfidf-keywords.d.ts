@@ -16,6 +16,8 @@ export declare class StreamingTfidfKeywords {
     addDocument(raw: string): void;
     /** Kiwi 토큰을 한 번만 계산했을 때 */
     addDocumentTokens(tokens: string[]): void;
+    /** minDf 통과 전체 후보 — dual-lane merge 입력 */
+    collectKeywordCandidates(options?: KeywordExtractOptions): KeywordRankItem[];
     extractKeywordItems(options?: KeywordExtractOptions): KeywordRankItem[];
     private prunePair;
 }

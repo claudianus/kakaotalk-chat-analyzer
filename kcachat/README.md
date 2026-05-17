@@ -29,6 +29,15 @@ npx kcachat@latest "C:\경로\KakaoTalk_Chat_....csv"
 - 확인: `npx kcachat@latest --version`
 - 오프라인·고정: `--bundled` 또는 `KCA_BUNDLED=1`
 
+## 환경 변수 (본체와 동일)
+
+| 변수 | 설명 |
+|------|------|
+| `KCA_PRESET` | `speed` · `balanced` · `quality` · `custom` |
+| `KCA_SEMANTIC_MODEL` | 임베딩 HF/Xenova id |
+| `KCA_LLM` | `1`이면 LLM 서사(custom/quality) |
+| `KCA_NO_SEMANTIC` | `1`이면 시맨틱 끔 |
+
 ## provenance
 
 `kcachat`로 만든 리포트에는 생성 도구에 `kcachat … → kca …`가 기록됩니다.

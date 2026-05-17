@@ -1,4 +1,8 @@
+import { getPresetEffectiveFlags } from "./analysis-preset.js";
 export function resolveAnalysisProfile(options) {
+    const preset = getPresetEffectiveFlags(options);
+    if (preset.profile === "fast")
+        return "fast";
     if (options?.worker === true || process.env.KCA_PROFILE === "fast")
         return "fast";
     return "quality";

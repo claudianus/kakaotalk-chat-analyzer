@@ -6,6 +6,14 @@ export class MessageReservoir {
     constructor(cap = 480) {
         this.cap = cap;
     }
+    capacity() {
+        return this.cap;
+    }
+    growTo(newCap) {
+        if (newCap <= this.cap)
+            return;
+        this.cap = newCap;
+    }
     push(message) {
         this.seen += 1;
         if (this.buf.length < this.cap) {

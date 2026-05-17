@@ -1,4 +1,5 @@
 import type { BuildReportOptions } from "./analyze-pool.js";
+import { getPresetEffectiveFlags } from "./analysis-preset.js";
 
 export type AnalysisProfile = "quality" | "fast";
 
@@ -10,6 +11,8 @@ export interface AnalysisProfileSettings {
 }
 
 export function resolveAnalysisProfile(options?: BuildReportOptions): AnalysisProfile {
+  const preset = getPresetEffectiveFlags(options);
+  if (preset.profile === "fast") return "fast";
   if (options?.worker === true || process.env.KCA_PROFILE === "fast") return "fast";
   return "quality";
 }

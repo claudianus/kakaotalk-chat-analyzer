@@ -1,7 +1,7 @@
 import type { ReportData } from "./types.js";
 
 export function hasNarrativeSection(data: ReportData): boolean {
-  return data.narrative.paragraphs.length > 0;
+  return data.narrative.paragraphs.length > 0 || Boolean(data.llmInsights);
 }
 
 export function hasTimelineSection(data: ReportData): boolean {

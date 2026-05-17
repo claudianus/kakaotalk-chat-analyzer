@@ -4,33 +4,48 @@ import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./e
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
-import { formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
+import { DEFAULT_KOREAN_SEMANTIC_MODEL, formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
+import { configureTransformersEnv } from "./ml-runtime.js";
 const MIN_SAMPLES = 48;
 const EMBED_BATCH = 12;
 let pipelinePromise = null;
 let loadedModelId = null;
-async function loadPipeline() {
-    const modelId = semanticEmbeddingModelId();
+async function loadPipelineForModel(modelId) {
+    let mod;
+    try {
+        mod = await import("@xenova/transformers");
+    }
+    catch {
+        throw new Error("[kca] 시맨틱 키워드는 optional dependency @xenova/transformers 가 필요합니다. " +
+            "재설치하거나 --no-semantic-keywords 로 끄세요.");
+    }
+    const { env, pipeline } = mod;
+    await configureTransformersEnv(mod);
+    env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
+    env.allowLocalModels = true;
+    process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}, 최초 1회)\n`);
+    return pipeline("feature-extraction", modelId, {
+        quantized: true,
+    });
+}
+async function loadPipeline(buildOptions, messageCount) {
+    const modelId = semanticEmbeddingModelId(buildOptions, messageCount);
     if (pipelinePromise && loadedModelId === modelId)
         return pipelinePromise;
     pipelinePromise = null;
     loadedModelId = modelId;
     pipelinePromise = (async () => {
-        let mod;
         try {
-            mod = await import("@xenova/transformers");
+            return await loadPipelineForModel(modelId);
         }
-        catch {
-            throw new Error("[kca] 시맨틱 키워드는 optional dependency @xenova/transformers 가 필요합니다. " +
-                "재설치하거나 --no-semantic-keywords 로 끄세요.");
+        catch (error) {
+            if (modelId === DEFAULT_KOREAN_SEMANTIC_MODEL)
+                throw error;
+            const msg = error instanceof Error ? error.message : String(error);
+            process.stderr.write(`[kca] 시맨틱 모델 ${modelId} 로드 실패 → ${DEFAULT_KOREAN_SEMANTIC_MODEL}: ${msg}\n`);
+            loadedModelId = DEFAULT_KOREAN_SEMANTIC_MODEL;
+            return loadPipelineForModel(DEFAULT_KOREAN_SEMANTIC_MODEL);
         }
-        const { env, pipeline } = mod;
-        env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
-        env.allowLocalModels = true;
-        process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}, 최초 1회)\n`);
-        return pipeline("feature-extraction", modelId, {
-            quantized: true,
-        });
     })();
     return pipelinePromise;
 }
@@ -51,8 +66,8 @@ function tensorToRows(tensor) {
     }
     return out;
 }
-async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampleCap(messages.length)) {
-    const modelId = semanticEmbeddingModelId();
+async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampleCap(messages.length), buildOptions) {
+    const modelId = loadedModelId ?? semanticEmbeddingModelId(buildOptions);
     const subsampled = subsampleSemanticMessages(messages, maxSamples);
     const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
     const vectors = [];
@@ -72,8 +87,8 @@ export async function extractSemanticKeywords(messages, options) {
     if (samples.length < MIN_SAMPLES)
         return [];
     const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
-    const pipe = await loadPipeline();
-    const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap);
+    const pipe = await loadPipeline(options.buildOptions, options.corpusMessages ?? samples.length);
+    const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap, options.buildOptions);
     if (vectors.length < MIN_SAMPLES)
         return [];
     const tokenBags = samples.map((m) => tokenizeForKeywords(m));

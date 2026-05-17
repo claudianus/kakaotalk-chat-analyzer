@@ -78,6 +78,41 @@ function assertHtmlStructure(html, label) {
   if (html.length < 8000) {
     throw new Error(`[${label}] HTML suspiciously small (${html.length} bytes)`);
   }
+  const chartIds = ["chart-hours", "chart-kw-cloud", "chart-participants-chars"];
+  for (const id of chartIds) {
+    if (!html.includes(`id="${id}"`)) {
+      throw new Error(`[${label}] missing chart container #${id}`);
+    }
+  }
+}
+
+/** 대용량 코퍼스: 의미 테마 ≥2 또는 상위 키워드가 테마 terms에 포함 */
+function assertTopicSanity(data, label) {
+  const n = data.summary?.totalMessages ?? 0;
+  if (n < 10_000) return;
+  const themes = (data.topics ?? []).filter((t) => t.kind === "theme");
+  if (themes.length >= 2) return;
+  const topKw = data.keywords?.[0]?.label;
+  if (!topKw) return;
+  const inTheme = themes.some((t) => t.terms?.some((term) => topKw.includes(term) || term.includes(topKw)));
+  if (!inTheme) {
+    throw new Error(
+      `[${label}] topics: ${themes.length} themes for ${n.toLocaleString()} messages; top keyword "${topKw}" not in theme terms`,
+    );
+  }
+}
+
+/** 대용량 코퍼스에서 dual-lane 키워드 1위 df 하한 */
+function assertKeywordSanity(data, label) {
+  const n = data.summary?.totalMessages ?? 0;
+  if (n < 10_000 || !data.keywords?.length) return;
+  const top = data.keywords[0];
+  const minDf = n >= 50_000 ? 40 : 20;
+  if (top.count < minDf) {
+    throw new Error(
+      `[${label}] top keyword "${top.label}" df=${top.count} < ${minDf} (${n.toLocaleString()} messages)`,
+    );
+  }
 }
 
 async function generateOne(csvPath, opts) {
@@ -102,6 +137,8 @@ async function generateOne(csvPath, opts) {
   });
   const html = renderReportHtml({ ...data, provenance });
   assertHtmlStructure(html, slug);
+  assertKeywordSanity(data, slug);
+  assertTopicSanity(data, slug);
 
   const htmlPath = join(outDir, "index.html");
   await writeFile(htmlPath, html, "utf8");

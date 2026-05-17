@@ -2,14 +2,18 @@ import { stat } from "node:fs/promises";
 import { Worker } from "node:worker_threads";
 import { fileURLToPath } from "node:url";
 import { resolveAnalysisProfile } from "./analysis-profile.js";
+import { getPresetEffectiveFlags } from "./analysis-preset.js";
 const WORKER_THRESHOLD_BYTES = 3 * 1024 * 1024;
 export async function shouldUseAnalyzeWorker(filePath, options) {
     if (options?.worker === false)
         return false;
     if (options?.semanticKeywords === true)
         return false;
+    if (options?.sentiment === true)
+        return false;
+    const presetFlags = getPresetEffectiveFlags(options);
     const profile = resolveAnalysisProfile(options);
-    const wantWorker = options?.worker === true || profile === "fast";
+    const wantWorker = options?.worker === true || presetFlags.preferWorker || profile === "fast";
     if (!wantWorker)
         return false;
     try {

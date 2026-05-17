@@ -7,8 +7,8 @@ export const CHART_CDN_HEAD = ``;
 
 /** body 끝: 차트 라이브러리 — defer 금지(인라인 init보다 반드시 먼저 실행) */
 export const CHART_CDN_BODY = `
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" crossorigin="anonymous" onerror="this.onerror=null;this.src='https://unpkg.com/echarts@5.6.0/dist/echarts.min.js'"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js" crossorigin="anonymous" onerror="this.onerror=null;this.src='https://unpkg.com/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js'"></script>
 `;
 
 /** @deprecated styles live in src/report/css — bundled via report-styles.ts */
@@ -19,8 +19,16 @@ export interface ChartPayload {
   monthly: { label: string; count: number }[];
   daily: { date: string; count: number }[];
   keywords: { label: string; count: number }[];
+  keywordsDistinctive: { label: string; count: number }[];
   domains: { label: string; count: number }[];
   participants: { alias: string; messages: number; sharePercent: number }[];
+  participantsByCharacters: { alias: string; characters: number; characterSharePercent: number }[];
+  sentiment: {
+    positivePercent: number;
+    negativePercent: number;
+    neutralPercent: number;
+    compoundScore: number;
+  } | null;
   calendarCells: { date: string; count: number }[];
   burstDates: string[];
   totalParticipants: number;
@@ -48,12 +56,26 @@ export function buildChartPayload(data: ReportData): ChartPayload {
     monthly: data.monthly.map((m) => ({ label: m.date, count: m.count })),
     daily: data.daily,
     keywords: data.keywords,
+    keywordsDistinctive: data.keywordsDistinctive,
     domains: data.domains.slice(0, 24),
     participants: data.participants.slice(0, 24).map((p) => ({
       alias: p.alias,
       messages: p.messages,
       sharePercent: p.sharePercent,
     })),
+    participantsByCharacters: data.participantsByCharacters.slice(0, 10).map((p) => ({
+      alias: p.alias,
+      characters: p.characters,
+      characterSharePercent: p.characterSharePercent,
+    })),
+    sentiment: data.sentiment
+      ? {
+          positivePercent: data.sentiment.positivePercent,
+          negativePercent: data.sentiment.negativePercent,
+          neutralPercent: data.sentiment.neutralPercent,
+          compoundScore: data.sentiment.compoundScore,
+        }
+      : null,
     calendarCells: data.story.calendarWeeks
       .flatMap((w) => w.cells)
       .filter((c) => c.date && c.count > 0)
@@ -61,7 +83,7 @@ export function buildChartPayload(data: ReportData): ChartPayload {
     burstDates: data.burstDays.map((b) => b.date),
     totalParticipants: data.participants.length,
     topicsThemes: topicsThemesOnly(data.topics)
-      .slice(0, 8)
+      .slice(0, 12)
       .map((t) => ({ title: t.title, terms: t.terms, messagePercent: t.messagePercent })),
     topicsPeriods: isShortActivitySpan(data.daily)
       ? []
@@ -136,13 +158,23 @@ export function renderChartDeck(data: ReportData): string {
     <article class="viz-card span-12">
       <h3>키워드 순위 · 메시지 등장 횟수</h3>
       <p class="viz-hint">막대 길이 = 1위 대비 비율 · 전체 ${formatNumber(kw)}개 · 워드클라우드는 위 카드</p>
-      ${renderKeywordRankedList(data.keywords)}
+      <div class="kw-sort-toggle" role="group" aria-label="키워드 정렬">
+        <button type="button" class="kw-sort-btn is-active" data-kw-sort="freq" aria-pressed="true">빈도 순</button>
+        <button type="button" class="kw-sort-btn" data-kw-sort="distinct" aria-pressed="false">특이어 순</button>
+      </div>
+      <div id="kw-ranked-host">
+        <div id="kw-ranked-freq">${renderKeywordRankedList(data.keywords)}</div>
+        <div id="kw-ranked-distinct" hidden>${renderKeywordRankedList(data.keywordsDistinctive)}</div>
+      </div>
     </article>
     <article class="viz-card span-6">
       <h3>참여자 상위</h3>
       <p class="viz-hint">전체 ${formatNumber(data.participants.length)}명 · 도넛 상위 10명 + 기타</p>
       <div id="chart-participants" class="chart-box" role="img" aria-label="참여자 차트"></div>
       ${renderParticipantLegend(data.participants)}
+      <h3 style="margin-top:14px">글자 수 상위</h3>
+      <p class="viz-hint">총 글자 수 기준 상위 10명</p>
+      <div id="chart-participants-chars" class="chart-box compact" role="img" aria-label="글자 수 막대 차트"></div>
     </article>
     <article class="viz-card span-6">
       <h3>공유 도메인</h3>
@@ -199,6 +231,7 @@ function renderKeywordRankedList(items: { label: string; count: number }[]): str
 
 export const CHARTS_INIT_SCRIPT = `
     (function () {
+      var kcaDyadBoot = function () {};
       function run() {
       var dataEl = document.getElementById("kca-chart-data");
       if (!dataEl) return;
@@ -273,11 +306,11 @@ export const CHARTS_INIT_SCRIPT = `
         var chart = init("chart-dyad", Object.assign(baseOpt(), {
           animation: false,
           tooltip: { position: "top", formatter: function (p) { var v = p.value[2]; return ix.aliases[p.value[1]] + " → " + ix.aliases[p.value[0]] + ": " + v; } },
-          grid: { left: Math.max(dg.leftCat, 80), right: dg.right, top: dg.top, bottom: 56 },
+          grid: { left: Math.max(dg.leftCat, 80), right: dg.right, top: dg.top, bottom: Math.max(dg.bottom, 72) },
           xAxis: {
             type: "category",
             data: ix.aliases,
-            axisLabel: { color: muted, fontSize: dg.fs, rotate: 32 },
+            axisLabel: { color: muted, fontSize: dg.fs, rotate: 28, margin: 10 },
             splitArea: { show: true, areaStyle: { color: splitFill } },
           },
           yAxis: {
@@ -293,7 +326,8 @@ export const CHARTS_INIT_SCRIPT = `
             calculable: true,
             orient: "horizontal",
             left: "center",
-            bottom: 4,
+            bottom: 0,
+            itemHeight: dg.w < 380 ? 72 : 88,
             inRange: { color: [heatLo, dark ? "#2a9d8f" : "#7ecfc2", dark ? "#3ee8c5" : "#0f6b5c", heatHi] },
           },
           series: [{
@@ -301,9 +335,14 @@ export const CHARTS_INIT_SCRIPT = `
             data: heat,
             progressive: 0,
             animation: false,
-            label: { show: false },
+            label: {
+              show: true,
+              color: text,
+              fontSize: dg.w < 380 ? 8 : 10,
+              formatter: function (p) { var v = p.value[2]; return v > 0 ? String(v) : ""; },
+            },
             emphasis: {
-              label: { show: true, color: text, fontSize: dg.w < 380 ? 9 : 10 },
+              label: { show: true, color: text, fontSize: dg.w < 380 ? 9 : 11 },
               itemStyle: { shadowBlur: 12, shadowColor: dark ? "rgba(62,232,197,0.5)" : "rgba(15,107,92,0.35)" },
             },
             itemStyle: { borderWidth: 0 },
@@ -313,7 +352,7 @@ export const CHARTS_INIT_SCRIPT = `
         return chart;
       }
       function bootDyadWhenVisible(data) {
-        if (!data.interaction || !data.interaction.aliases.length) return;
+        if (!data || !data.interaction || !data.interaction.aliases.length) return;
         var el = document.getElementById("chart-dyad");
         if (!el || dyadChartStarted) return;
         function startDyad() {
@@ -338,6 +377,7 @@ export const CHARTS_INIT_SCRIPT = `
           if (r.top < window.innerHeight + 200 && r.bottom > 0) startDyad();
         }, 200);
       }
+      kcaDyadBoot = bootDyadWhenVisible;
       function resizeAll() {
         charts.forEach(function (c) {
           try { c.resize(); } catch (e) {}
@@ -389,7 +429,7 @@ export const CHARTS_INIT_SCRIPT = `
         if (document.documentElement.getAttribute("data-theme")) return;
         disposeCharts();
         run();
-        bootDyadWhenVisible(data);
+        kcaDyadBoot(data);
       }
       if (mqOsTheme && mqOsTheme.addEventListener) {
         mqOsTheme.addEventListener("change", onOsThemeChange);
@@ -566,10 +606,51 @@ export const CHARTS_INIT_SCRIPT = `
         }));
       }
 
+      if (data.participantsByCharacters && data.participantsByCharacters.length && document.getElementById("chart-participants-chars")) {
+        var pcEl = document.getElementById("chart-participants-chars");
+        var pcg = layout(pcEl);
+        var pcTop = data.participantsByCharacters.slice(0, 10);
+        init("chart-participants-chars", Object.assign(baseOpt(), {
+          grid: { left: Math.max(pcg.leftCat, pcg.w < 380 ? 72 : 88), right: pcg.right, top: pcg.top, bottom: pcg.bottom },
+          xAxis: { type: "value", axisLabel: { color: muted, fontSize: pcg.fs } },
+          yAxis: {
+            type: "category",
+            data: pcTop.map(function (p) { return p.alias; }).reverse(),
+            axisLabel: { color: text, fontSize: pcg.fs },
+          },
+          series: [{
+            type: "bar",
+            data: pcTop.map(function (p) { return p.characters; }).reverse(),
+            itemStyle: { borderRadius: [0, 6, 6, 0], color: accent2 },
+          }],
+        }));
+      }
+
+      if (data.sentiment && document.getElementById("chart-sentiment")) {
+        var sentEl = document.getElementById("chart-sentiment");
+        var sg = layout(sentEl);
+        var s = data.sentiment;
+        init("chart-sentiment", Object.assign(baseOpt(), {
+          tooltip: { trigger: "item", formatter: "{b}: {c}%" },
+          legend: { bottom: 0, textStyle: { color: muted, fontSize: sg.fs } },
+          series: [{
+            type: "pie",
+            radius: sg.w < 380 ? ["32%", "58%"] : ["35%", "62%"],
+            center: ["50%", "46%"],
+            data: [
+              { name: "긍정", value: s.positivePercent },
+              { name: "중립", value: s.neutralPercent },
+              { name: "부정", value: s.negativePercent },
+            ],
+            label: { color: text, fontSize: sg.fs },
+          }],
+        }));
+      }
+
       if (data.topicsThemes && data.topicsThemes.length && document.getElementById("chart-topics")) {
         var topEl = document.getElementById("chart-topics");
         var tg = layout(topEl);
-        var topics = data.topicsThemes.slice(0, 8);
+        var topics = data.topicsThemes.slice(0, 12);
         init("chart-topics", Object.assign(baseOpt(), {
           grid: { left: Math.max(tg.leftCat, tg.w < 380 ? 72 : 96), right: tg.right, top: tg.top, bottom: tg.bottom },
           xAxis: { type: "value", axisLabel: { color: muted, fontSize: tg.fs, formatter: "{value}%" } },
@@ -601,10 +682,43 @@ export const CHARTS_INIT_SCRIPT = `
         }));
       }
 
+      (function bindKwSort() {
+        var freqEl = document.getElementById("kw-ranked-freq");
+        var distEl = document.getElementById("kw-ranked-distinct");
+        if (!freqEl || !distEl) return;
+        var listF = data.keywords || [];
+        var listD = data.keywordsDistinctive || listF;
+        document.querySelectorAll("[data-kw-sort]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var mode = btn.getAttribute("data-kw-sort");
+            document.querySelectorAll("[data-kw-sort]").forEach(function (b) {
+              var on = b === btn;
+              b.classList.toggle("is-active", on);
+              b.setAttribute("aria-pressed", on ? "true" : "false");
+            });
+            freqEl.hidden = mode !== "freq";
+            distEl.hidden = mode !== "distinct";
+            var src = mode === "distinct" ? listD : listF;
+            var cloudEl = document.getElementById("chart-kw-cloud");
+            if (cloudEl && typeof echarts !== "undefined") {
+              var inst = echarts.getInstanceByDom(cloudEl);
+              if (inst) {
+                inst.setOption({
+                  series: [{
+                    data: src.slice(0, 100).map(function (k) { return { name: k.label, value: k.count }; }),
+                  }],
+                });
+              }
+            }
+          });
+        });
+      })();
+
       requestAnimationFrame(resizeAll);
       setTimeout(resizeAll, 150);
       window.addEventListener("resize", resizeAll);
       window.addEventListener("load", resizeAll);
+      kcaDyadBoot(data);
       }
       function whenVisible() {
         var anchor = document.getElementById("s-viz") || document.querySelector(".chart-box");
@@ -631,10 +745,15 @@ export const CHARTS_INIT_SCRIPT = `
             run();
           }
         }, 200);
+        setTimeout(function () {
+          if (started) return;
+          started = true;
+          try { io.disconnect(); } catch (e) {}
+          run();
+        }, 300);
       }
       function bootCharts() {
         if (typeof echarts === "undefined") return false;
-        bootDyadWhenVisible(data);
         whenVisible();
         return true;
       }

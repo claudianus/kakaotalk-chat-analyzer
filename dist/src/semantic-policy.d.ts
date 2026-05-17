@@ -6,11 +6,13 @@ export declare function semanticSampleCap(messageCount: number): number;
 export declare function semanticReservoirCap(estimatedMessages?: number): number;
 /** 리저보어·임베딩 상한 초과 시 결정적 subsample (회귀·재현용) */
 export declare function subsampleSemanticMessages(messages: string[], cap: number): string[];
-/** 한국어 MTEB 경량 1위급 — intfloat/multilingual-e5-small (Xenova ONNX) */
+/** balanced·speed — Xenova ONNX (검증됨) */
 export declare const DEFAULT_KOREAN_SEMANTIC_MODEL = "Xenova/multilingual-e5-small";
+/** quality preset — dragonkue ko-v2 (ONNX 미호스팅 시 런타임 fallback) */
+export declare const QUALITY_KOREAN_SEMANTIC_MODEL = "dragonkue/multilingual-e5-small-ko-v2";
 /** 이전 기본값(롤백: `KCA_SEMANTIC_MODEL` 로 지정) */
 export declare const LEGACY_SEMANTIC_MODEL = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
-export declare function semanticEmbeddingModelId(): string;
+export declare function semanticEmbeddingModelId(options?: BuildReportOptions, messageCount?: number): string;
 /** E5 계열은 대칭 클러스터링에도 MS 권장 `query:` 접두사 사용 */
 export declare function needsE5QueryPrefix(modelId: string): boolean;
 export declare function formatTextForEmbedding(text: string, modelId?: string): string;
@@ -21,3 +23,5 @@ export declare function shouldCollectSemanticSamples(messageCount: number): bool
  * - `KCA_NO_SEMANTIC=1` / `--no-semantic-keywords` 로 끔
  */
 export declare function resolveSemanticKeywords(options: BuildReportOptions | undefined, prepass: HeuristicPrepassCollector, sampleMessages: string[]): boolean;
+/** preset·환경에 따른 임베딩 상한 (balanced 600 / quality 1200) */
+export declare function effectiveSemanticSampleCap(messageCount: number, options?: BuildReportOptions): number;

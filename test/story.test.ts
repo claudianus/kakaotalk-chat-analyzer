@@ -42,6 +42,7 @@ const participants: ParticipantStat[] = [
     attachmentMessages: 12,
     linkMessages: 5,
     sharePercent: 60,
+    characterSharePercent: 75,
     nightMessages: 8,
     maxConsecutive: 7,
   },
@@ -53,6 +54,7 @@ const participants: ParticipantStat[] = [
     attachmentMessages: 2,
     linkMessages: 1,
     sharePercent: 40,
+    characterSharePercent: 25,
     nightMessages: 2,
     maxConsecutive: 3,
   },
@@ -169,6 +171,7 @@ test("buildReportStory limits duplicate persona titles", () => {
     attachmentMessages: i === 2 ? 30 : 2,
     linkMessages: i === 3 ? 20 : 1,
     sharePercent: i === 0 ? 35 : 8,
+    characterSharePercent: i === 0 ? 30 : 10,
     nightMessages: i === 1 ? 40 : i === 4 ? 5 : 12,
     maxConsecutive: i === 5 ? 15 : 4,
   }));

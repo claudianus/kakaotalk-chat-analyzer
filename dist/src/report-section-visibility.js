@@ -1,5 +1,5 @@
 export function hasNarrativeSection(data) {
-    return data.narrative.paragraphs.length > 0;
+    return data.narrative.paragraphs.length > 0 || Boolean(data.llmInsights);
 }
 export function hasTimelineSection(data) {
     return data.timeline.length > 0;
