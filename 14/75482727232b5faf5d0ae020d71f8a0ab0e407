@@ -1,0 +1,131 @@
+dist/src/sender-message-reservoir.js.map
+  ai_agent 1
+src/llm-policy.ts
+  s_23ea5bc305de1c::t_cd09c8af162fd9 28,30
+src/report-innovation.ts
+  s_23ea5bc305de1c::t_2ead71e2adfc94 40
+dist/src/report-config.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 4,10,16,22,28
+dist/src/analysis-preset.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 35-36
+src/keyword-seed-topics.ts
+  s_23ea5bc305de1c::t_27056b6269bf0e 36,42,45-49
+src/analysis-capability.ts
+  s_23ea5bc305de1c::t_e3c65da2adf9f8 57
+scripts/bench-preset.mjs
+  s_23ea5bc305de1c::t_87533caa208229 29-35
+dist/src/message-reservoir.js.map
+  ai_agent 1
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 157,161
+src/report-config.ts
+  s_23ea5bc305de1c::t_d073ff06d9e543 17,23,29
+  s_23ea5bc305de1c::t_1f3852cdfd9669 5
+  s_23ea5bc305de1c::t_d38686f7f3ceae 11
+dist/src/message-reservoir.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 15-16
+src/sentiment-policy.ts
+  s_23ea5bc305de1c::t_172a7382555c2d 28-29
+  s_23ea5bc305de1c::t_001c980190f764 52
+dist/src/aggregator.js.map
+  ai_agent 1
+src/analysis-preset.ts
+  s_23ea5bc305de1c::t_9b24634c4bb58b 51-56
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_3266d8518afe04 92,94
+  s_23ea5bc305de1c::t_9e99f123269413 128
+src/sender-message-reservoir.ts
+  s_23ea5bc305de1c::t_b19f8f42906ed4 17
+README.md
+  s_23ea5bc305de1c::t_6f977b6ed7c671 234
+dist/src/semantic-keywords.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 69-70,91
+dist/src/aggregator.d.ts
+  s_23ea5bc305de1c::t_d354e4cebe4d98 2,99
+dist/src/sentiment-policy.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 14-15,38-39
+dist/src/analysis-preset.js.map
+  ai_agent 1
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/report-innovation.js.map
+  ai_agent 1
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 58
+src/message-reservoir.ts
+  s_23ea5bc305de1c::t_d73aab3ff5340e 17
+dist/src/llm-input.js.map
+  ai_agent 1
+dist/src/sentiment-policy.js.map
+  ai_agent 1
+dist/src/analysis-preset.d.ts
+  s_23ea5bc305de1c::t_d354e4cebe4d98 16
+scripts/report-visual-qa.mjs
+  s_23ea5bc305de1c::t_bbc1c4e0c207b0 98
+dist/src/report-provenance.js.map
+  ai_agent 1
+scripts/shop-search-audit.mjs
+  s_23ea5bc305de1c::t_c6bcf85d20f299 11
+  s_23ea5bc305de1c::t_9a997be0408fdf 19-22
+dist/src/report-config.js.map
+  ai_agent 1
+scripts/bench-semantic.mjs
+  s_23ea5bc305de1c::t_3cd2e6f9fcfb06 20
+src/aggregator.ts
+  s_23ea5bc305de1c::t_27d908a70be925 34
+  s_23ea5bc305de1c::t_d17d8e10a5cf61 232
+  s_23ea5bc305de1c::t_acbf07850816c5 235
+dist/src/llm-policy.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 23,27
+dist/src/report-innovation.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 36
+dist/src/llm-pull.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 3,6,13-17,20,23,33
+src/llm-pull.ts
+  s_23ea5bc305de1c::t_aad4d6c9378fcf 15-20,23,26
+  s_23ea5bc305de1c::t_a8c74733b73b7c 36
+  s_23ea5bc305de1c::t_fc557b485b4b17 3
+dist/src/report-provenance.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 7
+dist/src/llm-input.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 4,11
+src/analysis.ts
+  s_23ea5bc305de1c::t_3c3ed819cc980e 73
+dist/src/analysis-capability.js.map
+  ai_agent 1
+dist/src/keyword-seed-topics.js.map
+  ai_agent 1
+dist/src/llm-policy.js.map
+  ai_agent 1
+dist/src/llm-pull.js.map
+  ai_agent 1
+dist/src/analysis-capability.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 32
+src/llm-input.ts
+  s_23ea5bc305de1c::t_33738d1b5d3d26 6
+  s_23ea5bc305de1c::t_b1663a2af8d85e 16
+dist/src/keyword-seed-topics.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 25,31,34-37,39
+src/report-provenance.ts
+  s_23ea5bc305de1c::t_a7791f85d42719 35-37
+dist/src/sender-message-reservoir.js
+  s_23ea5bc305de1c::t_d354e4cebe4d98 15-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "1475482727232b5faf5d0ae020d71f8a0ab0e407",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
