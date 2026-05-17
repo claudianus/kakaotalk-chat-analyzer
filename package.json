@@ -28,6 +28,7 @@
     "bench:stream": "npm run build && node scripts/bench-stream.mjs",
     "keyword:diff": "npm run build && node scripts/keyword-diff.mjs",
     "keyword:audit": "npm run build && node scripts/keyword-audit.mjs",
+    "sync-docs-version": "node scripts/sync-docs-version.mjs",
     "report:qa": "npm run build && node scripts/report-visual-qa.mjs",
     "report:qa:serve": "node scripts/qa-serve.mjs",
     "report:viewport": "npm run build && node scripts/report-viewport-check.mjs",

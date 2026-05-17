@@ -14,7 +14,10 @@ import { homedir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildReportFromExport } from "../dist/src/analysis.js";
+import { getKiwiRuntime } from "../dist/src/kiwi-runtime.js";
+import { buildReportProvenance } from "../dist/src/report-provenance.js";
 import { renderReportHtml } from "../dist/src/report.js";
+import { VERSION } from "../dist/src/version.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outRoot = resolve(process.env.KCA_QA_OUT ?? join(root, ".qa-reports"));
@@ -84,6 +87,8 @@ function assertHtmlStructure(html, label) {
     ["ECharts", /echarts/i],
     ["키워드", /키워드|keyword/i],
     ["참여자", /참여|participant/i],
+    ["Provenance", /id="kca-provenance"/],
+    ["Version", new RegExp(`"version":"${VERSION.replace(/\./g, "\\.")}"`)],
     ["<!DOCTYPE html>", /<!DOCTYPE html>/i],
   ];
   const missing = must.filter(([, re]) => !re.test(html)).map(([n]) => n);
@@ -106,7 +111,16 @@ async function generateOne(csvPath, opts) {
     worker: opts.worker,
     semanticKeywords: opts.semantic ? undefined : false,
   });
-  const html = renderReportHtml(data);
+  const provenance = buildReportProvenance(data, {
+    privacy: "public-masked",
+    top: 40,
+    workerRequested: false,
+    workerUsed: false,
+    semanticRequested: opts.semantic ? "auto" : false,
+    kiwiAvailable: getKiwiRuntime() != null,
+    htmlBytes: 0,
+  });
+  const html = renderReportHtml({ ...data, provenance });
   assertHtmlStructure(html, slug);
 
   const htmlPath = join(outDir, "index.html");
@@ -151,6 +165,7 @@ const CHECKLIST = `
 - [ ] 라이트/다크/시스템 테마 전환
 - [ ] 모바일 폭(~390px): 가로 스크롤·겹침 없음
 - [ ] 콘솔 에러 없음 (browser_console_messages)
+- [ ] Provenance: 생성 도구 kca 버전 · 리포트 정보 접기
 `;
 
 async function main() {

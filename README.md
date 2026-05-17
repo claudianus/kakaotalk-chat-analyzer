@@ -99,42 +99,34 @@ npm run bench:stream -- 100000
 
 생성되는 `index.html`은 **브라우저만** 있으면 열리는 단일 파일입니다. (인터랙티브 차트는 CDN으로 ECharts를 불러옵니다.)
 
-- **⓪ Wrapped**: 채팅방 규모·리듬·MVP·급증일 등 카드형 한 장면 요약
-- **빠른 이동**: Wrapped · 숫자 요약 · 인터랙티브 차트 · 표·막대 모음 · 용어 설명
-- **인터랙티브 차트**: 워드클라우드, 시간대·요일·월별, 일별 캘린더 히트맵, 키워드 막대(80) + **전체 120개 표**
-- **연간 잔디**: 활동 **기간만** 주 단위(53주 고정 아님), 호버 시 건수 툴팁
-- **숫자·인사이트**: 지니(참여 쏠림)·리듬 점수·응답 간격(초/분 한국어) 등
-- **주제 맵**: 공기 그래프 군집 + 월별 **c-TF-IDF**로 이 방의 테마·시기별 화제
-- **키워드**: **Kiwi** 명사·고유명사 + **BM25/PMI** + 메시지 **등장 횟수**, 오픈채팅·잡음어 필터
+- **⓪ Wrapped · 스토리**: 카드형 한 장면 요약, **페르소나·챕터**, **활동 기간/연간 그리드**(짧은 기간은 「활동 기간 그리드」), **이벤트 스파인**, 방 프로필·타임라인
+- **빠른 이동**: Wrapped · 페르소나 · 연간 그리드 · 숫자 요약 · 하이라이트 · 주제 맵 · 인터랙티브 차트 · 용어 설명
+- **혁신 레이어**: **dyad**(누가 누구에게 답하는가)·기간 비교·내러티브·브러시 기간 탐색
+- **인터랙티브 차트**: 워드클라우드, 시간대·**요일 7색**·월별, **대화 테마 · c-TF-IDF**, 키워드 막대(상위 ~30, 막대 내 라벨) + **전체 120개 표**
+- **숫자·인사이트**: 지니·리듬 점수·응답 간격(초/분)·하이라이트·시스템 알림 분리
+- **키워드**: **Kiwi** + **BM25/PMI** + 한국어 방 **자동 시맨틱**(e5-small), 오픈채팅·잡음어 필터
 - **참여자**: 말풍선 맵 + 마스킹 닉네임 + 랭킹 테이블
+- **생성 메타 (0.13.3+)**: 사이드 카드 **생성 도구**(`kca` 버전), 접기 **리포트 정보**, `#kca-provenance` JSON — BrewPage 링크로 **어떤 kca로 만들었는지** 확인 가능
 - **BrewPage**: iframe 섹션 점프·외부 링크 안전 처리
-- **테마**: 라이트 / 다크 / 시스템
+- **테마**: 라이트 / 다크 / 시스템 · **OLED glass** 비주얼
 
-원문 메시지·전체 URL은 HTML에 넣지 않습니다(BrewPage 5MiB 한도 고려). **이미 올린 링크는 재업로드해야** UI가 바뀝니다.
+원문 메시지·전체 URL은 HTML에 넣지 않습니다(BrewPage 5MiB 한도 고려). **이미 올린 링크는 재업로드해야** UI·버전 메타가 바뀝니다.
 
 ### 최근
 
 | 버전 | 요약 |
 |------|------|
-| **0.11.1** | ECharts 전 차트 반응형 grid·모바일 말풍선 랭킹·`npm run report:viewport` |
-| **0.11.0** | 반응형 6레이어(모바일~4K)·컨테이너 쿼리·ECharts ResizeObserver·스크롤 리빌 |
-| **0.10.2** | CSS 복구: `.deck-nav` pill 네비·명시 라이트/다크 팔레트(대비)·테마 버튼 동기화 |
-| **0.10.1** | Pretendard 서브셋 CDN·`--kca-font-sans` 순환 참조 수정·카드 radius 토큰 |
-| **0.10.0** | 리포트 CSS **Open Props** 토큰·6레이어 번들(`report-styles.ts`)·시맨틱 컬러 리워크 |
-| **0.9.1** | 리포트 UX: 읽기 진행률·스크롤 스파이 네비·모바일 섹션 메뉴·히어로 바로가기·키워드 CSS 접기 |
-| **0.9.0** | 시맨틱 기본 **`Xenova/multilingual-e5-small`** (한국어 NDCG ~+68% vs MiniLM)·E5 `query:` 접두사 |
-| **0.8.1** | 키워드 랭킹 **메시지 등장 수 우선** (BM25 dl 버그 수정)·떨림 2-gram 제거 |
-| **0.8.0** | **한국어 우선**: 다국어 임베딩·한국어 방 **자동 시맨틱**·userWords 완화 |
-| **0.7.0** | **2단계 스트림**(집계→Kiwi 키워드)·`.kca-glossary`·주제 ECharts·`keyword:audit` CI |
-| **0.6.0** | **`--semantic-keywords`** MiniLM 클러스터 키워드 보조(opt-in) |
-| **0.5.0** | **주제 맵**(c-TF-IDF)·**BM25** 키워드·CSV 사전 스캔(userWords·진행률 %) |
-| **0.4.2** | 키워드 병합(공백+Kiwi)·브랜드 표기 통합·구 dedupe 제거, **진행률 % 기본 표시** |
-| **0.4.1** | Kiwi CI 캐시, `keyword:diff` 스크립트, `KCA_NO_KIWI`, 잡음어·장문 절단 |
-| **0.4.0** | **Kiwi** 형태소 + TF-IDF·PMI 키워드 (KR-WordRank 제거) |
-| **0.3.3** | 하이라이트 문구, 키워드 꼬리 필터, 팩트 매트릭스 중복 정리 |
-| **0.3.2** | 키워드 메시지 히트수, 지니·만/억 표기, 차트 리사이즈 |
-| **0.3.1** | ECharts 로드 순서 수정(빈 차트), 복붙·환영 문구 한국어 |
-| **0.3.0** | ECharts 섹션, 키워드 120, 2026 글래스 UI, Wrapped·잔디 개선 |
+| **0.13.3** | HTML **provenance**: `kca` 버전·`#kca-provenance` JSON·**리포트 정보** `<details>`·`kcachat` → `KCA_INVOKER` |
+| **0.13.2** | 키워드 막대 insideLeft·상위 3색, **활동 기간 그리드**(compact), 주제 테마/기간 분리, dyad visualMap |
+| **0.13.1** | 생성 시각·소요, 이벤트 스파인, 히트맵/참여 pie, 주제맵·키워드 UX |
+| **0.13.0** | dyad·타임라인·내러티브·기간 탐색(혁신 레이어) |
+| **0.12.0** | OLED glassmorphism 리포트 비주얼 |
+| **0.11.2** | lazy charts·Playwright `report:screenshots` |
+| **0.11.1** | ECharts 반응형 grid·모바일 말풍선·`npm run report:viewport` |
+| **0.11.0** | 반응형 6레이어·ResizeObserver·스크롤 리빌 |
+| **0.10.x** | Open Props CSS 번들·테마 대비·Pretendard ([Releases](https://github.com/claudianus/kakaotalk-chat-analyzer/releases)에서 0.10.0–0.10.2) |
+| **0.9.x** | e5-small 시맨틱 기본·스크롤 스파이 네비 ([Releases](https://github.com/claudianus/kakaotalk-chat-analyzer/releases)) |
+| **0.3–0.8** | Kiwi·BM25·주제 맵·한국어 시맨틱·스트림 2단계 등 — [Releases](https://github.com/claudianus/kakaotalk-chat-analyzer/releases) 참고 |
 
 ---
 
@@ -170,7 +162,7 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.8.0`. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.13.3`. 리포트 사이드 카드·`grep kca-provenance`로 실제 생성 버전을 확인하세요. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
 
 CSV와 같은 폴더에 **`.kca-glossary.txt`**(한 줄에 한 단어)를 두면 Kiwi 사용자 사전에 자동 반영됩니다.
 
@@ -231,6 +223,7 @@ kca --help
 
 - **단일 `index.html`**: CSS·차트·안내 문구가 **한 파일에 포함**되어 오프라인에서도 동작합니다.
 - **원문 미저장**: 메시지 본문은 통계 계산에만 사용되며 HTML에 남기지 않습니다.
+- **provenance (CLI)**: `kca` 버전·분석 옵션·HTML 크기·생성 소요가 **생성 도구** / **리포트 정보** / `#kca-provenance`에 기록됩니다.
 - **재업로드 안내**: 예전 BrewPage 링크는 생성 시점 HTML이 고정됩니다. UI·버그 수정 후에는 **다시 업로드**해야 반영됩니다.
 - 자세한 화면 구성은 [리포트 UX](#리포트-ux)를 참고하세요.
 
@@ -270,9 +263,11 @@ CSV 파일 (스트림 read)
 
 ```bash
 npm install
-npm run build
+npm run build   # sync-version → CSS 번들 → tsc
 npm test
 ```
+
+유용한 스크립트: `npm run report:qa` · `report:qa:serve` · `report:screenshots` · `keyword:audit` · `bench:stream` · Pages pill 동기화 `node scripts/sync-docs-version.mjs`
 
 ---
 
@@ -286,7 +281,7 @@ npm test
 - **키워드 비교**: `npm run keyword:diff -- ./KakaoTalk_Chat_....csv 30`
 - LGPL 고지: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
-랜딩 페이지(`docs/index.html`)는 **v0.4.x 리포트 UX·ECharts·Kiwi 키워드** 요약과 **복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다.
+랜딩 페이지([`docs/index.html`](docs/index.html))는 **v0.13.x** 리포트(혁신 레이어·OLED·provenance)·**복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다. pill 버전은 `node scripts/sync-docs-version.mjs`로 `package.json`과 맞출 수 있습니다.
 
 - **공개 URL:** [https://claudianus.github.io/kakaotalk-chat-analyzer/](https://claudianus.github.io/kakaotalk-chat-analyzer/)
 - **워크플로:** [`.github/workflows/pages.yml`](.github/workflows/pages.yml)

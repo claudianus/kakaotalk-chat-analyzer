@@ -45,6 +45,9 @@
 - **본체만** 수정: 루트 `package.json`의 `version` 패치/마이너 올림.
 - **`kcachat`만** 수정: `kcachat/package.json`의 `version` 올림(README만 고친 경우는 생략 가능).
 - **본체 동작이 바뀌면** 래퍼 사용자에게 새 본체가 깔리도록, 필요 시 `kcachat/package.json`의 `dependencies["kakaotalk-chat-analyzer"]` 범위를 조정하고 래퍼 `version`도 올린다.
+- **문서만** 변경(README·`docs/`·`kcachat/README`·`AGENTS.md`) → npm `version` bump **불필요**. `docs/` 푸시 후 **Deploy GitHub Pages** 성공만 확인한다.
+
+`npm run build`는 `scripts/sync-version.mjs` → CSS 번들 → `tsc` 순이다([`package.json`](package.json)).
 
 ## 3. 포크·복제 저장소
 
@@ -82,8 +85,11 @@
 | 테마 | 라이트 / 다크 / 시스템 |
 | 반응형 | ~390px 폭에서 겹침·가로 스크롤 폭주 없음 |
 | 콘솔 | `browser_console_messages`에 치명적 에러 없음 |
+| **Provenance** | 사이드 카드 `kca x.y.z`, `<details>리포트 정보`, footer·`#kca-provenance` JSON 버전 일치 |
 
 스크린샷 또는 스냅샷으로 **최소 1장면(Wrapped + 차트 1개 + 키워드)** 을 확인한 뒤, 이슈가 있으면 고치고 **report:qa 재실행**한다. 로컬·CI 회귀용: `npm run report:screenshots -- <slug>` (Playwright, 390/834/1440/2560 full-page).
+
+BrewPage 등 **이미 올린 URL** 검증: HTML만 curl/grep으로 UI를 판단하지 말고 **브라우저**로 확인. `grep kca-provenance` 또는 **생성 도구** 줄로 kca 버전을 본다.
 
 ### C. 완료 보고
 
@@ -91,6 +97,7 @@ PR·커밋·배포 완료 메시지에 반드시 포함:
 
 - 실행한 명령 (`report:qa` 옵션, CSV 개수)
 - 검수한 `http://127.0.0.1:18765/...` URL(또는 slug)
+- npm **본체 버전** + (있으면) 검수한 리포트 HTML의 **generator/provenance 버전**
 - 시각 QA에서 본 문제·수정 여부 (없으면 “시각 QA 이상 없음”)
 
 **사용자에게 “브라우저에서 직접 확인해 주세요”만 남기고 끝내는 것은 금지**한다. 확인은 에이전트 몫이다.
@@ -98,3 +105,13 @@ PR·커밋·배포 완료 메시지에 반드시 포함:
 ### D. UX 전문가 리뷰 (리포트 UI/UX 변경 시)
 
 `skills/kca-report-ux.md` 페르소나·체크리스트로 **비판적 컨설팅** 후 P0/P1은 같은 세션에서 수정한다. (내비·중복 콘텐츠·모바일·첫 화면 스캔 가능성)
+
+## 6. 사용자 문서 동기화 (배포 가치 있는 UI/CLI 변경 후)
+
+`main` 푸시 전·후 에이전트 체크리스트:
+
+1. [README.md](README.md) **최근** 표 + **리포트 UX** (동작이 바뀐 경우)
+2. [docs/index.html](docs/index.html) pill·히어로·리포트 목록 — `node scripts/sync-docs-version.mjs` 로 pill을 `package.json`과 맞춤
+3. [kcachat/README.md](kcachat/README.md) — 래퍼 env·동작 변경 시만
+4. `docs/` 변경 시 **Deploy GitHub Pages** Actions 성공 확인
+5. 공유 URL(BrewPage)은 **재생성·재업로드** 후 브라우저로 provenance·차트 확인

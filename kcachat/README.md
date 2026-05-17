@@ -9,10 +9,14 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv"
 
 ### `npx`·버전
 
-- **0.1.4+** `kcachat`는 실행할 때마다 `kakaotalk-chat-analyzer@latest` 본체를 받아 실행합니다(네트워크 필요). 현재 래퍼 **0.1.16** · 본체 **0.4.2** 권장.
-- 오프라인·고정 버전만 쓰려면 `--bundled` 또는 환경 변수 `KCA_BUNDLED=1` (설치 시 함께 깔린 본체 사용).
-- 설치 확인 문구가 안 뜨는 것은 `~/.npm/_npx` 캐시 때문일 수 있습니다.
-- 버전 확인: `npx kcachat@latest --version` → `kcachat` 줄 + registry 최신 본체 버전.
+- **0.1.4+** `kcachat`는 실행할 때마다 `kakaotalk-chat-analyzer@latest` 본체를 받아 실행합니다(네트워크 필요).
+- 버전 확인: `npx kcachat@latest --version` → **kcachat** 줄 + registry **본체** 버전.
+- 오프라인·고정 버전: `--bundled` 또는 `KCA_BUNDLED=1` (설치 시 함께 깔린 본체).
+- `npx` 캐시 때문에 예전 본체가 보이면 `npx --yes kakaotalk-chat-analyzer@latest --version`으로 본체 버전을 직접 확인하세요.
+
+### provenance
+
+`kcachat`로 생성한 리포트 HTML에는 `KCA_INVOKER=kcachat/<래퍼버전>`이 기록되어, 사이드 카드 **생성 도구**에 `kcachat … → kca …`로 표시됩니다.
 
 - 전체 패키지명: [kakaotalk-chat-analyzer](https://www.npmjs.com/package/kakaotalk-chat-analyzer)
 - 소개·시작 가이드(랜딩): [GitHub Pages](https://claudianus.github.io/kakaotalk-chat-analyzer/)
