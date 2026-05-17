@@ -1,0 +1,73 @@
+dist/src/report-charts.d.ts
+  s_23ea5bc305de1c::t_533f2a30d25b91 55,62
+package.json
+  s_23ea5bc305de1c::t_da8973b368f837 3
+dist/src/dyad-matrix.js
+  s_23ea5bc305de1c::t_533f2a30d25b91 19-21,27,49
+test/dyad-matrix.test.ts
+  s_23ea5bc305de1c::t_9e0614637b50e2 53
+  s_23ea5bc305de1c::t_5ef91bce59d178 45-52,54-97
+dist/src/report-innovation.js
+  s_23ea5bc305de1c::t_533f2a30d25b91 61-63
+dist/src/report-styles.js
+  s_23ea5bc305de1c::t_533f2a30d25b91 2590-2653
+src/version.ts
+  s_23ea5bc305de1c::t_026a4e5b0e4811 1
+dist/src/report-innovation.js.map
+  ai_agent 1
+kcachat/package.json
+  s_23ea5bc305de1c::t_6e9d0ed3ebd21f 15
+  s_23ea5bc305de1c::t_52091842136014 3
+dist/src/report-styles.js.map
+  ai_agent 1
+src/report-charts.ts
+  s_23ea5bc305de1c::t_3cf4a494c42bef 82
+  s_23ea5bc305de1c::t_fa1d9ccc20fd65 637
+  s_23ea5bc305de1c::t_a8b30e1945ad62 242,244,250-339
+  s_23ea5bc305de1c::t_c6114966136aa5 33
+  s_23ea5bc305de1c::t_206d0f0dfe0cdb 392
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/types.d.ts
+  s_23ea5bc305de1c::t_533f2a30d25b91 239-240
+src/dyad-matrix.ts
+  s_23ea5bc305de1c::t_c1477652fc8750 27-29,35,59
+src/types.ts
+  s_23ea5bc305de1c::t_17ed6590ea5648 260-261
+src/report/css/08-kca-innovation.css
+  s_23ea5bc305de1c::t_910ee07f7141a8 51-114
+dist/src/report-charts.js
+  s_23ea5bc305de1c::t_533f2a30d25b91 54,206,208,214-304,356,601
+dist/src/report-styles.d.ts
+  s_23ea5bc305de1c::t_533f2a30d25b91 2
+src/report-styles.ts
+  s_23ea5bc305de1c::t_533f2a30d25b91 2590-2653
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_026a4e5b0e4811 1-2
+src/report-innovation.ts
+  s_23ea5bc305de1c::t_95108319f8dfd8 68
+  s_23ea5bc305de1c::t_7448141ac3af9d 66
+  s_23ea5bc305de1c::t_0cf5ae1776269a 67
+README.md
+  s_23ea5bc305de1c::t_7c1de1f8fbae52 219
+dist/src/version.js
+  s_23ea5bc305de1c::t_026a4e5b0e4811 1
+dist/src/dyad-matrix.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "8e07c9f7ec55ef427025ec6ccd16f16d75ccce20",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
