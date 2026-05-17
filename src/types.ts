@@ -339,6 +339,8 @@ export interface ReportData {
   buildTiming?: ReportBuildTiming;
   /** 생성 도구·런타임·분석 옵션 (CLI) */
   provenance?: ReportProvenance;
+  /** 집계가 끝난 스레드(메인·Worker)에서 Kiwi가 준비됐는지 */
+  kiwiAvailableAtAnalysis?: boolean;
   privacy: PrivacyMode;
   source: {
     fileName: string;

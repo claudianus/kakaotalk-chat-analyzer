@@ -316,11 +316,11 @@
         <p class="lede">
           <strong style="color:var(--text)">KakaoTalk Chat Analyzer</strong>(<strong>kca</strong>)는 카카오톡
           <strong>CSV 보내기</strong>를 <strong>스트리밍</strong>으로 읽고, Wrapped·<strong>혁신 레이어</strong>(dyad·타임라인)·<strong>ECharts</strong>·<strong>Kiwi·TF-IDF</strong> 키워드(최대 120)·활동 그리드가 담긴
-          <strong>한글 HTML 리포트</strong>를 만듭니다. 생성 HTML에는 <strong>kca 버전(provenance)</strong>이 포함되어 공유 링크에서도 빌드 버전을 확인할 수 있습니다.
+          <strong>한글 HTML 리포트</strong>를 만듭니다. 생성 HTML에는 <strong>kca 버전(provenance)</strong>이 포함되어 공유 링크에서도 빌드·Kiwi·Worker 사용 여부를 확인할 수 있습니다. 터미널에는 <strong>진행률이 기본으로</strong> stderr에 표시됩니다.
         </p>
         <div class="pill-row">
-          <span class="pill">v0.13.3</span>
-          <span class="pill">Provenance</span>
+          <span class="pill">v0.13.4</span>
+          <span class="pill">Provenance · Kiwi 메타</span>
           <span class="pill">OLED UI</span>
           <span class="pill">Kiwi · 키워드 120</span>
           <span class="pill">npx kcachat@latest</span>
@@ -350,17 +350,17 @@
             <button type="button" class="copy-btn" data-copy-target="cmd-upload" aria-label="업로드 명령 복사">복사</button>
           </div>
           <div class="cmd-row">
-            <span class="cmd-tag">진행</span>
+            <span class="cmd-tag">조용히</span>
             <div class="cmd-body">
-              <code id="cmd-progress">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv" --progress</code>
+              <code id="cmd-quiet">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv" --no-progress</code>
             </div>
-            <button type="button" class="copy-btn" data-copy-target="cmd-progress" aria-label="진행 표시 명령 복사">복사</button>
+            <button type="button" class="copy-btn" data-copy-target="cmd-quiet" aria-label="진행 표시 끄기 명령 복사">복사</button>
           </div>
         </div>
         <p class="cmd-foot">
           <code>kcachat@latest</code>는 실행마다 <strong>kakaotalk-chat-analyzer@latest</strong> 본체를 받아 최신 CLI·리포트 UI를 씁니다.
           <code>--local</code>이면 BrewPage 업로드 없이 PC에만 <code>index.html</code>을 만듭니다.
-          대용량은 <code>--progress</code>, 단계별 ms는 <code>--profile</code>.
+          진행률은 <strong>기본 ON</strong>(집계·Kiwi·키워드 단계). 끄려면 <code>--no-progress</code>, 단계별 ms는 <code>--profile</code>, 기간 필터는 <code>--since YYYY-MM-DD</code>.
           <a href="https://github.com/claudianus/kakaotalk-chat-analyzer#readme">전체 옵션 → README</a>
         </p>
       </div>
@@ -373,7 +373,7 @@
     <div class="stat-row" aria-label="성능 요약">
       <div class="stat"><strong>스트리밍</strong><span>파일 전체를 RAM에 올리지 않고 줄 단위 파싱</span></div>
       <div class="stat"><strong>~0.4s</strong><span>합성 20만 메시지 벤치(환경·실데이터에 따라 다름)</span></div>
-      <div class="stat"><strong>--progress</strong><span>2.5만 건마다 stderr 진행 표시</span></div>
+      <div class="stat"><strong>진행률</strong><span>기본 ON — stderr에 집계·Kiwi·키워드 단계별 % (끄기: --no-progress)</span></div>
     </div>
 
     <section class="grid six" id="features">
@@ -415,7 +415,8 @@
         <li><strong>⓪ Wrapped</strong> · 페르소나·챕터 · <strong>활동 기간 그리드</strong> · <strong>이벤트 스파인</strong> · 숫자 요약</li>
         <li><strong>혁신</strong>: dyad(답장 흐름) · 타임라인 · 기간 비교 · 내러티브</li>
         <li><strong>인터랙티브 차트</strong>: 워드클라우드 · 요일 7색 · <strong>대화 테마 · c-TF-IDF</strong> · 키워드 막대+전체 120 표</li>
-        <li><strong>provenance</strong>: 생성 도구·<code>#kca-provenance</code> JSON · BrewPage 링크는 <strong>재업로드</strong> 시에만 갱신</li>
+        <li><strong>provenance</strong>: 생성 도구·Kiwi/Worker 플래그·<code>#kca-provenance</code> JSON (대용량 Worker에서도 Kiwi 사용 여부 정확 표시)</li>
+        <li><strong>최근</strong>: 0.13.4 Kiwi 메타 · 0.13.3 provenance UI · 0.13.2 차트·활동 그리드 · 0.13.0 dyad·내러티브</li>
         <li>지니 · 리듬 · 하이라이트 · 만·억 표기 · iframe embed 안전</li>
       </ul>
       <p style="margin:14px 0 0;color:var(--muted);font-size:13px;line-height:1.6">

@@ -103,8 +103,15 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.match(htmlWithProv, new RegExp(`kca ${VERSION.replace(/\./g, "\\.")}`));
     assert.equal(htmlWithProv.includes("details.kca-provenance"), true);
 
-    const streamed = await buildReportFromExport(csvPath, { privacy: "public-masked" });
+    const streamed = await buildReportFromExport(csvPath, {
+      privacy: "public-masked",
+      worker: false,
+      progress: false,
+    });
     assert.equal(streamed.summary.totalMessages, data.summary.totalMessages);
+    if (process.env.KCA_NO_KIWI !== "1") {
+      assert.equal(streamed.kiwiAvailableAtAnalysis, true);
+    }
     assert.equal(streamed.summary.participants, data.summary.participants);
     assert.equal(html.includes("hours-split"), true);
     assert.equal(html.includes("table-rank"), true);

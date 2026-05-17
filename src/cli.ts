@@ -3,7 +3,6 @@ import { mkdir, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Command } from "commander";
 import { buildReportFromExport, reportUsedAnalyzeWorker } from "./analysis.js";
-import { getKiwiRuntime } from "./kiwi-runtime.js";
 import { buildReportProvenance } from "./report-provenance.js";
 import { clearOwnerToken, getConfigPath, getOwnerToken, saveOwnerToken } from "./config.js";
 import { describeStreamedExport } from "./stream-parser.js";
@@ -285,7 +284,7 @@ async function generateReport(
     workerRequested: resolveWorkerRequested(options.worker),
     workerUsed,
     semanticRequested: resolveSemanticRequested(options.semanticKeywords),
-    kiwiAvailable: getKiwiRuntime() != null,
+    kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
     buildTiming: { ...buildTiming },
     htmlBytes: Buffer.byteLength(html, "utf8"),
   });

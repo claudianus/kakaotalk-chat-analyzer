@@ -55,7 +55,7 @@
 | **인코딩** | UTF-8 BOM, UTF-8, CP949/EUC-KR 등 보내기 인코딩 자동 감지 |
 | **파싱** | `Date,User,Message` 헤더 기반 CSV + 멀티라인 메시지 처리 |
 | **리포트** | Wrapped·**ECharts**·**주제 맵**(c-TF-IDF)·**Kiwi+BM25** 키워드 120개·잔디·인사이트 등 **집계 전용** 시각화 |
-| **성능** | 줄 단위 스트림 파싱 · 단일 패스 집계 · 3MB+ Worker · 진행 표시(`--progress`) |
+| **성능** | 줄 단위 스트림 파싱 · 단일 패스 집계 · 3MB+ Worker · 진행률 **기본 ON** (`--no-progress`로 끔) |
 | **배포** | BrewPage(기본) / TempFile / Cloudflare 등 **TTL 기반** 임시 호스팅 · iframe 공유 링크 안전 처리 |
 | **npx** | 짧은 별칭 **[`kcachat`](https://www.npmjs.com/package/kcachat)** 또는 본체 **`kakaotalk-chat-analyzer`** |
 | **프라이버시** | 원문 미포함, 참여자 **부분 마스킹 표시명**(기본), URL은 **도메인**만 집계 |
@@ -77,8 +77,8 @@
 로컬 벤치(합성 20만 메시지, 집계만): **약 0.4초대** — 환경·디스크·실제 대화 밀도에 따라 달라집니다.
 
 ```bash
-# 진행 상황 (2.5만 건마다 stderr)
-npx kcachat@latest "./KakaoTalk_Chat_....csv" --progress
+# 진행률은 기본으로 stderr에 표시 (집계 → Kiwi 준비 → 키워드·주제). 끄려면:
+npx kcachat@latest "./KakaoTalk_Chat_....csv" --no-progress
 
 # 한국어 방은 시맨틱 키워드가 기본 ON (multilingual-e5-small, 끄려면 --no-semantic-keywords)
 # 영어 위주 방에서 강제: --semantic-keywords
@@ -116,6 +116,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.13.4** | Worker 분석 시 provenance **`kiwiAvailable`** 정확 표시 (`kiwiAvailableAtAnalysis`) |
 | **0.13.3** | HTML **provenance**: `kca` 버전·`#kca-provenance` JSON·**리포트 정보** `<details>`·`kcachat` → `KCA_INVOKER` |
 | **0.13.2** | 키워드 막대 insideLeft·상위 3색, **활동 기간 그리드**(compact), 주제 테마/기간 분리, dyad visualMap |
 | **0.13.1** | 생성 시각·소요, 이벤트 스파인, 히트맵/참여 pie, 주제맵·키워드 UX |
@@ -162,7 +163,7 @@ npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.13.3`. 리포트 사이드 카드·`grep kca-provenance`로 실제 생성 버전을 확인하세요. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
+> **버전:** `kcachat@latest`는 본체 `kakaotalk-chat-analyzer@latest`를 매 실행 받습니다. 고정하려면 `npx kakaotalk-chat-analyzer@0.13.4`. 리포트 사이드 카드·`grep kca-provenance`로 실제 생성 버전을 확인하세요. 오프라인은 `kcachat … --bundled`. ([kcachat README](kcachat/README.md))
 
 CSV와 같은 폴더에 **`.kca-glossary.txt`**(한 줄에 한 단어)를 두면 Kiwi 사용자 사전에 자동 반영됩니다.
 
@@ -208,9 +209,12 @@ kca ./chat.csv --host tempfile --ttl 30
 # 보내기 구조 점검(원문 출력 없음, 스트리밍)
 kca inspect ./KakaoTalk_Chat_....csv
 
-# 대용량 진행 표시 / 프로파일
-kca ./chat.csv --progress
+# 진행률 끄기(CI·스크립트) / 단계별 ms 프로파일
+kca ./chat.csv --no-progress
 kca ./chat.csv --profile --no-worker
+
+# YYYY-MM-DD 이후만 집계
+kca ./chat.csv --since 2025-01-01
 
 kca --help
 ```

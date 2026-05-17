@@ -14,7 +14,6 @@ import { homedir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildReportFromExport } from "../dist/src/analysis.js";
-import { getKiwiRuntime } from "../dist/src/kiwi-runtime.js";
 import { buildReportProvenance } from "../dist/src/report-provenance.js";
 import { renderReportHtml } from "../dist/src/report.js";
 import { VERSION } from "../dist/src/version.js";
@@ -117,7 +116,7 @@ async function generateOne(csvPath, opts) {
     workerRequested: false,
     workerUsed: false,
     semanticRequested: opts.semantic ? "auto" : false,
-    kiwiAvailable: getKiwiRuntime() != null,
+    kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
     htmlBytes: 0,
   });
   const html = renderReportHtml({ ...data, provenance });

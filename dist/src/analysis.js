@@ -2,7 +2,7 @@ import { ReportAggregator } from "./aggregator.js";
 import { HeuristicPrepassCollector } from "./export-prepass.js";
 import { loadGlossaryForExport } from "./glossary.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
-import { initKiwiRuntime } from "./kiwi-runtime.js";
+import { getKiwiRuntime, initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker } from "./analyze-pool.js";
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
@@ -12,6 +12,9 @@ import { extractSemanticKeywords } from "./semantic-keywords.js";
 import { streamKakaoExport } from "./stream-parser.js";
 import { recordOnOrAfter } from "./report-date-filter.js";
 const DEFAULT_TOP = 30;
+function withKiwiAnalysisFlag(report) {
+    return { ...report, kiwiAvailableAtAnalysis: getKiwiRuntime() != null };
+}
 function mergeUserWords(...lists) {
     const seen = new Set();
     const out = [];
@@ -61,12 +64,12 @@ export function buildReportData(result, options) {
             continue;
         agg.consume(record);
     }
-    return agg.finalize({
+    return withKiwiAnalysisFlag(agg.finalize({
         filePath: result.filePath,
         encoding: result.encoding,
         physicalLines: result.physicalLines,
         warningCount: result.warnings.length,
-    }, { koreanPrimary: korean });
+    }, { koreanPrimary: korean }));
 }
 export async function buildReportDataAsync(result, options) {
     await prepareReportEngine();
@@ -87,12 +90,12 @@ export async function buildReportDataAsync(result, options) {
         agg.consume(record);
     }
     const usedSemantic = await applySemanticKeywords(agg, useSemantic, false);
-    return agg.finalize({
+    return withKiwiAnalysisFlag(agg.finalize({
         filePath: result.filePath,
         encoding: result.encoding,
         physicalLines: result.physicalLines,
         warningCount: result.warnings.length,
-    }, { usedSemanticKeywords: usedSemantic, koreanPrimary: prepass.isPrimarilyKorean() });
+    }, { usedSemanticKeywords: usedSemantic, koreanPrimary: prepass.isPrimarilyKorean() }));
 }
 function messageTextFromRecord(record) {
     return record.message;
@@ -218,7 +221,7 @@ export async function buildReportFromExportSync(filePath, options) {
         const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
         console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}`);
     }
-    return report;
+    return withKiwiAnalysisFlag(report);
 }
 export async function buildReportFromExport(filePath, options) {
     if (await shouldUseAnalyzeWorker(filePath, options)) {

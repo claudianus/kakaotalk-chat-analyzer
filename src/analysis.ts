@@ -3,7 +3,7 @@ import { ReportAggregator } from "./aggregator.js";
 import { HeuristicPrepassCollector } from "./export-prepass.js";
 import { loadGlossaryForExport } from "./glossary.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
-import { initKiwiRuntime } from "./kiwi-runtime.js";
+import { getKiwiRuntime, initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker, type BuildReportOptions } from "./analyze-pool.js";
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
@@ -18,6 +18,10 @@ import type { ChatRecord, EncodingName, ParseResult, PrivacyMode, ReportData } f
 const DEFAULT_TOP = 30;
 
 export type { BuildReportOptions };
+
+function withKiwiAnalysisFlag(report: ReportData): ReportData {
+  return { ...report, kiwiAvailableAtAnalysis: getKiwiRuntime() != null };
+}
 
 function mergeUserWords(...lists: UserWord[][]): UserWord[] {
   const seen = new Set<string>();
@@ -71,14 +75,16 @@ export function buildReportData(result: ParseResult, options?: BuildReportOption
     if (since && !recordOnOrAfter(record, since)) continue;
     agg.consume(record);
   }
-  return agg.finalize(
-    {
-      filePath: result.filePath,
-      encoding: result.encoding,
-      physicalLines: result.physicalLines,
-      warningCount: result.warnings.length,
-    },
-    { koreanPrimary: korean },
+  return withKiwiAnalysisFlag(
+    agg.finalize(
+      {
+        filePath: result.filePath,
+        encoding: result.encoding,
+        physicalLines: result.physicalLines,
+        warningCount: result.warnings.length,
+      },
+      { koreanPrimary: korean },
+    ),
   );
 }
 
@@ -102,14 +108,16 @@ export async function buildReportDataAsync(
     agg.consume(record);
   }
   const usedSemantic = await applySemanticKeywords(agg, useSemantic, false);
-  return agg.finalize(
-    {
-      filePath: result.filePath,
-      encoding: result.encoding,
-      physicalLines: result.physicalLines,
-      warningCount: result.warnings.length,
-    },
-    { usedSemanticKeywords: usedSemantic, koreanPrimary: prepass.isPrimarilyKorean() },
+  return withKiwiAnalysisFlag(
+    agg.finalize(
+      {
+        filePath: result.filePath,
+        encoding: result.encoding,
+        physicalLines: result.physicalLines,
+        warningCount: result.warnings.length,
+      },
+      { usedSemanticKeywords: usedSemantic, koreanPrimary: prepass.isPrimarilyKorean() },
+    ),
   );
 }
 
@@ -260,7 +268,7 @@ export async function buildReportFromExportSync(
     );
   }
 
-  return report;
+  return withKiwiAnalysisFlag(report);
 }
 
 export async function buildReportFromExport(
