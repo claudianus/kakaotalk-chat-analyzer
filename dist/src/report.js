@@ -9,6 +9,8 @@ import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderHeroQuickJumps, renderT
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
+import { hasBenchmarkSection, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasTimelineSection, } from "./report-section-visibility.js";
+import { openChatProfileFromReport } from "./open-chat-profile.js";
 import { VERSION } from "./version.js";
 const FIVE_MIB = 5 * 1024 * 1024;
 export function renderReportHtml(data) {
@@ -58,6 +60,8 @@ export function renderReportHtml(data) {
       </div>
     </header>
     ${renderStorySections(data)}
+    ${renderOpenChatInsightCard(data)}
+    ${renderShopSearchPromoted(data)}
     ${renderInnovationDeck(data)}
     ${renderFactMatrix(data)}
 
@@ -92,7 +96,7 @@ export function renderReportHtml(data) {
       ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구를 본문과 분리해 집계합니다. 아래 막대는 일별 운영·유입 펄스예요.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
       ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 똑같은 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
     </section>
-    ${renderShopSearchSection(data)}
+    ${renderShopSearchSection(data, false)}
     </div>
 
     ${renderSelfServeCallout()}
@@ -240,16 +244,30 @@ export function renderReportHtml(data) {
 }
 function renderSectionNav(data) {
     const hl = data.highlights.length > 0 ? `<a href="#s-hl" data-kca-jump="s-hl">하이라이트</a>` : "";
+    const narrative = hasNarrativeSection(data)
+        ? `<a href="#s-narrative" data-kca-jump="s-narrative">방 프로필</a>`
+        : "";
+    const timeline = hasTimelineSection(data)
+        ? `<a href="#s-timeline" data-kca-jump="s-timeline">타임라인</a>`
+        : "";
+    const dyad = hasDyadSection(data) ? `<a href="#s-dyad" data-kca-jump="s-dyad">상호작용</a>` : "";
+    const explorer = hasExplorerSection(data)
+        ? `<a href="#s-explorer" data-kca-jump="s-explorer">기간 탐색</a>`
+        : "";
+    const bench = hasBenchmarkSection(data)
+        ? `<a href="#s-bench" data-kca-jump="s-bench">참고 벤치</a>`
+        : "";
     return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
     ${storyNavLinks(data)}
-    <a href="#s-narrative" data-kca-jump="s-narrative">방 프로필</a>
-    <a href="#s-timeline" data-kca-jump="s-timeline">타임라인</a>
+    ${narrative}
+    ${timeline}
     <a href="#s-facts" data-kca-jump="s-facts">① 숫자 요약</a>
     <a href="#s-story" data-kca-jump="s-story">개요</a>
-    <a href="#s-dyad" data-kca-jump="s-dyad">상호작용</a>
+    ${dyad}
     <a href="#s-compare" data-kca-jump="s-compare">기간 비교</a>
-    <a href="#s-explorer" data-kca-jump="s-explorer">기간 탐색</a>
+    ${explorer}
+    ${bench}
     ${hl}
     ${topicNavLink(data)}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
@@ -573,9 +591,16 @@ function renderParticipants(participants) {
     if (participants.length === 0) {
         return `<p style="margin:0;color:var(--muted);font-size:13px">참여자 데이터가 없습니다.</p>`;
     }
-    return `<table class="table table-rank"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${participants
+    const rows = participants
         .map((p) => `<tr><td>${escapeHtml(p.alias)}</td><td class="num">${formatNumber(p.messages)}</td><td class="num">${p.sharePercent}%</td><td class="num">${p.averageLength}</td><td class="num">${formatNumber(p.linkMessages)}</td><td class="num">${formatNumber(p.attachmentMessages)}</td><td class="num">${formatNumber(p.nightMessages)}</td><td class="num">${formatNumber(p.maxConsecutive)}</td></tr>`)
-        .join("")}</tbody></table>`;
+        .join("");
+    const cards = participants
+        .map((p) => `<li class="rank-card"><strong>${escapeHtml(p.alias)}</strong><span class="rank-card-stat">${formatNumber(p.messages)}건 · ${p.sharePercent}%</span><span class="rank-card-meta">평균 ${p.averageLength}자 · URL ${formatNumber(p.linkMessages)} · 첨부 ${formatNumber(p.attachmentMessages)}</span></li>`)
+        .join("");
+    return `<div class="rank-participants">
+    <ul class="rank-card-list" aria-label="참여자 랭킹 카드">${cards}</ul>
+    <table class="table table-rank rank-table-desktop"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>`;
 }
 function renderRoomEvents(stats, totalMessages, pulse = []) {
     if (stats.total === 0) {
@@ -673,10 +698,44 @@ function renderTopicMap(data) {
     ${periodBlock}
   </section>`;
 }
-function renderShopSearchSection(data) {
+function renderOpenChatInsightCard(data) {
+    const profile = openChatProfileFromReport(data);
+    if (!profile.likely)
+        return "";
+    const ev = data.roomEvents;
+    const boiler = data.openChatBoilerplateExcluded > 0
+        ? `<p class="chart-hint">환영·규칙 복붙 등 <strong>${formatNumber(data.openChatBoilerplateExcluded)}</strong>건은 키워드·반복 문구에서 제외했습니다.</p>`
+        : "";
+    const shop = data.shopSearchTopics.length > 0
+        ? `<p class="chart-hint">샵검색 상위: ${data.shopSearchTopics
+            .slice(0, 3)
+            .map((t) => escapeHtml(t.label))
+            .join(" · ")}</p>`
+        : "";
+    return `<section id="s-openchat" class="card openchat-card anim-enter" style="margin-bottom:14px;--enter-delay:0.038s" aria-label="오픈채팅 추정 인사이트">
+    <h2 class="section-glow">오픈채팅 <span class="bench-estimate-tag">추정</span></h2>
+    <p class="chart-hint">입·퇴장 비중·운영 알림 패턴으로 <strong>오픈채팅형</strong> 방일 가능성이 있습니다(자동 추정).</p>
+    <ul class="openchat-stats">
+      <li>입·퇴장 알림 비중 <strong>${profile.joinLeaveSharePercent}%</strong></li>
+      <li>시스템·운영 알림 합계 <strong>${formatNumber(ev.total)}</strong>건 (입장 ${ev.joinSharePercent}% · 퇴장 ${ev.leaveSharePercent}%)</li>
+      <li>샵검색 알림 <strong>${formatNumber(ev.shopSearchCount)}</strong>건</li>
+    </ul>
+    ${boiler}
+    ${shop}
+  </section>`;
+}
+function renderShopSearchPromoted(data) {
+    const profile = openChatProfileFromReport(data);
+    if (!profile.likely)
+        return "";
+    return renderShopSearchSection(data, true);
+}
+function renderShopSearchSection(data, promoted = false) {
     const topics = data.shopSearchTopics;
     const noticeCount = data.roomEvents.shopSearchCount;
     if (topics.length === 0 && noticeCount === 0)
+        return "";
+    if (promoted === false && openChatProfileFromReport(data).likely)
         return "";
     if (topics.length === 0) {
         return `<section style="margin-bottom:14px">${panel("샵검색 키워드", `시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건이 있으나, <code>샵검색:</code> 형식에서 #주제를 추출하지 못했습니다. 보내기 형식이 바뀌었을 수 있습니다.`, '<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>')}</section>`;
@@ -685,7 +744,8 @@ function renderShopSearchSection(data) {
     const footnote = noticeCount > tagSum
         ? `<p class="chart-hint" style="margin:10px 0 0">시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건 중 태그 추출 <strong>${formatNumber(tagSum)}</strong>건입니다.</p>`
         : "";
-    return `<section style="margin-bottom:14px">${panel("샵검색 키워드", "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote)}</section>`;
+    const title = promoted ? "샵검색 키워드 (오픈채팅)" : "샵검색 키워드";
+    return `<section id="s-shopsearch" style="margin-bottom:14px">${panel(title, "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote)}</section>`;
 }
 function renderKeywordCssFold(data) {
     const body = renderKeywordSnapshot(data.keywords, data);

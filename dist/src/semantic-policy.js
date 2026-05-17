@@ -71,6 +71,8 @@ export function resolveSemanticKeywords(options, prepass, sampleMessages) {
         return true;
     if (process.env.KCA_SEMANTIC === "0")
         return false;
+    if (process.env.KCA_SEMANTIC_DEFAULT === "opt-in")
+        return false;
     return isPrimarilyKoreanMessages(sampleMessages);
 }
 //# sourceMappingURL=semantic-policy.js.map

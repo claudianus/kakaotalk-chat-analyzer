@@ -1,6 +1,14 @@
-export function computeBurstDays(daily) {
+export function resolveBurstDetectionMethod() {
+    return process.env.KCA_BURST_METHOD === "mad" ? "mad" : "heuristic";
+}
+export function computeBurstDays(daily, method = resolveBurstDetectionMethod()) {
     if (daily.length < 4)
         return [];
+    if (method === "mad")
+        return computeBurstDaysMad(daily);
+    return computeBurstDaysHeuristic(daily);
+}
+function computeBurstDaysHeuristic(daily) {
     const counts = daily.map((d) => d.count).sort((a, b) => a - b);
     const median = medianSorted(counts);
     const p90 = counts[Math.min(counts.length - 1, Math.floor(counts.length * 0.9))] ?? median;
@@ -10,6 +18,20 @@ export function computeBurstDays(daily) {
     const p90Mult = 0.86 + 0.1 * spanScale;
     const floorBump = Math.max(2, Math.floor(median * (0.1 + 0.08 * spanScale)));
     const threshold = Math.max(Math.ceil(median * medianMult), Math.ceil(p90 * p90Mult), median + floorBump);
+    return pickBurstCandidates(daily, threshold);
+}
+/** Modified z-score (MAD) — 일별 count 이상치 */
+function computeBurstDaysMad(daily) {
+    const counts = daily.map((d) => d.count);
+    const sorted = [...counts].sort((a, b) => a - b);
+    const median = medianSorted(sorted);
+    const deviations = counts.map((c) => Math.abs(c - median)).sort((a, b) => a - b);
+    const mad = medianSorted(deviations) || 1;
+    const scaledMad = mad * 1.4826;
+    const threshold = Math.max(median + 3 * scaledMad, median + 2);
+    return pickBurstCandidates(daily, Math.ceil(threshold));
+}
+function pickBurstCandidates(daily, threshold) {
     return daily
         .filter((d) => d.count >= threshold)
         .sort((a, b) => b.count - a.count)

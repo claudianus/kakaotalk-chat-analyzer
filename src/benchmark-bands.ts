@@ -1,13 +1,50 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { BenchmarkMetric } from "./types.js";
 
 /** 합성·공개 fixture 기반 참고 분포(업로드 데이터 없음). 표본 편향 있음 — ‘추정 밴드’. */
-const REFERENCE = {
+const FALLBACK_REFERENCE = {
   participantGini: [0.25, 0.38, 0.52, 0.65, 0.78, 0.88],
   nightSharePercent: [8, 15, 22, 32, 42, 55],
   speakerSwitchRatePer100: [28, 38, 48, 58, 68, 82],
   rhythmScore: [32, 42, 52, 62, 72, 85],
   weekendSharePercent: [18, 24, 30, 38, 46, 58],
 } as const;
+
+type BenchmarkReference = typeof FALLBACK_REFERENCE;
+
+let cachedReference: BenchmarkReference | null = null;
+let cohortVersion: string | null = null;
+
+function loadReference(): BenchmarkReference {
+  if (cachedReference) return cachedReference;
+  if (process.env.KCA_BENCHMARK_COHORT === "0") {
+    cachedReference = FALLBACK_REFERENCE;
+    return cachedReference;
+  }
+  try {
+    const path = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data", "benchmark-cohort-v1.json");
+    const raw = JSON.parse(readFileSync(path, "utf8")) as {
+      version?: string;
+      reference?: BenchmarkReference;
+    };
+    if (raw.reference) {
+      cachedReference = raw.reference as BenchmarkReference;
+      cohortVersion = raw.version ?? "benchmark-cohort-v1";
+      return cachedReference;
+    }
+  } catch {
+    /* fallback */
+  }
+  cachedReference = FALLBACK_REFERENCE;
+  return cachedReference;
+}
+
+export function benchmarkCohortVersion(): string | null {
+  loadReference();
+  return cohortVersion;
+}
 
 function percentileFromRef(value: number, ref: readonly number[]): number {
   let below = 0;
@@ -32,6 +69,7 @@ export function buildBenchmarkBandsFromValues(input: {
   rhythmScore: number;
   weekendSharePercent: number;
 }): BenchmarkMetric[] {
+  const REFERENCE = loadReference();
   const gini = input.participantGini ?? 0.5;
   const defs: { key: string; label: string; value: number; ref: readonly number[] }[] = [
     { key: "gini", label: "참여 지니", value: gini, ref: REFERENCE.participantGini },

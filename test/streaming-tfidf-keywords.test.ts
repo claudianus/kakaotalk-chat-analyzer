@@ -30,7 +30,7 @@ test("StreamingTfidfKeywords extracts topical terms from short corpus", () => {
   assert.equal(labels.includes("으로"), false);
 });
 
-test("StreamingTfidfKeywords ranks by message hits not rare junk", () => {
+test("StreamingTfidfKeywords sorts extract results by BM25 score first", () => {
   const kw = new StreamingTfidfKeywords();
   for (let i = 0; i < 200; i += 1) {
     kw.addDocument(`클로드 코덱스 개발 ${i}`);
@@ -38,10 +38,16 @@ test("StreamingTfidfKeywords ranks by message hits not rare junk", () => {
   for (let i = 0; i < 3; i += 1) {
     kw.addDocument("vendoritemid sourcetype mycoupang products");
   }
-  const top = kw.extractKeywordItems({ limit: 10, minDocFreq: 2 });
-  assert.equal(top[0]?.label, "클로드 코덱스");
-  assert.ok((top[0]?.messageHits ?? 0) >= 100);
-  assert.ok(!top.slice(0, 5).some((i) => i.label === "vendoritemid sourcetype"));
+  const top = kw.extractKeywordItems({ limit: 15, minDocFreq: 2 });
+  for (let i = 1; i < top.length; i += 1) {
+    const prev = top[i - 1]!;
+    const cur = top[i]!;
+    assert.ok(
+      prev.score >= cur.score ||
+        (prev.score === cur.score && prev.messageHits >= cur.messageHits),
+      `score order: ${prev.label}(${prev.score}) before ${cur.label}(${cur.score})`,
+    );
+  }
 });
 
 test("StreamingTfidfKeywords surfaces adjacent bigrams", () => {

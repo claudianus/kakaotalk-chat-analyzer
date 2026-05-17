@@ -1,4 +1,4 @@
-#s-wrapped, #s-personas, #s-chapters, #s-calendar { scroll-margin-top: 76px; }
+/* scroll-margin: 06-kca-responsive.css --kca-topbar-offset */
     .story-headline {
       margin: 0 0 14px;
       font-size: clamp(17px, 2.5vw, 21px);

@@ -73,6 +73,18 @@ export function buildReportProvenance(
   return provenance;
 }
 
+/** HTML 1회 생성 후 provenance JSON·상세 목록만 갱신 */
+export function patchReportProvenance(html: string, provenance: ReportProvenance): string {
+  const script = `<script type="application/json" id="kca-provenance">${JSON.stringify(provenance)}</script>`;
+  if (html.includes('id="kca-provenance"')) {
+    return html.replace(
+      /<script type="application\/json" id="kca-provenance">[\s\S]*?<\/script>/,
+      script,
+    );
+  }
+  return html.replace("</body>", `${script}\n</body>`);
+}
+
 export function formatGeneratorLine(provenance: ReportProvenance): string {
   const { generator } = provenance;
   let line = `kca ${generator.version}`;

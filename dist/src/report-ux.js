@@ -175,7 +175,7 @@ export function renderTopChrome(_data, sectionNavHtml) {
       <button type="button" class="theme-btn" data-theme-set="dark" aria-pressed="false">다크</button>
       <button type="button" class="theme-btn" data-theme-set="system" aria-pressed="false">시스템</button>
     </div>
-    <details class="deck-nav-shell" open>
+    <details class="deck-nav-shell">
       <summary>섹션 메뉴 · 빠른 이동</summary>
       ${sectionNavHtml}
     </details>

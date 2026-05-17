@@ -981,7 +981,7 @@ a:hover {
 
 
 /* 03-kca-story.css */
-#s-wrapped, #s-personas, #s-chapters, #s-calendar { scroll-margin-top: 76px; }
+/* scroll-margin: 06-kca-responsive.css --kca-topbar-offset */
     .story-headline {
       margin: 0 0 14px;
       font-size: clamp(17px, 2.5vw, 21px);
@@ -1777,6 +1777,11 @@ main {
 #s-calendar,
 #s-facts,
 #s-hl,
+#s-narrative,
+#s-timeline,
+#s-dyad,
+#s-openchat,
+#s-shopsearch,
 #s-ai,
 #s-topics,
 #s-viz,
@@ -1786,6 +1791,42 @@ main {
 #s-explorer,
 #s-help {
   scroll-margin-top: var(--kca-topbar-offset);
+}
+
+.rank-card-list {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+}
+
+.rank-card {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.rank-card strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.rank-card-stat {
+  display: block;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.rank-card-meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .report-section {
@@ -2023,6 +2064,15 @@ main {
 
 /* 모바일 말풍선 맵 — 랭킹 리스트 */
 @media (max-width: 559px) {
+  .rank-card-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rank-table-desktop {
+    display: none;
+  }
+
   .sc-plot {
     padding: 12px 10px 14px;
     background-image: none;
@@ -2607,6 +2657,15 @@ body.kca-oled .theme-btn.kca-ripple {
   color: var(--ink);
 }
 .explorer-stats p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+
+.openchat-card .openchat-stats {
+  margin: 0;
+  padding: 0 0 0 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
 `;
 //# sourceMappingURL=report-styles.js.map

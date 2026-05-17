@@ -130,6 +130,8 @@ export function emptyReportData() {
             keywordShift: { head: [], tail: [], onlyHead: [], onlyTail: [] },
         },
         benchmarks: [],
+        openChatBoilerplateExcluded: 0,
+        burstDetectionMethod: "heuristic",
         explorer: { daily: [], hourly: [], monthly: [], range: { min: "", max: "" } },
     };
 }

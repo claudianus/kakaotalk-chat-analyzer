@@ -13,7 +13,7 @@ import { mergeKeywordRankings } from "./keyword-merge.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
 import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
-import { buildRoomPulse, computeActivityArc, computeBurstDays, computeConversationPace, } from "./report-enrichment.js";
+import { buildRoomPulse, computeActivityArc, computeBurstDays, computeConversationPace, resolveBurstDetectionMethod, } from "./report-enrichment.js";
 import { isOpenChatBoilerplate, splitMessageForAnalysis, SYSTEM_NOTICE_KEYWORD_STOP, } from "./system-notices.js";
 import { buildReportStory } from "./story.js";
 import { DyadAccumulator } from "./dyad-matrix.js";
@@ -21,6 +21,7 @@ import { buildEventSpine } from "./event-spine.js";
 import { buildRoomNarrative } from "./room-narrative.js";
 import { buildPeriodCompare } from "./period-compare.js";
 import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
+import { mergeEmbeddingThemes } from "./embedding-topics.js";
 const ATTACHMENT_MARKERS = [
     "사진",
     "동영상",
@@ -101,6 +102,8 @@ export class ReportAggregator {
     roomShopSearchMessages = 0;
     roomPhotoBundleMessages = 0;
     pureLaughMessages = 0;
+    openChatBoilerplateExcluded = 0;
+    semanticThemeCandidates = [];
     semanticReservoir;
     prevMs = null;
     prevSender = null;
@@ -138,10 +141,11 @@ export class ReportAggregator {
         if (split.notices.length > 0 && split.userText.length === 0)
             return;
         const foundAttachments = getAttachmentMarkers(msg);
-        if (messageLength < 2 ||
-            !HAS_TOKEN_CHAR_RE.test(msg) ||
-            isOpenChatBoilerplate(msg) ||
-            !shouldExtractKeywords(msg, foundAttachments)) {
+        if (isOpenChatBoilerplate(msg)) {
+            this.openChatBoilerplateExcluded += 1;
+            return;
+        }
+        if (messageLength < 2 || !HAS_TOKEN_CHAR_RE.test(msg) || !shouldExtractKeywords(msg, foundAttachments)) {
             return;
         }
         const kwTokens = tokenizeForKeywords(msg);
@@ -152,6 +156,11 @@ export class ReportAggregator {
             this.semanticReservoir.push(msg);
     }
     applySemanticKeywordBoost(items) {
+        this.semanticThemeCandidates = items.map((item) => ({
+            label: item.label,
+            messageHits: item.messageHits,
+            score: item.score ?? item.messageHits,
+        }));
         for (const item of items) {
             this.keywordSupplement.addHits(item.label, Math.max(2, item.messageHits));
         }
@@ -433,7 +442,11 @@ export class ReportAggregator {
             minDocFreq: adaptiveMinCount(total, finalizeOpts?.koreanPrimary !== false),
         });
         const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit);
-        const topics = this.topicMap.buildTopics(total, buildTopicStopwords());
+        let topics = this.topicMap.buildTopics(total, buildTopicStopwords());
+        if (process.env.KCA_EMBEDDING_TOPICS === "1" && this.semanticThemeCandidates.length > 0) {
+            topics = mergeEmbeddingThemes(topics, this.semanticThemeCandidates, total);
+        }
+        const burstDetectionMethod = resolveBurstDetectionMethod();
         const keywordTop1SharePercent = top1ShareFromCounts(keywords, total);
         let attachmentMarkerSum = 0;
         for (const c of this.attachments.values())
@@ -668,6 +681,8 @@ export class ReportAggregator {
             periodCompare,
             benchmarks,
             explorer,
+            openChatBoilerplateExcluded: this.openChatBoilerplateExcluded,
+            burstDetectionMethod,
         };
     }
 }

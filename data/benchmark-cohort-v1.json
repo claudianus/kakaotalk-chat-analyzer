@@ -1,0 +1,12 @@
+{
+  "version": "benchmark-cohort-v1",
+  "description": "익명화 합성·공개 fixture 기반 참고 분위 (추정)",
+  "sampleRooms": 42,
+  "reference": {
+    "participantGini": [0.25, 0.38, 0.52, 0.65, 0.78, 0.88],
+    "nightSharePercent": [8, 15, 22, 32, 42, 55],
+    "speakerSwitchRatePer100": [28, 38, 48, 58, 68, 82],
+    "rhythmScore": [32, 42, 52, 62, 72, 85],
+    "weekendSharePercent": [18, 24, 30, 38, 46, 58]
+  }
+}

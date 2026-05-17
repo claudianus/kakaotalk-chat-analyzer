@@ -28,6 +28,7 @@ import {
   computeActivityArc,
   computeBurstDays,
   computeConversationPace,
+  resolveBurstDetectionMethod,
 } from "./report-enrichment.js";
 import {
   isOpenChatBoilerplate,
@@ -41,6 +42,7 @@ import { buildEventSpine } from "./event-spine.js";
 import { buildRoomNarrative } from "./room-narrative.js";
 import { buildPeriodCompare } from "./period-compare.js";
 import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
+import { mergeEmbeddingThemes } from "./embedding-topics.js";
 import type { ExplorerPayload } from "./types.js";
 
 const ATTACHMENT_MARKERS = [
@@ -156,6 +158,8 @@ export class ReportAggregator {
   private roomShopSearchMessages = 0;
   private roomPhotoBundleMessages = 0;
   private pureLaughMessages = 0;
+  private openChatBoilerplateExcluded = 0;
+  private semanticThemeCandidates: { label: string; messageHits: number; score: number }[] = [];
   private readonly semanticReservoir: MessageReservoir | null;
 
   private prevMs: number | null = null;
@@ -197,12 +201,11 @@ export class ReportAggregator {
     const messageLength = msg.length;
     if (split.notices.length > 0 && split.userText.length === 0) return;
     const foundAttachments = getAttachmentMarkers(msg);
-    if (
-      messageLength < 2 ||
-      !HAS_TOKEN_CHAR_RE.test(msg) ||
-      isOpenChatBoilerplate(msg) ||
-      !shouldExtractKeywords(msg, foundAttachments)
-    ) {
+    if (isOpenChatBoilerplate(msg)) {
+      this.openChatBoilerplateExcluded += 1;
+      return;
+    }
+    if (messageLength < 2 || !HAS_TOKEN_CHAR_RE.test(msg) || !shouldExtractKeywords(msg, foundAttachments)) {
       return;
     }
     const kwTokens = tokenizeForKeywords(msg);
@@ -212,7 +215,14 @@ export class ReportAggregator {
     if (this.semanticReservoir && messageLength >= 12) this.semanticReservoir.push(msg);
   }
 
-  applySemanticKeywordBoost(items: { label: string; messageHits: number }[]): void {
+  applySemanticKeywordBoost(
+    items: { label: string; messageHits: number; score?: number }[],
+  ): void {
+    this.semanticThemeCandidates = items.map((item) => ({
+      label: item.label,
+      messageHits: item.messageHits,
+      score: item.score ?? item.messageHits,
+    }));
     for (const item of items) {
       this.keywordSupplement.addHits(item.label, Math.max(2, item.messageHits));
     }
@@ -517,7 +527,11 @@ export class ReportAggregator {
       minDocFreq: adaptiveMinCount(total, finalizeOpts?.koreanPrimary !== false),
     });
     const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit);
-    const topics = this.topicMap.buildTopics(total, buildTopicStopwords());
+    let topics = this.topicMap.buildTopics(total, buildTopicStopwords());
+    if (process.env.KCA_EMBEDDING_TOPICS === "1" && this.semanticThemeCandidates.length > 0) {
+      topics = mergeEmbeddingThemes(topics, this.semanticThemeCandidates, total);
+    }
+    const burstDetectionMethod = resolveBurstDetectionMethod();
     const keywordTop1SharePercent = top1ShareFromCounts(keywords, total);
     let attachmentMarkerSum = 0;
     for (const c of this.attachments.values()) attachmentMarkerSum += c;
@@ -769,6 +783,8 @@ export class ReportAggregator {
       periodCompare,
       benchmarks,
       explorer,
+      openChatBoilerplateExcluded: this.openChatBoilerplateExcluded,
+      burstDetectionMethod,
     };
   }
 }

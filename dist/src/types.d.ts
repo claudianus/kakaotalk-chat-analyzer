@@ -401,4 +401,8 @@ export interface ReportData {
     benchmarks: BenchmarkMetric[];
     /** 클라이언트 탐색용 집계 */
     explorer: ExplorerPayload;
+    /** 오픈채팅 환영·규칙 복붙 등 키워드 분석 제외 건수 */
+    openChatBoilerplateExcluded: number;
+    /** 급증일 탐지 방식 */
+    burstDetectionMethod: "heuristic" | "mad";
 }

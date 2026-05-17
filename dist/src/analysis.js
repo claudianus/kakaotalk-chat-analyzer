@@ -9,6 +9,8 @@ import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { logReportProgress, resetReportProgress } from "./report-progress.js";
 import { resolveSemanticKeywords, shouldCollectSemanticSamples } from "./semantic-policy.js";
 import { extractSemanticKeywords } from "./semantic-keywords.js";
+import { createMessageSpoolPath, iterateSpoolRecords, removeSpool } from "./analysis-spool.js";
+import { createWriteStream } from "node:fs";
 import { streamKakaoExport } from "./stream-parser.js";
 import { recordOnOrAfter } from "./report-date-filter.js";
 const DEFAULT_TOP = 30;
@@ -104,26 +106,52 @@ export async function buildReportDataAsync(result, options) {
 function messageTextFromRecord(record) {
     return record.message;
 }
-async function runStatsPass(filePath, agg, prepass, streamOpts) {
+async function runStatsPass(filePath, agg, prepass, streamOpts, spoolPath) {
     let meta = null;
     const since = streamOpts?.since;
-    for await (const event of streamKakaoExport(filePath, streamOpts)) {
-        if (event.type === "record") {
-            if (since && !recordOnOrAfter(event.record, since))
-                continue;
-            prepass.onMessageText(messageTextFromRecord(event.record));
-            agg.consume(event.record, { skipKeywords: true });
+    let spoolWriter;
+    try {
+        for await (const event of streamKakaoExport(filePath, streamOpts)) {
+            if (event.type === "record") {
+                if (since && !recordOnOrAfter(event.record, since))
+                    continue;
+                prepass.onMessageText(messageTextFromRecord(event.record));
+                agg.consume(event.record, { skipKeywords: true });
+                if (spoolPath) {
+                    if (!spoolWriter)
+                        spoolWriter = createWriteStream(spoolPath, { encoding: "utf8" });
+                    const line = `${JSON.stringify(event.record)}\n`;
+                    if (!spoolWriter.write(line)) {
+                        await new Promise((resolve) => spoolWriter.once("drain", resolve));
+                    }
+                }
+            }
+            else {
+                meta = {
+                    filePath: event.meta.filePath,
+                    encoding: event.meta.encoding,
+                    physicalLines: event.meta.physicalLines,
+                    warningCount: event.meta.warnings.length,
+                };
+            }
         }
-        else {
-            meta = {
-                filePath: event.meta.filePath,
-                encoding: event.meta.encoding,
-                physicalLines: event.meta.physicalLines,
-                warningCount: event.meta.warnings.length,
-            };
+    }
+    finally {
+        if (spoolWriter) {
+            await new Promise((resolve, reject) => {
+                spoolWriter.end(() => resolve());
+                spoolWriter.once("error", reject);
+            });
         }
     }
     return meta;
+}
+async function runKeywordPassFromSpool(spoolPath, agg, since) {
+    for await (const record of iterateSpoolRecords(spoolPath)) {
+        if (since && !recordOnOrAfter(record, since))
+            continue;
+        agg.consume(record, { keywordsOnly: true });
+    }
 }
 async function runKeywordPass(filePath, agg, streamOpts) {
     const since = streamOpts?.since;
@@ -158,74 +186,85 @@ export async function buildReportFromExportSync(filePath, options) {
         };
     };
     let meta = null;
-    if (useKiwi) {
-        if (showProgress)
-            logReportProgress({ phase: "대화 집계", current: 0 });
-        meta = await runStatsPass(filePath, agg, prepass, progressOpts("대화 집계"));
-        if (!meta)
-            throw new Error(`No messages parsed from export: ${filePath}`);
-        const estimated = prepass.messageCount;
-        if (showProgress)
-            logReportProgress({ phase: "대화 집계", current: estimated, total: estimated });
-        if (showProgress)
-            logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
-        const glossary = await loadGlossaryForExport(filePath);
-        const userWords = mergeUserWords(glossary, prepass.toUserWords());
-        await initKiwiRuntime(userWords);
-        if (showProgress)
-            logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
-        agg.resetKeywordPipeline();
-        if (showProgress)
-            logReportProgress({ phase: "키워드·주제", current: 0 });
-        await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));
-        if (showProgress) {
-            logReportProgress({ phase: "키워드·주제", current: estimated, total: estimated });
-        }
-    }
-    else {
-        if (showProgress)
-            logReportProgress({ phase: "대화 분석", current: 0 });
-        await initKiwiRuntime([]);
-        for await (const event of streamKakaoExport(filePath, progressOpts("대화 분석"))) {
-            if (event.type === "record") {
-                if (since && !recordOnOrAfter(event.record, since))
-                    continue;
-                prepass.onMessageText(messageTextFromRecord(event.record));
-                agg.consume(event.record);
+    const spoolPath = useKiwi ? await createMessageSpoolPath() : null;
+    try {
+        if (useKiwi) {
+            if (showProgress)
+                logReportProgress({ phase: "대화 집계", current: 0 });
+            meta = await runStatsPass(filePath, agg, prepass, progressOpts("대화 집계"), spoolPath);
+            if (!meta)
+                throw new Error(`No messages parsed from export: ${filePath}`);
+            const estimated = prepass.messageCount;
+            if (showProgress)
+                logReportProgress({ phase: "대화 집계", current: estimated, total: estimated });
+            if (showProgress)
+                logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
+            const glossary = await loadGlossaryForExport(filePath);
+            const userWords = mergeUserWords(glossary, prepass.toUserWords());
+            await initKiwiRuntime(userWords);
+            if (showProgress)
+                logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
+            agg.resetKeywordPipeline();
+            if (showProgress)
+                logReportProgress({ phase: "키워드·주제", current: 0 });
+            if (spoolPath) {
+                await runKeywordPassFromSpool(spoolPath, agg, since);
             }
             else {
-                meta = {
-                    filePath: event.meta.filePath,
-                    encoding: event.meta.encoding,
-                    physicalLines: event.meta.physicalLines,
-                    warningCount: event.meta.warnings.length,
-                };
+                await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));
+            }
+            if (showProgress) {
+                logReportProgress({ phase: "키워드·주제", current: estimated, total: estimated });
             }
         }
-        if (!meta)
-            throw new Error(`No messages parsed from export: ${filePath}`);
-        if (showProgress) {
-            logReportProgress({
-                phase: "대화 분석",
-                current: prepass.messageCount,
-                total: prepass.messageCount,
-            });
+        else {
+            if (showProgress)
+                logReportProgress({ phase: "대화 분석", current: 0 });
+            await initKiwiRuntime([]);
+            for await (const event of streamKakaoExport(filePath, progressOpts("대화 분석"))) {
+                if (event.type === "record") {
+                    if (since && !recordOnOrAfter(event.record, since))
+                        continue;
+                    prepass.onMessageText(messageTextFromRecord(event.record));
+                    agg.consume(event.record);
+                }
+                else {
+                    meta = {
+                        filePath: event.meta.filePath,
+                        encoding: event.meta.encoding,
+                        physicalLines: event.meta.physicalLines,
+                        warningCount: event.meta.warnings.length,
+                    };
+                }
+            }
+            if (!meta)
+                throw new Error(`No messages parsed from export: ${filePath}`);
+            if (showProgress) {
+                logReportProgress({
+                    phase: "대화 분석",
+                    current: prepass.messageCount,
+                    total: prepass.messageCount,
+                });
+            }
         }
+        const useSemantic = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
+        if (showProgress)
+            logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
+        const usedSemantic = await applySemanticKeywords(agg, useSemantic, showProgress);
+        const report = agg.finalize(meta, {
+            usedSemanticKeywords: usedSemantic,
+            koreanPrimary: prepass.isPrimarilyKorean(),
+        });
+        if (showProgress) {
+            logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
+            const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
+            console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}`);
+        }
+        return withKiwiAnalysisFlag(report);
     }
-    const useSemantic = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
-    if (showProgress)
-        logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
-    const usedSemantic = await applySemanticKeywords(agg, useSemantic, showProgress);
-    const report = agg.finalize(meta, {
-        usedSemanticKeywords: usedSemantic,
-        koreanPrimary: prepass.isPrimarilyKorean(),
-    });
-    if (showProgress) {
-        logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
-        const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
-        console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}`);
+    finally {
+        await removeSpool(spoolPath);
     }
-    return withKiwiAnalysisFlag(report);
 }
 export async function buildReportFromExport(filePath, options) {
     if (await shouldUseAnalyzeWorker(filePath, options)) {

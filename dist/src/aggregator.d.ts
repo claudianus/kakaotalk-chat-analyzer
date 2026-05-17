@@ -70,6 +70,8 @@ export declare class ReportAggregator {
     private roomShopSearchMessages;
     private roomPhotoBundleMessages;
     private pureLaughMessages;
+    private openChatBoilerplateExcluded;
+    private semanticThemeCandidates;
     private readonly semanticReservoir;
     private prevMs;
     private prevSender;
@@ -85,6 +87,7 @@ export declare class ReportAggregator {
     applySemanticKeywordBoost(items: {
         label: string;
         messageHits: number;
+        score?: number;
     }[]): void;
     consume(record: ChatRecord, opts?: {
         keywordsOnly?: boolean;

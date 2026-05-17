@@ -21,19 +21,26 @@ await writeFile(csvPath, lines.join("\n"), "utf8");
 
 const phases = [
   { label: "no-semantic", opts: { privacy: "public-masked", semanticKeywords: false } },
+  { label: "no-kiwi", opts: { privacy: "public-masked", semanticKeywords: false }, env: { KCA_NO_KIWI: "1" } },
   { label: "full", opts: { privacy: "public-masked" } },
 ];
 
 console.log(`rows: ${rows.toLocaleString("ko-KR")}`);
+const prevEnv = { ...process.env };
 try {
   for (const phase of phases) {
+    process.env.KCA_NO_KIWI = "";
+    process.env.KCA_NO_SEMANTIC = "";
+    if (phase.env) Object.assign(process.env, phase.env);
     const t0 = performance.now();
     const data = await buildReportFromExportSync(csvPath, phase.opts);
     const ms = performance.now() - t0;
     console.log(
-      `[${phase.label}] ${Math.round(ms)}ms · ${Math.round((rows / ms) * 1000)} rows/s · msgs ${data.summary.totalMessages}`,
+      `[${phase.label}] ${Math.round(ms)}ms · ${Math.round((rows / ms) * 1000)} rows/s · msgs ${data.summary.totalMessages} · burst ${data.burstDetectionMethod}`,
     );
   }
 } finally {
+  process.env.KCA_NO_KIWI = prevEnv.KCA_NO_KIWI;
+  process.env.KCA_NO_SEMANTIC = prevEnv.KCA_NO_SEMANTIC;
   await rm(dir, { recursive: true, force: true });
 }
