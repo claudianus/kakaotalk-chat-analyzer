@@ -1,0 +1,58 @@
+scripts/bench-stream.mjs
+  s_23ea5bc305de1c::t_b470587f7be7ea 29-30
+  s_23ea5bc305de1c::t_5935efe628625e 44-47
+src/analysis-spool.ts
+  s_23ea5bc305de1c::t_c20be46b84eec2 1,10
+test/report-provenance.test.ts
+  s_23ea5bc305de1c::t_c4de064c3fd38e 53-71
+  s_23ea5bc305de1c::t_326a6fab42ca1e 7
+src/report-provenance.ts
+  s_23ea5bc305de1c::t_f5545a8d162415 7
+  s_23ea5bc305de1c::t_d41a92d2f882f9 77,80-102,105-106
+dist/src/report-provenance.js.map
+  ai_agent 1
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/embedding-topics.js.map
+  ai_agent 1
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_cadd5e30a9fa04 14,211,213-221
+src/analysis.ts
+  s_23ea5bc305de1c::t_4288e6a5be6648 16
+  s_23ea5bc305de1c::t_6a441ffed820a1 260,262-269
+dist/src/embedding-topics.js
+  s_23ea5bc305de1c::t_cadd5e30a9fa04 5-6,14
+dist/src/report-provenance.d.ts
+  s_23ea5bc305de1c::t_cadd5e30a9fa04 16
+dist/src/analysis-spool.js.map
+  ai_agent 1
+dist/src/analysis-spool.js
+  s_23ea5bc305de1c::t_cadd5e30a9fa04 1,8
+src/embedding-topics.ts
+  s_23ea5bc305de1c::t_dbdabc4f7a8416 20
+  s_23ea5bc305de1c::t_e44dc31528cb3a 12-13
+dist/src/report-provenance.js
+  s_23ea5bc305de1c::t_cadd5e30a9fa04 1,51,54-63,65
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_cadd5e30a9fa04 267-270
+dist/src/aggregator.js.map
+  ai_agent 1
+src/aggregator.ts
+  s_23ea5bc305de1c::t_01dcb64f9479d0 343-345
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a58e3130a78add53f6ce1fe2b2b2838bc4562692",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
