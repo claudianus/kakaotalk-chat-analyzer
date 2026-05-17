@@ -18,7 +18,7 @@ import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
 import { buildTopicStopwords } from "./topic-stopwords.js";
 import { MessageReservoir } from "./message-reservoir.js";
-import { semanticReservoirCap } from "./semantic-policy.js";
+import { semanticReservoirCap, semanticSampleCap, subsampleSemanticMessages } from "./semantic-policy.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
@@ -176,7 +176,10 @@ export class ReportAggregator {
   }
 
   drainSemanticSamples(): string[] {
-    return this.semanticReservoir?.drain() ?? [];
+    const raw = this.semanticReservoir?.drain() ?? [];
+    if (raw.length === 0) return raw;
+    const cap = semanticSampleCap(Math.max(this.total, raw.length));
+    return subsampleSemanticMessages(raw, cap);
   }
 
   messageCount(): number {

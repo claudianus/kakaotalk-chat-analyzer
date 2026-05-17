@@ -49,17 +49,6 @@ function tensorToRows(tensor) {
     }
     return out;
 }
-/** 리저보어가 cap보다 많을 때 무작위 subsample */
-function subsampleMessages(messages, cap) {
-    if (messages.length <= cap)
-        return messages;
-    const indices = messages.map((_, i) => i);
-    for (let i = 0; i < cap; i += 1) {
-        const j = i + Math.floor(Math.random() * (indices.length - i));
-        [indices[i], indices[j]] = [indices[j], indices[i]];
-    }
-    return indices.slice(0, cap).map((i) => messages[i]);
-}
 async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampleCap(messages.length)) {
     const modelId = semanticEmbeddingModelId();
     const clipped = messages
@@ -82,9 +71,8 @@ export async function extractSemanticKeywords(messages, options) {
     if (samples.length < MIN_SAMPLES)
         return [];
     const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
-    const forEmbed = samples.length > embedCap ? subsampleMessages(samples, embedCap) : samples;
     const pipe = await loadPipeline();
-    const vectors = await embedMessages(pipe, forEmbed, options.onProgress, embedCap);
+    const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap);
     if (vectors.length < MIN_SAMPLES)
         return [];
     const tokenBags = samples.map((m) => tokenizeForKeywords(m));

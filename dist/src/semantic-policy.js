@@ -12,6 +12,17 @@ export function semanticReservoirCap(estimatedMessages) {
         return LARGE_CORPUS_SEMANTIC_CAP;
     return semanticSampleCap(estimatedMessages);
 }
+/** 리저보어·임베딩 상한 초과 시 무작위 subsample */
+export function subsampleSemanticMessages(messages, cap) {
+    if (messages.length <= cap)
+        return messages;
+    const indices = messages.map((_, i) => i);
+    for (let i = 0; i < cap; i += 1) {
+        const j = i + Math.floor(Math.random() * (indices.length - i));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices.slice(0, cap).map((i) => messages[i]);
+}
 /** 한국어 MTEB 경량 1위급 — intfloat/multilingual-e5-small (Xenova ONNX) */
 export const DEFAULT_KOREAN_SEMANTIC_MODEL = "Xenova/multilingual-e5-small";
 /** 이전 기본값(롤백: `KCA_SEMANTIC_MODEL` 로 지정) */
