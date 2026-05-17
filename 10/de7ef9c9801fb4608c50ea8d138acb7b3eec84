@@ -1,0 +1,58 @@
+docs/index.html
+  ai_agent 264
+src/cli.ts
+  s_23ea5bc305de1c::t_717754d7fcffb2 78-81
+  s_23ea5bc305de1c::t_d3d2c785cae4e3 205
+  s_23ea5bc305de1c::t_bb2f20b3cbf020 36
+src/version.ts
+  ai_agent 1
+dist/src/cli.js.map
+  ai_agent 1
+src/kakao-export-discovery.ts
+  s_23ea5bc305de1c::t_843ce82b25ade1 26-38,41-47
+  s_23ea5bc305de1c::t_0d6ee704cadba1 1
+  s_23ea5bc305de1c::t_a1a284e2bf314a 14
+package.json
+  s_23ea5bc305de1c::t_317f4fae0c2576 3
+dist/src/kakao-export-discovery.d.ts
+  s_23ea5bc305de1c::t_175990cc47e9ee 8,16-17
+dist/src/kakao-export-discovery.js.map
+  ai_agent 1
+kcachat/package.json
+  s_23ea5bc305de1c::t_e0813f6cfad168 3
+  s_23ea5bc305de1c::t_77c537ee417b34 15
+kcachat/README.md
+  s_23ea5bc305de1c::t_b4337b4934303f 11
+README.md
+  s_23ea5bc305de1c::t_419d9dc7d3414a 21
+  s_23ea5bc305de1c::t_d568c8a5895370 188-193
+  s_23ea5bc305de1c::t_8ea952ccc0fe33 133
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_175990cc47e9ee 1-2
+dist/src/version.js
+  s_23ea5bc305de1c::t_175990cc47e9ee 1
+dist/src/cli.js
+  s_23ea5bc305de1c::t_175990cc47e9ee 23,54,165
+test/kakao-export-discovery.test.ts
+  s_23ea5bc305de1c::t_c4eebb722ec0c9 3
+  s_23ea5bc305de1c::t_1c8e2fab184611 12-23
+  s_23ea5bc305de1c::t_5977a563285bb0 8
+dist/src/kakao-export-discovery.js
+  s_23ea5bc305de1c::t_175990cc47e9ee 1,8-19,22-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "10de7ef9c9801fb4608c50ea8d138acb7b3eec84",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
