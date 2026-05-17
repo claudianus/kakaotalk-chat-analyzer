@@ -1,0 +1,23 @@
+scripts/docs-open-preview.mjs
+  s_23ea5bc305de1c::t_8594fcc05b0093 1-26
+package.json
+  s_23ea5bc305de1c::t_28ff61f2c2d2b6 38
+docs/index.html
+  s_23ea5bc305de1c::t_19d79a69bcce54 405,469,517,519-520
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "9a9de95e4ab9b285988a2464e2c58ae8f869ef92",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
