@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
@@ -10,7 +11,7 @@ export interface KakaoExportFile {
 }
 
 export interface ResolveKakaoExportOptions {
-  /** 검색 폴더 (기본: KCA_CSV_DIR → ~/Downloads) */
+  /** 검색 폴더 (기본: KCA_CSV_DIR → OS별 카카오톡 저장 폴더) */
   dir?: string;
   /** 0 = 최신, 1 = 두 번째로 최근 … */
   index?: number;
@@ -22,9 +23,28 @@ export function expandHome(path: string): string {
   return path.startsWith("~") ? join(homedir(), path.slice(1)) : path;
 }
 
+/** OS별 카카오톡 CSV 기본 검색 경로(우선순위). Windows: Documents\\카카오톡 받은 파일 */
+export function platformKakaoCsvDirCandidates(home = homedir()): string[] {
+  if (process.platform === "win32") {
+    const documents = join(home, "Documents");
+    return [
+      join(documents, "카카오톡 받은 파일"),
+      join(documents, "카카오톡"),
+      join(home, "Downloads"),
+    ];
+  }
+  return [join(home, "Downloads")];
+}
+
 export function defaultKakaoCsvDir(): string {
   const fromEnv = process.env.KCA_CSV_DIR ?? process.env.KCA_QA_CSV_DIR;
-  return resolve(expandHome(fromEnv ?? join(homedir(), "Downloads")));
+  if (fromEnv) return resolve(expandHome(fromEnv));
+
+  const candidates = platformKakaoCsvDirCandidates();
+  for (const dir of candidates) {
+    if (existsSync(dir)) return resolve(dir);
+  }
+  return resolve(candidates[0]!);
 }
 
 export async function listKakaoExports(dir: string): Promise<KakaoExportFile[]> {

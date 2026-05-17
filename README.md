@@ -18,7 +18,7 @@
 npx kcachat@latest
 ```
 
-[Node.js 22+](https://nodejs.org/) · CSV 생략 시 `KCA_CSV_DIR`(기본 Downloads) 최신 파일 · PC에만은 `--local` ([빠른 시작](#빠른-시작))
+[Node.js 22+](https://nodejs.org/) · CSV 생략 시 `KCA_CSV_DIR` 기본 폴더(Win: `Documents\카카오톡 받은 파일`, macOS: Downloads) · `--local` ([빠른 시작](#빠른-시작))
 
 <table>
   <tr>
@@ -130,6 +130,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.16.1** | Windows 기본 CSV 경로 `Documents\카카오톡 받은 파일` 자동 탐색 |
 | **0.16.0** | **최신 CSV 자동**(`npx kcachat`·`latest --list/--pick`)·진행률 추정·30분 세션 gap·topicModel provenance·Facts/Wrapped DOM 정렬 |
 | **0.15.0** | Trust UX(조건부 네비·참여자 카드)·키워드 RRF·burst MAD·Kiwi 1×CSV read·오픈채팅 인사이트·임베딩 주제 옵션 |
 | **0.13.8** | burst 활동일 스케일·대용량 gap exact quantile·주제맵 PMI/약한 edge·벤치 **추정** UI·회귀 fixture |
@@ -184,7 +185,12 @@ npx kcachat@latest --local
 # 또는 경로 지정: npx kcachat@latest "./KakaoTalk_Chat_....csv" --local
 ```
 
-**리포트 생성 후 기본 호스트(BrewPage)로 업로드** (CSV 생략 시 `~/Downloads` 등 **KCA_CSV_DIR**에서 최신 `KakaoTalk*.csv` 자동 선택):
+**리포트 생성 후 기본 호스트(BrewPage)로 업로드** (CSV 생략 시 **KCA_CSV_DIR** 또는 OS 기본 폴더에서 최신 `KakaoTalk*.csv` 자동 선택):
+
+| OS | 기본 폴더 |
+|----|-----------|
+| Windows | `%USERPROFILE%\Documents\카카오톡 받은 파일` |
+| macOS 등 | `~/Downloads` |
 
 ```bash
 npx kcachat@latest

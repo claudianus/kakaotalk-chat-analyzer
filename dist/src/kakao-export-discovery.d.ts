@@ -5,7 +5,7 @@ export interface KakaoExportFile {
     size: number;
 }
 export interface ResolveKakaoExportOptions {
-    /** 검색 폴더 (기본: KCA_CSV_DIR → ~/Downloads) */
+    /** 검색 폴더 (기본: KCA_CSV_DIR → OS별 카카오톡 저장 폴더) */
     dir?: string;
     /** 0 = 최신, 1 = 두 번째로 최근 … */
     index?: number;
@@ -13,6 +13,8 @@ export interface ResolveKakaoExportOptions {
     minBytes?: number;
 }
 export declare function expandHome(path: string): string;
+/** OS별 카카오톡 CSV 기본 검색 경로(우선순위). Windows: Documents\\카카오톡 받은 파일 */
+export declare function platformKakaoCsvDirCandidates(home?: string): string[];
 export declare function defaultKakaoCsvDir(): string;
 export declare function listKakaoExports(dir: string): Promise<KakaoExportFile[]>;
 export declare function resolveKakaoExport(options?: ResolveKakaoExportOptions): Promise<KakaoExportFile>;

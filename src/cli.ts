@@ -33,7 +33,7 @@ program.addHelpText(
   "after",
   `
 기본 사용법:
-  kca                            Downloads 등에서 최신 KakaoTalk CSV → 업로드
+  kca                            기본 저장 폴더에서 최신 KakaoTalk CSV → 업로드
   kca <보내기.csv>               지정 CSV → 업로드
   kca --local                    최신 CSV로 로컬 HTML만 (-o 로 폴더 지정)
   kca latest --list              후보 CSV 목록 (최신 10개)
@@ -75,7 +75,10 @@ function registerPipelineOptions(cmd: Command): void {
 
 function registerDiscoveryOptions(cmd: Command): void {
   cmd
-    .option("--dir <path>", "KakaoTalk CSV 검색 폴더 (기본: KCA_CSV_DIR 또는 ~/Downloads)")
+    .option(
+      "--dir <path>",
+      "KakaoTalk CSV 검색 폴더 (기본: KCA_CSV_DIR · Win: Documents\\카카오톡 받은 파일 · macOS: Downloads)",
+    )
     .option("--pick <n>", "0=최신, 1=두 번째로 최근 …", "0")
     .option("--list", "후보 CSV 목록만 출력하고 종료합니다.", false);
 }
@@ -199,7 +202,7 @@ main
 
 const latest = program
   .command("latest")
-  .description("KCA_CSV_DIR(기본 ~/Downloads)에서 최신 KakaoTalk CSV로 리포트·업로드.");
+  .description("KCA_CSV_DIR(기본 OS별 카카오톡 폴더)에서 최신 KakaoTalk CSV로 리포트·업로드.");
 
 registerPipelineOptions(latest);
 registerDiscoveryOptions(latest);

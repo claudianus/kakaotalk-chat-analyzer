@@ -1,12 +1,25 @@
 import assert from "node:assert/strict";
 import { mkdtemp, writeFile, utimes } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
   listKakaoExports,
+  platformKakaoCsvDirCandidates,
   resolveKakaoExport,
 } from "../src/kakao-export-discovery.js";
+
+test("platformKakaoCsvDirCandidates prefers Windows KakaoTalk Documents folder", () => {
+  const home = homedir();
+  const win = platformKakaoCsvDirCandidates(home);
+  if (process.platform === "win32") {
+    assert.equal(win[0], join(home, "Documents", "카카오톡 받은 파일"));
+    assert.equal(win[1], join(home, "Documents", "카카오톡"));
+    assert.equal(win[2], join(home, "Downloads"));
+  } else {
+    assert.deepEqual(win, [join(home, "Downloads")]);
+  }
+});
 
 test("listKakaoExports sorts by mtime descending", async () => {
   const dir = await mkdtemp(join(tmpdir(), "kca-disc-"));

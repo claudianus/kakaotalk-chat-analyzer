@@ -1,12 +1,32 @@
+import { existsSync } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 export function expandHome(path) {
     return path.startsWith("~") ? join(homedir(), path.slice(1)) : path;
 }
+/** OS별 카카오톡 CSV 기본 검색 경로(우선순위). Windows: Documents\\카카오톡 받은 파일 */
+export function platformKakaoCsvDirCandidates(home = homedir()) {
+    if (process.platform === "win32") {
+        const documents = join(home, "Documents");
+        return [
+            join(documents, "카카오톡 받은 파일"),
+            join(documents, "카카오톡"),
+            join(home, "Downloads"),
+        ];
+    }
+    return [join(home, "Downloads")];
+}
 export function defaultKakaoCsvDir() {
     const fromEnv = process.env.KCA_CSV_DIR ?? process.env.KCA_QA_CSV_DIR;
-    return resolve(expandHome(fromEnv ?? join(homedir(), "Downloads")));
+    if (fromEnv)
+        return resolve(expandHome(fromEnv));
+    const candidates = platformKakaoCsvDirCandidates();
+    for (const dir of candidates) {
+        if (existsSync(dir))
+            return resolve(dir);
+    }
+    return resolve(candidates[0]);
 }
 export async function listKakaoExports(dir) {
     const resolved = resolve(expandHome(dir));

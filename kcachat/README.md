@@ -8,7 +8,7 @@ npx kcachat@latest
 npx kcachat@latest "./KakaoTalk_Chat_....csv"
 ```
 
-`KCA_CSV_DIR`(기본 `~/Downloads`)에서 최신 `KakaoTalk*.csv`를 고릅니다. `latest --list` / `--pick N` 지원(본체 **0.16.0+**).
+`KCA_CSV_DIR` 미설정 시 Windows는 `Documents\카카오톡 받은 파일`, macOS는 `~/Downloads`에서 최신 `KakaoTalk*.csv`를 고릅니다. `latest --list` / `--pick N` 지원.
 
 ### `npx`·버전
 
