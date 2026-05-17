@@ -210,6 +210,23 @@ async function captureShot(page, shot) {
   return { file: shot.file, title: shot.title, caption: shot.caption };
 }
 
+async function applyCaptureTheme(page, theme) {
+  await page.evaluate((t) => {
+    document.documentElement.setAttribute("data-theme", t);
+    try {
+      localStorage.setItem("kca-report-theme", t);
+    } catch {
+      /* ignore */
+    }
+  }, theme);
+}
+
+async function waitReportReady(page) {
+  await page.waitForSelector("#s-wrapped", { timeout: 20_000 });
+  await waitChartCanvas(page, "#chart-kw-cloud").catch(() => {});
+  await page.waitForTimeout(500);
+}
+
 async function capture() {
   let chromium;
   try {
@@ -225,12 +242,33 @@ async function capture() {
   const browser = await chromium.launch({ headless: true });
   const manifestItems = [];
 
+  const captureTheme = process.env.KCA_DOCS_CAPTURE_THEME ?? "dark";
+
   try {
-    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 900 },
+      colorScheme: captureTheme === "dark" ? "dark" : "light",
+    });
+    const page = await context.newPage();
+    await page.addInitScript((theme) => {
+      document.documentElement.setAttribute("data-theme", theme);
+      try {
+        localStorage.setItem("kca-report-theme", theme);
+      } catch {
+        /* ignore */
+      }
+    }, captureTheme);
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout: 90_000 });
-    await page.waitForSelector("#s-wrapped", { timeout: 20_000 });
-    await waitChartCanvas(page, "#chart-kw-cloud").catch(() => {});
-    await page.waitForTimeout(500);
+    let activeTheme = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
+    if (activeTheme !== captureTheme) {
+      await applyCaptureTheme(page, captureTheme);
+      await page.reload({ waitUntil: "networkidle", timeout: 90_000 });
+    }
+    await waitReportReady(page);
+    activeTheme = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
+    if (activeTheme !== captureTheme) {
+      throw new Error(`capture theme: expected data-theme=${captureTheme}, got ${activeTheme ?? "null"}`);
+    }
 
     for (const shot of shots) {
       try {
