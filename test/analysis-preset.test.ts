@@ -64,15 +64,8 @@ test("getPresetEffectiveFlags maps balanced semantic cap", () => {
   assert.equal(flags.llmEnabled, false);
 });
 
-test("presetForcesSentimentOff for balanced allows ample RAM", () => {
-  const prev = process.env.KCA_MEMORY_PROBE;
-  process.env.KCA_MEMORY_PROBE = "free";
-  try {
-    assert.equal(presetForcesSentimentOff({ preset: "balanced" }, 50_000), true);
-  } finally {
-    if (prev === undefined) delete process.env.KCA_MEMORY_PROBE;
-    else process.env.KCA_MEMORY_PROBE = prev;
-  }
+test("presetForcesSentimentOff blocks speed; quality is never forced off", () => {
+  assert.equal(presetForcesSentimentOff({ preset: "speed" }), true);
   assert.equal(presetForcesSentimentOff({ preset: "quality" }), false);
 });
 
