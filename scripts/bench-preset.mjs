@@ -5,15 +5,17 @@
  * Usage:
  *   npm run bench:preset
  *   KCA_BENCH_PRESET=speed npm run bench:preset
+ *   KCA_BENCH_CSV=~/Downloads/KakaoTalk_xxx.csv npm run bench:preset
+ *   KCA_PROFILE_PHASES=1 KCA_BENCH_CSV=... npm run bench:preset
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { performance } from "node:perf_hooks";
 import { buildReportFromExport } from "../dist/src/analysis.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const fixture = join(root, "test/fixtures/keyword-golden.csv");
+const defaultFixture = join(root, "test/fixtures/keyword-golden.csv");
 
 const SLA_MS = {
   speed: 180_000,
@@ -21,8 +23,22 @@ const SLA_MS = {
   quality: 360_000,
 };
 
+function resolveFixture() {
+  const env = process.env.KCA_BENCH_CSV?.trim();
+  if (env) {
+    const path = env.startsWith("~") ? join(process.env.HOME ?? "", env.slice(1)) : env;
+    if (!existsSync(path)) {
+      console.error(`KCA_BENCH_CSV not found: ${path}`);
+      process.exit(1);
+    }
+    return path;
+  }
+  return defaultFixture;
+}
+
 async function main() {
   const preset = process.env.KCA_BENCH_PRESET?.trim() || "balanced";
+  const fixture = resolveFixture();
   const prevSemantic = process.env.KCA_NO_SEMANTIC;
   const prevSentiment = process.env.KCA_NO_SENTIMENT;
   const prevLlm = process.env.KCA_LLM;
@@ -39,7 +55,7 @@ async function main() {
   try {
     await buildReportFromExport(fixture, {
       preset,
-      local: true,
+      progress: false,
       semanticKeywords: preset !== "speed",
       sentiment: preset === "quality",
     });
@@ -56,7 +72,10 @@ async function main() {
   const cap = SLA_MS[preset] ?? SLA_MS.balanced;
   const ok = ms <= cap;
   const corpusLines = readFileSync(fixture, "utf8").split(/\r?\n/).length - 1;
-  console.log(`bench:preset preset=${preset} corpusLines≈${corpusLines} ms=${ms} cap=${cap} ${ok ? "PASS" : "FAIL"}`);
+  const custom = process.env.KCA_BENCH_CSV ? " custom_csv=1" : "";
+  console.log(
+    `bench:preset preset=${preset} corpusLines≈${corpusLines} ms=${ms} cap=${cap}${custom} ${ok ? "PASS" : "FAIL"}`,
+  );
   if (!ok) process.exit(1);
 }
 

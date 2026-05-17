@@ -29,6 +29,12 @@ let initPromise: Promise<Kiwi | null> | null = null;
 let readyKiwi: Kiwi | null = null;
 let initFailed = false;
 let pendingUserWords: UserWord[] = [];
+let appliedUserWordsKey = "";
+
+function userWordsKey(words: UserWord[]): string {
+  if (words.length === 0) return "";
+  return [...words.map((w) => w.word)].sort().join("\0");
+}
 
 function kiwiPackageRoot(): string {
   return dirname(fileURLToPath(import.meta.resolve("kiwi-nlp/package.json")));
@@ -98,20 +104,34 @@ async function buildKiwi(userWords: UserWord[]): Promise<Kiwi> {
   });
 }
 
+/** userWords 변경 시 재빌드 (prepareReportEngine 빈 init 후 export 경로) */
+export async function reinitKiwiRuntime(userWords: UserWord[] = []): Promise<Kiwi | null> {
+  readyKiwi = null;
+  initPromise = null;
+  initFailed = false;
+  appliedUserWordsKey = "";
+  return initKiwiRuntime(userWords);
+}
+
 /** 형태소 분석기 준비(실패 시 null → 휴리스틱 폴백) */
 export async function initKiwiRuntime(userWords: UserWord[] = []): Promise<Kiwi | null> {
   pendingUserWords = userWords;
+  const key = userWordsKey(userWords);
   if (process.env.KCA_NO_KIWI === "1") {
     initFailed = true;
     return null;
   }
-  if (readyKiwi) return readyKiwi;
+  if (readyKiwi) {
+    if (key === appliedUserWordsKey) return readyKiwi;
+    return reinitKiwiRuntime(userWords);
+  }
   if (initFailed) return null;
   if (!initPromise) {
     initPromise = (async () => {
       try {
         await ensureModelOnDisk();
         readyKiwi = await buildKiwi(pendingUserWords);
+        appliedUserWordsKey = userWordsKey(pendingUserWords);
         return readyKiwi;
       } catch (err) {
         initFailed = true;
@@ -192,4 +212,5 @@ export function resetKiwiRuntimeForTests(): void {
   initPromise = null;
   initFailed = false;
   pendingUserWords = [];
+  appliedUserWordsKey = "";
 }

@@ -9,9 +9,9 @@ import {
 } from "./sentiment-policy.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { configureTransformersEnv } from "./ml-runtime.js";
+import { resolveSentimentBatchSize } from "./ml-batch-size.js";
 
 const MIN_SAMPLES = 48;
-const BATCH = 16;
 
 export type SentimentLabel = "positive" | "negative" | "neutral";
 
@@ -80,6 +80,11 @@ async function loadPipeline(buildOptions?: BuildReportOptions): Promise<Classifi
   return pipelinePromise;
 }
 
+/** Kiwi 준비·키워드 패스와 병렬 워밍업 */
+export function preloadSentimentPipeline(buildOptions?: BuildReportOptions): Promise<ClassificationPipeline> {
+  return loadPipeline(buildOptions);
+}
+
 function asBatchOutput(
   out: { label: string; score: number } | { label: string; score: number }[],
 ): { label: string; score: number }[] {
@@ -95,8 +100,9 @@ export async function analyzeSentimentBatch(
   const modelId = sentimentModelId(buildOptions?.preset);
   const pipe = await loadPipeline(buildOptions);
   const labels: SentimentLabel[] = [];
-  for (let i = 0; i < messages.length; i += BATCH) {
-    const batch = messages.slice(i, i + BATCH).map((m) => m.slice(0, 512));
+  const batchSize = resolveSentimentBatchSize();
+  for (let i = 0; i < messages.length; i += batchSize) {
+    const batch = messages.slice(i, i + batchSize).map((m) => m.slice(0, 512));
     const out = await pipe(batch.length === 1 ? batch[0]! : batch);
     const rows = asBatchOutput(out);
     for (const row of rows) labels.push(normalizeLabel(row.label, modelId));

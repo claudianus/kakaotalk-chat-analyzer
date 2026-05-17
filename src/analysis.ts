@@ -10,16 +10,23 @@ import { runAnalyzeWorker, shouldUseAnalyzeWorker, type BuildReportOptions } fro
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { logReportProgress, resetReportProgress } from "./report-progress.js";
 import { resolveSemanticKeywords, shouldCollectSemanticSamples } from "./semantic-policy.js";
-import { extractSemanticKeywords } from "./semantic-keywords.js";
+import { extractSemanticKeywords, preloadSemanticPipeline } from "./semantic-keywords.js";
 import { resolveSentiment, shouldCollectSentimentSamples } from "./sentiment-policy.js";
-import { analyzeSentimentFromSamples } from "./sentiment-analyze.js";
+import { analyzeSentimentFromSamples, preloadSentimentPipeline } from "./sentiment-analyze.js";
+import { PhaseProfiler } from "./analysis-phase-profile.js";
+import { runKeywordPassFromSpoolPooled } from "./kiwi-keyword-pool.js";
 import { enrichReportWithLlm } from "./llm-apply.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolveLlmTier } from "./llm-policy.js";
 import { AnalysisBudgetTracker } from "./analysis-budget.js";
 import type { StreamParseOptions } from "./stream-options.js";
-import { createMessageSpoolPath, iterateSpoolRecords, removeSpool } from "./analysis-spool.js";
+import {
+  createMessageSpoolPath,
+  iterateSpoolRecords,
+  removeSpool,
+  type SpoolKeywordPassOptions,
+} from "./analysis-spool.js";
 import { createWriteStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { estimateKakaoMessageCount, streamKakaoExport } from "./stream-parser.js";
@@ -234,7 +241,7 @@ async function runStatsPass(
       if (event.type === "record") {
         if (since && !recordOnOrAfter(event.record, since)) continue;
         prepass.onMessageText(messageTextFromRecord(event.record));
-        agg.consume(event.record, { skipKeywords: true });
+        agg.consume(event.record, { skipKeywords: true, collectSamples: true });
         if (spoolPath) {
           if (!spoolWriter) spoolWriter = createWriteStream(spoolPath, { encoding: "utf8" });
           const line = `${JSON.stringify(event.record)}\n`;
@@ -262,11 +269,7 @@ async function runStatsPass(
   return meta;
 }
 
-export interface SpoolKeywordPassOptions {
-  since?: string;
-  progressEvery?: number;
-  onProgress?: (count: number) => void;
-}
+export type { SpoolKeywordPassOptions };
 
 export async function runKeywordPassFromSpool(
   spoolPath: string,
@@ -348,9 +351,13 @@ export async function buildReportFromExportSync(
 
   const spoolPath = useKiwi ? await createMessageSpoolPath() : null;
   let kiwiAvailableAtAnalysis = false;
+  const phaseProfiler = new PhaseProfiler();
+  let preset = resolvePresetNameWithAuto(options, messageEstimate);
+  let budget = new AnalysisBudgetTracker(preset, messageEstimate ?? 0, probeMachineProfileSync());
   try {
   if (useKiwi) {
     if (showProgress) logReportProgress({ phase: "대화 집계", current: 0 });
+    phaseProfiler.start("stats_pass");
     meta = await runStatsPass(
       filePath,
       agg,
@@ -358,43 +365,105 @@ export async function buildReportFromExportSync(
       progressOpts("대화 집계", messageEstimate),
       spoolPath,
     );
+    phaseProfiler.end("stats_pass");
     if (!meta) throw new Error(`No messages parsed from export: ${filePath}`);
 
     const estimated = prepass.messageCount;
     agg.ensureSampleCaps(estimated);
+    agg.markSamplesCollectedInStatsPass();
     if (showProgress) logReportProgress({ phase: "대화 집계", current: estimated, total: estimated });
 
-    if (showProgress) logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
-    const glossary = await loadGlossaryForExport(filePath);
-    const userWords = mergeUserWords(glossary, prepass.toUserWords());
-    await initKiwiRuntime(userWords);
-    kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
-    if (showProgress) logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
+    preset = resolvePresetNameWithAuto(options, estimated);
+    budget = new AnalysisBudgetTracker(preset, estimated, probeMachineProfileSync());
 
-    agg.resetKeywordPipeline();
-    if (showProgress) logReportProgress({ phase: "키워드·주제", current: 0 });
-    let spoolReady = false;
-    if (spoolPath) {
-      try {
-        const st = await stat(spoolPath);
-        spoolReady = st.size > 0;
-      } catch {
-        spoolReady = false;
+    let useSemanticOverlap = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
+    let useSentimentOverlap = resolveSentiment(options, prepass, prepass.sampleTexts());
+    if (useSemanticOverlap && budget.shouldSkip("semantic")) useSemanticOverlap = false;
+    if (useSentimentOverlap && budget.shouldSkip("sentiment")) useSentimentOverlap = false;
+
+    if (showProgress) logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
+
+    const runKiwiAndKeywordPass = async (): Promise<void> => {
+      phaseProfiler.start("kiwi_prep");
+      const glossary = await loadGlossaryForExport(filePath);
+      const userWords = mergeUserWords(glossary, prepass.toUserWords());
+      const warmups: Promise<unknown>[] = [initKiwiRuntime(userWords)];
+      if (useSemanticOverlap) warmups.push(preloadSemanticPipeline(options, estimated));
+      if (useSentimentOverlap) warmups.push(preloadSentimentPipeline(options));
+      await Promise.all(warmups);
+      kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
+      phaseProfiler.end("kiwi_prep");
+      if (showProgress) logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
+
+      agg.resetKeywordPipeline();
+      if (showProgress) logReportProgress({ phase: "키워드·주제", current: 0 });
+      phaseProfiler.start("keyword_pass");
+      let spoolReady = false;
+      if (spoolPath) {
+        try {
+          const st = await stat(spoolPath);
+          spoolReady = st.size > 0;
+        } catch {
+          spoolReady = false;
+        }
       }
-    }
-    if (spoolPath && spoolReady) {
       const kwProgress = progressOpts("키워드·주제", estimated);
-      await runKeywordPassFromSpool(spoolPath, agg, {
+      const kwOpts: SpoolKeywordPassOptions = {
         since,
         progressEvery: kwProgress?.progressEvery,
         onProgress: kwProgress?.onProgress,
-      });
-    } else {
-      await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));
+      };
+      if (spoolPath && spoolReady) {
+        await runKeywordPassFromSpoolPooled(spoolPath, agg, userWords, estimated, kwOpts);
+      } else {
+        await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));
+      }
+      phaseProfiler.end("keyword_pass");
+      if (showProgress) {
+        logReportProgress({ phase: "키워드·주제", current: estimated, total: estimated });
+      }
+    };
+
+    phaseProfiler.start("ml_overlap");
+    const [, usedSemanticOverlap, usedSentimentOverlap] = await Promise.all([
+      runKiwiAndKeywordPass(),
+      applySemanticKeywords(agg, useSemanticOverlap, showProgress, options),
+      applySentimentAnalysis(agg, useSentimentOverlap, showProgress, options),
+    ]);
+    phaseProfiler.end("ml_overlap");
+
+    if (showProgress) logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
+
+    let report = agg.finalize(
+      meta!,
+      finalizeProfileOpts(options, {
+        usedSemanticKeywords: usedSemanticOverlap,
+        usedSentimentAnalysis: usedSentimentOverlap,
+        koreanPrimary: prepass.isPrimarilyKorean(),
+      }),
+    );
+
+    const llmTier = resolveLlmTier(preset, probeMachineProfileSync());
+    phaseProfiler.start("llm");
+    if (llmTier !== "off" && !budget.shouldSkip("llm")) {
+      if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
+      report = await enrichReportWithLlm(report, options);
+      if (showProgress) logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
     }
+    phaseProfiler.end("llm");
+
     if (showProgress) {
-      logReportProgress({ phase: "키워드·주제", current: estimated, total: estimated });
+      logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
+      const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
+      const sent = report.summary.usedSentimentAnalysis ? " · 감정" : "";
+      const llm = report.summary.usedLlmAnalysis ? " · LLM" : "";
+      console.error(
+        `[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}${sent}${llm}`,
+      );
     }
+
+    phaseProfiler.logSummary(prepass.messageCount);
+    return { ...report, kiwiAvailableAtAnalysis };
   } else {
     if (showProgress) logReportProgress({ phase: "대화 분석", current: 0 });
     await initKiwiRuntime([]);
@@ -424,8 +493,8 @@ export async function buildReportFromExportSync(
     }
   }
 
-  const preset = resolvePresetNameWithAuto(options, prepass.messageCount);
-  const budget = new AnalysisBudgetTracker(preset, prepass.messageCount, probeMachineProfileSync());
+  preset = resolvePresetNameWithAuto(options, prepass.messageCount);
+  budget = new AnalysisBudgetTracker(preset, prepass.messageCount, probeMachineProfileSync());
 
   let useSemantic = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
   let useSentiment = resolveSentiment(options, prepass, prepass.sampleTexts());
@@ -434,10 +503,13 @@ export async function buildReportFromExportSync(
 
   if (showProgress) logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
 
+  phaseProfiler.start("ml");
   const [usedSemantic, usedSentiment] = await Promise.all([
     applySemanticKeywords(agg, useSemantic, showProgress, options),
     applySentimentAnalysis(agg, useSentiment, showProgress, options),
   ]);
+  phaseProfiler.end("ml");
+
   let report = agg.finalize(
     meta!,
     finalizeProfileOpts(options, {
@@ -448,11 +520,13 @@ export async function buildReportFromExportSync(
   );
 
   const llmTier = resolveLlmTier(preset, probeMachineProfileSync());
+  phaseProfiler.start("llm");
   if (llmTier !== "off" && !budget.shouldSkip("llm")) {
     if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
     report = await enrichReportWithLlm(report, options);
     if (showProgress) logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
   }
+  phaseProfiler.end("llm");
 
   if (showProgress) {
     logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
@@ -464,6 +538,7 @@ export async function buildReportFromExportSync(
     );
   }
 
+  phaseProfiler.logSummary(prepass.messageCount);
   return { ...report, kiwiAvailableAtAnalysis };
   } finally {
     await removeSpool(spoolPath);

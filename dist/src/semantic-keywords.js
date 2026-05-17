@@ -6,8 +6,8 @@ import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { DEFAULT_KOREAN_SEMANTIC_MODEL, formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
 import { configureTransformersEnv } from "./ml-runtime.js";
+import { resolveEmbedBatchSize } from "./ml-batch-size.js";
 const MIN_SAMPLES = 48;
-const EMBED_BATCH = 12;
 let pipelinePromise = null;
 let loadedModelId = null;
 async function loadPipelineForModel(modelId) {
@@ -49,6 +49,10 @@ async function loadPipeline(buildOptions, messageCount) {
     })();
     return pipelinePromise;
 }
+/** Kiwi 준비·키워드 패스와 병렬 워밍업 */
+export function preloadSemanticPipeline(buildOptions, messageCount) {
+    return loadPipeline(buildOptions, messageCount);
+}
 function tensorToRows(tensor) {
     const data = tensor.data instanceof Float32Array ? tensor.data : Float32Array.from(tensor.data);
     const dims = tensor.dims;
@@ -71,8 +75,9 @@ async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampl
     const subsampled = subsampleSemanticMessages(messages, maxSamples);
     const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
     const vectors = [];
-    for (let i = 0; i < clipped.length; i += EMBED_BATCH) {
-        const batch = clipped.slice(i, i + EMBED_BATCH);
+    const embedBatch = resolveEmbedBatchSize();
+    for (let i = 0; i < clipped.length; i += embedBatch) {
+        const batch = clipped.slice(i, i + embedBatch);
         const tensor = await pipe(batch, { pooling: "mean", normalize: true });
         vectors.push(...tensorToRows(tensor));
         onBatch?.(Math.min(i + batch.length, clipped.length), clipped.length);

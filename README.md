@@ -204,7 +204,9 @@ kca llm pull 2b                     # GGUF (optional node-llama-cpp)
 KCA_LLM_BACKEND=ollama KCA_LLM=1 kca ./chat.csv --preset custom
 ```
 
-환경 변수: `KCA_PRESET`, `KCA_SEMANTIC_MODEL`, `KCA_SENTIMENT_MODEL`, `KCA_LLM`, `KCA_LLM_MOCK`, `KCA_ONNX_GPU`, `KCA_KEYWORD_SUMMARY_TOP`, `KCA_SHOP_SEARCH_TOP`.
+환경 변수: `KCA_PRESET`, `KCA_SEMANTIC_MODEL`, `KCA_SENTIMENT_MODEL`, `KCA_LLM`, `KCA_LLM_MOCK`, `KCA_ONNX_GPU`, `KCA_EMBED_BATCH`, `KCA_SENTIMENT_BATCH`, `KCA_KIWI_WORKERS`, `KCA_NO_KIWI_WORKERS`, `KCA_PROFILE_PHASES`, `KCA_BENCH_CSV`, `KCA_KEYWORD_SUMMARY_TOP`, `KCA_SHOP_SEARCH_TOP`.
+
+**속도(품질 유지):** 대용량 CSV는 Kiwi worker pool(`KCA_KIWI_WORKERS`, RAM≥8GB 기본 2–4)·시맨틱/감정을 키워드 패스와 겹쳐 실행. `KCA_PROFILE_PHASES=1`로 단계별 ms. quality에서 GPU 가속: `onnxruntime-node` 설치 후 `KCA_ONNX_GPU=metal`(macOS)·`cuda`(Linux)·`dml`(Windows).
 
 **키워드:** 요약은 `KCA_KEYWORD_SUMMARY_TOP`(기본 12)·**빈도 순**; ④ 차트에서 **빈도/특이어** 탭 전환. 전체 ~120개는 집계 상한.
 

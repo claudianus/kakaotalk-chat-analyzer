@@ -87,6 +87,8 @@ export declare class ReportAggregator {
     private readonly sentimentReservoir;
     private readonly profanityCounter;
     private sentimentStats;
+    /** stats pass에서 리저보어를 채웠으면 keyword pass 중복 push 방지 */
+    private samplesCollectedInStatsPass;
     private prevMs;
     private prevSender;
     private runSender;
@@ -105,6 +107,10 @@ export declare class ReportAggregator {
     senderAliasMap(): Map<string, string>;
     messageCount(): number;
     resetKeywordPipeline(): void;
+    markSamplesCollectedInStatsPass(): void;
+    applyKeywordTokens(kwTokens: string[], monthKey: string): void;
+    private pushAnalysisSamples;
+    private pushSemanticSample;
     private consumeKeywords;
     applySemanticKeywordBoost(items: {
         label: string;
@@ -119,6 +125,7 @@ export declare class ReportAggregator {
     consume(record: ChatRecord, opts?: {
         keywordsOnly?: boolean;
         skipKeywords?: boolean;
+        collectSamples?: boolean;
     }): void;
     private bumpSystemNotice;
     finalize(meta: FinalizeSourceMeta, finalizeOpts?: FinalizeOptions): ReportData;

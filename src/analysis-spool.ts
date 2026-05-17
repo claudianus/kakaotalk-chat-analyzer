@@ -15,6 +15,12 @@ export async function removeSpool(spoolPath: string | null): Promise<void> {
   await unlink(spoolPath).catch(() => undefined);
 }
 
+export interface SpoolKeywordPassOptions {
+  since?: string;
+  progressEvery?: number;
+  onProgress?: (count: number) => void;
+}
+
 export async function* iterateSpoolRecords(spoolPath: string): AsyncGenerator<ChatRecord> {
   const rl = createInterface({
     input: createReadStream(spoolPath, { encoding: "utf8" }),

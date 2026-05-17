@@ -1,6 +1,7 @@
 import { formatDate, formatDateTime, partsToUtcMs, weekdayIndex } from "./date.js";
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats, SessionGapStats } from "./gap-stats.js";
+import { keywordTokensForRecord } from "./keyword-record-tokens.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { adaptiveMinCount, StreamingTfidfKeywords } from "./streaming-tfidf-keywords.js";
 import { TopicMapAccumulator } from "./topic-map.js";
@@ -12,6 +13,7 @@ import { SenderMessageReservoir } from "./sender-message-reservoir.js";
 import { ProfanityCounter } from "./profanity.js";
 import { sentimentReservoirCap, sentimentSampleCap, subsampleSentimentRecords, } from "./sentiment-policy.js";
 import { effectiveSemanticSampleCap, semanticReservoirCap, subsampleSemanticMessages, } from "./semantic-policy.js";
+import { getAttachmentMarkers, shouldExtractKeywords } from "./keyword-eligibility.js";
 import { mergeDualLaneKeywords } from "./keyword-rank-dual.js";
 import { shopSearchDisplayTop } from "./report-config.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
@@ -122,6 +124,8 @@ export class ReportAggregator {
     sentimentReservoir;
     profanityCounter;
     sentimentStats = null;
+    /** stats pass에서 리저보어를 채웠으면 keyword pass 중복 push 방지 */
+    samplesCollectedInStatsPass = false;
     prevMs = null;
     prevSender = null;
     runSender = null;
@@ -181,26 +185,46 @@ export class ReportAggregator {
         this.keywordStream = new StreamingTfidfKeywords();
         this.topicMap = new TopicMapAccumulator();
     }
-    consumeKeywords(record) {
-        const split = splitMessageForAnalysis(record.message);
-        const msg = split.userText.length > 0 ? split.userText : record.message;
-        const messageLength = msg.length;
-        if (split.notices.length > 0 && split.userText.length === 0)
-            return;
-        const foundAttachments = getAttachmentMarkers(msg);
-        if (isOpenChatBoilerplate(msg)) {
-            this.openChatBoilerplateExcluded += 1;
-            return;
-        }
-        if (messageLength < 2 || !HAS_TOKEN_CHAR_RE.test(msg) || !shouldExtractKeywords(msg, foundAttachments)) {
-            return;
-        }
-        const kwTokens = tokenizeForKeywords(msg);
+    markSamplesCollectedInStatsPass() {
+        this.samplesCollectedInStatsPass = true;
+    }
+    applyKeywordTokens(kwTokens, monthKey) {
         this.keywordStream.addDocumentTokens(kwTokens);
-        const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
         this.topicMap.addMessage(kwTokens, monthKey);
+        let monthBucket = this.monthlyKeywordBuckets.get(monthKey);
+        if (!monthBucket) {
+            monthBucket = new KeywordCounter();
+            this.monthlyKeywordBuckets.set(monthKey, monthBucket);
+        }
+        for (const t of kwTokens)
+            monthBucket.add(t);
+    }
+    pushAnalysisSamples(msg, sender, messageLength, isPureSystem) {
+        if (isPureSystem || isOpenChatBoilerplate(msg))
+            return;
+        if (this.sentimentReservoir && messageLength >= 12) {
+            this.sentimentReservoir.push(msg, sender);
+        }
+    }
+    pushSemanticSample(msg, messageLength) {
         if (this.semanticReservoir && messageLength >= 12)
             this.semanticReservoir.push(msg);
+    }
+    consumeKeywords(record) {
+        const row = keywordTokensForRecord(record);
+        if (!row) {
+            const split = splitMessageForAnalysis(record.message);
+            const msg = split.userText.length > 0 ? split.userText : record.message;
+            if (isOpenChatBoilerplate(msg))
+                this.openChatBoilerplateExcluded += 1;
+            return;
+        }
+        this.applyKeywordTokens(row.tokens, row.monthKey);
+        if (!this.samplesCollectedInStatsPass) {
+            const split = splitMessageForAnalysis(record.message);
+            const msg = split.userText.length > 0 ? split.userText : record.message;
+            this.pushSemanticSample(msg, msg.length);
+        }
     }
     applySemanticKeywordBoost(items) {
         const valid = items.filter((item) => !isNoiseKeyword(item.label));
@@ -330,7 +354,10 @@ export class ReportAggregator {
             }
             if (!isPureSystem && !isOpenChatBoilerplate(msg)) {
                 this.profanityCounter.add(msg, record.sender);
-                if (this.sentimentReservoir && messageLength >= 12) {
+                if (opts?.collectSamples) {
+                    this.pushAnalysisSamples(msg, record.sender, messageLength, isPureSystem);
+                }
+                else if (this.sentimentReservoir && messageLength >= 12) {
                     this.sentimentReservoir.push(msg, record.sender);
                 }
             }
@@ -342,16 +369,7 @@ export class ReportAggregator {
                 shouldExtractKeywords(msg, foundAttachments)) {
                 if (!opts?.skipKeywords) {
                     const kwTokens = tokenizeForKeywords(msg);
-                    this.keywordStream.addDocumentTokens(kwTokens);
-                    const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
-                    this.topicMap.addMessage(kwTokens, monthKey);
-                    let monthBucket = this.monthlyKeywordBuckets.get(monthKey);
-                    if (!monthBucket) {
-                        monthBucket = new KeywordCounter();
-                        this.monthlyKeywordBuckets.set(monthKey, monthBucket);
-                    }
-                    for (const t of kwTokens)
-                        monthBucket.add(t);
+                    this.applyKeywordTokens(kwTokens, `${record.date.year}-${pad2(record.date.month)}`);
                 }
                 if (!opts?.keywordsOnly) {
                     const kwOpts = {
@@ -363,8 +381,15 @@ export class ReportAggregator {
                     }
                     if (messageLength >= 12)
                         this.repeatPhraseCounter.add(msg, dayKey);
-                    if (this.semanticReservoir && messageLength >= 12)
-                        this.semanticReservoir.push(msg);
+                    if (opts?.collectSamples) {
+                        this.pushSemanticSample(msg, messageLength);
+                    }
+                    else if (!this.samplesCollectedInStatsPass) {
+                        this.pushSemanticSample(msg, messageLength);
+                    }
+                }
+                else if (opts?.collectSamples) {
+                    this.pushSemanticSample(msg, messageLength);
                 }
             }
         }
@@ -848,28 +873,6 @@ function getParticipantStat(stats, sender) {
     };
     stats.set(sender, created);
     return created;
-}
-function shouldExtractKeywords(message, attachmentMarkers) {
-    const trimmed = message.trim();
-    if (trimmed.length === 0)
-        return false;
-    if (attachmentMarkers.length === 1 && trimmed === attachmentMarkers[0])
-        return false;
-    if (attachmentMarkers.length > 0 && trimmed.length <= 16) {
-        const onlyMarkers = attachmentMarkers.every((m) => trimmed === m || trimmed.includes(m));
-        if (onlyMarkers && !/[가-힣A-Za-z]{3,}/.test(trimmed.replace(/[^\p{L}\p{N}]/gu, ""))) {
-            return false;
-        }
-    }
-    return true;
-}
-function getAttachmentMarkers(message) {
-    const found = ATTACHMENT_MARKERS.filter((marker) => message.includes(marker));
-    const t = message.trim();
-    if (PHOTO_BUNDLE_RE.test(t) && !found.includes("사진")) {
-        found.push("사진");
-    }
-    return found;
 }
 function buildRoomEventStats(total, c, shopExtra) {
     const sum = c.join +
