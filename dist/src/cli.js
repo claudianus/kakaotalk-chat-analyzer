@@ -12,6 +12,11 @@ import { createProvider, parseHostName } from "./providers/index.js";
 import { renderCompareHtml } from "./compare-report.js";
 import { parseSinceOption } from "./report-date-filter.js";
 import { renderReportHtml } from "./report.js";
+import { formatCapabilitiesReport, probeMachineProfile } from "./analysis-capability.js";
+import { autoPresetFromMachine, resolvePresetNameWithAuto } from "./analysis-preset.js";
+import { resolveLlmTier } from "./llm-policy.js";
+import { parsePullTier, pullLlmGguf } from "./llm-pull.js";
+import { semanticEmbeddingModelId } from "./semantic-policy.js";
 import { VERSION } from "./version.js";
 const DEFAULT_NAMESPACE = "kakao-chat-report";
 const DEFAULT_OUT = ".tmp/kca-report";
@@ -45,10 +50,13 @@ function registerPipelineOptions(cmd) {
         .option("--profile", "파싱·집계·HTML 단계별 소요 시간을 출력합니다.", false)
         .option("--worker", "3MB 이상 CSV를 Worker 스레드로 집계합니다(빠름). 기본은 품질 우선(메인 스레드).", false)
         .option("--no-worker", "Worker를 쓰지 않고 메인 스레드에서 집계합니다(기본과 동일).", false)
-        .option("--fast", "속도 우선 프로필(Worker·가벼운 시맨틱 융합). --worker 와 동일 효과.", false)
+        .option("--fast", "속도 우선(deprecated). --preset speed 와 동일.", false)
+        .option("--preset <name>", "분석 preset: speed | balanced | quality | custom (미지정 시 RAM·코퍼스 자동)")
         .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
         .option("--no-semantic-keywords", "한국어 방 기본 시맨틱 키워드(multilingual-e5-small)를 끕니다.", false)
         .option("--semantic-keywords", "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(e5-small, 최초 다운로드).", false)
+        .option("--no-sentiment", "한국어 방 기본 감정 분석(transformers)을 끕니다.", false)
+        .option("--sentiment", "한국어 비중과 관계없이 감정 분석을 강제합니다(최초 모델 다운로드).", false)
         .option("--since <date>", "YYYY-MM-DD 이후 메시지만 집계합니다.");
 }
 function registerDiscoveryOptions(cmd) {
@@ -98,6 +106,7 @@ async function runMainPipeline(csvPath, options) {
         privacy,
         top,
         profile: options.profile,
+        preset: parsePresetOption(options.preset, options.fast),
         worker: options.fast || options.worker ? true : options.noWorker ? false : undefined,
         progress: !options.noProgress,
         semanticKeywords: options.noSemanticKeywords
@@ -105,6 +114,7 @@ async function runMainPipeline(csvPath, options) {
             : options.semanticKeywords
                 ? true
                 : undefined,
+        sentiment: options.noSentiment ? false : options.sentiment ? true : undefined,
         since: parseSinceOption(options.since),
     });
     console.log(`리포트: ${htmlPath}`);
@@ -195,6 +205,26 @@ program
     await writeFile(outPath, html, "utf8");
     console.log(`비교 리포트: ${outPath}`);
 });
+const llmCmd = program.command("llm").description("로컬 LLM(GGUF) 모델 관리");
+llmCmd
+    .command("pull")
+    .argument("<tier>", "0.8b | 2b | 4b (또는 qwen3.5-2b)")
+    .description("Hugging Face에서 GGUF를 ~/.cache/kakaotalk-chat-analyzer/llm/ 에 받습니다.")
+    .action(async (tier) => {
+    const t = parsePullTier(tier);
+    const path = await pullLlmGguf(t);
+    console.log(`모델 경로: ${path}`);
+});
+program
+    .command("capabilities")
+    .description("RAM·CPU·추천 preset·예상 분석 시간을 출력합니다.")
+    .option("--messages <n>", "메시지 수(예상)", "90000")
+    .action(async (options) => {
+    const profile = await probeMachineProfile();
+    const n = Number.parseInt(options.messages, 10) || 90_000;
+    const preset = autoPresetFromMachine(profile, n);
+    console.log(formatCapabilitiesReport(profile, { preset, messageCount: n }));
+});
 program
     .command("inspect")
     .argument("<csv>", "카카오톡 CSV 보내기")
@@ -229,6 +259,16 @@ program.parseAsync(process.argv).catch((error) => {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
 });
+function parsePresetOption(preset, fast) {
+    if (fast)
+        return "speed";
+    const p = preset?.trim().toLowerCase();
+    if (p === "speed" || p === "balanced" || p === "quality" || p === "custom")
+        return p;
+    if (preset?.trim())
+        throw new Error(`지원하지 않는 preset: "${preset}". speed|balanced|quality|custom`);
+    return undefined;
+}
 function parsePickIndex(value) {
     const n = Number.parseInt(value, 10);
     if (!Number.isFinite(n) || n < 0) {
@@ -242,9 +282,11 @@ async function generateReport(csv, options) {
     const buildOpts = {
         privacy: options.privacy,
         top: options.top,
+        preset: options.preset,
         worker: options.worker,
         progress: options.progress,
         semanticKeywords: options.semanticKeywords,
+        sentiment: options.sentiment,
         since: options.since,
     };
     let t0 = performance.now();
@@ -260,6 +302,8 @@ async function generateReport(csv, options) {
         writeFileMs: 0,
         totalMs: parseAggregateMs,
     };
+    const machine = await probeMachineProfile();
+    const preset = resolvePresetNameWithAuto({ preset: options.preset, worker: options.worker }, data.summary.totalMessages);
     const preliminaryProvenance = buildReportProvenance(data, {
         privacy: options.privacy,
         top: options.top,
@@ -267,7 +311,13 @@ async function generateReport(csv, options) {
         workerRequested: resolveWorkerRequested(options.worker),
         workerUsed,
         semanticRequested: resolveSemanticRequested(options.semanticKeywords),
+        sentimentRequested: resolveSentimentRequested(options.sentiment),
         kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
+        preset,
+        semanticModel: semanticEmbeddingModelId({ preset: options.preset, worker: options.worker }),
+        llmTier: resolveLlmTier(preset, machine),
+        llmUsed: data.summary.usedLlmAnalysis === true,
+        gpu: machine.gpu,
         buildTiming: { ...buildTiming },
     });
     t0 = performance.now();
@@ -285,6 +335,7 @@ async function generateReport(csv, options) {
         workerRequested: resolveWorkerRequested(options.worker),
         workerUsed,
         semanticRequested: resolveSemanticRequested(options.semanticKeywords),
+        sentimentRequested: resolveSentimentRequested(options.sentiment),
         kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
         buildTiming: { ...buildTiming },
         htmlBytes: Buffer.byteLength(html, "utf8"),
@@ -316,6 +367,13 @@ function resolveSemanticRequested(semanticKeywords) {
     if (semanticKeywords === false)
         return false;
     if (semanticKeywords === true)
+        return true;
+    return "auto";
+}
+function resolveSentimentRequested(sentiment) {
+    if (sentiment === false)
+        return false;
+    if (sentiment === true)
         return true;
     return "auto";
 }

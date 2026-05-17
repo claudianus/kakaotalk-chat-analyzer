@@ -31,6 +31,8 @@ test("buildReportProvenance includes generator version and analysis flags", () =
   assert.equal(p.generator.version, VERSION);
   assert.equal(p.generator.name, "kakaotalk-chat-analyzer");
   assert.equal(p.analysis.semanticUsed, false);
+  assert.equal(p.analysis.sentimentUsed, false);
+  assert.ok(p.analysis.profanityLexiconVersion);
   assert.equal(p.output?.htmlBytes, 120_000);
   assert.equal(p.reportSchema, "2026-05");
 });
@@ -46,6 +48,7 @@ test("formatGeneratorLine shows kcachat chain", () => {
       privacy: "public-masked",
       top: 40,
       semanticUsed: false,
+      sentimentUsed: false,
       kiwiAvailable: false,
     },
   });

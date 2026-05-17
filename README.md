@@ -187,6 +187,34 @@ kca --help
 </details>
 
 <details>
+<summary><strong>분석 preset·기능 (0.18+)</strong></summary>
+
+| preset | 용도 | 90k 메시지 목표 | 시맨틱 | 감정 | LLM |
+|--------|------|-----------------|--------|------|-----|
+| `speed` | RAM·시간 최소 | ~3분 | 끔 | 끔 | 끔 |
+| `balanced` | 기본 권장 | ~5분 | e5-small | 자동 | 끔 |
+| `quality` | 한국어·서사 최대 | ~6분 | ko-v2 | KLUE | 2B/4B |
+| `custom` | 기능 직접 지정 | — | env/플래그 | env | `KCA_LLM=1` |
+
+```bash
+kca capabilities                    # RAM·추천 preset
+kca ./chat.csv --preset balanced
+kca ./chat.csv --preset quality --local
+kca llm pull 2b                     # GGUF (optional node-llama-cpp)
+KCA_LLM_BACKEND=ollama KCA_LLM=1 kca ./chat.csv --preset custom
+```
+
+환경 변수: `KCA_PRESET`, `KCA_SEMANTIC_MODEL`, `KCA_SENTIMENT_MODEL`, `KCA_LLM`, `KCA_LLM_MOCK`, `KCA_ONNX_GPU`, `KCA_KEYWORD_SUMMARY_TOP`, `KCA_SHOP_SEARCH_TOP`.
+
+**키워드:** 요약은 `KCA_KEYWORD_SUMMARY_TOP`(기본 12)·**빈도 순**; ④ 차트에서 **빈도/특이어** 탭 전환. 전체 ~120개는 집계 상한.
+
+**주제 맵:** graph(공기 군집)·keyword(상위 키워드 시드)·semantic(임베딩 클러스터) 3레인 RRF 병합 — 대용량 방에서 의미 테마 최대 12장. `KCA_TOPIC_MAX`, `KCA_TOPIC_MIN_THEMES`.
+
+**LLM (`quality` / `KCA_LLM=1`):** 주제 제목·서사 + `topicProposals`(키워드 화이트리스트) + 인사이트 bullet·샵검색/상호작용 한 줄(원문 미전송).
+
+</details>
+
+<details>
 <summary><strong>성능·키워드·벤치 (개발·파워유저)</strong></summary>
 
 - **스트리밍 파싱**: 대용량 CSV도 RAM에 통째로 올리지 않음  
@@ -197,11 +225,13 @@ kca --help
 ```bash
 npx kcachat@latest "./chat.csv" --profile --no-worker
 npm run bench:stream -- 100000   # 저장소 클론 후
+npm run bench:preset             # speed/balanced SLA 스모크
+KCA_BENCH_COMPARE=1 npm run bench:semantic
 ```
 
 </details>
 
-**버전 고정:** `npx kakaotalk-chat-analyzer@0.16.1` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
+**버전 고정:** `npx kakaotalk-chat-analyzer@0.18.0` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
 
 **로컬 개발:**
 
@@ -216,6 +246,11 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.18.2** | 주제 맵 3레인(graph·키워드·임베딩) 병합·테마 6~12·LLM `topicProposals` |
+| **0.18.1** | 키워드 빈도/특이어 dual-view·샵검색 통계·dyad 셀 숫자·LLM 인사이트 필드 |
+| **0.18.0** | preset(speed/balanced/quality)·5분 예산 skip·LLM 서사·KLUE 감정·dual-lane 툴팁·CI Playwright |
+| **0.17.2** | `kca llm pull`·provenance `llmUsed`·분석 예산 라우터 |
+| **0.16.6** | 글자 수 랭킹·비속어 패턴 통계·transformers 감정 분석(자동/선택) |
 | **0.16.5** | 상호작용 히트맵: 말 많은 사람 축 상단·지연 로드·로딩 스켈레톤 |
 | **0.16.4** | 대용량 방 키워드: minDf 스케일·메시지 수 우선 정렬·시맨틱은 BM25 후보만 보강 |
 | **0.16.3** | 기본 **품질 우선** 프로필(메인 스레드·시맨틱 샘플 확대·RRF 완화·임베딩 주제). 가속은 `--worker` / `--fast` |

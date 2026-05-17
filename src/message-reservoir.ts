@@ -1,11 +1,20 @@
 /** 메시지 본문 균등 샘플(시맨틱 키워드·임베딩용) */
 export class MessageReservoir {
-  private readonly cap: number;
+  private cap: number;
   private buf: string[] = [];
   private seen = 0;
 
   constructor(cap = 480) {
     this.cap = cap;
+  }
+
+  capacity(): number {
+    return this.cap;
+  }
+
+  growTo(newCap: number): void {
+    if (newCap <= this.cap) return;
+    this.cap = newCap;
   }
 
   push(message: string): void {

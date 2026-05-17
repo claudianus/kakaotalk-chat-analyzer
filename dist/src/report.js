@@ -11,6 +11,7 @@ import { renderInnovationDeck } from "./report-innovation.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
 import { hasBenchmarkSection, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasTimelineSection, } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
+import { keywordSummaryTop } from "./report-config.js";
 import { VERSION } from "./version.js";
 const FIVE_MIB = 5 * 1024 * 1024;
 export function renderReportHtml(data) {
@@ -84,7 +85,12 @@ export function renderReportHtml(data) {
     </section>`}
     <section class="grid two" style="margin-bottom:14px">
       ${panel(`참여자 랭킹 · 상위 ${formatNumber(Math.min(data.participants.length, 40))} / 전체 ${formatNumber(data.participants.length)}`, "누가 얼마나 보냈는지 비율과 평균 길이를 함께 봐요.", renderParticipants(data.participants))}
+      ${panel(`글자 수 랭킹 · 상위 ${formatNumber(Math.min(data.participantsByCharacters.length, 40))}`, "메시지 건수와 별도로, 보낸 글자 수·글자 비율로 봅니다.", renderParticipantsByCharacters(data.participantsByCharacters))}
+    </section>
+
+    <section class="grid two" style="margin-bottom:14px">
       ${panel("첨부 유형", "사진·동영상 등 메타 유형 비중이에요.", renderCountBars(data.attachments))}
+      ${renderToneSignalsPanel(data)}
     </section>
 
     <section class="grid two" style="margin-bottom:14px">
@@ -610,6 +616,53 @@ function renderParticipants(participants) {
     <table class="table table-rank rank-table-desktop"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${rows}</tbody></table>
   </div>`;
 }
+function renderParticipantsByCharacters(participants) {
+    if (participants.length === 0) {
+        return `<p style="margin:0;color:var(--muted);font-size:13px">글자 수 랭킹 데이터가 없습니다.</p>`;
+    }
+    const rows = participants
+        .map((p) => `<tr><td>${escapeHtml(p.alias)}</td><td class="num">${formatNumber(p.characters)}</td><td class="num">${p.characterSharePercent}%</td><td class="num">${formatNumber(p.messages)}</td><td class="num">${p.averageLength}</td></tr>`)
+        .join("");
+    const cards = participants
+        .map((p) => `<li class="rank-card"><strong>${escapeHtml(p.alias)}</strong><span class="rank-card-stat">${formatNumber(p.characters)}자 · ${p.characterSharePercent}%</span><span class="rank-card-meta">메시지 ${formatNumber(p.messages)}건 · 평균 ${p.averageLength}자</span></li>`)
+        .join("");
+    return `<div id="s-rank-chars" class="rank-participants">
+    <ul class="rank-card-list" aria-label="글자 수 랭킹 카드">${cards}</ul>
+    <table class="table table-rank rank-table-desktop"><thead><tr><th>표시명</th><th class="num">총 글자</th><th class="num">글자 비율</th><th class="num">메시지</th><th class="num">평균 길이</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>`;
+}
+function renderToneSignalsPanel(data) {
+    const blocks = [];
+    if (data.profanity.messagesWithProfanity > 0 || data.profanity.totalHits > 0) {
+        blocks.push(renderProfanityInline(data.profanity, data.summary.totalMessages));
+    }
+    if (data.sentiment && data.sentiment.sampleSize > 0) {
+        blocks.push(renderSentimentInline(data.sentiment));
+    }
+    if (blocks.length === 0) {
+        return panel("톤·감정 신호", "비속어 패턴·감정 분석(선택) 요약입니다.", `<p style="margin:0;color:var(--muted);font-size:13px">이 방에서는 감지된 비속 패턴이 없거나, 감정 분석 샘플이 부족합니다.</p>`);
+    }
+    return panel("톤·감정 신호", "건수만 표시하며 원문 욕설·문장은 노출하지 않습니다.", blocks.join(""));
+}
+function renderProfanityInline(profanity, totalMessages) {
+    const top = profanity.topBySender
+        .slice(0, 5)
+        .map((p) => `<li><strong>${escapeHtml(p.alias)}</strong> · hit ${formatNumber(p.hits)} · ${formatNumber(p.messages)}건</li>`)
+        .join("");
+    return `<div id="s-profanity" class="tone-block">
+    <h3 class="insight-sub">비속·거친 표현(패턴)</h3>
+    <p class="chart-hint">전체 <strong>${formatNumber(totalMessages)}</strong>건 중 패턴 매칭 메시지 <strong>${formatNumber(profanity.messagesWithProfanity)}</strong>건 · hit 합계 <strong>${formatNumber(profanity.totalHits)}</strong> · 100건당 <strong>${profanity.per100Messages}</strong></p>
+    ${top ? `<ul class="dyad-pairs">${top}</ul>` : ""}
+  </div>`;
+}
+function renderSentimentInline(sentiment) {
+    const compoundLabel = sentiment.compoundScore > 15 ? "전반적으로 긍정적" : sentiment.compoundScore < -15 ? "전반적으로 부정적" : "중립에 가까움";
+    return `<div id="s-sentiment" class="tone-block">
+    <h3 class="insight-sub">감정 톤(샘플 ${formatNumber(sentiment.sampleSize)}건)</h3>
+    <p class="chart-hint">긍정 <strong>${sentiment.positivePercent}%</strong> · 중립 <strong>${sentiment.neutralPercent}%</strong> · 부정 <strong>${sentiment.negativePercent}%</strong> · compound <strong>${sentiment.compoundScore}</strong> (${compoundLabel})</p>
+    <div id="chart-sentiment" class="chart-box compact" role="img" aria-label="감정 분포 차트"></div>
+  </div>`;
+}
 function renderRoomEvents(stats, totalMessages, pulse = []) {
     if (stats.total === 0) {
         return '<p style="margin:0;color:var(--muted);font-size:13px">시스템·운영 알림이 없거나, 보내기 형식에서 감지되지 않았습니다.</p>';
@@ -696,9 +749,12 @@ function renderTopicMap(data) {
     const themeBlock = themes.length > 0
         ? `<div class="topic-group"><h3 class="topic-group-title">의미 테마</h3><div class="topic-grid topic-grid--themes">${renderCards(themes)}</div></div>`
         : "";
+    const sparseThemes = themes.length <= 1 && data.summary.totalMessages >= 5000
+        ? ' <span class="chart-hint-warn">테마가 적으면 <strong>키워드</strong>·<strong>④ 차트</strong>·<strong>기간 비교</strong>를 함께 보세요.</span>'
+        : "";
     const hint = shortSpan
         ? "짧은 기간 보내기는 <strong>월 메시지 비중</strong>이 주제처럼 보일 수 있어, 월별 카드는 숨기고 「기간 비교」를 봐 주세요."
-        : "공기 그래프 군집·월별 <strong>c-TF-IDF</strong>로 뽑았어요. 비율은 해당 신호가 잡힌 메시지 근사치입니다.";
+        : `그래프·키워드·임베딩 신호를 합쳐 뽑았어요. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
     return `<section id="s-topics" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.052s">
     <h2>이 방의 주제 맵</h2>
     <p class="chart-hint">${hint}</p>
@@ -740,7 +796,8 @@ function renderShopSearchPromoted(data) {
 }
 function renderShopSearchSection(data, promoted = false) {
     const topics = data.shopSearchTopics;
-    const noticeCount = data.roomEvents.shopSearchCount;
+    const ev = data.roomEvents;
+    const noticeCount = ev.shopSearchCount;
     if (topics.length === 0 && noticeCount === 0)
         return "";
     if (promoted === false && openChatProfileFromReport(data).likely)
@@ -748,24 +805,29 @@ function renderShopSearchSection(data, promoted = false) {
     if (topics.length === 0) {
         return `<section style="margin-bottom:14px">${panel("샵검색 키워드", `시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건이 있으나, <code>샵검색:</code> 형식에서 #주제를 추출하지 못했습니다. 보내기 형식이 바뀌었을 수 있습니다.`, '<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>')}</section>`;
     }
-    const tagSum = topics.reduce((s, t) => s + t.count, 0);
-    const footnote = noticeCount > tagSum
-        ? `<p class="chart-hint" style="margin:10px 0 0">시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건 중 태그 추출 <strong>${formatNumber(tagSum)}</strong>건입니다.</p>`
+    const extractions = ev.shopSearchTagExtractions;
+    const unique = ev.shopSearchUniqueTags;
+    const untagged = ev.shopSearchUntaggedNotices;
+    const footnote = `<p class="chart-hint" style="margin:10px 0 0">알림 <strong>${formatNumber(noticeCount)}</strong>건 · 태그 추출 <strong>${formatNumber(extractions)}</strong>건(고유 <strong>${formatNumber(unique)}</strong>개)${untagged > 0 ? ` · 미추출 <strong>${formatNumber(untagged)}</strong>건` : ""}.</p>`;
+    const debug = data.shopSearchMissSamples?.length
+        ? `<details class="kca-debug-shop"><summary>미추출 샘플 (디버그)</summary><ul>${data.shopSearchMissSamples.map((s) => `<li><code>${escapeHtml(s)}</code></li>`).join("")}</ul></details>`
         : "";
     const title = promoted ? "샵검색 키워드 (오픈채팅)" : "샵검색 키워드";
-    return `<section id="s-shopsearch" style="margin-bottom:14px">${panel(title, "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote)}</section>`;
+    return `<section id="s-shopsearch" style="margin-bottom:14px">${panel(title, "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote + debug)}</section>`;
 }
 function renderKeywordCssFold(data) {
-    const body = renderKeywordSnapshot(data.keywords, data);
+    const topN = keywordSummaryTop();
+    const totalKw = data.keywords.length;
+    const body = renderKeywordSnapshot(data.keywords, data, topN);
     return `<details class="kw-css-fold" open>
-    <summary>키워드 상위 12개 요약<small>전체 순위·막대는 「④ 인터랙티브 차트」</small></summary>
+    <summary>키워드 상위 ${topN}개 요약<small>전체 ${formatNumber(totalKw)}개 · 빈도 순 · ④ 차트에서 특이어 순</small></summary>
     <div class="kw-css-body">
       <p class="chart-hint" style="margin:0 0 10px">숫자는 메시지 등장 횟수입니다.</p>
       ${body}
     </div>
   </details>`;
 }
-function renderKeywordSnapshot(items, data) {
+function renderKeywordSnapshot(items, data, topN = keywordSummaryTop()) {
     const sem = data.summary.usedSemanticKeywords === true
         ? " 한국어·다국어 <strong>임베딩</strong> 시맨틱 클러스터를 보조 반영했습니다."
         : "";
@@ -773,7 +835,7 @@ function renderKeywordSnapshot(items, data) {
     if (items.length === 0) {
         return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
     }
-    return note + renderCountBars(items.slice(0, 12));
+    return note + renderCountBars(items.slice(0, topN));
 }
 function renderCountBars(items) {
     if (items.length === 0)
@@ -782,7 +844,13 @@ function renderCountBars(items) {
     return `<div class="bars">${items
         .map((item) => {
         const width = Math.max(2, Math.round((item.count / max) * 100));
-        return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${width}%"></span></span><span class="bar-value">${formatNumber(item.count)}</span></div>`;
+        const laneTip = item.keywordLane === "bm25" && item.distinctiveRank
+            ? ` · 특이어 #${item.distinctiveRank}`
+            : item.keywordLane === "both"
+                ? " · 빈도+특이어"
+                : "";
+        const title = `${item.label} — 메시지 ${formatNumber(item.count)}건${laneTip}`;
+        return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(title)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${width}%"></span></span><span class="bar-value">${formatNumber(item.count)}</span></div>`;
     })
         .join("")}</div>`;
 }

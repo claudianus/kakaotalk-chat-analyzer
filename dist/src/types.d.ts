@@ -37,6 +37,8 @@ export interface ParticipantStat {
     linkMessages: number;
     /** 전체 메시지 대비 비율(%) */
     sharePercent: number;
+    /** 전체 글자 수 대비 비율(%) */
+    characterSharePercent: number;
     /** 23~05시(심야) 메시지 수 */
     nightMessages: number;
     /** 동일 발신자 연속 메시지 최대 길이 */
@@ -45,6 +47,33 @@ export interface ParticipantStat {
 export interface CountItem {
     label: string;
     count: number;
+    /** BM25 레인 내 순위(1=최상위 특이어) — dual-lane 병합 시 */
+    distinctiveRank?: number;
+    /** freq·bm25·both — 툴팁용 */
+    keywordLane?: "freq" | "bm25" | "both";
+}
+export interface ProfanityStats {
+    totalHits: number;
+    messagesWithProfanity: number;
+    per100Messages: number;
+    topBySender: {
+        alias: string;
+        hits: number;
+        messages: number;
+    }[];
+}
+export interface SentimentStats {
+    sampleSize: number;
+    positivePercent: number;
+    negativePercent: number;
+    neutralPercent: number;
+    compoundScore: number;
+    bySender: {
+        alias: string;
+        positivePercent: number;
+        negativePercent: number;
+        sampleMessages: number;
+    }[];
 }
 /** c-TF-IDF·공기 군집으로 뽑은 대화 주제 */
 export interface ReportTopic {
@@ -68,6 +97,12 @@ export interface RoomEventStats {
     subManagerCount: number;
     managerCount: number;
     shopSearchCount: number;
+    /** 샵검색 알림 중 #태그 추출에 성공한 횟수(태그별 합) */
+    shopSearchTagExtractions: number;
+    /** 고유 #태그 수 */
+    shopSearchUniqueTags: number;
+    /** 알림은 있으나 태그 미추출 */
+    shopSearchUntaggedNotices: number;
     photoBundleCount: number;
     total: number;
     joinSharePercent: number;
@@ -247,6 +282,15 @@ export interface ReportTimelineEvent {
     metric?: number;
     jumpId?: string;
 }
+export interface LlmInsights {
+    insightBullets?: string[];
+    shopSearchSummary?: string;
+    dyadInsight?: string;
+    topicProposals?: {
+        title: string;
+        terms: string[];
+    }[];
+}
 export interface RoomNarrative {
     ogSummary: string;
     paragraphs: string[];
@@ -314,8 +358,16 @@ export interface ReportProvenance {
         workerUsed?: boolean;
         semanticRequested?: boolean | "auto";
         semanticUsed: boolean;
+        sentimentRequested?: boolean | "auto";
+        sentimentUsed: boolean;
+        profanityLexiconVersion?: string;
         kiwiAvailable: boolean;
         topicModel?: "graph" | "embedding" | "hybrid";
+        preset?: string;
+        semanticModel?: string;
+        llmTier?: string;
+        llmUsed?: boolean;
+        gpu?: string;
     };
     output?: {
         htmlBytes: number;
@@ -366,9 +418,17 @@ export interface ReportData {
         emojiMessages: number;
         /** 시맨틱 임베딩 클러스터 키워드를 반영했는지 */
         usedSemanticKeywords?: boolean;
+        /** transformers 감정 분석 샘플을 반영했는지 */
+        usedSentimentAnalysis?: boolean;
+        /** 로컬 LLM(Qwen GGUF) 서사·주제 보강 사용 여부 */
+        usedLlmAnalysis?: boolean;
     };
     insights: ReportInsights;
     participants: ParticipantStat[];
+    /** 글자 수 내림차순(표시 상한은 top과 동일) */
+    participantsByCharacters: ParticipantStat[];
+    profanity: ProfanityStats;
+    sentiment: SentimentStats | null;
     daily: DailyCount[];
     hourly: number[];
     weekdays: CountItem[];
@@ -376,7 +436,10 @@ export interface ReportData {
     monthly: DailyCount[];
     attachments: CountItem[];
     domains: CountItem[];
+    /** 메시지 df 순(빈도 뷰·기본) */
     keywords: CountItem[];
+    /** BM25 합성점수 순(특이어 뷰) */
+    keywordsDistinctive: CountItem[];
     /** 대화 주제 맵(최대 8) */
     topics: ReportTopic[];
     roomEvents: RoomEventStats;
@@ -384,6 +447,8 @@ export interface ReportData {
     repeatedPhrases: RepeatedPhraseStat[];
     /** 샵검색 #주제 상위 */
     shopSearchTopics: CountItem[];
+    /** KCA_DEBUG_SHOP=1 시 미추출 알림 샘플 */
+    shopSearchMissSamples?: string[];
     /** ㅋㅎ만 있는 짧은 리액션 */
     pureLaughMessages: number;
     /** 템포·패턴 한 줄 요약 */
@@ -404,6 +469,8 @@ export interface ReportData {
     timeline: ReportTimelineEvent[];
     /** 규칙 기반 방 프로필 서사 */
     narrative: RoomNarrative;
+    /** LLM 보강 시 추가 인사이트(quality/custom) */
+    llmInsights?: LlmInsights;
     /** 처음/마지막·키워드 시프트 */
     periodCompare: PeriodComparison;
     /** 합성 참고 분위수(추정) */

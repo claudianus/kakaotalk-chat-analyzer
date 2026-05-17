@@ -8,8 +8,12 @@ import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
 import { buildTopicStopwords } from "./topic-stopwords.js";
 import { MessageReservoir } from "./message-reservoir.js";
-import { semanticReservoirCap, semanticSampleCap, subsampleSemanticMessages } from "./semantic-policy.js";
-import { mergeKeywordRankings } from "./keyword-merge.js";
+import { SenderMessageReservoir } from "./sender-message-reservoir.js";
+import { ProfanityCounter } from "./profanity.js";
+import { sentimentReservoirCap, sentimentSampleCap, subsampleSentimentRecords, } from "./sentiment-policy.js";
+import { effectiveSemanticSampleCap, semanticReservoirCap, subsampleSemanticMessages, } from "./semantic-policy.js";
+import { mergeDualLaneKeywords } from "./keyword-rank-dual.js";
+import { shopSearchDisplayTop } from "./report-config.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
@@ -22,7 +26,9 @@ import { buildEventSpine } from "./event-spine.js";
 import { buildRoomNarrative } from "./room-narrative.js";
 import { buildPeriodCompare } from "./period-compare.js";
 import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
-import { mergeEmbeddingThemes } from "./embedding-topics.js";
+import { semanticItemsToTopics } from "./embedding-topics.js";
+import { buildKeywordSeedTopics } from "./keyword-seed-topics.js";
+import { mergeTopicLanes } from "./topic-merge.js";
 const ATTACHMENT_MARKERS = [
     "사진",
     "동영상",
@@ -106,11 +112,16 @@ export class ReportAggregator {
     roomSubManagerMessages = 0;
     roomManagerMessages = 0;
     roomShopSearchMessages = 0;
+    shopSearchUntaggedNotices = 0;
+    shopSearchMissSamples = [];
     roomPhotoBundleMessages = 0;
     pureLaughMessages = 0;
     openChatBoilerplateExcluded = 0;
     semanticThemeCandidates = [];
     semanticReservoir;
+    sentimentReservoir;
+    profanityCounter;
+    sentimentStats = null;
     prevMs = null;
     prevSender = null;
     runSender = null;
@@ -125,13 +136,43 @@ export class ReportAggregator {
         this.semanticReservoir = options?.semanticSamples
             ? new MessageReservoir(semanticReservoirCap(options?.estimatedMessages))
             : null;
+        this.sentimentReservoir = options?.sentimentSamples
+            ? new SenderMessageReservoir(sentimentReservoirCap(options?.estimatedMessages))
+            : null;
+        this.profanityCounter = ProfanityCounter.create();
+    }
+    /** 스트리밍 1패스 후 실제 건수로 리저보어 상한 보정(추정치 과소 시) */
+    ensureSampleCaps(messageCount) {
+        if (messageCount <= 0)
+            return;
+        const semNeed = semanticReservoirCap(messageCount);
+        const sentNeed = sentimentReservoirCap(messageCount);
+        if (this.semanticReservoir && this.semanticReservoir.capacity() < semNeed) {
+            this.semanticReservoir.growTo(semNeed);
+        }
+        if (this.sentimentReservoir && this.sentimentReservoir.capacity() < sentNeed) {
+            this.sentimentReservoir.growTo(sentNeed);
+        }
     }
     drainSemanticSamples() {
         const raw = this.semanticReservoir?.drain() ?? [];
         if (raw.length === 0)
             return raw;
-        const cap = semanticSampleCap(Math.max(this.total, raw.length));
+        const cap = effectiveSemanticSampleCap(Math.max(this.total, raw.length));
         return subsampleSemanticMessages(raw, cap);
+    }
+    drainSentimentSamples() {
+        const raw = this.sentimentReservoir?.drain() ?? [];
+        if (raw.length === 0)
+            return raw;
+        const cap = sentimentSampleCap(Math.max(this.total, raw.length));
+        return subsampleSentimentRecords(raw, cap);
+    }
+    applySentimentStats(stats) {
+        this.sentimentStats = stats;
+    }
+    senderAliasMap() {
+        return buildSenderLabels([...this.senderStats.keys()], this.privacy);
     }
     messageCount() {
         return this.total;
@@ -199,6 +240,14 @@ export class ReportAggregator {
             this.bumpSystemNotice(kind, dayKey);
         for (const tag of split.shopSearchTags)
             increment(this.shopSearchTopics, tag);
+        if (split.notices.includes("shopSearch") && split.shopSearchTags.length === 0) {
+            this.shopSearchUntaggedNotices += 1;
+            if (this.shopSearchMissSamples.length < 8) {
+                const sample = record.message.trim().slice(0, 120).replace(/\s+/g, " ");
+                if (sample)
+                    this.shopSearchMissSamples.push(sample);
+            }
+        }
         const msg = split.userText.length > 0 ? split.userText : record.message;
         const messageLength = msg.length;
         const isPureSystem = split.notices.length > 0 && split.userText.length === 0;
@@ -278,6 +327,12 @@ export class ReportAggregator {
                 increment(this.dailyLinks, dayKey);
                 for (const domain of foundDomains)
                     increment(this.domains, domain);
+            }
+            if (!isPureSystem && !isOpenChatBoilerplate(msg)) {
+                this.profanityCounter.add(msg, record.sender);
+                if (this.sentimentReservoir && messageLength >= 12) {
+                    this.sentimentReservoir.push(msg, record.sender);
+                }
             }
             if (isOpenChatBoilerplate(msg)) {
                 this.openChatBoilerplateExcluded += 1;
@@ -375,10 +430,11 @@ export class ReportAggregator {
             prevStat.maxConsecutive = Math.max(prevStat.maxConsecutive, this.runLen);
         }
         const total = this.total;
+        const totalChars = this.totalCharacters;
         const aliases = buildSenderLabels([...this.senderStats.keys()], this.privacy);
-        const participantStats = [...this.senderStats.entries()]
-            .map(([raw, stat]) => {
+        const allParticipants = [...this.senderStats.entries()].map(([raw, stat]) => {
             const sharePercent = total > 0 ? round((stat.messages / total) * 100, 1) : 0;
+            const characterSharePercent = totalChars > 0 ? round((stat.characters / totalChars) * 100, 1) : 0;
             return {
                 alias: aliases.get(raw) ?? "???",
                 messages: stat.messages,
@@ -387,11 +443,16 @@ export class ReportAggregator {
                 attachmentMessages: stat.attachmentMessages,
                 linkMessages: stat.linkMessages,
                 sharePercent,
+                characterSharePercent,
                 nightMessages: stat.nightMessages,
                 maxConsecutive: stat.maxConsecutive,
             };
-        })
+        });
+        const participantStats = [...allParticipants]
             .sort((a, b) => b.messages - a.messages)
+            .slice(0, this.top);
+        const participantsByCharacters = [...allParticipants]
+            .sort((a, b) => b.characters - a.characters || b.messages - a.messages)
             .slice(0, this.top);
         const sortedDays = [...this.daily.keys()].sort();
         const longestStreak = longestDateStreak(sortedDays);
@@ -453,17 +514,24 @@ export class ReportAggregator {
         }
         const keywordStop = buildKeywordStopwords();
         const keywordLimit = Math.max(120, this.top * 3);
-        const wordRankItems = this.keywordStream.extractKeywordItems({
+        const minDocFreq = adaptiveMinCount(total, finalizeOpts?.koreanPrimary !== false);
+        const keywordCandidates = this.keywordStream.collectKeywordCandidates({
             stopwords: keywordStop,
-            limit: keywordLimit,
-            minDocFreq: adaptiveMinCount(total, finalizeOpts?.koreanPrimary !== false),
+            minDocFreq,
         });
-        this.applySemanticSupplementForRanked(wordRankItems);
-        const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit, finalizeOpts?.semanticSupplementRrfWeight ?? 0.5);
-        let topics = this.topicMap.buildTopics(total, buildTopicStopwords());
-        if (finalizeOpts?.useEmbeddingTopics && this.semanticThemeCandidates.length > 0) {
-            topics = mergeEmbeddingThemes(topics, this.semanticThemeCandidates, total);
-        }
+        const bm25LaneForSemantic = [...keywordCandidates]
+            .sort((a, b) => b.score - a.score || b.messageHits - a.messageHits)
+            .slice(0, Math.min(200, Math.floor(80 + Math.sqrt(Math.max(total, 1)))));
+        this.applySemanticSupplementForRanked(bm25LaneForSemantic);
+        const kwMerged = mergeDualLaneKeywords(keywordCandidates, this.keywordSupplement, total, keywordLimit, finalizeOpts?.semanticSupplementRrfWeight ?? 0.5);
+        const keywords = kwMerged.byFrequency;
+        const keywordsDistinctive = kwMerged.distinctive;
+        const graphTopics = this.topicMap.buildTopics(total, buildTopicStopwords());
+        const keywordTopics = buildKeywordSeedTopics(keywords, keywordsDistinctive, total, this.topicMap);
+        const semanticTopics = finalizeOpts?.useEmbeddingTopics && this.semanticThemeCandidates.length > 0
+            ? semanticItemsToTopics(this.semanticThemeCandidates, total)
+            : [];
+        let topics = mergeTopicLanes({ graph: graphTopics, keyword: keywordTopics, semantic: semanticTopics }, total);
         const burstDetectionMethod = resolveBurstDetectionMethod();
         const keywordTop1SharePercent = top1ShareFromCounts(keywords, total);
         let attachmentMarkerSum = 0;
@@ -661,9 +729,13 @@ export class ReportAggregator {
                 nightSharePercent,
                 emojiMessages: this.emojiMessages,
                 usedSemanticKeywords: finalizeOpts?.usedSemanticKeywords === true,
+                usedSentimentAnalysis: finalizeOpts?.usedSentimentAnalysis === true,
             },
             insights,
             participants: participantStats,
+            participantsByCharacters,
+            profanity: this.profanityCounter.buildProfanityStats(total, aliases),
+            sentiment: this.sentimentStats,
             daily: dailySorted,
             hourly: this.hourly,
             weekdays: this.weekdays.map((count, index) => ({
@@ -674,6 +746,7 @@ export class ReportAggregator {
             attachments: topCounts(this.attachments, this.top),
             domains: topCounts(this.domains, this.top),
             keywords,
+            keywordsDistinctive,
             topics,
             roomEvents: buildRoomEventStats(total, {
                 join: this.roomJoinMessages,
@@ -687,9 +760,14 @@ export class ReportAggregator {
                 manager: this.roomManagerMessages,
                 shopSearch: this.roomShopSearchMessages,
                 photoBundle: this.roomPhotoBundleMessages,
+            }, {
+                tagExtractions: [...this.shopSearchTopics.values()].reduce((a, n) => a + n, 0),
+                uniqueTags: this.shopSearchTopics.size,
+                untaggedNotices: this.shopSearchUntaggedNotices,
             }),
             repeatedPhrases: this.repeatPhraseCounter.top(8, 3),
-            shopSearchTopics: topCounts(this.shopSearchTopics, 10),
+            shopSearchTopics: topCounts(this.shopSearchTopics, shopSearchDisplayTop()),
+            shopSearchMissSamples: process.env.KCA_DEBUG_SHOP === "1" ? [...this.shopSearchMissSamples] : undefined,
             pureLaughMessages: this.pureLaughMessages,
             conversationPace,
             burstDays,
@@ -793,7 +871,7 @@ function getAttachmentMarkers(message) {
     }
     return found;
 }
-function buildRoomEventStats(total, c) {
+function buildRoomEventStats(total, c, shopExtra) {
     const sum = c.join +
         c.leave +
         c.deleted +
@@ -817,6 +895,9 @@ function buildRoomEventStats(total, c) {
         subManagerCount: c.subManager,
         managerCount: c.manager,
         shopSearchCount: c.shopSearch,
+        shopSearchTagExtractions: shopExtra?.tagExtractions ?? 0,
+        shopSearchUniqueTags: shopExtra?.uniqueTags ?? 0,
+        shopSearchUntaggedNotices: shopExtra?.untaggedNotices ?? 0,
         photoBundleCount: c.photoBundle,
         total: sum,
         joinSharePercent: pct(c.join),

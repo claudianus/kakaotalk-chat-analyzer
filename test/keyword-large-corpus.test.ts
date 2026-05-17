@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { KeywordCounter } from "../src/keyword-counter.js";
-import { mergeKeywordRankings } from "../src/keyword-merge.js";
+import { mergeDualLaneKeywords } from "../src/keyword-rank-dual.js";
 import { adaptiveMinCount } from "../src/keyword-rank.js";
 import { StreamingTfidfKeywords } from "../src/streaming-tfidf-keywords.js";
 import { tokenizeForKeywords } from "../src/keyword-tokenize.js";
@@ -25,16 +25,14 @@ describe("large corpus keywords", () => {
     }
     const minDf = adaptiveMinCount(corpusSize);
     assert.equal(minDf, 12);
-    const items = stream.extractKeywordItems({ limit: 120, minDocFreq: minDf });
-    assert.ok(items.length > 0, "expected keyword items");
-    const top10 = items.slice(0, 10);
-    const domain = top10.find((x) => x.label.includes("클로드") || x.label === "클로드");
-    assert.ok(domain, `expected 클로드 in top10, got: ${top10.map((x) => `${x.label}(${x.messageHits})`).join(", ")}`);
-    assert.ok(domain!.messageHits >= 50, `클로드 hits too low: ${domain!.messageHits}`);
-    assert.ok(top10[0]!.messageHits >= 50, `top1 hits too low: ${top10[0]!.label}=${top10[0]!.messageHits}`);
-
-    const merged = mergeKeywordRankings(items.slice(0, 40), new KeywordCounter(), 20);
-    assert.ok(merged[0]!.count >= 50);
-    assert.equal(merged.some((x) => x.count <= 5), false);
+    const candidates = stream.collectKeywordCandidates({ minDocFreq: minDf });
+    assert.ok(candidates.length > 0, "expected keyword candidates");
+    const merged = mergeDualLaneKeywords(candidates, new KeywordCounter(), corpusSize, 20);
+    const freq = merged.byFrequency;
+    assert.ok(freq[0]!.count >= 50, `top1 hits too low: ${freq[0]!.label}=${freq[0]!.count}`);
+    const domain = freq.find((x) => x.label.includes("클로드") || x.label === "클로드");
+    assert.ok(domain, `expected 클로드 in merged top20, got: ${freq.slice(0, 8).map((x) => `${x.label}(${x.count})`).join(", ")}`);
+    assert.ok(domain!.count >= 50, `클로드 hits too low: ${domain!.count}`);
+    assert.equal(freq.some((x) => x.count <= 5), false);
   });
 });

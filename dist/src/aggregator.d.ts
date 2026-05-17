@@ -1,4 +1,4 @@
-import type { ChatRecord, EncodingName, PrivacyMode, ReportData } from "./types.js";
+import type { ChatRecord, EncodingName, PrivacyMode, ReportData, SentimentStats } from "./types.js";
 export interface FinalizeSourceMeta {
     filePath: string;
     encoding: EncodingName;
@@ -7,6 +7,7 @@ export interface FinalizeSourceMeta {
 }
 export interface FinalizeOptions {
     usedSemanticKeywords?: boolean;
+    usedSentimentAnalysis?: boolean;
     koreanPrimary?: boolean;
     useEmbeddingTopics?: boolean;
     semanticSupplementRrfWeight?: number;
@@ -16,7 +17,9 @@ export declare function semanticSupplementHitCap(corpusMessages: number): number
 export interface AggregatorOptions {
     /** 시맨틱 키워드용 메시지 샘플 수집 */
     semanticSamples?: boolean;
-    /** 시맨틱 리저보어 상한 추정(스트리밍 시 생략 가능) */
+    /** 감정 분석용 메시지 샘플 수집 */
+    sentimentSamples?: boolean;
+    /** 시맨틱·감정 리저보어 상한 추정(스트리밍 시 생략 가능) */
     estimatedMessages?: number;
 }
 export declare class ReportAggregator {
@@ -73,11 +76,16 @@ export declare class ReportAggregator {
     private roomSubManagerMessages;
     private roomManagerMessages;
     private roomShopSearchMessages;
+    private shopSearchUntaggedNotices;
+    private readonly shopSearchMissSamples;
     private roomPhotoBundleMessages;
     private pureLaughMessages;
     private openChatBoilerplateExcluded;
     private semanticThemeCandidates;
     private readonly semanticReservoir;
+    private readonly sentimentReservoir;
+    private readonly profanityCounter;
+    private sentimentStats;
     private prevMs;
     private prevSender;
     private runSender;
@@ -85,7 +93,15 @@ export declare class ReportAggregator {
     private firstDate;
     private lastDate;
     constructor(filePath: string, privacy: PrivacyMode, top: number, options?: AggregatorOptions);
+    /** 스트리밍 1패스 후 실제 건수로 리저보어 상한 보정(추정치 과소 시) */
+    ensureSampleCaps(messageCount: number): void;
     drainSemanticSamples(): string[];
+    drainSentimentSamples(): {
+        text: string;
+        sender: string;
+    }[];
+    applySentimentStats(stats: SentimentStats): void;
+    senderAliasMap(): Map<string, string>;
     messageCount(): number;
     resetKeywordPipeline(): void;
     private consumeKeywords;

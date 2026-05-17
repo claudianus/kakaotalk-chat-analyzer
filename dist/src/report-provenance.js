@@ -1,4 +1,5 @@
 import { escapeHtml } from "./report-util.js";
+import { profanityLexiconVersion } from "./profanity.js";
 import { VERSION } from "./version.js";
 export const REPORT_SCHEMA = "2026-05";
 export function resolveTopicModel(data) {
@@ -43,8 +44,18 @@ export function buildReportProvenance(data, options) {
                 ? { semanticRequested: options.semanticRequested }
                 : {}),
             semanticUsed: data.summary.usedSemanticKeywords === true,
+            ...(options.sentimentRequested !== undefined
+                ? { sentimentRequested: options.sentimentRequested }
+                : {}),
+            sentimentUsed: data.summary.usedSentimentAnalysis === true,
+            profanityLexiconVersion: profanityLexiconVersion(),
             kiwiAvailable: options.kiwiAvailable,
             topicModel: resolveTopicModel(data),
+            ...(options.preset ? { preset: options.preset } : {}),
+            ...(options.semanticModel ? { semanticModel: options.semanticModel } : {}),
+            ...(options.llmTier ? { llmTier: options.llmTier } : {}),
+            ...(options.llmUsed !== undefined ? { llmUsed: options.llmUsed } : {}),
+            ...(options.gpu ? { gpu: options.gpu } : {}),
         },
         reportSchema: REPORT_SCHEMA,
     };
@@ -104,6 +115,15 @@ export function formatProvenanceDetails(provenance) {
             ? "on"
             : "off";
     lines.push(`시맨틱 키워드: 요청 ${semReq} · 실제 ${a.semanticUsed ? "사용" : "미사용"}`);
+    const sentReq = a.sentimentRequested === "auto" || a.sentimentRequested === undefined
+        ? "auto"
+        : a.sentimentRequested
+            ? "on"
+            : "off";
+    lines.push(`감정 분석: 요청 ${sentReq} · 실제 ${a.sentimentUsed ? "사용" : "미사용"}`);
+    if (a.profanityLexiconVersion) {
+        lines.push(`비속어 사전: ${a.profanityLexiconVersion}`);
+    }
     lines.push(`Kiwi 형태소: ${a.kiwiAvailable ? "사용 가능" : "미사용"}`);
     if (a.topicModel) {
         const labels = {
@@ -113,6 +133,16 @@ export function formatProvenanceDetails(provenance) {
         };
         lines.push(`주제 모델: ${labels[a.topicModel] ?? a.topicModel}`);
     }
+    if (a.preset)
+        lines.push(`분석 preset: ${a.preset}`);
+    if (a.semanticModel)
+        lines.push(`시맨틱 모델: ${a.semanticModel}`);
+    if (a.llmTier && a.llmTier !== "off")
+        lines.push(`LLM 티어: ${a.llmTier}`);
+    if (a.llmUsed !== undefined)
+        lines.push(`LLM 보강: ${a.llmUsed ? "사용" : "미사용"}`);
+    if (a.gpu)
+        lines.push(`GPU (ONNX): ${a.gpu}`);
     if (provenance.reportSchema)
         lines.push(`리포트 스키마: ${provenance.reportSchema}`);
     if (provenance.output?.htmlBytes !== undefined) {

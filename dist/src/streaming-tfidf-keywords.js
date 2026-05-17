@@ -153,13 +153,13 @@ export class StreamingTfidfKeywords {
         if (this.bigramDf.size > MAX_BIGRAM_KEYS)
             this.prunePair(this.bigramDf, this.bigramTf, PRUNE_BIGRAM_TO);
     }
-    extractKeywordItems(options = {}) {
+    /** minDf 통과 전체 후보 — dual-lane merge 입력 */
+    collectKeywordCandidates(options = {}) {
         const N = Math.max(this.documents, 1);
         const avgDl = Math.max(1, this.totalTokenHits / N);
         const minDf = options.minDocFreq ?? adaptiveMinCount(this.documents);
         const bigramMinDf = adaptiveBigramMinDf(N, minDf);
         const stop = options.stopwords;
-        const limit = options.limit ?? 100;
         const items = [];
         for (const [label, df] of this.docFreq) {
             if (!passesFilters(label, df, minDf, stop))
@@ -174,7 +174,11 @@ export class StreamingTfidfKeywords {
             const base = bm25Score(tf, df, N, avgDl) * BIGRAM_SCORE_BOOST * pmiMultiplier(label, df, N, this.docFreq);
             items.push({ label, score: base, messageHits: df });
         }
-        return items
+        return items;
+    }
+    extractKeywordItems(options = {}) {
+        const limit = options.limit ?? 100;
+        return this.collectKeywordCandidates(options)
             .sort((a, b) => b.score - a.score ||
             b.messageHits - a.messageHits ||
             b.label.length - a.label.length ||

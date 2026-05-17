@@ -1,6 +1,7 @@
 import type { HeuristicPrepassCollector } from "./export-prepass.js";
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
+import { getPresetEffectiveFlags, presetForcesSemanticOff } from "./analysis-preset.js";
 
 const MIN_SEMANTIC_MESSAGES = 48;
 
@@ -40,17 +41,22 @@ export function subsampleSemanticMessages(messages: string[], cap: number): stri
     .map((x) => x.m);
 }
 
-/** 한국어 MTEB 경량 1위급 — intfloat/multilingual-e5-small (Xenova ONNX) */
+/** balanced·speed — Xenova ONNX (검증됨) */
 export const DEFAULT_KOREAN_SEMANTIC_MODEL = "Xenova/multilingual-e5-small";
+
+/** quality preset — dragonkue ko-v2 (ONNX 미호스팅 시 런타임 fallback) */
+export const QUALITY_KOREAN_SEMANTIC_MODEL = "dragonkue/multilingual-e5-small-ko-v2";
 
 /** 이전 기본값(롤백: `KCA_SEMANTIC_MODEL` 로 지정) */
 export const LEGACY_SEMANTIC_MODEL = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
 
 const E5_QUERY_PREFIX = "query: ";
 
-export function semanticEmbeddingModelId(): string {
+export function semanticEmbeddingModelId(options?: BuildReportOptions): string {
   const env = process.env.KCA_SEMANTIC_MODEL?.trim();
   if (env) return env;
+  const preset = getPresetEffectiveFlags(options).preset;
+  if (preset === "quality") return QUALITY_KOREAN_SEMANTIC_MODEL;
   return DEFAULT_KOREAN_SEMANTIC_MODEL;
 }
 
@@ -83,6 +89,7 @@ export function resolveSemanticKeywords(
   prepass: HeuristicPrepassCollector,
   sampleMessages: string[],
 ): boolean {
+  if (presetForcesSemanticOff(options)) return false;
   if (process.env.KCA_NO_SEMANTIC === "1") return false;
   if (options?.semanticKeywords === false) return false;
   if (prepass.messageCount < MIN_SEMANTIC_MESSAGES) return false;
@@ -91,4 +98,15 @@ export function resolveSemanticKeywords(
   if (process.env.KCA_SEMANTIC === "0") return false;
   if (process.env.KCA_SEMANTIC_DEFAULT === "opt-in") return false;
   return isPrimarilyKoreanMessages(sampleMessages);
+}
+
+/** preset·환경에 따른 임베딩 상한 (balanced 600 / quality 1200) */
+export function effectiveSemanticSampleCap(
+  messageCount: number,
+  options?: BuildReportOptions,
+): number {
+  const cap = getPresetEffectiveFlags(options).semanticCap;
+  const base = semanticSampleCap(messageCount);
+  if (cap === undefined) return base;
+  return Math.min(base, cap);
 }

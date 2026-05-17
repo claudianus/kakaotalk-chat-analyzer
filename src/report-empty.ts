@@ -1,4 +1,5 @@
 import { buildReportStory } from "./story.js";
+import { emptyProfanityStats } from "./profanity.js";
 import type { ReportData } from "./types.js";
 
 /** 테스트·빈 리포트용 최소 ReportData */
@@ -91,6 +92,9 @@ export function emptyReportData(): ReportData {
     },
     insights,
     participants: [],
+    participantsByCharacters: [],
+    profanity: emptyProfanityStats(),
+    sentiment: null,
     daily: [],
     hourly: Array.from({ length: 24 }, () => 0),
     weekdays: ["일", "월", "화", "수", "목", "금", "토"].map((d) => ({ label: `${d}요일`, count: 0 })),
@@ -98,6 +102,7 @@ export function emptyReportData(): ReportData {
     attachments: [],
     domains: [],
     keywords: [],
+    keywordsDistinctive: [],
     topics: [],
     roomEvents: {
       joinCount: 0,
@@ -110,6 +115,9 @@ export function emptyReportData(): ReportData {
       subManagerCount: 0,
       managerCount: 0,
       shopSearchCount: 0,
+      shopSearchTagExtractions: 0,
+      shopSearchUniqueTags: 0,
+      shopSearchUntaggedNotices: 0,
       photoBundleCount: 0,
       total: 0,
       joinSharePercent: 0,

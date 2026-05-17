@@ -17,6 +17,7 @@ test("detectSystemNoticeLine covers moderation and open-chat templates", () => {
   assert.equal(detectSystemNoticeLine("샵검색 #계산기"), "shopSearch");
   assert.equal(extractShopSearchTag("샵검색: #계산기"), "#계산기");
   assert.equal(extractShopSearchTag("샵검색 미국 환율"), "#미국 환율");
+  assert.equal(extractShopSearchTag("샵검색 #qwer"), "#qwer");
   assert.equal(detectSystemNoticeLine("사진 3장"), "photoBundle");
   assert.equal(detectSystemNoticeLine("선물과 메시지를 보냈습니다."), null);
 });

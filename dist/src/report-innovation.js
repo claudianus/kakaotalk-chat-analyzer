@@ -12,14 +12,42 @@ export function renderInnovationDeck(data) {
 }
 function renderNarrativeBlock(data) {
     const n = data.narrative;
-    if (!n.paragraphs.length)
+    if (!n.paragraphs.length && !data.llmInsights)
         return "";
     const paras = n.paragraphs.map((p) => `<p class="narrative-p">${renderHighlightLine(p)}</p>`).join("");
+    const llm = renderLlmInsightsBlock(data);
+    const hint = data.summary.usedLlmAnalysis
+        ? "통계·키워드만 입력한 <strong>로컬 LLM</strong>이 서사·인사이트를 보강했습니다(원문 미포함)."
+        : "규칙·통계만으로 만든 <strong>재현 가능</strong>한 요약이에요.";
     return `<section id="s-narrative" class="card narrative-card anim-enter" style="margin-bottom:14px;--enter-delay:0.04s" aria-label="방 프로필 서사">
     <h2 class="section-glow">② 방 프로필 (자동 서사)</h2>
-    <p class="chart-hint">규칙·통계만으로 만든 <strong>재현 가능</strong>한 요약이에요. LLM·원문 인용 없음.</p>
-    <div class="narrative-body">${paras}</div>
+    <p class="chart-hint">${hint}</p>
+    <div class="narrative-body">${paras}${llm}</div>
   </section>`;
+}
+function renderLlmInsightsBlock(data) {
+    const ins = data.llmInsights;
+    if (!ins)
+        return "";
+    const bullets = (ins.insightBullets ?? [])
+        .map((b) => `<li>${renderHighlightLine(b)}</li>`)
+        .join("");
+    const proposals = (ins.topicProposals ?? [])
+        .map((p) => `<li><strong>${escapeHtml(p.title)}</strong> — ${p.terms.map((t) => escapeHtml(t)).join(", ")}</li>`)
+        .join("");
+    const extra = [
+        ins.shopSearchSummary ? `<p class="llm-extra"><strong>샵검색</strong> ${renderHighlightLine(ins.shopSearchSummary)}</p>` : "",
+        ins.dyadInsight ? `<p class="llm-extra"><strong>상호작용</strong> ${renderHighlightLine(ins.dyadInsight)}</p>` : "",
+        proposals
+            ? `<div class="llm-topic-proposals"><h3 class="insight-sub">LLM 주제 제안</h3><ul class="llm-bullets">${proposals}</ul></div>`
+            : "",
+    ].join("");
+    if (!bullets && !extra)
+        return "";
+    return `<div class="llm-insights" style="margin-top:12px">
+    ${bullets ? `<h3 class="insight-sub">LLM 인사이트</h3><ul class="llm-bullets">${bullets}</ul>` : ""}
+    ${extra}
+  </div>`;
 }
 function renderTimelineBlock(data) {
     if (data.timeline.length === 0)

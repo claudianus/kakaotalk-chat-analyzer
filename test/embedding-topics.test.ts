@@ -9,7 +9,8 @@ test("semanticItemsToTopics builds theme cards from cluster labels", () => {
   );
   assert.equal(topics.length, 1);
   assert.equal(topics[0]!.kind, "theme");
-  assert.ok(topics[0]!.title.includes("임베딩"));
+  assert.ok(topics[0]!.title.includes("클로드"));
+  assert.ok(!topics[0]!.title.includes("임베딩"));
 });
 
 test("mergeEmbeddingThemes dedupes overlapping graph themes", () => {

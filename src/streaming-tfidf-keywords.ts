@@ -162,13 +162,13 @@ export class StreamingTfidfKeywords {
     if (this.bigramDf.size > MAX_BIGRAM_KEYS) this.prunePair(this.bigramDf, this.bigramTf, PRUNE_BIGRAM_TO);
   }
 
-  extractKeywordItems(options: KeywordExtractOptions = {}): KeywordRankItem[] {
+  /** minDf 통과 전체 후보 — dual-lane merge 입력 */
+  collectKeywordCandidates(options: KeywordExtractOptions = {}): KeywordRankItem[] {
     const N = Math.max(this.documents, 1);
     const avgDl = Math.max(1, this.totalTokenHits / N);
     const minDf = options.minDocFreq ?? adaptiveMinCount(this.documents);
     const bigramMinDf = adaptiveBigramMinDf(N, minDf);
     const stop = options.stopwords;
-    const limit = options.limit ?? 100;
     const items: KeywordRankItem[] = [];
 
     for (const [label, df] of this.docFreq) {
@@ -184,7 +184,12 @@ export class StreamingTfidfKeywords {
       items.push({ label, score: base, messageHits: df });
     }
 
-    return items
+    return items;
+  }
+
+  extractKeywordItems(options: KeywordExtractOptions = {}): KeywordRankItem[] {
+    const limit = options.limit ?? 100;
+    return this.collectKeywordCandidates(options)
       .sort(
         (a, b) =>
           b.score - a.score ||

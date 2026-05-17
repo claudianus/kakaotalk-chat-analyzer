@@ -112,6 +112,26 @@
     }
     .pie-legend .pie-legend-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pie-legend .pie-legend-pct { color: var(--muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .kw-sort-toggle {
+      display: flex;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .kw-sort-btn {
+      font: inherit;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-solid);
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .kw-sort-btn.is-active {
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
     .kw-table-wrap {
       max-height: 520px;
       overflow: auto;

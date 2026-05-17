@@ -11,6 +11,13 @@ import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { logReportProgress, resetReportProgress } from "./report-progress.js";
 import { resolveSemanticKeywords, shouldCollectSemanticSamples } from "./semantic-policy.js";
 import { extractSemanticKeywords } from "./semantic-keywords.js";
+import { resolveSentiment, shouldCollectSentimentSamples } from "./sentiment-policy.js";
+import { analyzeSentimentFromSamples } from "./sentiment-analyze.js";
+import { enrichReportWithLlm } from "./llm-apply.js";
+import { resolvePresetNameWithAuto } from "./analysis-preset.js";
+import { probeMachineProfileSync } from "./analysis-capability.js";
+import { resolveLlmTier } from "./llm-policy.js";
+import { AnalysisBudgetTracker } from "./analysis-budget.js";
 import type { StreamParseOptions } from "./stream-options.js";
 import { createMessageSpoolPath, iterateSpoolRecords, removeSpool } from "./analysis-spool.js";
 import { createWriteStream } from "node:fs";
@@ -68,16 +75,66 @@ async function applySemanticKeywords(
 
   const profileSettings = getAnalysisProfileSettings(options);
   if (showProgress) logReportProgress({ phase: "시맨틱 키워드", current: 0 });
-  const items = await extractSemanticKeywords(samples, {
-    stopwords: buildKeywordStopwords(),
-    corpusMessages,
-    minClusterCoherence: profileSettings.semanticClusterMinCoherence,
-    onProgress: showProgress
-      ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
-      : undefined,
-  });
-  if (items.length > 0) agg.applySemanticKeywordBoost(items);
-  return items.length > 0;
+  try {
+    const items = await extractSemanticKeywords(samples, {
+      stopwords: buildKeywordStopwords(),
+      corpusMessages,
+      buildOptions: options,
+      minClusterCoherence: profileSettings.semanticClusterMinCoherence,
+      onProgress: showProgress
+        ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
+        : undefined,
+    });
+    if (items.length > 0) agg.applySemanticKeywordBoost(items);
+    return items.length > 0;
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`[kca] 시맨틱 키워드 건너뜀: ${msg}\n`);
+    return false;
+  }
+}
+
+async function applySentimentAnalysis(
+  agg: ReportAggregator,
+  enabled: boolean,
+  showProgress: boolean,
+  options?: BuildReportOptions,
+): Promise<boolean> {
+  if (!enabled) return false;
+  const corpusMessages = agg.messageCount();
+  const samples = agg.drainSentimentSamples();
+  if (samples.length < 48) return false;
+  if (showProgress) logReportProgress({ phase: "감정 분석", current: 0 });
+  try {
+    const stats = await analyzeSentimentFromSamples(
+      samples,
+      corpusMessages,
+      agg.senderAliasMap(),
+      showProgress
+        ? (current, total) => logReportProgress({ phase: "감정 분석", current, total })
+        : undefined,
+      options,
+    );
+    if (!stats) return false;
+    agg.applySentimentStats(stats);
+    return true;
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`[kca] 감정 분석 건너뜀: ${msg}\n`);
+    return false;
+  }
+}
+
+function aggregatorSampleOptions(
+  messageCount: number,
+  useSemantic: boolean,
+  useSentiment: boolean,
+): { semanticSamples: boolean; sentimentSamples: boolean; estimatedMessages: number } {
+  return {
+    semanticSamples: useSemantic && shouldCollectSemanticSamples(messageCount),
+    sentimentSamples: useSentiment && shouldCollectSentimentSamples(messageCount),
+    estimatedMessages: messageCount,
+  };
 }
 
 export function buildReportData(result: ParseResult, options?: BuildReportOptions): ReportData {
@@ -86,7 +143,8 @@ export function buildReportData(result: ParseResult, options?: BuildReportOption
   const texts = result.records.map((r) => r.message);
   const korean = isPrimarilyKoreanMessages(texts);
   const agg = new ReportAggregator(result.filePath, privacy, top, {
-    semanticSamples: shouldCollectSemanticSamples(result.records.length),
+    semanticSamples: false,
+    sentimentSamples: false,
     estimatedMessages: result.records.length,
   });
   const since = options?.since;
@@ -118,16 +176,22 @@ export async function buildReportDataAsync(
   const prepass = new HeuristicPrepassCollector();
   for (const t of texts) prepass.onMessageText(t);
   const useSemantic = resolveSemanticKeywords(options, prepass, texts);
-  const agg = new ReportAggregator(result.filePath, privacy, top, {
-    semanticSamples: shouldCollectSemanticSamples(result.records.length),
-    estimatedMessages: result.records.length,
-  });
+  const useSentiment = resolveSentiment(options, prepass, texts);
+  const agg = new ReportAggregator(
+    result.filePath,
+    privacy,
+    top,
+    aggregatorSampleOptions(result.records.length, useSemantic, useSentiment),
+  );
   const since = options?.since;
   for (const record of result.records) {
     if (since && !recordOnOrAfter(record, since)) continue;
     agg.consume(record);
   }
-  const usedSemantic = await applySemanticKeywords(agg, useSemantic, false, options);
+  const [usedSemantic, usedSentiment] = await Promise.all([
+    applySemanticKeywords(agg, useSemantic, false, options),
+    applySentimentAnalysis(agg, useSentiment, false, options),
+  ]);
   return withKiwiAnalysisFlag(
     agg.finalize(
       {
@@ -138,6 +202,7 @@ export async function buildReportDataAsync(
       },
       finalizeProfileOpts(options, {
         usedSemanticKeywords: usedSemantic,
+        usedSentimentAnalysis: usedSentiment,
         koreanPrimary: prepass.isPrimarilyKorean(),
       }),
     ),
@@ -246,19 +311,24 @@ export async function buildReportFromExportSync(
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
   const prepass = new HeuristicPrepassCollector();
-  const agg = new ReportAggregator(filePath, privacy, top, {
-    semanticSamples: process.env.KCA_NO_SEMANTIC !== "1",
-  });
   const useKiwi = process.env.KCA_NO_KIWI !== "1";
 
   const since = options?.since;
   let messageEstimate: number | undefined;
-  if (showProgress) {
+  try {
     messageEstimate = await estimateKakaoMessageCount(filePath);
-    if (since && messageEstimate > 0) {
-      console.error("[kca] 진행률 분모는 CSV 전체 메시지 추정치입니다 (--since 필터 전).");
-    }
+  } catch {
+    messageEstimate = undefined;
   }
+  if (showProgress && since && messageEstimate && messageEstimate > 0) {
+    console.error("[kca] 진행률 분모는 CSV 전체 메시지 추정치입니다 (--since 필터 전).");
+  }
+
+  const agg = new ReportAggregator(filePath, privacy, top, {
+    semanticSamples: process.env.KCA_NO_SEMANTIC !== "1",
+    sentimentSamples: process.env.KCA_NO_SENTIMENT !== "1",
+    estimatedMessages: messageEstimate,
+  });
   const progressOpts = (phase: string, estimated?: number): StreamParseOptions | undefined => {
     const base: StreamParseOptions = since ? { since } : {};
     if (!showProgress) return since ? base : undefined;
@@ -291,6 +361,7 @@ export async function buildReportFromExportSync(
     if (!meta) throw new Error(`No messages parsed from export: ${filePath}`);
 
     const estimated = prepass.messageCount;
+    agg.ensureSampleCaps(estimated);
     if (showProgress) logReportProgress({ phase: "대화 집계", current: estimated, total: estimated });
 
     if (showProgress) logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
@@ -343,6 +414,7 @@ export async function buildReportFromExportSync(
       }
     }
     if (!meta) throw new Error(`No messages parsed from export: ${filePath}`);
+    agg.ensureSampleCaps(prepass.messageCount);
     if (showProgress) {
       logReportProgress({
         phase: "대화 분석",
@@ -352,24 +424,43 @@ export async function buildReportFromExportSync(
     }
   }
 
-  const useSemantic = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
+  const preset = resolvePresetNameWithAuto(options, prepass.messageCount);
+  const budget = new AnalysisBudgetTracker(preset, prepass.messageCount, probeMachineProfileSync());
+
+  let useSemantic = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
+  let useSentiment = resolveSentiment(options, prepass, prepass.sampleTexts());
+  if (useSemantic && budget.shouldSkip("semantic")) useSemantic = false;
+  if (useSentiment && budget.shouldSkip("sentiment")) useSentiment = false;
 
   if (showProgress) logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
 
-  const usedSemantic = await applySemanticKeywords(agg, useSemantic, showProgress, options);
-  const report = agg.finalize(
+  const [usedSemantic, usedSentiment] = await Promise.all([
+    applySemanticKeywords(agg, useSemantic, showProgress, options),
+    applySentimentAnalysis(agg, useSentiment, showProgress, options),
+  ]);
+  let report = agg.finalize(
     meta!,
     finalizeProfileOpts(options, {
       usedSemanticKeywords: usedSemantic,
+      usedSentimentAnalysis: usedSentiment,
       koreanPrimary: prepass.isPrimarilyKorean(),
     }),
   );
 
+  const llmTier = resolveLlmTier(preset, probeMachineProfileSync());
+  if (llmTier !== "off" && !budget.shouldSkip("llm")) {
+    if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
+    report = await enrichReportWithLlm(report, options);
+    if (showProgress) logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
+  }
+
   if (showProgress) {
     logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
     const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
+    const sent = report.summary.usedSentimentAnalysis ? " · 감정" : "";
+    const llm = report.summary.usedLlmAnalysis ? " · LLM" : "";
     console.error(
-      `[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}`,
+      `[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}${sent}${llm}`,
     );
   }
 
