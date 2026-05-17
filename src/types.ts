@@ -379,9 +379,19 @@ export interface ReportProvenance {
     kiwiAvailable: boolean;
     topicModel?: "graph" | "embedding" | "hybrid";
     preset?: string;
+    presetSource?: string;
     semanticModel?: string;
+    semanticCap?: number;
+    semanticSkippedReason?: string;
+    sentimentModel?: string;
+    sentimentSkippedReason?: string;
     llmTier?: string;
     llmUsed?: boolean;
+    llmSkippedReason?: string;
+    llmModelId?: string;
+    embeddingTopics?: boolean;
+    budgetMs?: number;
+    envOverrides?: string[];
     gpu?: string;
   };
   output?: {

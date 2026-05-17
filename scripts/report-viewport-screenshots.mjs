@@ -24,6 +24,13 @@ const viewports = [
   { name: "4k-2560", width: 2560, height: 1440 },
 ];
 
+/** @type {{ id: string; colorScheme?: "light" | "dark"; dataTheme?: string | null }[]} */
+const themeModes = [
+  { id: "system-dark", colorScheme: "dark", dataTheme: null },
+  { id: "explicit-dark", colorScheme: "dark", dataTheme: "dark" },
+  { id: "explicit-light", colorScheme: "light", dataTheme: "light" },
+];
+
 async function main() {
   let chromium;
   try {
@@ -38,28 +45,44 @@ async function main() {
   const errors = [];
 
   try {
-    for (const vp of viewports) {
-      const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
-      const consoleErrors = [];
-      page.on("console", (msg) => {
-        if (msg.type() === "error") consoleErrors.push(msg.text());
-      });
-      try {
-        await page.goto(baseUrl, { waitUntil: "networkidle", timeout: 90_000 });
-        await page.waitForSelector(".chart-box canvas", { timeout: 15_000 }).catch(() => {});
-        await page.evaluate(() => window.scrollTo(0, 0));
-        await page.waitForTimeout(400);
-        const path = join(outDir, `${vp.name}.png`);
-        await page.screenshot({ path, fullPage: true });
-        console.log(`screenshot: ${path} (${vp.width}×${vp.height})`);
-        const fatal = consoleErrors.filter(
-          (t) => !t.includes("CursorBrowser") && !t.includes("favicon"),
-        );
-        if (fatal.length) errors.push({ vp: vp.name, console: fatal });
-      } catch (e) {
-        errors.push({ vp: vp.name, error: String(e) });
-      } finally {
-        await page.close();
+    for (const theme of themeModes) {
+      const themeDir = join(outDir, theme.id);
+      await mkdir(themeDir, { recursive: true });
+      for (const vp of viewports) {
+        const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
+        if (theme.colorScheme) {
+          await page.emulateMedia({ colorScheme: theme.colorScheme });
+        }
+        const consoleErrors = [];
+        page.on("console", (msg) => {
+          if (msg.type() === "error") consoleErrors.push(msg.text());
+        });
+        try {
+          await page.goto(baseUrl, { waitUntil: "networkidle", timeout: 90_000 });
+          if (theme.dataTheme) {
+            await page.evaluate((t) => {
+              document.documentElement.setAttribute("data-theme", t);
+            }, theme.dataTheme);
+          } else {
+            await page.evaluate(() => {
+              document.documentElement.removeAttribute("data-theme");
+            });
+          }
+          await page.waitForSelector(".chart-box canvas", { timeout: 15_000 }).catch(() => {});
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.waitForTimeout(500);
+          const path = join(themeDir, `${vp.name}.png`);
+          await page.screenshot({ path, fullPage: true });
+          console.log(`screenshot: ${path} (${theme.id} ${vp.width}×${vp.height})`);
+          const fatal = consoleErrors.filter(
+            (t) => !t.includes("CursorBrowser") && !t.includes("favicon"),
+          );
+          if (fatal.length) errors.push({ theme: theme.id, vp: vp.name, console: fatal });
+        } catch (e) {
+          errors.push({ theme: theme.id, vp: vp.name, error: String(e) });
+        } finally {
+          await page.close();
+        }
       }
     }
   } finally {

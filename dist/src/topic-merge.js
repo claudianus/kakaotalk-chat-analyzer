@@ -1,68 +1,114 @@
 import { topicDisplayMax, topicMinThemesLargeCorpus } from "./report-config.js";
 import { isGenericTopicLead, themeLeadPenalty } from "./topic-generic.js";
+import { normalizeTopicTerm, normalizeTopicTerms, topicPairKey, topicSimilarity, normalizedTermsKey, } from "./topic-normalize.js";
 const RRF_K = 60;
+const MERGE_SIMILARITY = 0.42;
+const DROP_SIMILARITY = 0.55;
 function rrf(rank) {
     return 1 / (RRF_K + rank);
 }
 function topicKey(t) {
     if (t.kind === "theme" && t.terms.length > 0) {
-        return `theme:${[...t.terms].sort().slice(0, 5).join("\t")}`;
+        const pair = topicPairKey(t.title);
+        const terms = normalizedTermsKey(t.terms);
+        return `theme:${pair}|${terms}`;
     }
     return `${t.kind}:${t.title.trim().toLowerCase()}`;
 }
-function jaccard(a, b) {
-    const setB = new Set(b);
-    if (a.length === 0)
-        return 0;
-    let inter = 0;
-    for (const x of a)
-        if (setB.has(x))
-            inter += 1;
-    const union = new Set([...a, ...setB]).size;
-    return union > 0 ? inter / union : 0;
+function mergeTwoThemes(keep, other) {
+    const terms = normalizeTopicTerms([...keep.terms, ...other.terms]).slice(0, 8);
+    const messagePercent = Math.max(keep.messagePercent, other.messagePercent);
+    const lead = keep.messagePercent >= other.messagePercent
+        ? normalizeTopicTerm(keep.title.split(/\s*·\s*/)[0] ?? keep.terms[0] ?? "")
+        : normalizeTopicTerm(other.title.split(/\s*·\s*/)[0] ?? other.terms[0] ?? "");
+    const sub = terms.find((t) => t !== lead && !isGenericTopicLead(t));
+    const title = sub && sub !== lead ? `${lead} · ${sub}` : lead;
+    return { ...keep, title, terms, messagePercent };
 }
-function mergeDuplicateLeads(topics) {
-    const out = [];
-    for (const t of topics) {
-        if (t.kind !== "theme") {
-            out.push({ ...t });
-            continue;
+/** 유사 테마 클러스터 병합 (전이적) */
+function clusterSimilarThemes(topics) {
+    const themes = topics.filter((t) => t.kind === "theme").map((t) => ({ ...t }));
+    const rest = topics.filter((t) => t.kind !== "theme");
+    let changed = true;
+    while (changed) {
+        changed = false;
+        outer: for (let i = 0; i < themes.length; i += 1) {
+            for (let j = i + 1; j < themes.length; j += 1) {
+                const a = themes[i];
+                const b = themes[j];
+                if (topicSimilarity(a, b) < MERGE_SIMILARITY)
+                    continue;
+                const primary = a.messagePercent >= b.messagePercent ? a : b;
+                const secondary = primary === a ? b : a;
+                themes[i] = mergeTwoThemes(primary, secondary);
+                themes.splice(j, 1);
+                changed = true;
+                break outer;
+            }
         }
-        const hit = out.find((m) => m.kind === "theme" && jaccard(m.terms, t.terms) > 0.55);
-        if (hit) {
-            hit.messagePercent = Math.max(hit.messagePercent, t.messagePercent);
-            hit.terms = [...new Set([...hit.terms, ...t.terms])].slice(0, 8);
-            if (t.messagePercent > hit.messagePercent)
-                hit.title = t.title;
-            const lead = pickThemeTitleLead(hit);
-            const sub = hit.terms.find((x) => x !== lead && !isGenericTopicLead(x));
-            if (sub && !hit.title.includes(sub))
-                hit.title = `${lead} · ${sub}`;
-        }
-        else {
-            out.push({ ...t });
+    }
+    return [...themes, ...rest];
+}
+/** RRF·비율 낮은 쪽 제거 */
+function dropRedundantThemes(themes) {
+    const out = themes.map((t) => ({ ...t }));
+    let changed = true;
+    while (changed) {
+        changed = false;
+        outer: for (let i = 0; i < out.length; i += 1) {
+            for (let j = i + 1; j < out.length; j += 1) {
+                if (topicSimilarity(out[i], out[j]) < DROP_SIMILARITY)
+                    continue;
+                const dropIdx = out[i].messagePercent >= out[j].messagePercent ? j : i;
+                out.splice(dropIdx, 1);
+                changed = true;
+                break outer;
+            }
         }
     }
     return out;
 }
-function pickThemeTitleLead(t) {
-    return t.title.split(" · ")[0]?.trim() ?? t.terms[0] ?? t.title;
+function themeAnchorLead(t) {
+    return normalizeTopicTerm(t.title.split(/\s*·\s*/)[0] ?? t.terms[0] ?? "");
 }
-function demoteWeakOverlap(themes) {
-    const sorted = [...themes];
-    for (let i = 0; i < sorted.length; i += 1) {
-        for (let j = i + 1; j < sorted.length; j += 1) {
-            if (jaccard(sorted[i].terms, sorted[j].terms) > 0.72) {
-                if (sorted[i].messagePercent >= sorted[j].messagePercent) {
-                    sorted[j].messagePercent *= 0.85;
-                }
-                else {
-                    sorted[i].messagePercent *= 0.85;
-                }
-            }
+/** 동일 lead 과다 시 상위 2장만 유지 (대용량) */
+function collapseDominantAnchor(themes, totalMessages) {
+    if (totalMessages < 10_000)
+        return themes;
+    const byLead = new Map();
+    for (const t of themes) {
+        if (t.kind !== "theme")
+            continue;
+        const lead = themeAnchorLead(t);
+        if (!lead)
+            continue;
+        const list = byLead.get(lead) ?? [];
+        list.push(t);
+        byLead.set(lead, list);
+    }
+    const absorbIds = new Set();
+    for (const [, group] of byLead) {
+        if (group.length <= 3)
+            continue;
+        group.sort((a, b) => b.messagePercent - a.messagePercent || b.terms.length - a.terms.length);
+        const keeper = group[0];
+        const second = group[1];
+        for (let k = 2; k < group.length; k += 1) {
+            const merged = mergeTwoThemes(keeper, group[k]);
+            keeper.title = merged.title;
+            keeper.terms = merged.terms;
+            keeper.messagePercent = merged.messagePercent;
+            absorbIds.add(group[k].id);
+        }
+        if (second && topicSimilarity(keeper, second) >= MERGE_SIMILARITY) {
+            const merged = mergeTwoThemes(keeper, second);
+            keeper.title = merged.title;
+            keeper.terms = merged.terms;
+            keeper.messagePercent = merged.messagePercent;
+            absorbIds.add(second.id);
         }
     }
-    return sorted;
+    return themes.filter((t) => !absorbIds.has(t.id));
 }
 /** graph·keyword·semantic 3레인 RRF 병합 */
 export function mergeTopicLanes(lanes, totalMessages) {
@@ -74,8 +120,7 @@ export function mergeTopicLanes(lanes, totalMessages) {
             const key = topicKey(t);
             const rank = i + 1;
             const penalty = themeLeadPenalty(t.title);
-            const score = t.messagePercent * laneWeight * penalty +
-                (themes.length - i) * 0.02;
+            const score = t.messagePercent * laneWeight * penalty + (themes.length - i) * 0.02;
             const prev = meta.get(key);
             const rrfAdd = rrf(rank) * laneWeight;
             if (!prev) {
@@ -85,7 +130,7 @@ export function mergeTopicLanes(lanes, totalMessages) {
                 prev.rrf += rrfAdd;
                 prev.score = Math.max(prev.score, score);
                 prev.topic.messagePercent = Math.max(prev.topic.messagePercent, t.messagePercent);
-                prev.topic.terms = [...new Set([...prev.topic.terms, ...t.terms])].slice(0, 8);
+                prev.topic.terms = normalizeTopicTerms([...prev.topic.terms, ...t.terms]).slice(0, 8);
             }
         });
     };
@@ -97,10 +142,11 @@ export function mergeTopicLanes(lanes, totalMessages) {
         b.score - a.score ||
         b.topic.messagePercent - a.topic.messagePercent)
         .map((x) => x.topic);
-    themes = demoteWeakOverlap(themes);
-    themes = mergeDuplicateLeads(themes);
+    themes = dropRedundantThemes(themes);
+    themes = clusterSimilarThemes(themes);
+    themes = collapseDominantAnchor(themes, totalMessages);
     themes = themes
-        .filter((t) => !isGenericTopicLead(t.title) || t.messagePercent >= 2)
+        .filter((t) => t.kind !== "theme" || !isGenericTopicLead(t.title) || t.messagePercent >= 2)
         .sort((a, b) => b.messagePercent - a.messagePercent || b.terms.length - a.terms.length);
     const periods = lanes.graph
         .filter((t) => t.kind === "period")
@@ -111,10 +157,11 @@ export function mergeTopicLanes(lanes, totalMessages) {
         for (const k of lanes.keyword) {
             if (themes.length >= minThemes)
                 break;
-            if (themes.some((t) => topicKey(t) === topicKey(k)))
+            if (themes.some((t) => topicSimilarity(t, k) >= MERGE_SIMILARITY))
                 continue;
             themes.push({ ...k });
         }
+        themes = clusterSimilarThemes(themes);
         themes.sort((a, b) => b.messagePercent - a.messagePercent);
     }
     const themeCap = Math.max(maxOut - periods.length, 6);
@@ -131,7 +178,7 @@ export function mergeTopicProposals(topics, proposals, keywords, totalMessages) 
         const evidence = (p.keywordEvidence ?? p.terms ?? []).filter((e) => e.trim().length > 0);
         if (!evidence.some((e) => kwMap.has(e)))
             continue;
-        const terms = [...new Set([...evidence, ...(p.terms ?? [])])].slice(0, 8);
+        const terms = normalizeTopicTerms([...evidence, ...(p.terms ?? [])]).slice(0, 8);
         if (terms.length < 2)
             continue;
         const title = (p.title?.trim() || terms.slice(0, 2).join(" · ")).slice(0, 48);
@@ -144,10 +191,10 @@ export function mergeTopicProposals(topics, proposals, keywords, totalMessages) 
             terms,
             messagePercent: Math.max(pct, 1.2),
         };
-        if (out.some((t) => t.kind === "theme" && topicKey(t) === topicKey(proposal)))
+        if (out.some((t) => topicSimilarity(t, proposal) >= MERGE_SIMILARITY))
             continue;
         out.unshift(proposal);
     }
-    return out.slice(0, maxOut);
+    return clusterSimilarThemes(out).slice(0, maxOut);
 }
 //# sourceMappingURL=topic-merge.js.map

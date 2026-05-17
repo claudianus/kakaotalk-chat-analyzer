@@ -1,5 +1,6 @@
 import type { PrivacyMode, ReportBuildTiming, ReportData, ReportProvenance } from "./types.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
+import type { PresetSource } from "./analysis-effective-config.js";
 import type { GpuKind } from "./analysis-capability.js";
 export declare const REPORT_SCHEMA = "2026-05";
 export interface BuildReportProvenanceOptions {
@@ -12,9 +13,19 @@ export interface BuildReportProvenanceOptions {
     sentimentRequested?: boolean | "auto";
     kiwiAvailable: boolean;
     preset?: AnalysisPresetName;
+    presetSource?: PresetSource;
     semanticModel?: string;
+    semanticCap?: number;
+    semanticSkippedReason?: string;
+    sentimentModel?: string;
+    sentimentSkippedReason?: string;
     llmTier?: string;
     llmUsed?: boolean;
+    llmSkippedReason?: string;
+    llmModelId?: string;
+    embeddingTopics?: boolean;
+    budgetMs?: number;
+    envOverrides?: string[];
     gpu?: GpuKind;
     buildTiming?: ReportBuildTiming;
     htmlBytes?: number;

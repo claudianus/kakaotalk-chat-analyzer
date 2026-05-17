@@ -239,30 +239,18 @@ export const CHARTS_INIT_SCRIPT = `
       var data;
       try { data = JSON.parse(dataEl.textContent || "{}"); } catch (e) { return; }
 
-      var dark = document.documentElement.getAttribute("data-theme") === "dark" ||
-        (!document.documentElement.getAttribute("data-theme") &&
-          window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      var text = dark ? "#e9eef5" : "#141a1f";
-      var muted = dark ? "#8b98a8" : "#5c6670";
-      var accent = dark ? "#3ee8c5" : "#0f6b5c";
-      var accent2 = dark ? "#818cf8" : "#4f46e5";
       function cssVar(name, fallback) {
         try {
-          var v = getComputedStyle(document.body).getPropertyValue(name).trim();
+          var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
           return v || fallback;
         } catch (e) { return fallback; }
       }
-      var heatLo = cssVar("--chart-heat-lo", dark ? "#1a2744" : "#d4e4f4");
-      var heatHi = cssVar("--chart-heat-hi", dark ? "#5ee8ff" : "#1e4fd6");
-      var wdColors = [
-        cssVar("--chart-wd-0", dark ? "#818cf8" : "#4f46e5"),
-        cssVar("--chart-wd-1", dark ? "#3ee8c5" : "#0f6b5c"),
-        cssVar("--chart-wd-2", dark ? "#34d399" : "#059669"),
-        cssVar("--chart-wd-3", dark ? "#2dd4bf" : "#0d9488"),
-        cssVar("--chart-wd-4", dark ? "#38bdf8" : "#0284c7"),
-        cssVar("--chart-wd-5", dark ? "#fbbf24" : "#d97706"),
-        cssVar("--chart-wd-6", dark ? "#fb923c" : "#ea580c"),
-      ];
+      function isDarkTheme() {
+        return document.documentElement.getAttribute("data-theme") === "dark" ||
+          (!document.documentElement.getAttribute("data-theme") &&
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      }
+      var dark, text, muted, accent, accent2, heatLo, heatHi, wdColors;
 
       function baseOpt() {
         return {
@@ -416,26 +404,27 @@ export const CHARTS_INIT_SCRIPT = `
           return null;
         }
       }
-      var mqWide = window.matchMedia && window.matchMedia("(min-width: 900px)");
-      if (mqWide && mqWide.addEventListener) {
-        mqWide.addEventListener("change", function () { setTimeout(resizeAll, 80); });
-      } else if (mqWide && mqWide.addListener) {
-        mqWide.addListener(function () { setTimeout(resizeAll, 80); });
-      }
-      var themeObs = new MutationObserver(function () { setTimeout(resizeAll, 60); });
-      themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-      var mqOsTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
-      function onOsThemeChange() {
-        if (document.documentElement.getAttribute("data-theme")) return;
-        disposeCharts();
-        run();
-        kcaDyadBoot(data);
-      }
-      if (mqOsTheme && mqOsTheme.addEventListener) {
-        mqOsTheme.addEventListener("change", onOsThemeChange);
-      } else if (mqOsTheme && mqOsTheme.addListener) {
-        mqOsTheme.addListener(onOsThemeChange);
-      }
+      var chartHooksInstalled = false;
+      var resizeListenersBound = false;
+      var kwSortBound = false;
+
+      function paintCharts() {
+      dark = isDarkTheme();
+      text = cssVar("--ink", dark ? "#e9eef5" : "#141a1f");
+      muted = cssVar("--muted", dark ? "#8b98a8" : "#5c6670");
+      accent = cssVar("--accent", dark ? "#3ee8c5" : "#0f6b5c");
+      accent2 = cssVar("--accent2", dark ? "#818cf8" : "#4f46e5");
+      heatLo = cssVar("--chart-heat-lo", dark ? "#1a2744" : "#d4e4f4");
+      heatHi = cssVar("--chart-heat-hi", dark ? "#5ee8ff" : "#1e4fd6");
+      wdColors = [
+        cssVar("--chart-wd-0", dark ? "#818cf8" : "#4f46e5"),
+        cssVar("--chart-wd-1", dark ? "#3ee8c5" : "#0f6b5c"),
+        cssVar("--chart-wd-2", dark ? "#34d399" : "#059669"),
+        cssVar("--chart-wd-3", dark ? "#2dd4bf" : "#0d9488"),
+        cssVar("--chart-wd-4", dark ? "#38bdf8" : "#0284c7"),
+        cssVar("--chart-wd-5", dark ? "#fbbf24" : "#d97706"),
+        cssVar("--chart-wd-6", dark ? "#fb923c" : "#ea580c"),
+      ];
 
       function hourBarColor(h) {
         if (h <= 5) return dark ? "#6366f1" : "#4f46e5";
@@ -682,10 +671,15 @@ export const CHARTS_INIT_SCRIPT = `
         }));
       }
 
-      (function bindKwSort() {
+      kcaDyadBoot(data);
+      }
+
+      function bindKwSortOnce() {
+        if (kwSortBound) return;
         var freqEl = document.getElementById("kw-ranked-freq");
         var distEl = document.getElementById("kw-ranked-distinct");
         if (!freqEl || !distEl) return;
+        kwSortBound = true;
         var listF = data.keywords || [];
         var listD = data.keywordsDistinctive || listF;
         document.querySelectorAll("[data-kw-sort]").forEach(function (btn) {
@@ -712,13 +706,45 @@ export const CHARTS_INIT_SCRIPT = `
             }
           });
         });
-      })();
+      }
 
-      requestAnimationFrame(resizeAll);
-      setTimeout(resizeAll, 150);
-      window.addEventListener("resize", resizeAll);
-      window.addEventListener("load", resizeAll);
-      kcaDyadBoot(data);
+      function installChartHooks() {
+        if (chartHooksInstalled) return;
+        chartHooksInstalled = true;
+        function onThemeChange() {
+          disposeCharts();
+          paintCharts();
+        }
+        var themeObs = new MutationObserver(function () { setTimeout(onThemeChange, 60); });
+        themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+        var mqOsTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+        function onOsThemeChange() {
+          if (document.documentElement.getAttribute("data-theme")) return;
+          onThemeChange();
+        }
+        if (mqOsTheme && mqOsTheme.addEventListener) {
+          mqOsTheme.addEventListener("change", onOsThemeChange);
+        } else if (mqOsTheme && mqOsTheme.addListener) {
+          mqOsTheme.addListener(onOsThemeChange);
+        }
+        var mqWide = window.matchMedia && window.matchMedia("(min-width: 900px)");
+        if (mqWide && mqWide.addEventListener) {
+          mqWide.addEventListener("change", function () { setTimeout(resizeAll, 80); });
+        } else if (mqWide && mqWide.addListener) {
+          mqWide.addListener(function () { setTimeout(resizeAll, 80); });
+        }
+      }
+
+      paintCharts();
+      installChartHooks();
+      bindKwSortOnce();
+      if (!resizeListenersBound) {
+        resizeListenersBound = true;
+        requestAnimationFrame(resizeAll);
+        setTimeout(resizeAll, 150);
+        window.addEventListener("resize", resizeAll);
+        window.addEventListener("load", resizeAll);
+      }
       }
       function whenVisible() {
         var anchor = document.getElementById("s-viz") || document.querySelector(".chart-box");

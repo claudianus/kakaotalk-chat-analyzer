@@ -3,6 +3,7 @@ import { discourseRatio, isDiscourseTerm } from "./discourse-lexicon.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { isGenericTopicLead } from "./topic-generic.js";
 import { filterMeaningfulTopicTerms } from "./topic-stopwords.js";
+import { normalizeTopicTerms } from "./topic-normalize.js";
 const MIN_THEME_MESSAGE_PERCENT_DEFAULT = 1.5;
 const MIN_THEME_MESSAGE_PERCENT_LARGE = 0.8;
 const MAX_THEME_DISCOURSE_RATIO = 0.5;
@@ -242,7 +243,7 @@ function refineTopics(topics, minThemePct) {
             const lead = pickThemeLead(terms);
             if (isDiscourseTerm(lead) && discourseRatio(terms) >= 0.75)
                 continue;
-            if (out.some((o) => o.kind === "theme" && jaccard(terms, o.terms) > 0.72))
+            if (out.some((o) => o.kind === "theme" && normalizedTermJaccard(terms, o.terms) > 0.55))
                 continue;
         }
         const lead = t.kind === "theme" ? pickThemeLead(terms) : terms[0];
@@ -281,6 +282,9 @@ function pickThemeLead(terms) {
         return specific;
     const clean = terms.find((t) => !isDiscourseTerm(t));
     return clean ?? terms[0] ?? "주제";
+}
+function normalizedTermJaccard(a, b) {
+    return jaccard(normalizeTopicTerms(a), normalizeTopicTerms(b));
 }
 function jaccard(a, b) {
     const setB = b instanceof Set ? b : new Set(b);

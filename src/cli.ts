@@ -18,10 +18,18 @@ import { renderCompareHtml } from "./compare-report.js";
 import { parseSinceOption } from "./report-date-filter.js";
 import { renderReportHtml } from "./report.js";
 import { formatCapabilitiesReport, probeMachineProfile } from "./analysis-capability.js";
-import { autoPresetFromMachine, resolvePresetNameWithAuto, type AnalysisPresetName } from "./analysis-preset.js";
-import { resolveLlmTier } from "./llm-policy.js";
+import {
+  buildAnalysisEffectiveConfig,
+  configToJson,
+  formatConfigSummaryKo,
+  formatEstimatedPresetHint,
+  toProvenanceOptions,
+  withWorkerUsed,
+  type AnalysisEffectiveConfig,
+} from "./analysis-effective-config.js";
+import { autoPresetFromMachine, type AnalysisPresetName } from "./analysis-preset.js";
 import { parsePullTier, pullLlmGguf } from "./llm-pull.js";
-import { semanticEmbeddingModelId } from "./semantic-policy.js";
+import { estimateKakaoMessageCount } from "./stream-parser.js";
 import { VERSION } from "./version.js";
 import type { HostName, PublishResult } from "./providers/types.js";
 import type { PrivacyMode } from "./types.js";
@@ -95,7 +103,13 @@ function registerPipelineOptions(cmd: Command): void {
       "한국어 비중과 관계없이 감정 분석을 강제합니다(최초 모델 다운로드).",
       false,
     )
-    .option("--since <date>", "YYYY-MM-DD 이후 메시지만 집계합니다.");
+    .option("--since <date>", "YYYY-MM-DD 이후 메시지만 집계합니다.")
+    .option("--json-config", "완료 후 적용된 분석 설정을 JSON으로 stdout에 추가합니다.", false)
+    .option(
+      "--json-config-only",
+      "리포트 경로 없이 분석 설정 JSON만 stdout에 출력합니다(리포트 생성 후).",
+      false,
+    );
 }
 
 function registerDiscoveryOptions(cmd: Command): void {
@@ -148,25 +162,36 @@ async function runMainPipeline(csvPath: string, options: MainOptions): Promise<v
   const namespace = sanitizeNamespace(options.ns);
   const privacy = parsePrivacy(options.privacy);
   const top = parsePositiveInt(options.top, DEFAULT_TOP);
+  const pipeline = buildPipelineOptions(options);
 
-  const htmlPath = await generateReport(csvPath, {
+  let messageEstimate: number | undefined;
+  try {
+    messageEstimate = await estimateKakaoMessageCount(csvPath);
+    console.error(formatEstimatedPresetHint(pipeline, messageEstimate));
+  } catch {
+    console.error(formatEstimatedPresetHint(pipeline));
+  }
+
+  const { htmlPath, config } = await generateReport(csvPath, {
     outDir: options.out,
     privacy,
     top,
     profile: options.profile,
-    preset: parsePresetOption(options.preset, options.fast),
-    worker: options.fast || options.worker ? true : options.noWorker ? false : undefined,
+    ...pipeline,
     progress: !options.noProgress,
-    semanticKeywords: options.noSemanticKeywords
-      ? false
-      : options.semanticKeywords
-        ? true
-        : undefined,
-    sentiment: options.noSentiment ? false : options.sentiment ? true : undefined,
-    since: parseSinceOption(options.since),
   });
+
+  if (options.jsonConfigOnly) {
+    console.log(configToJson(config));
+    return;
+  }
+
+  console.log(formatConfigSummaryKo(config));
   console.log(`리포트: ${htmlPath}`);
   console.log(`크기: ${await formatFileSize(htmlPath)}`);
+  if (options.jsonConfig) {
+    console.log(configToJson(config));
+  }
 
   if (options.local) {
     console.log("--local: 업로드를 하지 않습니다.");
@@ -357,6 +382,22 @@ interface MainOptions {
   noSentiment: boolean;
   sentiment: boolean;
   since?: string;
+  jsonConfig: boolean;
+  jsonConfigOnly: boolean;
+}
+
+function buildPipelineOptions(options: MainOptions) {
+  return {
+    preset: parsePresetOption(options.preset, options.fast),
+    worker: options.fast || options.worker ? true : options.noWorker ? false : undefined,
+    semanticKeywords: options.noSemanticKeywords
+      ? false
+      : options.semanticKeywords
+        ? true
+        : undefined,
+    sentiment: options.noSentiment ? false : options.sentiment ? true : undefined,
+    since: parseSinceOption(options.since),
+  };
 }
 
 interface DiscoveryOptions {
@@ -392,7 +433,7 @@ async function generateReport(
     sentiment?: boolean;
     since?: string;
   },
-): Promise<string> {
+): Promise<{ htmlPath: string; config: AnalysisEffectiveConfig }> {
   const csvPath = resolve(csv);
   const log = options.profile ? (label: string, ms: number) => console.error(`[kca] ${label}: ${ms}ms`) : () => {};
 
@@ -424,29 +465,39 @@ async function generateReport(
   };
 
   const machine = await probeMachineProfile();
-  const preset = resolvePresetNameWithAuto(
-    { preset: options.preset, worker: options.worker },
-    data.summary.totalMessages,
-  );
-  const preliminaryProvenance = buildReportProvenance(data, {
-    privacy: options.privacy,
-    top: options.top,
-    since: options.since,
-    workerRequested: resolveWorkerRequested(options.worker),
+  let config = withWorkerUsed(
+    buildAnalysisEffectiveConfig(
+      data,
+      {
+        privacy: options.privacy,
+        top: options.top,
+        since: options.since,
+        preset: options.preset,
+        worker: options.worker,
+        semanticKeywords: options.semanticKeywords,
+        sentiment: options.sentiment,
+      },
+      machine,
+    ),
     workerUsed,
-    semanticRequested: resolveSemanticRequested(options.semanticKeywords),
-    sentimentRequested: resolveSentimentRequested(options.sentiment),
-    kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
-    preset,
-    semanticModel: semanticEmbeddingModelId({ preset: options.preset, worker: options.worker }),
-    llmTier: resolveLlmTier(preset, machine),
-    llmUsed: data.summary.usedLlmAnalysis === true,
-    gpu: machine.gpu,
-    buildTiming: { ...buildTiming },
-  });
+  );
+
+  const buildProvenance = (timing: typeof buildTiming, htmlBytes?: number) =>
+    buildReportProvenance(
+      data,
+      toProvenanceOptions(config, data, {
+        kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
+        buildTiming: timing,
+        htmlBytes,
+      }),
+    );
 
   t0 = performance.now();
-  let html = renderReportHtml({ ...data, buildTiming, provenance: preliminaryProvenance });
+  let html = renderReportHtml({
+    ...data,
+    buildTiming,
+    provenance: buildProvenance(buildTiming),
+  });
   buildTiming.renderHtmlMs = Math.round(performance.now() - t0);
   log("render HTML", buildTiming.renderHtmlMs);
 
@@ -456,19 +507,7 @@ async function generateReport(
 
   buildTiming.totalMs = buildTiming.parseAggregateMs + buildTiming.renderHtmlMs;
 
-  const provenance = buildReportProvenance(data, {
-    privacy: options.privacy,
-    top: options.top,
-    since: options.since,
-    workerRequested: resolveWorkerRequested(options.worker),
-    workerUsed,
-    semanticRequested: resolveSemanticRequested(options.semanticKeywords),
-    sentimentRequested: resolveSentimentRequested(options.sentiment),
-    kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
-    buildTiming: { ...buildTiming },
-    htmlBytes: Buffer.byteLength(html, "utf8"),
-  });
-
+  const provenance = buildProvenance(buildTiming, Buffer.byteLength(html, "utf8"));
   html = patchReportProvenance(html, provenance);
 
   t0 = performance.now();
@@ -484,32 +523,12 @@ async function generateReport(
     );
   }
 
-  return htmlPath;
+  return { htmlPath, config };
 }
 
 async function readReportHtml(htmlPath: string): Promise<string> {
   const { readFile } = await import("node:fs/promises");
   return readFile(htmlPath, "utf8");
-}
-
-function resolveWorkerRequested(worker?: boolean): boolean | "auto" {
-  if (worker === false) return false;
-  if (worker === true) return true;
-  return "auto";
-}
-
-function resolveSemanticRequested(
-  semanticKeywords?: boolean,
-): boolean | "auto" {
-  if (semanticKeywords === false) return false;
-  if (semanticKeywords === true) return true;
-  return "auto";
-}
-
-function resolveSentimentRequested(sentiment?: boolean): boolean | "auto" {
-  if (sentiment === false) return false;
-  if (sentiment === true) return true;
-  return "auto";
 }
 
 function parsePrivacy(value: string): PrivacyMode {
