@@ -16,7 +16,7 @@ const outDir = join(root, "docs", "assets", "demo");
 const port = Number(process.env.KCA_DOCS_PORT ?? "18766");
 const baseUrl = `http://127.0.0.1:${port}/${encodeURIComponent(slug)}/`;
 
-/** @type {Array<{ file: string; title: string; caption: string; selectors: string[]; optional?: boolean; viewport?: { width: number; height: number } }>} */
+/** @type {Array<{ file: string; title: string; caption: string; selectors: string[]; optional?: boolean; viewport?: { width: number; height: number }; clipMaxH?: number; waitChart?: string }>} */
 const shots = [
   {
     file: "wrapped.png",
@@ -54,25 +54,31 @@ const shots = [
     file: "charts-viz.png",
     title: "인터랙티브 차트",
     caption: "워드클라우드·ECharts",
-    selectors: ["#s-viz", "#chart-kw-cloud"],
+    selectors: ["article.viz-card:has(#chart-kw-cloud)"],
+    waitChart: "#chart-kw-cloud",
+    clipMaxH: 640,
   },
   {
     file: "charts-rhythm.png",
     title: "리듬·히트맵",
-    caption: "시간대·일별 활동",
-    selectors: ["#s-charts .grid.two", "#s-charts"],
+    caption: "일별·시간대 차트",
+    selectors: ["article.viz-card:has(#chart-daily-heat)", "article.viz-card:has(#chart-hours)"],
+    waitChart: "#chart-daily-heat",
+    clipMaxH: 560,
   },
   {
     file: "keywords.png",
     title: "키워드",
     caption: "순위·비율 표",
-    selectors: [".kw-table--ranked", ".kw-css-fold", "#s-topics"],
+    selectors: ["article.viz-card:has(.kw-table--ranked)"],
+    clipMaxH: 640,
   },
   {
     file: "participants.png",
     title: "참여자",
     caption: "랭킹·말풍선 맵",
-    selectors: [".rank-participants"],
+    selectors: ["section.grid.two:has(.rank-participants)"],
+    clipMaxH: 720,
   },
   {
     file: "narrative.png",
@@ -103,6 +109,19 @@ async function firstVisible(page, selectors) {
     if ((await loc.count()) > 0 && (await loc.isVisible().catch(() => false))) return loc;
   }
   throw new Error(`no visible element for: ${selectors.join(" | ")}`);
+}
+
+async function waitChartCanvas(page, selector) {
+  await page.waitForFunction(
+    (sel) => {
+      const canvas = document.querySelector(`${sel} canvas`);
+      if (!canvas) return false;
+      const r = canvas.getBoundingClientRect();
+      return r.width > 20 && r.height > 20;
+    },
+    selector,
+    { timeout: 20_000 },
+  );
 }
 
 function run(cmd, args, opts = {}) {
@@ -140,14 +159,13 @@ function startQaServe() {
   });
 }
 
-function clipForElement(box, vp) {
+function clipForElement(box, vp, shot) {
   const isMobile = vp.width <= 400;
-  const minH = isMobile ? 320 : 360;
-  const maxH = isMobile ? 640 : 560;
+  const maxH = shot.clipMaxH ?? (isMobile ? 640 : 560);
   const x = Math.max(0, Math.floor(box.x));
   let y = Math.max(0, Math.floor(box.y));
   const width = Math.min(Math.ceil(box.width), vp.width - x);
-  let height = Math.min(Math.max(Math.ceil(box.height), minH), maxH);
+  let height = Math.min(Math.ceil(box.height), maxH);
   if (y + height > vp.height) {
     y = Math.max(0, vp.height - height);
   }
@@ -157,14 +175,17 @@ function clipForElement(box, vp) {
 async function captureShot(page, shot) {
   const vp = shot.viewport ?? { width: 1440, height: 900 };
   await page.setViewportSize(vp);
+  if (shot.waitChart) {
+    await waitChartCanvas(page, shot.waitChart);
+  }
   const el = await firstVisible(page, shot.selectors);
   await el.scrollIntoViewIfNeeded();
   await el.evaluate((node) => node.scrollIntoView({ block: "start", inline: "nearest" }));
-  await page.waitForTimeout(300);
+  await page.waitForTimeout(400);
   const box = await el.boundingBox();
   if (!box) throw new Error(`no bounding box for: ${shot.selectors.join(" | ")}`);
   const path = join(outDir, shot.file);
-  const clip = clipForElement(box, vp);
+  const clip = clipForElement(box, vp, shot);
   await page.screenshot({ path, clip });
   console.log(`screenshot: ${path} (${clip.width}×${clip.height})`);
   return { file: shot.file, title: shot.title, caption: shot.caption };
@@ -189,7 +210,7 @@ async function capture() {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout: 90_000 });
     await page.waitForSelector("#s-wrapped", { timeout: 20_000 });
-    await page.waitForSelector(".chart-box canvas", { timeout: 15_000 }).catch(() => {});
+    await waitChartCanvas(page, "#chart-kw-cloud").catch(() => {});
     await page.waitForTimeout(500);
 
     for (const shot of shots) {
