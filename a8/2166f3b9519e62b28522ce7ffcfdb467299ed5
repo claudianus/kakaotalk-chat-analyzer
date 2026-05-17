@@ -1,0 +1,32 @@
+scripts/bench-stream.mjs
+  s_23ea5bc305de1c::t_c90f8e926b33ee 28-38
+test/gap-stats.test.ts
+  s_23ea5bc305de1c::t_4753ef6028b6d0 25
+scripts/qa-serve.mjs
+  s_23ea5bc305de1c::t_48b8e16be8b994 100-111
+src/gap-stats.ts
+  s_23ea5bc305de1c::t_888e1cb98a7987 74
+test/topic-map.test.ts
+  s_23ea5bc305de1c::t_f9c64614273d91 28,30-31,33
+  s_23ea5bc305de1c::t_516799f2287f4c 34
+package.json
+  s_23ea5bc305de1c::t_c7429fb7e2aab9 33
+src/topic-map.ts
+  s_23ea5bc305de1c::t_f464ec58284116 142
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a82166f3b9519e62b28522ce7ffcfdb467299ed5",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
