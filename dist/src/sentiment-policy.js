@@ -1,12 +1,24 @@
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { presetForcesSentimentOff, resolvePresetNameWithAuto } from "./analysis-preset.js";
+import { BUNDLED_SENTIMENT_MODEL_ID, isBundledSentimentModelReady, } from "./ml-bundled-models.js";
 import { subsampleSemanticMessages, } from "./semantic-policy.js";
 export { semanticSampleCap as sentimentSampleCap, semanticReservoirCap as sentimentReservoirCap, subsampleSemanticMessages as subsampleSentimentSamples, } from "./semantic-policy.js";
 const MIN_SENTIMENT_MESSAGES = 48;
-/** Xenova ONNX — 3-class pos/neu/neg */
-export const DEFAULT_SENTIMENT_MODEL = "Xenova/distilbert-base-multilingual-cased-sentiment";
-/** KLUE-RoBERTa-small 감정 (quality preset 기본 후보) */
+/** 익명 Hub 다운로드 가능한 Xenova ONNX (nlptown 1–5 stars → pos/neu/neg) */
+export const DEFAULT_SENTIMENT_MODEL = "Xenova/bert-base-multilingual-uncased-sentiment";
+/** Hub 익명 401 — `KCA_SENTIMENT_MODEL` 로만 지정 */
+export const LEGACY_DISTILBERT_SENTIMENT_MODEL = "Xenova/distilbert-base-multilingual-cased-sentiment";
+/** Hub 익명 401 — `KCA_SENTIMENT_MODEL` 로만 지정 */
 export const KLUE_SENTIMENT_MODEL = "Xenova/klue-roberta-small-sentiment";
+export function isBinarySentimentModel(modelId) {
+    const id = modelId.toLowerCase();
+    return id === BUNDLED_SENTIMENT_MODEL_ID || id.includes("koelectra");
+}
+/** 이진 NSMC 계열: confidence < high 이면 neutral */
+export function binarySentimentConfidenceHigh() {
+    const n = Number(process.env.KCA_SENTIMENT_BINARY_HIGH ?? "0.72");
+    return Number.isFinite(n) ? n : 0.72;
+}
 export function sentimentModelId(preset, messageCount, options) {
     const env = process.env.KCA_SENTIMENT_MODEL?.trim();
     if (env)
@@ -16,15 +28,17 @@ export function sentimentModelId(preset, messageCount, options) {
             ? resolvePresetNameWithAuto(options, messageCount)
             : undefined);
     const envPreset = process.env.KCA_PRESET?.trim().toLowerCase();
-    if (resolved === "quality" || envPreset === "quality")
-        return KLUE_SENTIMENT_MODEL;
+    const isQuality = resolved === "quality" || envPreset === "quality";
+    if (isQuality && isBundledSentimentModelReady())
+        return BUNDLED_SENTIMENT_MODEL_ID;
     return DEFAULT_SENTIMENT_MODEL;
 }
-/** quality → KLUE, 실패 시 distilbert */
+/** primary 실패 시 Hub accessible Xenova 로 폴백 (primary가 이미 default면 단일) */
 export function sentimentModelFallbacks(preset, messageCount, options) {
     const primary = sentimentModelId(preset, messageCount, options);
-    const fallbacks = [DEFAULT_SENTIMENT_MODEL];
-    return [...new Set([primary, ...fallbacks])];
+    if (primary === DEFAULT_SENTIMENT_MODEL)
+        return [primary];
+    return [primary, DEFAULT_SENTIMENT_MODEL];
 }
 export function shouldCollectSentimentSamples(messageCount) {
     return messageCount >= MIN_SENTIMENT_MESSAGES && process.env.KCA_NO_SENTIMENT !== "1";

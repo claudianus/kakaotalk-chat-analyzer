@@ -3,6 +3,7 @@ import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { DEFAULT_KOREAN_SEMANTIC_MODEL, formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
+import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveEmbedBatchSize } from "./ml-batch-size.js";
@@ -23,9 +24,9 @@ async function loadPipelineForModel(modelId) {
         const gpu = await configureTransformersEnv(mod);
         const quantized = preferQuantizedModels(gpu);
         process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
-        return pipeline("feature-extraction", modelId, {
+        return runWithHubMirrors(mod, () => pipeline("feature-extraction", modelId, {
             quantized,
-        });
+        }));
     });
 }
 async function loadPipeline(buildOptions, messageCount) {

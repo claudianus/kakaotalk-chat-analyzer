@@ -1,0 +1,23 @@
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+/** `data/ml-models/` 하위 로컬 ONNX (transformers.js `localModelPath` 기준) */
+export const BUNDLED_SENTIMENT_MODEL_ID = "kca-koelectra-korean-sentiment";
+const PKG_DATA = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data");
+export function bundledMlModelsDir() {
+    return join(PKG_DATA, "ml-models");
+}
+export function bundledSentimentModelDir() {
+    return join(bundledMlModelsDir(), BUNDLED_SENTIMENT_MODEL_ID);
+}
+export function isBundledSentimentModelReady() {
+    return existsSync(join(bundledSentimentModelDir(), "config.json"));
+}
+/** 번들 ONNX가 있으면 transformers `env.localModelPath` 로 쓸 루트 */
+export function bundledMlModelsRoot() {
+    return isBundledSentimentModelReady() ? bundledMlModelsDir() : undefined;
+}
+export function isLocalBundledSentimentModel(modelId) {
+    return modelId === BUNDLED_SENTIMENT_MODEL_ID && isBundledSentimentModelReady();
+}
+//# sourceMappingURL=ml-bundled-models.js.map

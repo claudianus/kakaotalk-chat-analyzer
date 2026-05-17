@@ -307,10 +307,18 @@ export async function buildReportFromExportSync(filePath, options) {
                 const userWords = mergeUserWords(glossary, prepass.toUserWords());
                 const warmups = [initKiwiRuntime(userWords)];
                 const mlOpts = { ...options, preset: resolvePresetNameWithAuto(options, estimated) };
-                if (useSemanticOverlap)
-                    warmups.push(preloadSemanticPipeline(mlOpts, estimated));
-                if (useSentimentOverlap)
-                    warmups.push(preloadSentimentPipeline(mlOpts, estimated));
+                if (useSemanticOverlap) {
+                    warmups.push(preloadSemanticPipeline(mlOpts, estimated).catch((error) => {
+                        const msg = error instanceof Error ? error.message : String(error);
+                        process.stderr.write(`[kca] 시맨틱 워밍업 건너뜀: ${msg}\n`);
+                    }));
+                }
+                if (useSentimentOverlap) {
+                    warmups.push(preloadSentimentPipeline(mlOpts, estimated).catch((error) => {
+                        const msg = error instanceof Error ? error.message : String(error);
+                        process.stderr.write(`[kca] 감정 워밍업 건너뜀: ${msg}\n`);
+                    }));
+                }
                 await Promise.all(warmups);
                 kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
                 phaseProfiler.end("kiwi_prep");
