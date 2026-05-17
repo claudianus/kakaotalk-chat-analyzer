@@ -1,0 +1,142 @@
+test/innovation.test.ts
+  s_23ea5bc305de1c::t_f3bd4df02011f7 41-43
+dist/src/aggregator.d.ts
+  s_23ea5bc305de1c::t_643776191e42a0 37
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_643776191e42a0 3,69,230,468,494-496
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_643776191e42a0 15,179-185,203,245
+test/report-provenance.test.ts
+  s_23ea5bc305de1c::t_0966bcdbd095d2 8
+  s_23ea5bc305de1c::t_0c7d6f690753cf 55-59
+test/gap-stats-session.test.ts
+  s_23ea5bc305de1c::t_b07d8ce689e4a4 1-9,12-16
+  s_23ea5bc305de1c::t_8ffd4f379a0069 10-11
+src/report.ts
+  s_23ea5bc305de1c::t_a89e1562d23753 101
+  s_23ea5bc305de1c::t_9c623ac9e9c6c8 307
+  s_23ea5bc305de1c::t_c6c5b415d4b174 355-362,378
+dist/src/version.js
+  s_23ea5bc305de1c::t_643776191e42a0 1
+src/aggregator.ts
+  s_23ea5bc305de1c::t_8ab9d7b074e8e2 13
+  s_23ea5bc305de1c::t_2e5bf727d13da0 578-580
+  s_23ea5bc305de1c::t_bb092b0f0d55fb 302
+  s_23ea5bc305de1c::t_33a2e67defdaa5 551
+  s_23ea5bc305de1c::t_5884db88ed7312 124
+dist/src/report.js.map
+  ai_agent 1
+src/kakao-export-discovery.ts
+  s_23ea5bc305de1c::t_dcd5e2a5047910 1-93
+src/report-provenance.ts
+  s_23ea5bc305de1c::t_469e7fbf397c62 153-160
+  s_23ea5bc305de1c::t_bf0e1203f75e1b 24-31
+  s_23ea5bc305de1c::t_15f96ef58e74f2 70
+dist/src/report-provenance.js
+  s_23ea5bc305de1c::t_643776191e42a0 4-12,47,108-115
+dist/src/report.js
+  s_23ea5bc305de1c::t_643776191e42a0 63,262
+  s_23ea5bc305de1c::t_910fafe5f74ca3 307-313,329
+README.md
+  s_23ea5bc305de1c::t_d488aac227aed3 18,21
+  s_23ea5bc305de1c::t_edd29e223ce76f 133
+  s_23ea5bc305de1c::t_4a90146789df61 183-184,187,190-193
+dist/src/kakao-export-discovery.d.ts
+  s_23ea5bc305de1c::t_643776191e42a0 1-19
+dist/src/gap-stats.d.ts
+  s_23ea5bc305de1c::t_643776191e42a0 20-38
+dist/src/report-empty.js
+  s_23ea5bc305de1c::t_643776191e42a0 34-36
+kcachat/package.json
+  s_23ea5bc305de1c::t_b6c60ca036012b 15
+  s_23ea5bc305de1c::t_3daae5a4429e8e 3
+dist/src/gap-stats.js.map
+  ai_agent 1
+test/story.test.ts
+  s_23ea5bc305de1c::t_3c83846e57476b 31-33
+dist/src/gap-stats.js
+  s_23ea5bc305de1c::t_643776191e42a0 93-148
+scripts/report-visual-qa.mjs
+  s_23ea5bc305de1c::t_822ef555c279bd 12,16
+  s_23ea5bc305de1c::t_7fd4833d580fcf 9
+  s_23ea5bc305de1c::t_a3a750158f71b8 153,155,161-163
+src/cli.ts
+  s_23ea5bc305de1c::t_301922334de347 6-12,35-46,50-74,76-85,87,89-92,95-100,102,104-160,162-164,166-170,172,174-181,183-195,197,200-207,209-211,293-298,304-309
+  s_23ea5bc305de1c::t_14a14b1339731c 208
+  s_23ea5bc305de1c::t_cd29088ee62f62 86,93,103
+  s_23ea5bc305de1c::t_66b559139143f1 196
+src/types.ts
+  s_23ea5bc305de1c::t_3c291fb1753d03 335
+  s_23ea5bc305de1c::t_2703e74ac6606b 215-220
+package.json
+  s_23ea5bc305de1c::t_4947018a87be8f 3
+src/gap-stats.ts
+  s_23ea5bc305de1c::t_d2e64d8577699f 104-174
+dist/src/kakao-export-discovery.js
+  s_23ea5bc305de1c::t_643776191e42a0 1-65
+dist/src/report-provenance.d.ts
+  s_23ea5bc305de1c::t_643776191e42a0 14
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/kakao-export-discovery.js.map
+  ai_agent 1
+test/open-chat-profile.test.ts
+  s_23ea5bc305de1c::t_d823e71d1f6db2 35-43,45
+  s_23ea5bc305de1c::t_6f4403733901ea 44
+  s_23ea5bc305de1c::t_6180cd9d3b8fee 2,4,7
+kcachat/README.md
+  s_23ea5bc305de1c::t_bf3aa59134848d 6-7,11
+dist/src/cli.js
+  s_23ea5bc305de1c::t_643776191e42a0 6-7,22-27,29-33,35-64,66-75,77-88,94,146,150-158,161-169,172,230-236
+  s_23ea5bc305de1c::t_b928fb578b25fa 65,76,159-160,170-171
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_643776191e42a0 1-2
+dist/src/report-empty.js.map
+  ai_agent 1
+test/kakao-export-discovery.test.ts
+  s_23ea5bc305de1c::t_f813e783f92745 1-57
+test/report-enrichment.test.ts
+  s_23ea5bc305de1c::t_34f9c237fb95ed 37-39
+src/version.ts
+  s_23ea5bc305de1c::t_643776191e42a0 1
+dist/src/report-provenance.js.map
+  ai_agent 1
+src/analysis.ts
+  s_23ea5bc305de1c::t_938c3679edfdf7 254-260
+  s_23ea5bc305de1c::t_67a4ff6e372c7c 225-231
+  s_23ea5bc305de1c::t_46c14ed15d2cc9 17
+  s_23ea5bc305de1c::t_e2dbc357aec09e 296
+dist/src/analysis.js.map
+  ai_agent 1
+test/cli-latest.test.ts
+  s_23ea5bc305de1c::t_e75210cada9395 14
+  s_23ea5bc305de1c::t_e6e5df93bec40d 1-8,10-13,15-40,42-56
+  s_23ea5bc305de1c::t_26081b78ca9519 9
+  s_23ea5bc305de1c::t_9c65dd0e52d4cd 41
+dist/src/types.d.ts
+  s_23ea5bc305de1c::t_643776191e42a0 199-204,316
+docs/index.html
+  s_23ea5bc305de1c::t_1f3d50d1642595 264
+src/report-empty.ts
+  s_23ea5bc305de1c::t_2a0970e8196685 36-38
+test/fixtures/open-chat-room.csv
+  s_23ea5bc305de1c::t_941fb8c3afdef4 1-3,5-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "77ba743bf6406b34d6ac73189628a598036dc9dc",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
