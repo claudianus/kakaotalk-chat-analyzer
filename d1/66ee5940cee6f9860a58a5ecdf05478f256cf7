@@ -1,0 +1,86 @@
+test/sentiment-policy.test.ts
+  s_23ea5bc305de1c::t_31122086910031 13-16
+dist/src/sentiment-policy.js
+  s_23ea5bc305de1c::t_ff785a8b1155e8 2,10,14-17,19,23-27
+dist/src/sentiment-analyze.js
+  s_23ea5bc305de1c::t_ff785a8b1155e8 1-2,4,10,27-54,57-58,60,63-85,87,92-93,98,101-103,111,170
+src/ml-runtime.ts
+  s_23ea5bc305de1c::t_a6ee7482602a06 2
+  s_23ea5bc305de1c::t_b500a2d0d1f13e 41
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_ff785a8b1155e8 309,311,313
+dist/src/ml-runtime.js
+  s_23ea5bc305de1c::t_ff785a8b1155e8 1,39
+src/analysis.ts
+  s_23ea5bc305de1c::t_21c9ce8cf8f78b 399-401
+dist/src/ml-transformers-env.js.map
+  ai_agent 1
+dist/src/ml-stderr.d.ts
+  s_23ea5bc305de1c::t_ff785a8b1155e8 1-2,4
+dist/src/ml-transformers-env.js
+  s_23ea5bc305de1c::t_ff785a8b1155e8 1-24,27-33
+  s_23ea5bc305de1c::t_dfeee4f64be791 25-26
+dist/src/analysis.js.map
+  ai_agent 1
+src/sentiment-analyze.ts
+  s_23ea5bc305de1c::t_add330100e06fa 59,61,68-74
+  s_23ea5bc305de1c::t_a8ab04b6a791e7 96,110,115-120
+  s_23ea5bc305de1c::t_78e615da5feb6b 4,10,12,34,48-58,60,62-67,75-90,92-94,99-109,111-114,121,123,125,130-134,147,150-152,159,231
+dist/src/sentiment-analyze.js.map
+  ai_agent 1
+src/version.ts
+  s_23ea5bc305de1c::t_ff785a8b1155e8 1
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_ff785a8b1155e8 1-2
+dist/src/ml-stderr.js.map
+  ai_agent 1
+kcachat/package.json
+  s_23ea5bc305de1c::t_d2d00ce0e12420 15
+  s_23ea5bc305de1c::t_126cc62da0b14c 3
+src/ml-stderr.ts
+  s_23ea5bc305de1c::t_bed41c46fe3d01 3,5-7,9-12,17,24,26-34
+src/ml-transformers-env.ts
+  s_23ea5bc305de1c::t_7f9efe77db1a97 32
+  s_23ea5bc305de1c::t_27e31780f6422a 1-31,33-39
+package.json
+  s_23ea5bc305de1c::t_3b9466f6a42e5e 3
+dist/src/sentiment-analyze.d.ts
+  s_23ea5bc305de1c::t_ff785a8b1155e8 16-17
+dist/src/sentiment-policy.d.ts
+  s_23ea5bc305de1c::t_ff785a8b1155e8 8-10
+dist/src/semantic-keywords.js
+  s_23ea5bc305de1c::t_ff785a8b1155e8 22
+dist/src/ml-stderr.js
+  s_23ea5bc305de1c::t_ff785a8b1155e8 2-4,6-10,14,23-32
+dist/src/ml-runtime.js.map
+  ai_agent 1
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/sentiment-policy.js.map
+  ai_agent 1
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_304262be6f0afd 39-40
+src/sentiment-policy.ts
+  s_23ea5bc305de1c::t_fe2396661286ea 25-29,32-36,38,42-50
+  s_23ea5bc305de1c::t_a95f5162e7f95b 4
+dist/src/version.js
+  s_23ea5bc305de1c::t_ff785a8b1155e8 1
+dist/src/ml-transformers-env.d.ts
+  s_23ea5bc305de1c::t_ff785a8b1155e8 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "d166ee5940cee6f9860a58a5ecdf05478f256cf7",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
