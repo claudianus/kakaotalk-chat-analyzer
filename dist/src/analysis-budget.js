@@ -1,22 +1,61 @@
-import { analysisBudgetMs } from "./analysis-capability.js";
-const PHASE_RESERVE_MS = {
+import { analysisBudgetMs, memoryHeadroomGb } from "./analysis-capability.js";
+const BASE_RESERVE_MS = {
     semantic: 120_000,
     sentiment: 90_000,
     llm: 50_000,
 };
+/** preset·가용 RAM에 따른 단계 예약 시간 */
+export function phaseReserveMs(phase, preset, profile) {
+    const headroom = memoryHeadroomGb(profile);
+    if (phase === "semantic") {
+        if (preset === "quality" && headroom >= 16)
+            return 70_000;
+        if (preset === "quality" && headroom >= 12)
+            return 85_000;
+        if (headroom >= 16)
+            return 80_000;
+        if (headroom >= 12)
+            return 95_000;
+        return BASE_RESERVE_MS.semantic;
+    }
+    if (phase === "sentiment") {
+        if (headroom >= 16)
+            return 70_000;
+        if (headroom >= 12)
+            return 80_000;
+        return BASE_RESERVE_MS.sentiment;
+    }
+    if (phase === "llm") {
+        if (headroom >= 16 && preset === "quality")
+            return 45_000;
+        return BASE_RESERVE_MS.llm;
+    }
+    return BASE_RESERVE_MS[phase];
+}
 /** 집계 시작 시각 + 예산으로 단계 skip 여부 */
 export class AnalysisBudgetTracker {
+    preset;
+    profile;
     budgetMs;
     started = performance.now();
     constructor(preset, messageCount, profile) {
+        this.preset = preset;
+        this.profile = profile;
         this.budgetMs = analysisBudgetMs(preset, messageCount, profile);
     }
     remainingMs() {
         return Math.max(0, this.budgetMs - (performance.now() - this.started));
     }
     shouldSkip(phase) {
-        const need = PHASE_RESERVE_MS[phase];
         const remain = this.remainingMs();
+        let need = phaseReserveMs(phase, this.preset, this.profile);
+        if (phase === "semantic" &&
+            this.preset === "quality" &&
+            memoryHeadroomGb(this.profile) >= 14 &&
+            remain >= 55_000 &&
+            remain < need) {
+            need = Math.max(50_000, remain - 8_000);
+        }
         if (remain >= need)
             return false;
         process.stderr.write(`[kca] ${phase} 분석 건너뜀 (예산 ${Math.round(remain / 1000)}s 남음, 필요 ~${Math.round(need / 1000)}s)\n`);

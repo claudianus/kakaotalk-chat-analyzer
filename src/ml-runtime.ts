@@ -53,3 +53,10 @@ export async function configureTransformersEnv(mod: TransformersModule): Promise
   }
   return gpu;
 }
+
+/** Metal 등에서 quantized 로드 시 ORT 경고 방지 */
+export function preferQuantizedModels(gpu: GpuKind): boolean {
+  if (process.env.KCA_ML_QUANTIZED === "0") return false;
+  if (process.env.KCA_ML_QUANTIZED === "1") return true;
+  return gpu === "none";
+}

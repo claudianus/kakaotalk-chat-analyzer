@@ -16,4 +16,4 @@ export declare function resolvePresetNameWithAuto(options?: BuildReportOptions, 
 export declare function getPresetEffectiveFlags(options?: BuildReportOptions, messageCount?: number): PresetEffectiveFlags;
 /** 명시적 preset·legacy fast만 끔(RAM 자동 speed는 CLI 추천용) */
 export declare function presetForcesSemanticOff(options?: BuildReportOptions): boolean;
-export declare function presetForcesSentimentOff(options?: BuildReportOptions): boolean;
+export declare function presetForcesSentimentOff(options?: BuildReportOptions, messageCount?: number): boolean;

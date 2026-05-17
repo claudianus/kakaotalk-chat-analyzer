@@ -1,7 +1,8 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { DEFAULT_SENTIMENT_MODEL, sentimentModelId, sentimentSampleCap, subsampleSentimentRecords, } from "./sentiment-policy.js";
-import { configureTransformersEnv } from "./ml-runtime.js";
+import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
+import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveSentimentBatchSize } from "./ml-batch-size.js";
 const MIN_SAMPLES = 48;
 let pipelinePromise = null;
@@ -29,7 +30,7 @@ async function loadPipeline(buildOptions) {
         return pipelinePromise;
     pipelinePromise = null;
     loadedModelId = modelId;
-    pipelinePromise = (async () => {
+    pipelinePromise = withQuietMlStderr(async () => {
         let mod;
         try {
             mod = await import("@xenova/transformers");
@@ -39,13 +40,14 @@ async function loadPipeline(buildOptions) {
                 "재설치하거나 --no-sentiment / KCA_NO_SENTIMENT=1 로 끄세요.");
         }
         const { env, pipeline } = mod;
-        await configureTransformersEnv(mod);
+        const gpu = await configureTransformersEnv(mod);
+        const quantized = preferQuantizedModels(gpu);
         env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
         env.allowLocalModels = true;
-        process.stderr.write(`[kca] 감정 분석 준비 중… (${modelId}, 최초 1회)\n`);
+        process.stderr.write(`[kca] 감정 분석 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
         try {
             return (await pipeline("text-classification", modelId, {
-                quantized: true,
+                quantized,
             }));
         }
         catch (error) {
@@ -55,10 +57,10 @@ async function loadPipeline(buildOptions) {
             process.stderr.write(`[kca] 감정 모델 ${modelId} 로드 실패 → ${DEFAULT_SENTIMENT_MODEL}: ${msg}\n`);
             loadedModelId = DEFAULT_SENTIMENT_MODEL;
             return pipeline("text-classification", DEFAULT_SENTIMENT_MODEL, {
-                quantized: true,
+                quantized,
             });
         }
-    })();
+    });
     return pipelinePromise;
 }
 /** Kiwi 준비·키워드 패스와 병렬 워밍업 */

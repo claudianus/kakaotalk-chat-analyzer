@@ -52,8 +52,13 @@ export function analysisBudgetMs(
   profile: MachineProfile,
 ): number {
   const sec = estimateAnalysisSeconds(preset, messageCount, profile);
-  const cap =
+  const headroom = memoryHeadroomGb(profile);
+  let cap =
     preset === "speed" ? 180_000 : preset === "balanced" ? 300_000 : preset === "quality" ? 360_000 : 300_000;
+  if (headroom >= 16) {
+    if (preset === "quality") cap = 420_000;
+    else if (preset === "balanced") cap = 360_000;
+  }
   return Math.min(cap, Math.max(1000, sec * 1000));
 }
 

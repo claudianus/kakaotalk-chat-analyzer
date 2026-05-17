@@ -35,7 +35,7 @@ export function resolveSentiment(options, prepass, sampleMessages) {
         return true;
     if (process.env.KCA_SENTIMENT === "1")
         return true;
-    if (presetForcesSentimentOff(options))
+    if (presetForcesSentimentOff(options, prepass.messageCount))
         return false;
     if (process.env.KCA_SENTIMENT === "0")
         return false;

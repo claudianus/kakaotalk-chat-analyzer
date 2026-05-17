@@ -49,7 +49,7 @@ export function resolveSentiment(
   if (prepass.messageCount < MIN_SENTIMENT_MESSAGES) return false;
   if (options?.sentiment === true) return true;
   if (process.env.KCA_SENTIMENT === "1") return true;
-  if (presetForcesSentimentOff(options)) return false;
+  if (presetForcesSentimentOff(options, prepass.messageCount)) return false;
   if (process.env.KCA_SENTIMENT === "0") return false;
   if (process.env.KCA_SENTIMENT_DEFAULT === "opt-in") return false;
   return isPrimarilyKoreanMessages(sampleMessages);

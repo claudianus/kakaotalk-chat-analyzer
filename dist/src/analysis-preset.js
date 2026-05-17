@@ -22,11 +22,17 @@ export function autoPresetFromMachine(profile, messageCount) {
     const n = messageCount ?? 0;
     if (headroom < 4 || (headroom < 6 && total < 16))
         return "speed";
+    if (total >= 32 && headroom >= 16) {
+        return n >= 120_000 ? "balanced" : "quality";
+    }
     if (total >= 32 && headroom >= 12) {
-        return n >= 80_000 ? "balanced" : "quality";
+        return n >= 100_000 ? "balanced" : "quality";
+    }
+    if (total >= 16 && headroom >= 14) {
+        return n >= 60_000 ? "balanced" : "quality";
     }
     if (total >= 16 && headroom >= 10) {
-        return n >= 40_000 ? "balanced" : "quality";
+        return n >= 45_000 ? "balanced" : "quality";
     }
     if (headroom < 8)
         return "speed";
@@ -48,10 +54,11 @@ export function getPresetEffectiveFlags(options, messageCount) {
         return { preset, profile: "fast", llmEnabled: false, preferWorker: true };
     }
     if (preset === "balanced") {
+        const headroom = memoryHeadroomGb(probeMachineProfileSync());
         return {
             preset,
             profile: "quality",
-            semanticCap: 600,
+            semanticCap: headroom >= 16 ? 900 : 600,
             llmEnabled: false,
             preferWorker: false,
         };
@@ -76,8 +83,15 @@ export function getPresetEffectiveFlags(options, messageCount) {
 export function presetForcesSemanticOff(options) {
     return resolvePresetName(options) === "speed";
 }
-export function presetForcesSentimentOff(options) {
-    const p = resolvePresetName(options);
-    return p === "speed" || p === "balanced";
+export function presetForcesSentimentOff(options, messageCount) {
+    const p = messageCount !== undefined
+        ? resolvePresetNameWithAuto(options, messageCount)
+        : resolvePresetName(options);
+    if (p === "speed")
+        return true;
+    if (p === "balanced") {
+        return memoryHeadroomGb(probeMachineProfileSync()) < 12;
+    }
+    return false;
 }
 //# sourceMappingURL=analysis-preset.js.map

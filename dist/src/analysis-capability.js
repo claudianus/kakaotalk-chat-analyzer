@@ -26,7 +26,14 @@ export async function probeMachineProfile() {
 /** preset·코퍼스·RAM 기준 분석 예산(ms) — 5분 SLA 휴리스틱 */
 export function analysisBudgetMs(preset, messageCount, profile) {
     const sec = estimateAnalysisSeconds(preset, messageCount, profile);
-    const cap = preset === "speed" ? 180_000 : preset === "balanced" ? 300_000 : preset === "quality" ? 360_000 : 300_000;
+    const headroom = memoryHeadroomGb(profile);
+    let cap = preset === "speed" ? 180_000 : preset === "balanced" ? 300_000 : preset === "quality" ? 360_000 : 300_000;
+    if (headroom >= 16) {
+        if (preset === "quality")
+            cap = 420_000;
+        else if (preset === "balanced")
+            cap = 360_000;
+    }
     return Math.min(cap, Math.max(1000, sec * 1000));
 }
 /** 90k 메시지 기준 대략 예상(초) — preset·RAM 휴리스틱 */

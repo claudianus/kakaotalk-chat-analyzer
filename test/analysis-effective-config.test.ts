@@ -20,18 +20,18 @@ const richMachine: MachineProfile = {
 };
 
 test("resolvePresetSource distinguishes RAM-only vs corpus auto preset", () => {
-  assert.equal(resolvePresetSource(undefined, undefined, 95_000, richMachine), "auto-corpus");
+  assert.equal(resolvePresetSource(undefined, undefined, 125_000, richMachine), "auto-corpus");
   assert.equal(resolvePresetSource(undefined, undefined, 5_000, richMachine), "auto-ram");
 });
 
 test("buildAnalysisEffectiveConfig reports LLM off for balanced preset", () => {
   const data = emptyReportData();
-  data.summary.totalMessages = 90_000;
+  data.summary.totalMessages = 125_000;
   data.summary.usedSemanticKeywords = true;
   data.summary.usedLlmAnalysis = false;
   const config = buildAnalysisEffectiveConfig(
     data,
-    { privacy: "public-masked", top: 40, preset: undefined },
+    { privacy: "public-masked", top: 40, preset: "balanced" },
     richMachine,
   );
   assert.equal(config.preset, "balanced");

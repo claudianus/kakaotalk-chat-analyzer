@@ -167,11 +167,12 @@ function inferSentimentSkipReason(
   options: BuildReportOptions | undefined,
   preset: AnalysisPresetName,
   used: boolean,
+  messageCount: number,
 ): string | undefined {
   if (used) return undefined;
   if (process.env.KCA_NO_SENTIMENT === "1") return "KCA_NO_SENTIMENT=1";
   if (options?.sentiment === false) return "CLI --no-sentiment";
-  if (presetForcesSentimentOff(options)) return `${preset} preset`;
+  if (presetForcesSentimentOff(options, messageCount)) return `${preset} preset (RAM 부족)`;
   if (process.env.KCA_SENTIMENT === "0") return "KCA_SENTIMENT=0";
   if (process.env.KCA_SENTIMENT_DEFAULT === "opt-in") return "KCA_SENTIMENT_DEFAULT=opt-in";
   if (options?.sentiment !== true && process.env.KCA_SENTIMENT !== "1") {
@@ -246,7 +247,7 @@ export function buildAnalysisEffectiveConfig(
       requested: resolveSentimentRequested(cli.sentiment),
       used: sentimentUsed,
       model: sentimentModel,
-      skippedReason: inferSentimentSkipReason(buildOpts, preset, sentimentUsed),
+      skippedReason: inferSentimentSkipReason(buildOpts, preset, sentimentUsed, messageCount),
     },
     llm: {
       tier: llmTier,

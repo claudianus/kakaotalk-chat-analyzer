@@ -98,15 +98,15 @@ function inferSemanticSkipReason(options, preset, used) {
     }
     return "실행 중 오류 또는 샘플 부족";
 }
-function inferSentimentSkipReason(options, preset, used) {
+function inferSentimentSkipReason(options, preset, used, messageCount) {
     if (used)
         return undefined;
     if (process.env.KCA_NO_SENTIMENT === "1")
         return "KCA_NO_SENTIMENT=1";
     if (options?.sentiment === false)
         return "CLI --no-sentiment";
-    if (presetForcesSentimentOff(options))
-        return `${preset} preset`;
+    if (presetForcesSentimentOff(options, messageCount))
+        return `${preset} preset (RAM 부족)`;
     if (process.env.KCA_SENTIMENT === "0")
         return "KCA_SENTIMENT=0";
     if (process.env.KCA_SENTIMENT_DEFAULT === "opt-in")
@@ -175,7 +175,7 @@ export function buildAnalysisEffectiveConfig(data, cli, machine) {
             requested: resolveSentimentRequested(cli.sentiment),
             used: sentimentUsed,
             model: sentimentModel,
-            skippedReason: inferSentimentSkipReason(buildOpts, preset, sentimentUsed),
+            skippedReason: inferSentimentSkipReason(buildOpts, preset, sentimentUsed, messageCount),
         },
         llm: {
             tier: llmTier,

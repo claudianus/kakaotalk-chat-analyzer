@@ -47,23 +47,32 @@ test("autoPresetFromMachine picks quality on 16GB and small corpus", () => {
   assert.equal(autoPresetFromMachine(richMachine, 10_000), "quality");
 });
 
-test("autoPresetFromMachine picks balanced on 16GB and 30k+ messages", () => {
-  assert.equal(autoPresetFromMachine(richMachine, 90_000), "balanced");
+test("autoPresetFromMachine picks quality on 32GB until very large corpus", () => {
+  assert.equal(autoPresetFromMachine(richMachine, 90_000), "quality");
+  assert.equal(autoPresetFromMachine(richMachine, 125_000), "balanced");
 });
 
 test("autoPresetFromMachine uses available not free on macOS cache", () => {
-  assert.equal(autoPresetFromMachine(macCachedMemory, 90_000), "balanced");
+  assert.equal(autoPresetFromMachine(macCachedMemory, 90_000), "quality");
   assert.equal(autoPresetFromMachine(macCachedMemory, 10_000), "quality");
+  assert.equal(autoPresetFromMachine(macCachedMemory, 125_000), "balanced");
 });
 
 test("getPresetEffectiveFlags maps balanced semantic cap", () => {
   const flags = getPresetEffectiveFlags({ preset: "balanced" });
-  assert.equal(flags.semanticCap, 600);
+  assert.ok(flags.semanticCap === 600 || flags.semanticCap === 900);
   assert.equal(flags.llmEnabled, false);
 });
 
-test("presetForcesSentimentOff for balanced preset", () => {
-  assert.equal(presetForcesSentimentOff({ preset: "balanced" }), true);
+test("presetForcesSentimentOff for balanced allows ample RAM", () => {
+  const prev = process.env.KCA_MEMORY_PROBE;
+  process.env.KCA_MEMORY_PROBE = "free";
+  try {
+    assert.equal(presetForcesSentimentOff({ preset: "balanced" }, 50_000), true);
+  } finally {
+    if (prev === undefined) delete process.env.KCA_MEMORY_PROBE;
+    else process.env.KCA_MEMORY_PROBE = prev;
+  }
   assert.equal(presetForcesSentimentOff({ preset: "quality" }), false);
 });
 

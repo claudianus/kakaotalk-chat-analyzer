@@ -8,7 +8,8 @@ import {
   subsampleSentimentRecords,
 } from "./sentiment-policy.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
-import { configureTransformersEnv } from "./ml-runtime.js";
+import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
+import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveSentimentBatchSize } from "./ml-batch-size.js";
 
 const MIN_SAMPLES = 48;
@@ -48,7 +49,7 @@ async function loadPipeline(buildOptions?: BuildReportOptions): Promise<Classifi
   if (pipelinePromise && loadedModelId === modelId) return pipelinePromise;
   pipelinePromise = null;
   loadedModelId = modelId;
-  pipelinePromise = (async () => {
+  pipelinePromise = withQuietMlStderr(async () => {
     let mod: typeof import("@xenova/transformers");
     try {
       mod = await import("@xenova/transformers");
@@ -59,13 +60,16 @@ async function loadPipeline(buildOptions?: BuildReportOptions): Promise<Classifi
       );
     }
     const { env, pipeline } = mod;
-    await configureTransformersEnv(mod);
+    const gpu = await configureTransformersEnv(mod);
+    const quantized = preferQuantizedModels(gpu);
     env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
     env.allowLocalModels = true;
-    process.stderr.write(`[kca] 감정 분석 준비 중… (${modelId}, 최초 1회)\n`);
+    process.stderr.write(
+      `[kca] 감정 분석 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`,
+    );
     try {
       return (await pipeline("text-classification", modelId, {
-        quantized: true,
+        quantized,
       })) as ClassificationPipeline;
     } catch (error) {
       if (modelId === DEFAULT_SENTIMENT_MODEL) throw error;
@@ -73,10 +77,10 @@ async function loadPipeline(buildOptions?: BuildReportOptions): Promise<Classifi
       process.stderr.write(`[kca] 감정 모델 ${modelId} 로드 실패 → ${DEFAULT_SENTIMENT_MODEL}: ${msg}\n`);
       loadedModelId = DEFAULT_SENTIMENT_MODEL;
       return pipeline("text-classification", DEFAULT_SENTIMENT_MODEL, {
-        quantized: true,
+        quantized,
       }) as Promise<ClassificationPipeline>;
     }
-  })();
+  });
   return pipelinePromise;
 }
 

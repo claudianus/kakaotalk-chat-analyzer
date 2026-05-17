@@ -5,27 +5,31 @@ import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { DEFAULT_KOREAN_SEMANTIC_MODEL, formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
-import { configureTransformersEnv } from "./ml-runtime.js";
+import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
+import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveEmbedBatchSize } from "./ml-batch-size.js";
 const MIN_SAMPLES = 48;
 let pipelinePromise = null;
 let loadedModelId = null;
 async function loadPipelineForModel(modelId) {
-    let mod;
-    try {
-        mod = await import("@xenova/transformers");
-    }
-    catch {
-        throw new Error("[kca] 시맨틱 키워드는 optional dependency @xenova/transformers 가 필요합니다. " +
-            "재설치하거나 --no-semantic-keywords 로 끄세요.");
-    }
-    const { env, pipeline } = mod;
-    await configureTransformersEnv(mod);
-    env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
-    env.allowLocalModels = true;
-    process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}, 최초 1회)\n`);
-    return pipeline("feature-extraction", modelId, {
-        quantized: true,
+    return withQuietMlStderr(async () => {
+        let mod;
+        try {
+            mod = await import("@xenova/transformers");
+        }
+        catch {
+            throw new Error("[kca] 시맨틱 키워드는 optional dependency @xenova/transformers 가 필요합니다. " +
+                "재설치하거나 --no-semantic-keywords 로 끄세요.");
+        }
+        const { env, pipeline } = mod;
+        const gpu = await configureTransformersEnv(mod);
+        env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
+        env.allowLocalModels = true;
+        const quantized = preferQuantizedModels(gpu);
+        process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
+        return pipeline("feature-extraction", modelId, {
+            quantized,
+        });
     });
 }
 async function loadPipeline(buildOptions, messageCount) {
