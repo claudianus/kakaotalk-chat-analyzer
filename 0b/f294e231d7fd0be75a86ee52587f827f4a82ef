@@ -1,0 +1,217 @@
+dist/src/types.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 404-407
+src/streaming-tfidf-keywords.ts
+  s_23ea5bc305de1c::t_4ea0856fac1db0 190
+test/keyword-merge.test.ts
+  s_23ea5bc305de1c::t_af1899b08002f7 1-17,22-24,27-28
+  s_23ea5bc305de1c::t_59aedaa34b4e11 18,20-21
+  s_23ea5bc305de1c::t_ed340e608c4d2e 19,25-26
+src/semantic-policy.ts
+  s_23ea5bc305de1c::t_063900623f8236 80
+dist/src/open-chat-profile.js.map
+  ai_agent 1
+dist/src/report-styles.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 984,1780-1784,1796-1831,2067-2075,2661-2668
+package.json
+  s_23ea5bc305de1c::t_0a82a51154b874 20
+  s_23ea5bc305de1c::t_3a956dd4dd1782 3
+dist/src/embedding-topics.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-5
+dist/src/open-chat-profile.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-20
+dist/src/benchmark-bands.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 2
+dist/src/report-styles.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 2
+src/report/css/06-kca-responsive.css
+  s_23ea5bc305de1c::t_fec0bcd0e2f69b 54-56,70-103
+  s_23ea5bc305de1c::t_fedb1513182ee9 57-58
+  s_23ea5bc305de1c::t_dc26d45bf5af6b 341-349
+kcachat/package.json
+  s_23ea5bc305de1c::t_d8d82e20827523 15
+  s_23ea5bc305de1c::t_8640fc9eeb8cb9 3
+dist/src/report.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 12-13,63-64,99,247-259,263-264,267,269-270,594,596-603,701-733,738-739,747-748
+src/report/css/08-kca-innovation.css
+  s_23ea5bc305de1c::t_5e5430c21073f6 121-129
+scripts/topic-coherence-audit.mjs
+  s_23ea5bc305de1c::t_b25e45476feda9 1-12
+src/report-section-visibility.ts
+  s_23ea5bc305de1c::t_a2f485bf4d2a91 1-21
+dist/src/cli.js.map
+  ai_agent 1
+test/open-chat-profile.test.ts
+  s_23ea5bc305de1c::t_d6499160a8b5e3 1-30
+src/benchmark-bands.ts
+  s_23ea5bc305de1c::t_b9e81c5701d211 27
+  s_23ea5bc305de1c::t_1b0dffaa77caec 72
+  s_23ea5bc305de1c::t_a943f66c3ec7cd 1-3,7,15-26,28-47
+src/report.ts
+  s_23ea5bc305de1c::t_9962758dc0c901 853-855
+  s_23ea5bc305de1c::t_8e272fc8a01685 101-102
+  s_23ea5bc305de1c::t_fdf8d3a3199c38 42-48
+  s_23ea5bc305de1c::t_b0259d9c56fd40 292-304,308-309,312,314-315
+  s_23ea5bc305de1c::t_ab7c096ee77ae1 141
+  s_23ea5bc305de1c::t_ffd825a55f0578 802-836,840
+  s_23ea5bc305de1c::t_1fb5ae0596c3ac 49
+  s_23ea5bc305de1c::t_19c83478061222 689
+  s_23ea5bc305de1c::t_de333f1be7a3e0 674,679-688
+test/embedding-topics.test.ts
+  s_23ea5bc305de1c::t_d302f3dc91e97a 1-17,19-31
+  s_23ea5bc305de1c::t_2d51aa6c2dc3e9 18
+dist/src/semantic-policy.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 74-75
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/analysis-spool.js
+  s_23ea5bc305de1c::t_ad3a2975e94021 1
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 2-25
+src/types.ts
+  s_23ea5bc305de1c::t_9a41f43d445e7d 424-427
+dist/src/report-ux.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 178
+src/analysis-spool.ts
+  s_23ea5bc305de1c::t_231f44e86b95f7 2-26
+  s_23ea5bc305de1c::t_50a3aa913abdcb 1
+test/semantic-policy.test.ts
+  s_23ea5bc305de1c::t_afb02e1a98ccdf 54-66
+  s_23ea5bc305de1c::t_2af571a405f377 3,8
+scripts/bench-stream.mjs
+  s_23ea5bc305de1c::t_8390d7686121c5 24,29,32-34,39,43-44
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-2
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/report-section-visibility.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-16
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 16,24,105-106,144-148,159-163,445-449,684-685
+dist/src/embedding-topics.js.map
+  ai_agent 1
+dist/src/report-provenance.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 50-57
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+src/version.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1
+dist/src/aggregator.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 73-74,90
+dist/src/embedding-topics.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-15,17-39
+  s_23ea5bc305de1c::t_ad3a2975e94021 16
+dist/src/keyword-merge.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 2-6,8,10-35,37-39
+dist/src/open-chat-profile.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-11
+dist/src/analysis-spool.js.map
+  ai_agent 1
+data/benchmark-cohort-v1.json
+  s_23ea5bc305de1c::t_238a892d8e51b1 1-12
+dist/src/report-empty.js.map
+  ai_agent 1
+dist/src/report-empty.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 133-134
+src/report-styles.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 984,1780-1784,1796-1831,2067-2075,2661-2668
+dist/src/report-provenance.js.map
+  ai_agent 1
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/streaming-tfidf-keywords.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 177-178
+dist/src/report-section-visibility.js.map
+  ai_agent 1
+dist/src/semantic-policy.js.map
+  ai_agent 1
+dist/src/benchmark-bands.js.map
+  ai_agent 1
+test/streaming-tfidf-keywords.test.ts
+  s_23ea5bc305de1c::t_bf8b4f717c7348 33,41-50
+src/open-chat-profile.ts
+  s_23ea5bc305de1c::t_de3809750e4cbf 1-36
+src/report-provenance.ts
+  s_23ea5bc305de1c::t_976ad787c4b753 76-87
+dist/src/benchmark-bands.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-3,5,12-39,60
+src/keyword-merge.ts
+  s_23ea5bc305de1c::t_aedc811b65c547 6-12,18,20-56,58-60
+README.md
+  s_23ea5bc305de1c::t_647d1c89f0f501 173-178
+  s_23ea5bc305de1c::t_84138a69911227 133
+dist/src/analysis-spool.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-4
+src/report/css/03-kca-story.css
+  s_23ea5bc305de1c::t_6657a6050f36eb 1
+test/report-enrichment.test.ts
+  s_23ea5bc305de1c::t_ad76bf260d1187 89-101
+dist/src/keyword-merge.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 4
+src/report-enrichment.ts
+  s_23ea5bc305de1c::t_593c880c71f007 3-12,14-18,32-47
+src/cli.ts
+  s_23ea5bc305de1c::t_4e271ad31218ba 282,296-299,301-303
+  s_23ea5bc305de1c::t_1e1dc89d2cf487 6
+  s_23ea5bc305de1c::t_720c458c29f511 262-272,274
+src/embedding-topics.ts
+  s_23ea5bc305de1c::t_2f70ec46452cdf 1-20,22-48
+  s_23ea5bc305de1c::t_e7b681b718a09a 21
+dist/src/report-enrichment.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 2-4
+docs/index.html
+  s_23ea5bc305de1c::t_6ea2e890b66ef1 264
+src/aggregator.ts
+  s_23ea5bc305de1c::t_da83430cc14c61 161
+  s_23ea5bc305de1c::t_bc5478a111e22a 786-787
+  s_23ea5bc305de1c::t_d2728f81e4f3a2 162
+  s_23ea5bc305de1c::t_d25b8d44bf3afc 204-208
+  s_23ea5bc305de1c::t_d9dd387b8250fa 218-225
+  s_23ea5bc305de1c::t_c82b6237cae1fe 31
+  s_23ea5bc305de1c::t_42be667e5d7fad 45
+  s_23ea5bc305de1c::t_791162b9520e14 530-534
+dist/src/version.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1
+dist/src/keyword-merge.js.map
+  ai_agent 1
+dist/src/report.js.map
+  ai_agent 1
+src/analysis.ts
+  s_23ea5bc305de1c::t_fbd80d69135571 15
+  s_23ea5bc305de1c::t_9db1df4b1545a2 241-242,245,259-263
+  s_23ea5bc305de1c::t_7a78de6d011fee 313-315
+  s_23ea5bc305de1c::t_4cf7844cbda93a 173-177
+  s_23ea5bc305de1c::t_1a2275d4896f51 14
+  s_23ea5bc305de1c::t_70a59e3af3d073 139,149-172,183-191
+dist/src/report-provenance.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 16-17
+dist/src/report-section-visibility.d.ts
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-6
+src/report-empty.ts
+  s_23ea5bc305de1c::t_59d98dbe5f99fd 135-136
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_ad3a2975e94021 12,140-144
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 13,109,112-136,138-139,149-155,189-211,214-217,220-257,259-261,263,265-266
+dist/src/cli.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 6,191-200,202,208,220-222,224-226
+src/report-ux.ts
+  s_23ea5bc305de1c::t_264f9705e97ddc 184
+dist/src/report-enrichment.js
+  s_23ea5bc305de1c::t_2f804e97ebc9ea 1-4,7-11,21-34
+dist/src/report-enrichment.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "0bf294e231d7fd0be75a86ee52587f827f4a82ef",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
