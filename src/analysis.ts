@@ -396,8 +396,9 @@ export async function buildReportFromExportSync(
       const glossary = await loadGlossaryForExport(filePath);
       const userWords = mergeUserWords(glossary, prepass.toUserWords());
       const warmups: Promise<unknown>[] = [initKiwiRuntime(userWords)];
-      if (useSemanticOverlap) warmups.push(preloadSemanticPipeline(options, estimated));
-      if (useSentimentOverlap) warmups.push(preloadSentimentPipeline(options));
+      const mlOpts = { ...options, preset: resolvePresetNameWithAuto(options, estimated) };
+      if (useSemanticOverlap) warmups.push(preloadSemanticPipeline(mlOpts, estimated));
+      if (useSentimentOverlap) warmups.push(preloadSentimentPipeline(mlOpts, estimated));
       await Promise.all(warmups);
       kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
       phaseProfiler.end("kiwi_prep");

@@ -1,12 +1,13 @@
-import { homedir } from "node:os";
-import { join } from "node:path";
-import { DEFAULT_SENTIMENT_MODEL, sentimentModelId, sentimentSampleCap, subsampleSentimentRecords, } from "./sentiment-policy.js";
+import { sentimentModelFallbacks, sentimentModelId, sentimentSampleCap, subsampleSentimentRecords, } from "./sentiment-policy.js";
+import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
+import { isTransformersFetchError } from "./ml-transformers-env.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveSentimentBatchSize } from "./ml-batch-size.js";
 const MIN_SAMPLES = 48;
 let pipelinePromise = null;
 let loadedModelId = null;
+let loadKey = null;
 function normalizeLabel(raw, modelId) {
     const id = raw.toLowerCase();
     if (modelId?.includes("klue")) {
@@ -23,58 +24,83 @@ function normalizeLabel(raw, modelId) {
         return "negative";
     return "neutral";
 }
-async function loadPipeline(buildOptions) {
-    const preset = buildOptions?.preset;
-    const modelId = sentimentModelId(preset);
-    if (pipelinePromise && loadedModelId === modelId)
+function resolveSentimentBuildOptions(buildOptions, messageCount) {
+    if (!buildOptions && messageCount === undefined)
+        return buildOptions;
+    const preset = buildOptions?.preset ??
+        (messageCount !== undefined ? resolvePresetNameWithAuto(buildOptions, messageCount) : undefined);
+    return { ...buildOptions, preset };
+}
+async function importTransformers() {
+    try {
+        return await import("@xenova/transformers");
+    }
+    catch {
+        throw new Error("[kca] 감정 분석은 optional dependency @xenova/transformers 가 필요합니다. " +
+            "재설치하거나 --no-sentiment / KCA_NO_SENTIMENT=1 로 끄세요.");
+    }
+}
+async function instantiateSentimentPipeline(mod, modelId, quantized) {
+    const { pipeline } = mod;
+    return (await pipeline("text-classification", modelId, {
+        quantized,
+    }));
+}
+async function loadPipeline(buildOptions, messageCount) {
+    const opts = resolveSentimentBuildOptions(buildOptions, messageCount);
+    const preset = opts?.preset;
+    const candidates = sentimentModelFallbacks(preset, messageCount, opts);
+    const key = candidates.join("|");
+    if (pipelinePromise && loadedModelId && loadKey === key)
         return pipelinePromise;
     pipelinePromise = null;
-    loadedModelId = modelId;
+    loadedModelId = null;
+    loadKey = key;
     pipelinePromise = withQuietMlStderr(async () => {
-        let mod;
-        try {
-            mod = await import("@xenova/transformers");
-        }
-        catch {
-            throw new Error("[kca] 감정 분석은 optional dependency @xenova/transformers 가 필요합니다. " +
-                "재설치하거나 --no-sentiment / KCA_NO_SENTIMENT=1 로 끄세요.");
-        }
-        const { env, pipeline } = mod;
+        const mod = await importTransformers();
         const gpu = await configureTransformersEnv(mod);
         const quantized = preferQuantizedModels(gpu);
-        env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
-        env.allowLocalModels = true;
-        process.stderr.write(`[kca] 감정 분석 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
-        try {
-            return (await pipeline("text-classification", modelId, {
-                quantized,
-            }));
+        let lastError;
+        for (let i = 0; i < candidates.length; i += 1) {
+            const modelId = candidates[i];
+            try {
+                if (i > 0) {
+                    const msg = lastError instanceof Error ? lastError.message : String(lastError);
+                    process.stderr.write(`[kca] 감정 모델 ${candidates[i - 1]} 로드 실패 → ${modelId}: ${msg}\n`);
+                }
+                process.stderr.write(`[kca] 감정 분석 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
+                const pipe = await instantiateSentimentPipeline(mod, modelId, quantized);
+                loadedModelId = modelId;
+                return pipe;
+            }
+            catch (error) {
+                lastError = error;
+                if (i < candidates.length - 1)
+                    continue;
+                const msg = error instanceof Error ? error.message : String(error);
+                const hint = isTransformersFetchError(error)
+                    ? " cwd의 tokenizer.json·네트워크·HF_TOKEN(허깅페이스 토큰)을 확인하세요."
+                    : "";
+                throw new Error(`${msg}${hint}`, { cause: error });
+            }
         }
-        catch (error) {
-            if (modelId === DEFAULT_SENTIMENT_MODEL)
-                throw error;
-            const msg = error instanceof Error ? error.message : String(error);
-            process.stderr.write(`[kca] 감정 모델 ${modelId} 로드 실패 → ${DEFAULT_SENTIMENT_MODEL}: ${msg}\n`);
-            loadedModelId = DEFAULT_SENTIMENT_MODEL;
-            return pipeline("text-classification", DEFAULT_SENTIMENT_MODEL, {
-                quantized,
-            });
-        }
+        throw lastError instanceof Error ? lastError : new Error(String(lastError));
     });
     return pipelinePromise;
 }
 /** Kiwi 준비·키워드 패스와 병렬 워밍업 */
-export function preloadSentimentPipeline(buildOptions) {
-    return loadPipeline(buildOptions);
+export function preloadSentimentPipeline(buildOptions, messageCount) {
+    return loadPipeline(buildOptions, messageCount);
 }
 function asBatchOutput(out) {
     return Array.isArray(out) ? out : [out];
 }
-export async function analyzeSentimentBatch(messages, onProgress, buildOptions) {
+export async function analyzeSentimentBatch(messages, onProgress, buildOptions, messageCount) {
     if (messages.length === 0)
         return [];
-    const modelId = sentimentModelId(buildOptions?.preset);
-    const pipe = await loadPipeline(buildOptions);
+    const opts = resolveSentimentBuildOptions(buildOptions, messageCount);
+    const modelId = sentimentModelId(opts?.preset, messageCount, opts);
+    const pipe = await loadPipeline(buildOptions, messageCount);
     const labels = [];
     const batchSize = resolveSentimentBatchSize();
     for (let i = 0; i < messages.length; i += batchSize) {
@@ -82,7 +108,7 @@ export async function analyzeSentimentBatch(messages, onProgress, buildOptions) 
         const out = await pipe(batch.length === 1 ? batch[0] : batch);
         const rows = asBatchOutput(out);
         for (const row of rows)
-            labels.push(normalizeLabel(row.label, modelId));
+            labels.push(normalizeLabel(row.label, loadedModelId ?? modelId));
         onProgress?.(Math.min(i + batch.length, messages.length), messages.length);
     }
     return labels;
@@ -141,7 +167,7 @@ export async function analyzeSentimentFromSamples(samples, corpusMessages, alias
         return null;
     const cap = sentimentSampleCap(Math.max(corpusMessages, samples.length));
     const subsampled = subsampleSentimentRecords(samples, cap);
-    const labels = await analyzeSentimentBatch(subsampled.map((s) => s.text), onProgress, buildOptions);
+    const labels = await analyzeSentimentBatch(subsampled.map((s) => s.text), onProgress, buildOptions, corpusMessages);
     return buildSentimentStats(subsampled, labels, aliasBySender);
 }
 function round(n, digits) {

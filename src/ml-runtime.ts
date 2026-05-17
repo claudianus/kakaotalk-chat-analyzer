@@ -1,4 +1,5 @@
 import type { GpuKind } from "./analysis-capability.js";
+import { applyTransformersEnv } from "./ml-transformers-env.js";
 
 const ORT_MODULE = "onnxruntime-node";
 
@@ -37,6 +38,7 @@ type TransformersModule = typeof import("@xenova/transformers");
 /** @xenova/transformers env — ONNX 백엔드·디바이스 힌트 */
 export async function configureTransformersEnv(mod: TransformersModule): Promise<GpuKind> {
   const gpu = await probeOnnxGpu();
+  applyTransformersEnv(mod);
   const { env } = mod;
   const device = transformersDeviceHint(gpu);
   env.backends = env.backends ?? {};

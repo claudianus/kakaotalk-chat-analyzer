@@ -306,10 +306,11 @@ export async function buildReportFromExportSync(filePath, options) {
                 const glossary = await loadGlossaryForExport(filePath);
                 const userWords = mergeUserWords(glossary, prepass.toUserWords());
                 const warmups = [initKiwiRuntime(userWords)];
+                const mlOpts = { ...options, preset: resolvePresetNameWithAuto(options, estimated) };
                 if (useSemanticOverlap)
-                    warmups.push(preloadSemanticPipeline(options, estimated));
+                    warmups.push(preloadSemanticPipeline(mlOpts, estimated));
                 if (useSentimentOverlap)
-                    warmups.push(preloadSentimentPipeline(options));
+                    warmups.push(preloadSentimentPipeline(mlOpts, estimated));
                 await Promise.all(warmups);
                 kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
                 phaseProfiler.end("kiwi_prep");

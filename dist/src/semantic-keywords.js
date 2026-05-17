@@ -1,5 +1,3 @@
-import { homedir } from "node:os";
-import { join } from "node:path";
 import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./embedding-cluster.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
@@ -21,10 +19,8 @@ async function loadPipelineForModel(modelId) {
             throw new Error("[kca] 시맨틱 키워드는 optional dependency @xenova/transformers 가 필요합니다. " +
                 "재설치하거나 --no-semantic-keywords 로 끄세요.");
         }
-        const { env, pipeline } = mod;
+        const { pipeline } = mod;
         const gpu = await configureTransformersEnv(mod);
-        env.cacheDir = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
-        env.allowLocalModels = true;
         const quantized = preferQuantizedModels(gpu);
         process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
         return pipeline("feature-extraction", modelId, {

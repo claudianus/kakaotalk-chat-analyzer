@@ -5,7 +5,9 @@ export { semanticSampleCap as sentimentSampleCap, semanticReservoirCap as sentim
 export declare const DEFAULT_SENTIMENT_MODEL = "Xenova/distilbert-base-multilingual-cased-sentiment";
 /** KLUE-RoBERTa-small 감정 (quality preset 기본 후보) */
 export declare const KLUE_SENTIMENT_MODEL = "Xenova/klue-roberta-small-sentiment";
-export declare function sentimentModelId(preset?: string): string;
+export declare function sentimentModelId(preset?: string, messageCount?: number, options?: BuildReportOptions): string;
+/** quality → KLUE, 실패 시 distilbert */
+export declare function sentimentModelFallbacks(preset?: string, messageCount?: number, options?: BuildReportOptions): string[];
 export declare function shouldCollectSentimentSamples(messageCount: number): boolean;
 /**
  * 감정 분석 적용 여부.

@@ -1,5 +1,5 @@
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
-import { presetForcesSentimentOff } from "./analysis-preset.js";
+import { presetForcesSentimentOff, resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { subsampleSemanticMessages, } from "./semantic-policy.js";
 export { semanticSampleCap as sentimentSampleCap, semanticReservoirCap as sentimentReservoirCap, subsampleSemanticMessages as subsampleSentimentSamples, } from "./semantic-policy.js";
 const MIN_SENTIMENT_MESSAGES = 48;
@@ -7,14 +7,24 @@ const MIN_SENTIMENT_MESSAGES = 48;
 export const DEFAULT_SENTIMENT_MODEL = "Xenova/distilbert-base-multilingual-cased-sentiment";
 /** KLUE-RoBERTa-small 감정 (quality preset 기본 후보) */
 export const KLUE_SENTIMENT_MODEL = "Xenova/klue-roberta-small-sentiment";
-export function sentimentModelId(preset) {
+export function sentimentModelId(preset, messageCount, options) {
     const env = process.env.KCA_SENTIMENT_MODEL?.trim();
     if (env)
         return env;
+    const resolved = preset ??
+        (messageCount !== undefined && options
+            ? resolvePresetNameWithAuto(options, messageCount)
+            : undefined);
     const envPreset = process.env.KCA_PRESET?.trim().toLowerCase();
-    if (preset === "quality" || envPreset === "quality")
+    if (resolved === "quality" || envPreset === "quality")
         return KLUE_SENTIMENT_MODEL;
     return DEFAULT_SENTIMENT_MODEL;
+}
+/** quality → KLUE, 실패 시 distilbert */
+export function sentimentModelFallbacks(preset, messageCount, options) {
+    const primary = sentimentModelId(preset, messageCount, options);
+    const fallbacks = [DEFAULT_SENTIMENT_MODEL];
+    return [...new Set([primary, ...fallbacks])];
 }
 export function shouldCollectSentimentSamples(messageCount) {
     return messageCount >= MIN_SENTIMENT_MESSAGES && process.env.KCA_NO_SENTIMENT !== "1";
