@@ -1,0 +1,39 @@
+package.json
+  s_23ea5bc305de1c::t_004c2797f6ef74 3
+src/analysis.ts
+  s_23ea5bc305de1c::t_9c9e7d7ec92d30 299-304
+  s_23ea5bc305de1c::t_f3a3293b146af6 184-190,193,195-198,202-205
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_410ca467a41714 1-2
+test/spool-keyword-progress.test.ts
+  s_23ea5bc305de1c::t_dad8dde60eb1c0 1-38
+dist/src/version.js
+  s_23ea5bc305de1c::t_410ca467a41714 1
+src/version.ts
+  s_23ea5bc305de1c::t_410ca467a41714 1
+dist/src/analysis.d.ts
+  s_23ea5bc305de1c::t_50bd697fdb3148 1,10-15
+kcachat/package.json
+  s_23ea5bc305de1c::t_bc8a56a10f0ace 15
+  s_23ea5bc305de1c::t_6bc073107b57dc 3
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_50bd697fdb3148 150-154,159-162,239-244
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "4c8f451ad75e728cd93c848a3f762d535a88cf13",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
