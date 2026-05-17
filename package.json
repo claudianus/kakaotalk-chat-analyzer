@@ -35,6 +35,7 @@
     "report:viewport": "npm run build && node scripts/report-viewport-check.mjs",
     "report:screenshots": "node scripts/report-viewport-screenshots.mjs",
     "docs:capture-demo": "node scripts/capture-docs-demo.mjs",
+    "docs:open": "node scripts/docs-open-preview.mjs",
     "smoke": "node dist/src/cli.js --help",
     "gh:sync-npm-secret": "bash scripts/sync-npm-token-to-gh.sh"
   },
