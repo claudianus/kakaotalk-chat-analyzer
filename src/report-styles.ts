@@ -1441,7 +1441,12 @@ a:hover {
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
+      table-layout: fixed;
     }
+    .kw-table--ranked .kw-col-rank { width: 2.5rem; }
+    .kw-table--ranked .kw-col-label { width: 22%; min-width: 4.5rem; }
+    .kw-table--ranked .kw-col-bar { width: auto; }
+    .kw-table--ranked .kw-col-count { width: 4.75rem; }
     .kw-table thead th {
       position: sticky;
       top: 0;
@@ -1453,13 +1458,41 @@ a:hover {
       color: var(--muted);
       border-bottom: 1px solid var(--line);
     }
+    .kw-table thead th.num { text-align: right; }
     .kw-table td {
       padding: 7px 10px;
       border-bottom: 1px solid var(--line);
+      vertical-align: middle;
     }
     .kw-table tbody tr:nth-child(even) { background: rgba(94, 234, 212, 0.04); }
     .kw-table .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; }
-    .kw-rank { color: var(--muted); width: 2.5rem; }
+    .kw-rank { color: var(--muted); }
+    .kw-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .kw-bar-cell { padding-left: 6px; padding-right: 6px; }
+    .kw-bar-track {
+      height: 9px;
+      background: var(--bar-bg);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .kw-bar-fill {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: rgba(79, 70, 229, 0.45);
+    }
+    .kw-bar-fill--rank1 { background: #6366f1; }
+    .kw-bar-fill--rank2 { background: #4f46e5; }
+    .kw-bar-fill--rank3 { background: #3b82f6; }
+    html[data-theme="dark"] .kw-bar-fill { background: rgba(129, 140, 248, 0.55); }
+    html[data-theme="dark"] .kw-bar-fill--rank1 { background: #a78bfa; }
+    html[data-theme="dark"] .kw-bar-fill--rank2 { background: #818cf8; }
+    html[data-theme="dark"] .kw-bar-fill--rank3 { background: #5b9bd5; }
 
 
 /* 05-kca-ux.css */
@@ -1833,6 +1866,10 @@ main {
     grid-template-columns: minmax(56px, 0.9fr) minmax(0, 2fr) 44px;
     gap: 6px;
   }
+
+  .kw-table--ranked .kw-col-label { width: 28%; min-width: 3.5rem; }
+  .kw-table--ranked .kw-col-count { width: 3.75rem; }
+  .kw-bar-cell { min-width: 48px; }
 
   .deck-nav a {
     font-size: 11px;

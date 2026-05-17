@@ -172,6 +172,10 @@ main {
     gap: 6px;
   }
 
+  .kw-table--ranked .kw-col-label { width: 28%; min-width: 3.5rem; }
+  .kw-table--ranked .kw-col-count { width: 3.75rem; }
+  .kw-bar-cell { min-width: 48px; }
+
   .deck-nav a {
     font-size: 11px;
     padding: 5px 9px;

@@ -1,6 +1,5 @@
 import { isShortActivitySpan, topicsThemesOnly } from "./report-chart-util.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
-const KW_BAR_CHART_LIMIT = 30;
 /** @deprecated preconnect는 report-head.ts REPORT_HEAD_LINKS 사용 */
 export const CHART_CDN_HEAD = ``;
 /** body 끝: 차트 라이브러리 — defer 금지(인라인 init보다 반드시 먼저 실행) */
@@ -102,10 +101,9 @@ export function renderChartDeck(data) {
       <div id="chart-monthly" class="chart-box compact" role="img" aria-label="월별 차트"></div>
     </article>
     <article class="viz-card span-12">
-      <h3>키워드 상위 ${formatNumber(Math.min(kw, KW_BAR_CHART_LIMIT))} · 메시지 등장 횟수</h3>
-      <p class="viz-hint">차트는 상위 ${KW_BAR_CHART_LIMIT}개(막대 안에 키워드 표시). 아래 표에서 전체 ${formatNumber(kw)}개를 볼 수 있어요.</p>
-      <div id="chart-kw-bar" class="chart-box tall" role="img" aria-label="키워드 막대 차트"></div>
-      ${renderKeywordTable(data.keywords)}
+      <h3>키워드 순위 · 메시지 등장 횟수</h3>
+      <p class="viz-hint">막대 길이 = 1위 대비 비율 · 전체 ${formatNumber(kw)}개 · 워드클라우드는 위 카드</p>
+      ${renderKeywordRankedList(data.keywords)}
     </article>
     <article class="viz-card span-6">
       <h3>참여자 상위</h3>
@@ -131,13 +129,36 @@ function renderParticipantLegend(participants) {
         .join("");
     return `<ul class="pie-legend" aria-label="참여자 범례">${rows}</ul>`;
 }
-function renderKeywordTable(items) {
+function kwBarFillClass(rankIndex) {
+    if (rankIndex === 0)
+        return "kw-bar-fill kw-bar-fill--rank1";
+    if (rankIndex === 1)
+        return "kw-bar-fill kw-bar-fill--rank2";
+    if (rankIndex === 2)
+        return "kw-bar-fill kw-bar-fill--rank3";
+    return "kw-bar-fill";
+}
+function renderKeywordRankedList(items) {
     if (items.length === 0)
         return "";
+    const max = Math.max(items[0]?.count ?? 0, 1);
     const rows = items
-        .map((item, i) => `<tr><td class="kw-rank num">${i + 1}</td><td>${escapeHtml(item.label)}</td><td class="num">${formatNumber(item.count)}</td></tr>`)
+        .map((item, i) => {
+        const width = Math.max(2, Math.round((item.count / max) * 100));
+        const fillClass = kwBarFillClass(i);
+        return `<tr>
+        <td class="kw-rank num">${i + 1}</td>
+        <td class="kw-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</td>
+        <td class="kw-bar-cell">
+          <div class="kw-bar-track" role="meter" aria-valuenow="${item.count}" aria-valuemin="0" aria-valuemax="${max}" aria-label="${escapeHtml(item.label)} 메시지 ${formatNumber(item.count)}건">
+            <span class="${fillClass}" style="width:${width}%"></span>
+          </div>
+        </td>
+        <td class="num">${formatNumber(item.count)}</td>
+      </tr>`;
+    })
         .join("");
-    return `<div class="kw-table-wrap" style="margin-top:12px"><table class="kw-table"><thead><tr><th>#</th><th>키워드</th><th class="num">메시지 수</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    return `<div class="kw-table-wrap"><table class="kw-table kw-table--ranked"><colgroup><col class="kw-col-rank" /><col class="kw-col-label" /><col class="kw-col-bar" /><col class="kw-col-count" /></colgroup><thead><tr><th>#</th><th>키워드</th><th>비율</th><th class="num">메시지 수</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 export const CHARTS_INIT_SCRIPT = `
     (function () {
@@ -330,61 +351,6 @@ export const CHARTS_INIT_SCRIPT = `
             series: [{ type: "heatmap", coordinateSystem: "calendar", data: heat, emphasis: { itemStyle: { shadowBlur: 8, shadowColor: dark ? "rgba(62,232,197,0.5)" : "rgba(33,110,57,0.45)" } } }],
           }));
         }
-      }
-
-      if (data.keywords && document.getElementById("chart-kw-bar")) {
-        var kwEl = document.getElementById("chart-kw-bar");
-        var kg = layout(kwEl);
-        var kwLimit = kg.w < 380 ? 20 : 30;
-        var topBar = data.keywords.slice(0, kwLimit);
-        var nKw = topBar.length;
-        var padY = Math.min(48, 8 + nKw * 0.4);
-        function kwBarColor(rankFromTop) {
-          if (rankFromTop === 0) return dark ? "#a78bfa" : "#6366f1";
-          if (rankFromTop === 1) return dark ? "#818cf8" : "#4f46e5";
-          if (rankFromTop === 2) return dark ? "#5b9bd5" : "#3b82f6";
-          return dark ? "rgba(129,140,248,0.55)" : "rgba(79,70,229,0.45)";
-        }
-        var kwSeries = topBar.map(function (k, i) {
-          return {
-            value: k.count,
-            name: k.label,
-            itemStyle: { color: kwBarColor(i), borderRadius: [0, 4, 4, 0] },
-          };
-        }).reverse();
-        init("chart-kw-bar", Object.assign(baseOpt(), {
-          grid: { left: 8, right: kg.right, top: padY, bottom: padY, containLabel: false },
-          xAxis: { type: "value", axisLabel: { color: muted, fontSize: kg.fs } },
-          yAxis: {
-            type: "category",
-            data: topBar.map(function (k) { return k.label; }).reverse(),
-            axisLabel: { show: false },
-            axisTick: { show: false },
-            axisLine: { show: false },
-          },
-          series: [{
-            type: "bar",
-            data: kwSeries,
-            label: [
-              {
-                show: true,
-                position: "insideLeft",
-                color: text,
-                fontSize: kg.fs,
-                fontWeight: 600,
-                formatter: "{b}",
-                padding: [0, 0, 0, 6],
-              },
-              {
-                show: true,
-                position: "right",
-                color: muted,
-                fontSize: kg.fs,
-                formatter: "{c}",
-              },
-            ],
-          }],
-        }));
       }
 
       if (data.keywords && document.getElementById("chart-kw-cloud")) {

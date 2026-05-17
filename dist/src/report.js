@@ -677,8 +677,8 @@ function renderTopicMap(data) {
 }
 function renderKeywordCssFold(data) {
     const body = renderKeywordSnapshot(data.keywords, data);
-    return `<details class="kw-css-fold" open>
-    <summary>키워드 막대 (간단 보기)<small>워드클라우드·전체 표는 위 「④ 인터랙티브 차트」</small></summary>
+    return `<details class="kw-css-fold">
+    <summary>키워드 상위 12개 요약<small>전체 순위·막대는 「④ 인터랙티브 차트」</small></summary>
     <div class="kw-css-body">
       <p class="chart-hint" style="margin:0 0 10px">숫자는 메시지 등장 횟수입니다.</p>
       ${body}
@@ -693,7 +693,7 @@ function renderKeywordSnapshot(items, data) {
     if (items.length === 0) {
         return note + '<p style="margin:0;color:var(--muted);font-size:13px">추출된 키워드가 없습니다.</p>';
     }
-    return note + renderCountBars(items);
+    return note + renderCountBars(items.slice(0, 12));
 }
 function renderCountBars(items) {
     if (items.length === 0)
