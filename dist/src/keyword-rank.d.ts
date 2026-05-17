@@ -1,6 +1,6 @@
 export interface KeywordRankItem {
     label: string;
-    /** TF-IDF 상대 점수 */
+    /** BM25 상대 점수 */
     score: number;
     /** 해당 표현이 등장한 메시지 수 */
     messageHits: number;

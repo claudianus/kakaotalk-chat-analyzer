@@ -1,6 +1,8 @@
 import type { KeywordRankItem } from "./keyword-rank.js";
 export interface SemanticKeywordOptions {
     stopwords: ReadonlySet<string>;
+    /** 코퍼스 전체 메시지 수(임베딩 샘플 상한·리저보어 cap 정렬용) */
+    corpusMessages?: number;
     limit?: number;
     onProgress?: (current: number, total: number) => void;
 }

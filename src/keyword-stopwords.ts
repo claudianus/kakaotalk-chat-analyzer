@@ -1,3 +1,4 @@
+import { mergeDiscourseIntoStopwords } from "./discourse-lexicon.js";
 import { KOREAN_CHAT_STOPWORDS, MORPHOLOGICAL_FRAGMENTS } from "./korean-stopwords.js";
 import { SYSTEM_NOTICE_KEYWORD_STOP } from "./system-notices.js";
 
@@ -21,5 +22,5 @@ export function buildKeywordStopwords(): Set<string> {
     ...SYSTEM_NOTICE_KEYWORD_STOP,
     ...ATTACHMENT_STOP,
   ]);
-  return s;
+  return mergeDiscourseIntoStopwords(s);
 }

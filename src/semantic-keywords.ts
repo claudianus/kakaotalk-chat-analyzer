@@ -3,10 +3,9 @@ import { join } from "node:path";
 import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./embedding-cluster.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import type { KeywordRankItem } from "./keyword-rank.js";
-import { formatTextForEmbedding, semanticEmbeddingModelId } from "./semantic-policy.js";
+import { formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap } from "./semantic-policy.js";
 
 const MIN_SAMPLES = 48;
-const MAX_SAMPLES = 480;
 const EMBED_BATCH = 12;
 
 type FeaturePipeline = (
@@ -64,10 +63,11 @@ async function embedMessages(
   pipe: FeaturePipeline,
   messages: string[],
   onBatch?: (done: number, total: number) => void,
+  maxSamples = semanticSampleCap(messages.length),
 ): Promise<number[][]> {
   const modelId = semanticEmbeddingModelId();
   const clipped = messages
-    .slice(0, MAX_SAMPLES)
+    .slice(0, maxSamples)
     .map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
   const vectors: number[][] = [];
   for (let i = 0; i < clipped.length; i += EMBED_BATCH) {
@@ -81,6 +81,8 @@ async function embedMessages(
 
 export interface SemanticKeywordOptions {
   stopwords: ReadonlySet<string>;
+  /** 코퍼스 전체 메시지 수(임베딩 샘플 상한·리저보어 cap 정렬용) */
+  corpusMessages?: number;
   limit?: number;
   onProgress?: (current: number, total: number) => void;
 }
@@ -94,14 +96,23 @@ export async function extractSemanticKeywords(
   const samples = messages.filter((m) => m.length >= 12);
   if (samples.length < MIN_SAMPLES) return [];
 
+  const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
   const pipe = await loadPipeline();
-  const vectors = await embedMessages(pipe, samples, options.onProgress);
+  const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap);
   if (vectors.length < MIN_SAMPLES) return [];
 
   const tokenBags = samples.map((m) => tokenizeForKeywords(m));
   const k = Math.max(4, Math.min(14, Math.floor(Math.sqrt(vectors.length / 18))));
   const assignments = kMeansAssignments(vectors, k);
-  const labels = labelClustersFromTokens(assignments, tokenBags, k, options.stopwords, 4);
+  const labels = labelClustersFromTokens(
+    assignments,
+    tokenBags,
+    k,
+    options.stopwords,
+    4,
+    vectors,
+    0.32,
+  );
 
   const limit = options.limit ?? 24;
   const items: KeywordRankItem[] = [];

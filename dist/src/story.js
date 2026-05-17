@@ -1,3 +1,4 @@
+import { isDiscourseTerm } from "./discourse-lexicon.js";
 import { formatCompactNumber } from "./report-util.js";
 const GH_MONTH_KO = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const MAX_CALENDAR_WEEKS = 53;
@@ -31,22 +32,36 @@ export function buildTone(total, laugh, short, emoji) {
         emojiPer100: round((emoji / base) * 100, 1),
     };
 }
-function buildTopicLine(topics) {
+function pickHeadlineTheme(topics) {
     if (!topics || topics.length === 0)
         return null;
-    const theme = topics.find((t) => t.kind === "theme") ?? topics[0];
+    for (const t of topics) {
+        if (t.kind !== "theme")
+            continue;
+        const clean = t.terms.filter((term) => !isDiscourseTerm(term));
+        if (clean.length >= 2)
+            return { ...t, terms: clean };
+    }
+    const fallback = topics.find((t) => t.kind === "theme") ?? topics[0];
+    return fallback ?? null;
+}
+function topicHeadlinePrefix(activeDays) {
+    return activeDays < 90 ? "자주 나온 화제는" : "요즘 화제는";
+}
+function buildTopicLine(topics, activeDays) {
+    const theme = pickHeadlineTheme(topics);
     if (!theme)
         return null;
     const label = theme.terms.slice(0, 4).join(" · ");
     if (!label)
         return null;
-    return `요즘 화제는 **${label}** 쪽이에요.`;
+    return `${topicHeadlinePrefix(activeDays)} **${label}** 쪽이에요.`;
 }
 function buildHeadline(input) {
     const room = input.chatRoomName;
     const n = formatCompactNumber(input.totalMessages);
     const parts = [`「${room}」에서 ${n} 개의 메시지가 오갔어요.`];
-    const topicLine = buildTopicLine(input.topics);
+    const topicLine = buildTopicLine(input.topics, input.activeDays);
     if (topicLine)
         parts.push(topicLine);
     if (input.longestStreak >= 3) {

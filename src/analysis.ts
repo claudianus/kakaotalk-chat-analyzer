@@ -48,12 +48,14 @@ async function applySemanticKeywords(
 ): Promise<boolean> {
   if (!enabled) return false;
 
+  const corpusMessages = agg.messageCount();
   const samples = agg.drainSemanticSamples();
   if (samples.length < 48) return false;
 
   if (showProgress) logReportProgress({ phase: "시맨틱 키워드", current: 0 });
   const items = await extractSemanticKeywords(samples, {
     stopwords: buildKeywordStopwords(),
+    corpusMessages,
     onProgress: showProgress
       ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
       : undefined,
@@ -69,6 +71,7 @@ export function buildReportData(result: ParseResult, options?: BuildReportOption
   const korean = isPrimarilyKoreanMessages(texts);
   const agg = new ReportAggregator(result.filePath, privacy, top, {
     semanticSamples: shouldCollectSemanticSamples(result.records.length),
+    estimatedMessages: result.records.length,
   });
   const since = options?.since;
   for (const record of result.records) {
@@ -101,6 +104,7 @@ export async function buildReportDataAsync(
   const useSemantic = resolveSemanticKeywords(options, prepass, texts);
   const agg = new ReportAggregator(result.filePath, privacy, top, {
     semanticSamples: shouldCollectSemanticSamples(result.records.length),
+    estimatedMessages: result.records.length,
   });
   const since = options?.since;
   for (const record of result.records) {

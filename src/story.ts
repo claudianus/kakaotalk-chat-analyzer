@@ -1,3 +1,4 @@
+import { isDiscourseTerm } from "./discourse-lexicon.js";
 import { formatCompactNumber } from "./report-util.js";
 import type {
   ActivityArcSegment,
@@ -96,13 +97,27 @@ export function buildTone(
   };
 }
 
-function buildTopicLine(topics: ReportTopic[] | undefined): string | null {
+function pickHeadlineTheme(topics: ReportTopic[] | undefined): ReportTopic | null {
   if (!topics || topics.length === 0) return null;
-  const theme = topics.find((t) => t.kind === "theme") ?? topics[0];
+  for (const t of topics) {
+    if (t.kind !== "theme") continue;
+    const clean = t.terms.filter((term) => !isDiscourseTerm(term));
+    if (clean.length >= 2) return { ...t, terms: clean };
+  }
+  const fallback = topics.find((t) => t.kind === "theme") ?? topics[0];
+  return fallback ?? null;
+}
+
+function topicHeadlinePrefix(activeDays: number): string {
+  return activeDays < 90 ? "자주 나온 화제는" : "요즘 화제는";
+}
+
+function buildTopicLine(topics: ReportTopic[] | undefined, activeDays: number): string | null {
+  const theme = pickHeadlineTheme(topics);
   if (!theme) return null;
   const label = theme.terms.slice(0, 4).join(" · ");
   if (!label) return null;
-  return `요즘 화제는 **${label}** 쪽이에요.`;
+  return `${topicHeadlinePrefix(activeDays)} **${label}** 쪽이에요.`;
 }
 
 function buildHeadline(input: BuildStoryInput): string {
@@ -110,7 +125,7 @@ function buildHeadline(input: BuildStoryInput): string {
   const n = formatCompactNumber(input.totalMessages);
   const parts: string[] = [`「${room}」에서 ${n} 개의 메시지가 오갔어요.`];
 
-  const topicLine = buildTopicLine(input.topics);
+  const topicLine = buildTopicLine(input.topics, input.activeDays);
   if (topicLine) parts.push(topicLine);
 
   if (input.longestStreak >= 3) {

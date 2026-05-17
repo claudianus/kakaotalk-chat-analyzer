@@ -5,6 +5,8 @@ import {
   formatTextForEmbedding,
   needsE5QueryPrefix,
   semanticEmbeddingModelId,
+  semanticReservoirCap,
+  semanticSampleCap,
 } from "../src/semantic-policy.js";
 
 describe("semantic-policy", () => {
@@ -25,6 +27,15 @@ describe("semantic-policy", () => {
     assert.equal(needsE5QueryPrefix("dragonkue/multilingual-e5-small-ko"), true);
     assert.equal(needsE5QueryPrefix("nlpai-lab/KoE5"), true);
     assert.equal(needsE5QueryPrefix("Xenova/paraphrase-multilingual-MiniLM-L12-v2"), false);
+  });
+
+  it("semanticSampleCap scales with corpus size not drained sample count", () => {
+    assert.equal(semanticSampleCap(93_042), 720);
+    assert.equal(semanticSampleCap(720), 480);
+    assert.equal(semanticSampleCap(100), 480);
+    assert.equal(semanticReservoirCap(undefined), 720);
+    assert.equal(semanticReservoirCap(93_042), 720);
+    assert.equal(semanticReservoirCap(5_000), 480);
   });
 
   it("formatTextForEmbedding adds query prefix for e5", () => {

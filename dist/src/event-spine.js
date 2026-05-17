@@ -46,7 +46,7 @@ export function buildEventSpine(input) {
         });
     }
     for (const r of input.repeatedPhrases.slice(0, 3)) {
-        const memeDate = findPhrasePeakDate(input.daily);
+        const memeDate = r.peakDate ?? findPhrasePeakDate(input.daily);
         events.push({
             date: memeDate,
             kind: "meme",

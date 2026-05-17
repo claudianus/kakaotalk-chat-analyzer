@@ -1,3 +1,5 @@
+import { AMBIGUOUS_UNIGRAMS, isDiscourseTerm } from "./discourse-lexicon.js";
+
 /** 키워드 랭킹에서 제외할 저품질·잡음 토큰 */
 const NOISE_LATIN = new Set([
   "install",
@@ -56,6 +58,12 @@ export function isNoiseKeyword(label: string): boolean {
   if (/^google_|_vignette$/i.test(w)) return true;
   if (/^[ㄱ-ㅎㅏ-ㅣ]+$/.test(w)) return true;
   if (HANGUL_FRAGMENTS.has(w)) return true;
+  if (isDiscourseTerm(w)) return true;
+  if (!w.includes(" ") && AMBIGUOUS_UNIGRAMS.has(w)) return true;
   if (w.length >= 8 && !/\s/.test(w) && !/^[A-Za-z]+$/.test(w)) return true;
+  if (w.includes(" ")) {
+    const parts = w.split(" ");
+    if (parts.every((p) => isDiscourseTerm(p) || HANGUL_FRAGMENTS.has(p))) return true;
+  }
   return false;
 }

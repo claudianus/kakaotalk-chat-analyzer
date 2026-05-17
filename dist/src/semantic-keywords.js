@@ -2,9 +2,8 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./embedding-cluster.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
-import { formatTextForEmbedding, semanticEmbeddingModelId } from "./semantic-policy.js";
+import { formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap } from "./semantic-policy.js";
 const MIN_SAMPLES = 48;
-const MAX_SAMPLES = 480;
 const EMBED_BATCH = 12;
 let pipelinePromise = null;
 let loadedModelId = null;
@@ -50,10 +49,10 @@ function tensorToRows(tensor) {
     }
     return out;
 }
-async function embedMessages(pipe, messages, onBatch) {
+async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampleCap(messages.length)) {
     const modelId = semanticEmbeddingModelId();
     const clipped = messages
-        .slice(0, MAX_SAMPLES)
+        .slice(0, maxSamples)
         .map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
     const vectors = [];
     for (let i = 0; i < clipped.length; i += EMBED_BATCH) {
@@ -71,14 +70,15 @@ export async function extractSemanticKeywords(messages, options) {
     const samples = messages.filter((m) => m.length >= 12);
     if (samples.length < MIN_SAMPLES)
         return [];
+    const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
     const pipe = await loadPipeline();
-    const vectors = await embedMessages(pipe, samples, options.onProgress);
+    const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap);
     if (vectors.length < MIN_SAMPLES)
         return [];
     const tokenBags = samples.map((m) => tokenizeForKeywords(m));
     const k = Math.max(4, Math.min(14, Math.floor(Math.sqrt(vectors.length / 18))));
     const assignments = kMeansAssignments(vectors, k);
-    const labels = labelClustersFromTokens(assignments, tokenBags, k, options.stopwords, 4);
+    const labels = labelClustersFromTokens(assignments, tokenBags, k, options.stopwords, 4, vectors, 0.32);
     const limit = options.limit ?? 24;
     const items = [];
     const seen = new Set();
