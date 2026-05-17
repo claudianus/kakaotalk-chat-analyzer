@@ -1,0 +1,28 @@
+dist/src/analysis-capability.js.map
+  ai_agent 1
+dist/src/sender-message-reservoir.js.map
+  ai_agent 1
+src/analysis-capability.ts
+  s_23ea5bc305de1c::t_3845090cd5b6ba 43
+  s_23ea5bc305de1c::t_c9d8a31cb892df 57
+dist/src/message-reservoir.js.map
+  ai_agent 1
+dist/src/analysis-capability.js
+  ai_agent 24,32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "be845401108cf2daebcaf42ba0fca645b4635561",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
