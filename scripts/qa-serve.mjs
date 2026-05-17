@@ -97,7 +97,9 @@ const server = createServer(async (req, res) => {
   }
 });
 
-if (process.env.KCA_QA_KILL_EXISTING === "1") freeListenPort(port);
+const killExisting =
+  process.env.KCA_QA_KILL_EXISTING === "1" || process.env.npm_lifecycle_event === "report:qa:serve";
+if (killExisting) freeListenPort(port);
 
 server.on("error", (err) => {
   if (err.code === "EADDRINUSE") {
