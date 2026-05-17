@@ -1,0 +1,28 @@
+docs/index.html
+  ai_agent 264
+kcachat/package.json
+  s_23ea5bc305de1c::t_e64cd1de0b4493 15
+  s_23ea5bc305de1c::t_9378c69a23fba8 3
+src/keyword-merge.ts
+  s_23ea5bc305de1c::t_133c96f6e513a0 6
+README.md
+  s_23ea5bc305de1c::t_7680d40e425ba2 133
+.github/workflows/pr-test.yml
+  s_23ea5bc305de1c::t_e88ee7f834043b 1-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e7f68f527102642c581f4142033869351bb7fd80",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
