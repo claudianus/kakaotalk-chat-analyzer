@@ -1,0 +1,55 @@
+dist/src/aggregator.js.map
+  ai_agent 1
+test/discourse-lexicon.test.ts
+  s_23ea5bc305de1c::t_c3000eec908d2b 11-12
+src/analysis.ts
+  s_23ea5bc305de1c::t_6f3a0837be5f7c 57
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_16122e08951829 45
+dist/src/semantic-keywords.d.ts
+  s_23ea5bc305de1c::t_16122e08951829 4-5
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/discourse-lexicon.js.map
+  ai_agent 1
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_d95376a0381e05 66
+  s_23ea5bc305de1c::t_92932af3bc343e 84-85
+  s_23ea5bc305de1c::t_f887a9252f0247 99,101
+dist/src/semantic-keywords.js
+  s_23ea5bc305de1c::t_16122e08951829 52,73,75
+src/aggregator.ts
+  s_23ea5bc305de1c::t_82e7f72072d65c 181-184
+dist/src/aggregator.d.ts
+  s_23ea5bc305de1c::t_16122e08951829 82
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_16122e08951829 122-124
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/topic-map.js.map
+  ai_agent 1
+dist/src/keyword-quality.js.map
+  ai_agent 1
+dist/src/topic-map.js
+  s_23ea5bc305de1c::t_16122e08951829 198-199,202-203
+.cursor/rules/cubic-pr-workflow.mdc
+  s_23ea5bc305de1c::t_00a963d58a0c03 15-18,20-22
+src/topic-map.ts
+  s_23ea5bc305de1c::t_f6bcf2ec73385b 220-222,226-227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e03ecf07a620d42b89e3238f444adc6e6881d572",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
