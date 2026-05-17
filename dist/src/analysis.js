@@ -188,6 +188,7 @@ export async function buildReportFromExportSync(filePath, options) {
     };
     let meta = null;
     const spoolPath = useKiwi ? await createMessageSpoolPath() : null;
+    let kiwiAvailableAtAnalysis = false;
     try {
         if (useKiwi) {
             if (showProgress)
@@ -203,6 +204,7 @@ export async function buildReportFromExportSync(filePath, options) {
             const glossary = await loadGlossaryForExport(filePath);
             const userWords = mergeUserWords(glossary, prepass.toUserWords());
             await initKiwiRuntime(userWords);
+            kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
             if (showProgress)
                 logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
             agg.resetKeywordPipeline();
@@ -232,6 +234,7 @@ export async function buildReportFromExportSync(filePath, options) {
             if (showProgress)
                 logReportProgress({ phase: "대화 분석", current: 0 });
             await initKiwiRuntime([]);
+            kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
             for await (const event of streamKakaoExport(filePath, progressOpts("대화 분석"))) {
                 if (event.type === "record") {
                     if (since && !recordOnOrAfter(event.record, since))
@@ -271,7 +274,7 @@ export async function buildReportFromExportSync(filePath, options) {
             const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
             console.error(`[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}`);
         }
-        return withKiwiAnalysisFlag(report);
+        return { ...report, kiwiAvailableAtAnalysis };
     }
     finally {
         await removeSpool(spoolPath);
