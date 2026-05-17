@@ -190,7 +190,8 @@
       outline-offset: 3px;
     }
     .demo-frame {
-      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr;
       aspect-ratio: 16 / 10;
       border-radius: 12px;
       overflow: hidden;
@@ -205,6 +206,12 @@
       padding: 10px 12px;
       background: rgba(255,255,255,0.04);
       border-bottom: 1px solid var(--stroke);
+      z-index: 1;
+    }
+    .demo-frame-media {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
     }
     .demo-chrome span {
       width: 10px; height: 10px; border-radius: 50%;
@@ -213,7 +220,7 @@
     .demo-chrome span:first-child { background: #ff5f57; }
     .demo-chrome span:nth-child(2) { background: #febc2e; }
     .demo-chrome span:nth-child(3) { background: #28c840; }
-    .demo-frame img {
+    .demo-frame-media img {
       position: absolute;
       inset: 0;
       display: block;
@@ -573,8 +580,9 @@
           btn.innerHTML =
             '<span class="demo-frame">' +
             '<span class="demo-chrome" aria-hidden="true"><span></span><span></span><span></span></span>' +
+            '<span class="demo-frame-media">' +
             '<img src="' + assetUrl(item.file) + '" alt="" width="1440" height="900" loading="lazy" decoding="async">' +
-            "</span>" +
+            "</span></span>" +
             '<span class="demo-thumb-label"><strong>' + item.title + "</strong>" + item.caption + "</span>";
           btn.addEventListener("click", function () { openLightbox(i); });
           gallery.appendChild(btn);
