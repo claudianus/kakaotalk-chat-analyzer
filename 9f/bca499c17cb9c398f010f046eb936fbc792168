@@ -1,0 +1,126 @@
+dist/src/analysis-profile.d.ts
+  s_23ea5bc305de1c::t_137467e24e22b2 1-10
+src/analysis-profile.ts
+  s_23ea5bc305de1c::t_d5fa10c97f313b 1-33
+dist/src/keyword-merge.d.ts
+  s_23ea5bc305de1c::t_137467e24e22b2 5
+dist/src/semantic-keywords.js
+  s_23ea5bc305de1c::t_137467e24e22b2 5-6,55-56,81-82,88
+src/keyword-merge.ts
+  s_23ea5bc305de1c::t_98776da2e5150d 45
+  s_23ea5bc305de1c::t_78ab01d8344787 17
+kcachat/package.json
+  s_23ea5bc305de1c::t_70380b357756f3 3
+  s_23ea5bc305de1c::t_1b094451a27d36 15
+README.md
+  s_23ea5bc305de1c::t_20283e6437c981 219
+dist/src/analysis-profile.js.map
+  ai_agent 1
+dist/src/semantic-policy.js.map
+  ai_agent 1
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/keyword-rank.js
+  s_23ea5bc305de1c::t_137467e24e22b2 12-13
+src/analyze-pool.ts
+  s_23ea5bc305de1c::t_b7cd78e4ed45bc 28-30
+  s_23ea5bc305de1c::t_5edd2e253e21fe 4
+src/analysis.ts
+  s_23ea5bc305de1c::t_11556b13a58e2a 130,139-142
+  s_23ea5bc305de1c::t_686465b6cf7c3f 359-366
+  s_23ea5bc305de1c::t_333cdf822e469b 2-3
+  s_23ea5bc305de1c::t_aa2e510b2abe43 61,69,74,79
+  s_23ea5bc305de1c::t_0077238a6fe90e 105
+  s_23ea5bc305de1c::t_35f726cc517ff3 26-34
+src/analyze-worker.ts
+  s_23ea5bc305de1c::t_2a787db86be862 3-4,8
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_3daf40efe56ad2 1-2
+dist/src/semantic-policy.d.ts
+  s_23ea5bc305de1c::t_137467e24e22b2 3,7
+dist/src/semantic-policy.js
+  s_23ea5bc305de1c::t_137467e24e22b2 3,5-11,15-17,20-29,33-37
+dist/src/analyze-pool.js.map
+  ai_agent 1
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_137467e24e22b2 13,51-54,164-167,172-174,456,458
+test/keyword-audit.test.ts
+  s_23ea5bc305de1c::t_e2f016c9ba38cf 45-60
+dist/src/keyword-merge.js
+  s_23ea5bc305de1c::t_137467e24e22b2 7,27
+dist/src/analyze-pool.js
+  s_23ea5bc305de1c::t_137467e24e22b2 4,11-13
+src/version.ts
+  s_23ea5bc305de1c::t_3daf40efe56ad2 1
+dist/src/analyze-worker.js.map
+  ai_agent 1
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/keyword-merge.js.map
+  ai_agent 1
+src/aggregator.ts
+  s_23ea5bc305de1c::t_9fc16c3f89fff8 229,231-233,238-240
+  s_23ea5bc305de1c::t_999b53397ea30d 23
+  s_23ea5bc305de1c::t_29fba92b4d3fb4 87-93
+  s_23ea5bc305de1c::t_243bbca917e6cb 544-549,551
+dist/src/keyword-rank.js.map
+  ai_agent 1
+dist/src/analysis-profile.js
+  s_23ea5bc305de1c::t_137467e24e22b2 1-23
+package.json
+  s_23ea5bc305de1c::t_4619ebae52c899 3
+test/analysis-profile.test.ts
+  s_23ea5bc305de1c::t_fa986a90be55cf 1-55
+dist/src/aggregator.d.ts
+  s_23ea5bc305de1c::t_137467e24e22b2 11-12,14-15,96
+test/kiwi-analysis-flag.test.ts
+  s_23ea5bc305de1c::t_ce94d25c2c6097 42
+dist/src/cli.js
+  s_23ea5bc305de1c::t_137467e24e22b2 46-48,101
+src/cli.ts
+  s_23ea5bc305de1c::t_dfa8257f880e4d 138
+  s_23ea5bc305de1c::t_15b89eb55d6362 295-296
+  s_23ea5bc305de1c::t_3e1ac5920eb559 61-67
+src/semantic-policy.ts
+  s_23ea5bc305de1c::t_3f38d53509ba55 7,9-12,17-19,23-33,36-40
+src/keyword-rank.ts
+  s_23ea5bc305de1c::t_986910078680b2 22
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_137467e24e22b2 1,19-26,47,54,60,66,89,110,116-119,301-302,305
+test/semantic-keyword-boost.test.ts
+  s_23ea5bc305de1c::t_178b1da9d8f578 29-32
+  s_23ea5bc305de1c::t_06b70abb05ff18 1-28,33-37
+dist/src/semantic-keywords.d.ts
+  s_23ea5bc305de1c::t_137467e24e22b2 7
+test/semantic-policy.test.ts
+  s_23ea5bc305de1c::t_4dd92949b4fb91 12
+  s_23ea5bc305de1c::t_c4d0083377c596 35-38,41-42,46-51
+dist/src/version.js
+  s_23ea5bc305de1c::t_3daf40efe56ad2 1
+dist/src/analysis.js.map
+  ai_agent 1
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_2dc34f3d8456ce 6-12
+  s_23ea5bc305de1c::t_f7fdfbabe6e879 130
+  s_23ea5bc305de1c::t_c51a816bdeee6a 75-76
+  s_23ea5bc305de1c::t_ac580ebff1768d 92
+  s_23ea5bc305de1c::t_ca4462d32f239d 113,121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "9fbca499c17cb9c398f010f046eb936fbc792168",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
