@@ -71,10 +71,18 @@ test("patchReportProvenance updates timing lines in HTML", () => {
     top: 40,
     workerUsed: false,
     kiwiAvailable: false,
+    preset: "balanced",
+    presetSource: "auto-corpus",
+    llmTier: "off",
+    llmUsed: false,
+    llmSkippedReason: "balanced preset (KCA_LLM=1 없음)",
     buildTiming: { parseAggregateMs: 100, renderHtmlMs: 50, writeFileMs: 10, totalMs: 160 },
     htmlBytes: 1000,
   });
   const patched = patchReportProvenance(html, provenance);
   assert.match(patched, /집계 100ms/);
   assert.match(patched, /생성 160ms/);
+  assert.match(patched, /"preset":"balanced"/);
+  assert.match(patched, /"llmUsed":false/);
+  assert.match(patched, /분석 preset: balanced/);
 });

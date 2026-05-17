@@ -13,6 +13,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildReportFromExport } from "../dist/src/analysis.js";
+import { probeMachineProfileSync } from "../dist/src/analysis-capability.js";
+import {
+  buildAnalysisEffectiveConfig,
+  toProvenanceOptions,
+} from "../dist/src/analysis-effective-config.js";
 import { defaultKakaoCsvDir, listKakaoExports } from "../dist/src/kakao-export-discovery.js";
 import { buildReportProvenance } from "../dist/src/report-provenance.js";
 import { renderReportHtml } from "../dist/src/report.js";
@@ -126,15 +131,23 @@ async function generateOne(csvPath, opts) {
     worker: opts.worker,
     semanticKeywords: opts.semantic ? undefined : false,
   });
-  const provenance = buildReportProvenance(data, {
-    privacy: "public-masked",
-    top: 40,
-    workerRequested: false,
-    workerUsed: false,
-    semanticRequested: opts.semantic ? "auto" : false,
-    kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
-    htmlBytes: 0,
-  });
+  const config = buildAnalysisEffectiveConfig(
+    data,
+    {
+      privacy: "public-masked",
+      top: 40,
+      worker: opts.worker,
+      semanticKeywords: opts.semantic ? undefined : false,
+    },
+    probeMachineProfileSync(),
+  );
+  const provenance = buildReportProvenance(
+    data,
+    toProvenanceOptions(config, data, {
+      kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
+      htmlBytes: 0,
+    }),
+  );
   const html = renderReportHtml({ ...data, provenance });
   assertHtmlStructure(html, slug);
   assertKeywordSanity(data, slug);

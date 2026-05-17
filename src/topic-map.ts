@@ -3,6 +3,7 @@ import { discourseRatio, isDiscourseTerm } from "./discourse-lexicon.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { isGenericTopicLead } from "./topic-generic.js";
 import { filterMeaningfulTopicTerms } from "./topic-stopwords.js";
+import { normalizeTopicTerms } from "./topic-normalize.js";
 import type { ReportTopic } from "./types.js";
 
 const MIN_THEME_MESSAGE_PERCENT_DEFAULT = 1.5;
@@ -261,7 +262,7 @@ function refineTopics(topics: ReportTopic[], minThemePct: number): ReportTopic[]
       if (t.messagePercent < minThemePct) continue;
       const lead = pickThemeLead(terms);
       if (isDiscourseTerm(lead) && discourseRatio(terms) >= 0.75) continue;
-      if (out.some((o) => o.kind === "theme" && jaccard(terms, o.terms) > 0.72)) continue;
+      if (out.some((o) => o.kind === "theme" && normalizedTermJaccard(terms, o.terms) > 0.55)) continue;
     }
 
     const lead = t.kind === "theme" ? pickThemeLead(terms) : terms[0]!;
@@ -307,6 +308,10 @@ function pickThemeLead(terms: string[]): string {
   if (specific) return specific;
   const clean = terms.find((t) => !isDiscourseTerm(t));
   return clean ?? terms[0] ?? "주제";
+}
+
+function normalizedTermJaccard(a: string[], b: string[]): number {
+  return jaccard(normalizeTopicTerms(a), normalizeTopicTerms(b));
 }
 
 function jaccard(a: string[], b: string[] | Iterable<string>): number {

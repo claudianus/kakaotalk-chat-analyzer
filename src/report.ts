@@ -613,6 +613,14 @@ function renderSelfServeCallout(): string {
   </section>`;
 }
 
+function dayHeatLevel(ratio: number): number {
+  if (ratio <= 0.15) return 0;
+  if (ratio <= 0.35) return 1;
+  if (ratio <= 0.55) return 2;
+  if (ratio <= 0.75) return 3;
+  return 4;
+}
+
 function renderDaily(days: DailyCount[], burstDays: DailyCount[] = []): string {
   if (days.length === 0) return `<p style="margin:0;color:var(--muted);font-size:13px">날짜가 있는 메시지가 없습니다.</p>`;
   const max = Math.max(...days.map((day) => day.count), 1);
@@ -620,14 +628,12 @@ function renderDaily(days: DailyCount[], burstDays: DailyCount[] = []): string {
   const cells = days
     .map((day) => {
       const ratio = day.count / max;
-      const alpha = Math.min(0.92, Math.max(0.1, 0.1 + ratio * 0.82));
-      const bg = `rgba(15, 107, 92, ${alpha.toFixed(2)})`;
-      const fg = ratio > 0.42 ? "#f4f8f7" : "#0c2a24";
+      const lvl = dayHeatLevel(ratio);
       const short = formatDayMd(day.date);
       const burst = burstSet.has(day.date);
       const burstCls = burst ? " day-burst" : "";
       const burstMark = burst ? " 🔥" : "";
-      return `<div class="day${burstCls}" title="${escapeHtml(day.date)} · ${day.count}건${burst ? " · 급증일" : ""}" style="background-color:${bg};color:${fg}"><span class="day-k">${escapeHtml(short)}${burstMark}</span><span class="day-n">${day.count}</span></div>`;
+      return `<div class="day day--lvl${lvl}${burstCls}" title="${escapeHtml(day.date)} · ${day.count}건${burst ? " · 급증일" : ""}"><span class="day-k">${escapeHtml(short)}${burstMark}</span><span class="day-n">${day.count}</span></div>`;
     })
     .join("");
   return `<div class="calendar-wrap">
@@ -989,9 +995,22 @@ function renderCountBars(items: CountItem[]): string {
     .join("")}</div>`;
 }
 
+function renderProvenanceAnalysisBadges(data: ReportData): string {
+  const a = data.provenance?.analysis;
+  if (!a?.preset) return "";
+  const sem = a.semanticUsed ? "시맨틱 on" : "시맨틱 off";
+  const llm = a.llmUsed ? "LLM on" : "LLM off";
+  return `<div class="badge-row kca-provenance-badges" aria-label="분석 설정 요약">
+    <span class="badge">preset ${escapeHtml(a.preset)}</span>
+    <span class="badge">${escapeHtml(sem)}</span>
+    <span class="badge">${escapeHtml(llm)}</span>
+  </div>`;
+}
+
 function renderProvenanceSideCard(data: ReportData): string {
   if (!data.provenance) return "";
-  return `<p><strong>생성 도구</strong><br>${escapeHtml(formatGeneratorLine(data.provenance))}</p>`;
+  return `<p><strong>생성 도구</strong><br>${escapeHtml(formatGeneratorLine(data.provenance))}</p>
+    ${renderProvenanceAnalysisBadges(data)}`;
 }
 
 function renderProvenanceDetailsBlock(data: ReportData): string {

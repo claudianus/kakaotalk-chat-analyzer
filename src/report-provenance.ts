@@ -7,6 +7,7 @@ import type {
 import { escapeHtml } from "./report-util.js";
 import { profanityLexiconVersion } from "./profanity.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
+import type { PresetSource } from "./analysis-effective-config.js";
 import type { GpuKind } from "./analysis-capability.js";
 import { VERSION } from "./version.js";
 
@@ -22,13 +23,31 @@ export interface BuildReportProvenanceOptions {
   sentimentRequested?: boolean | "auto";
   kiwiAvailable: boolean;
   preset?: AnalysisPresetName;
+  presetSource?: PresetSource;
   semanticModel?: string;
+  semanticCap?: number;
+  semanticSkippedReason?: string;
+  sentimentModel?: string;
+  sentimentSkippedReason?: string;
   llmTier?: string;
   llmUsed?: boolean;
+  llmSkippedReason?: string;
+  llmModelId?: string;
+  embeddingTopics?: boolean;
+  budgetMs?: number;
+  envOverrides?: string[];
   gpu?: GpuKind;
   buildTiming?: ReportBuildTiming;
   htmlBytes?: number;
 }
+
+const PRESET_SOURCE_LABELS: Record<string, string> = {
+  cli: "CLI --preset",
+  env: "환경 변수 KCA_PRESET",
+  "auto-ram": "RAM 기준 자동",
+  "auto-corpus": "RAM·메시지 수 기준 자동",
+  "legacy-fast": "CLI --fast / KCA_PROFILE=fast",
+};
 
 export function resolveTopicModel(data: ReportData): "graph" | "embedding" | "hybrid" {
   const embedEnv = process.env.KCA_EMBEDDING_TOPICS === "1";
@@ -85,9 +104,19 @@ export function buildReportProvenance(
       kiwiAvailable: options.kiwiAvailable,
       topicModel: resolveTopicModel(data),
       ...(options.preset ? { preset: options.preset } : {}),
+      ...(options.presetSource ? { presetSource: options.presetSource } : {}),
       ...(options.semanticModel ? { semanticModel: options.semanticModel } : {}),
-      ...(options.llmTier ? { llmTier: options.llmTier } : {}),
+      ...(options.semanticCap !== undefined ? { semanticCap: options.semanticCap } : {}),
+      ...(options.semanticSkippedReason ? { semanticSkippedReason: options.semanticSkippedReason } : {}),
+      ...(options.sentimentModel ? { sentimentModel: options.sentimentModel } : {}),
+      ...(options.sentimentSkippedReason ? { sentimentSkippedReason: options.sentimentSkippedReason } : {}),
+      ...(options.llmTier !== undefined ? { llmTier: options.llmTier } : {}),
       ...(options.llmUsed !== undefined ? { llmUsed: options.llmUsed } : {}),
+      ...(options.llmSkippedReason ? { llmSkippedReason: options.llmSkippedReason } : {}),
+      ...(options.llmModelId ? { llmModelId: options.llmModelId } : {}),
+      ...(options.embeddingTopics !== undefined ? { embeddingTopics: options.embeddingTopics } : {}),
+      ...(options.budgetMs !== undefined ? { budgetMs: options.budgetMs } : {}),
+      ...(options.envOverrides?.length ? { envOverrides: options.envOverrides } : {}),
       ...(options.gpu ? { gpu: options.gpu } : {}),
     },
     reportSchema: REPORT_SCHEMA,
@@ -189,10 +218,34 @@ export function formatProvenanceDetails(provenance: ReportProvenance): string[] 
     };
     lines.push(`주제 모델: ${labels[a.topicModel] ?? a.topicModel}`);
   }
-  if (a.preset) lines.push(`분석 preset: ${a.preset}`);
-  if (a.semanticModel) lines.push(`시맨틱 모델: ${a.semanticModel}`);
-  if (a.llmTier && a.llmTier !== "off") lines.push(`LLM 티어: ${a.llmTier}`);
-  if (a.llmUsed !== undefined) lines.push(`LLM 보강: ${a.llmUsed ? "사용" : "미사용"}`);
+  if (a.preset) {
+    const src = a.presetSource ? PRESET_SOURCE_LABELS[a.presetSource] ?? a.presetSource : "";
+    lines.push(`분석 preset: ${a.preset}${src ? ` (${src})` : ""}`);
+  }
+  if (a.semanticModel) {
+    const cap = a.semanticCap !== undefined ? ` · 샘플 상한 ${a.semanticCap}` : "";
+    lines.push(`시맨틱 모델: ${a.semanticModel}${cap}`);
+  }
+  if (!a.semanticUsed && a.semanticSkippedReason) {
+    lines.push(`시맨틱 미사용 사유: ${a.semanticSkippedReason}`);
+  }
+  if (a.sentimentModel) lines.push(`감정 모델: ${a.sentimentModel}`);
+  if (!a.sentimentUsed && a.sentimentSkippedReason) {
+    lines.push(`감정 미사용 사유: ${a.sentimentSkippedReason}`);
+  }
+  if (a.llmTier !== undefined) lines.push(`LLM 티어: ${a.llmTier}`);
+  if (a.llmUsed !== undefined) {
+    const model = a.llmModelId ? ` (${a.llmModelId})` : "";
+    lines.push(`LLM 보강: ${a.llmUsed ? "사용" : "미사용"}${model}`);
+  }
+  if (!a.llmUsed && a.llmSkippedReason) lines.push(`LLM 미사용 사유: ${a.llmSkippedReason}`);
+  if (a.embeddingTopics !== undefined) {
+    lines.push(`임베딩 주제 레인: ${a.embeddingTopics ? "on" : "off"}`);
+  }
+  if (a.budgetMs !== undefined) {
+    lines.push(`분석 예산(휴리스틱): ~${Math.round(a.budgetMs / 1000)}초`);
+  }
+  if (a.envOverrides?.length) lines.push(`환경 변수: ${a.envOverrides.join(", ")}`);
   if (a.gpu) lines.push(`GPU (ONNX): ${a.gpu}`);
   if (provenance.reportSchema) lines.push(`리포트 스키마: ${provenance.reportSchema}`);
   if (provenance.output?.htmlBytes !== undefined) {

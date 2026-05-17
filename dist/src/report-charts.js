@@ -195,19 +195,22 @@ export const CHARTS_INIT_SCRIPT = `
       var data;
       try { data = JSON.parse(dataEl.textContent || "{}"); } catch (e) { return; }
 
-      var dark = document.documentElement.getAttribute("data-theme") === "dark" ||
-        (!document.documentElement.getAttribute("data-theme") &&
-          window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      var text = dark ? "#e9eef5" : "#141a1f";
-      var muted = dark ? "#8b98a8" : "#5c6670";
-      var accent = dark ? "#3ee8c5" : "#0f6b5c";
-      var accent2 = dark ? "#818cf8" : "#4f46e5";
       function cssVar(name, fallback) {
         try {
-          var v = getComputedStyle(document.body).getPropertyValue(name).trim();
+          var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
           return v || fallback;
         } catch (e) { return fallback; }
       }
+      function isDarkTheme() {
+        return document.documentElement.getAttribute("data-theme") === "dark" ||
+          (!document.documentElement.getAttribute("data-theme") &&
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      }
+      var dark = isDarkTheme();
+      var text = cssVar("--ink", dark ? "#e9eef5" : "#141a1f");
+      var muted = cssVar("--muted", dark ? "#8b98a8" : "#5c6670");
+      var accent = cssVar("--accent", dark ? "#3ee8c5" : "#0f6b5c");
+      var accent2 = cssVar("--accent2", dark ? "#818cf8" : "#4f46e5");
       var heatLo = cssVar("--chart-heat-lo", dark ? "#1a2744" : "#d4e4f4");
       var heatHi = cssVar("--chart-heat-hi", dark ? "#5ee8ff" : "#1e4fd6");
       var wdColors = [
@@ -378,14 +381,17 @@ export const CHARTS_INIT_SCRIPT = `
       } else if (mqWide && mqWide.addListener) {
         mqWide.addListener(function () { setTimeout(resizeAll, 80); });
       }
-      var themeObs = new MutationObserver(function () { setTimeout(resizeAll, 60); });
+      function onThemeChange() {
+        disposeCharts();
+        run();
+        kcaDyadBoot(data);
+      }
+      var themeObs = new MutationObserver(function () { setTimeout(onThemeChange, 60); });
       themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
       var mqOsTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
       function onOsThemeChange() {
         if (document.documentElement.getAttribute("data-theme")) return;
-        disposeCharts();
-        run();
-        kcaDyadBoot(data);
+        onThemeChange();
       }
       if (mqOsTheme && mqOsTheme.addEventListener) {
         mqOsTheme.addEventListener("change", onOsThemeChange);

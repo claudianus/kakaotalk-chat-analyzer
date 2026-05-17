@@ -185,12 +185,8 @@
       display: block;
       height: 100%;
       border-radius: 999px;
-      background: rgba(79, 70, 229, 0.45);
+      background: var(--kw-bar-fill);
     }
-    .kw-bar-fill--rank1 { background: #6366f1; }
-    .kw-bar-fill--rank2 { background: #4f46e5; }
-    .kw-bar-fill--rank3 { background: #3b82f6; }
-    html[data-theme="dark"] .kw-bar-fill { background: rgba(129, 140, 248, 0.55); }
-    html[data-theme="dark"] .kw-bar-fill--rank1 { background: #a78bfa; }
-    html[data-theme="dark"] .kw-bar-fill--rank2 { background: #818cf8; }
-    html[data-theme="dark"] .kw-bar-fill--rank3 { background: #5b9bd5; }
+    .kw-bar-fill--rank1 { background: var(--kw-bar-rank1); }
+    .kw-bar-fill--rank2 { background: var(--kw-bar-rank2); }
+    .kw-bar-fill--rank3 { background: var(--kw-bar-rank3); }
