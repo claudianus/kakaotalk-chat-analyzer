@@ -209,11 +209,13 @@
       grid-template-areas:
         ". months"
         "days weeks";
-      grid-template-columns: max-content minmax(0, 1fr);
+      grid-template-columns: max-content max-content;
       column-gap: 8px;
       row-gap: 4px;
       width: max-content;
       min-width: min(100%, max-content);
+      justify-items: start;
+      align-items: start;
     }
     .gh-cal-days {
       grid-area: days;
@@ -329,41 +331,32 @@
       font-style: normal;
       background: var(--gh-cell-0);
     }
-    /* 짧은 기간(≤14주): 카드 너비에 맞게 주차 열을 균등 확장 */
+    /* 짧은 기간(≤14주): GitHub처럼 고정 셀 — 카드 전체를 채우지 않음 */
+    .gh-contrib--compact {
+      --gh-cell-size: clamp(11px, 1.6vw, 14px);
+    }
     .gh-contrib--compact .gh-cal-scroll {
       width: 100%;
+      display: flex;
+      justify-content: flex-start;
     }
     .gh-contrib--compact .gh-cal-graph {
-      width: 100%;
+      width: max-content;
       max-width: 100%;
-      box-sizing: border-box;
-    }
-    .gh-contrib--compact .gh-cal-months {
-      grid-template-columns: repeat(var(--gh-weeks), minmax(0, 1fr));
     }
     .gh-contrib--compact .gh-cal-weeks {
-      width: 100%;
-      grid-template-columns: repeat(var(--gh-weeks), minmax(0, 1fr));
+      width: max-content;
+      grid-template-columns: repeat(var(--gh-weeks), var(--gh-cell-size));
+    }
+    .gh-contrib--compact .gh-cal-months {
+      grid-template-columns: repeat(var(--gh-weeks), var(--gh-cell-size));
     }
     .gh-contrib--compact .gh-cal-week-col {
-      grid-template-rows: repeat(7, minmax(0, 1fr));
-      min-width: 0;
+      grid-template-rows: repeat(7, var(--gh-cell-size));
     }
     .gh-contrib--compact .gh-cal-cell {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1;
-      min-width: 0;
-      min-height: 0;
-    }
-    .gh-contrib--compact .gh-cal-days {
-      grid-template-rows: repeat(7, minmax(0, 1fr));
-      align-content: stretch;
-      height: 100%;
-    }
-    .gh-contrib--compact .gh-cal-days span {
-      height: auto;
-      min-height: 0;
+      width: var(--gh-cell-size);
+      height: var(--gh-cell-size);
     }
     .gh-cal-legend-scale i[data-level="1"] { background: var(--gh-cell-1); }
     .gh-cal-legend-scale i[data-level="2"] { background: var(--gh-cell-2); }
