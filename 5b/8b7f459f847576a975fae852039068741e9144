@@ -1,0 +1,161 @@
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/aggregator.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 15-16
+scripts/keyword-audit.mjs
+  s_23ea5bc305de1c::t_437d49bdca72cd 7-8,13-22,26,37-47
+test/keyword-quality.test.ts
+  s_23ea5bc305de1c::t_6b5dc558101f09 17-20
+dist/src/types.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 83-84
+test/event-spine.test.ts
+  s_23ea5bc305de1c::t_4f89c4ed9f96d8 41-58
+dist/src/streaming-tfidf-keywords.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 2,12-13,31-45,63-64,67-70,86-87,89,108,157,167,173
+src/semantic-policy.ts
+  s_23ea5bc305de1c::t_8305464b23dadb 6-12
+  s_23ea5bc305de1c::t_731c51e5fea8df 14-18
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+src/topic-map.ts
+  s_23ea5bc305de1c::t_05a5bd0c951689 141,148-150
+  s_23ea5bc305de1c::t_cf212228d048f4 2,7-8
+  s_23ea5bc305de1c::t_869a510ffbbb21 256-260
+dist/src/repeat-phrase-counter.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 1-2,5-10
+dist/src/semantic-policy.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 3-5
+.cursor/rules/cubic-pr-workflow.mdc
+  s_23ea5bc305de1c::t_5fa7214b2c0d50 1-32
+dist/src/keyword-quality.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 1,48,67-72,75-79
+dist/src/semantic-policy.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 3-14
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 60,86,145
+test/streaming-bm25.test.ts
+  s_23ea5bc305de1c::t_a0cca51720539a 1-11
+src/keyword-stopwords.ts
+  s_23ea5bc305de1c::t_ab92cb6e6b2d3b 1,25
+src/keyword-quality.ts
+  s_23ea5bc305de1c::t_641700d2577071 1-2,51-52,63-65,67-70
+dist/src/keyword-quality.js.map
+  ai_agent 1
+dist/src/embedding-cluster.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 2,4-5,9,12
+dist/src/keyword-stopwords.js.map
+  ai_agent 1
+dist/src/event-spine.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 49
+dist/src/repeat-phrase-counter.js.map
+  ai_agent 1
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/keyword-rank.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 3
+dist/src/topic-map.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 2,5-6,123-124,132-135,227-229
+src/discourse-lexicon.ts
+  s_23ea5bc305de1c::t_d7b5e2c1e1e11a 1-107
+src/topic-stopwords.ts
+  s_23ea5bc305de1c::t_7c39b8371bdd47 1,6,9,11,18
+src/analysis.ts
+  s_23ea5bc305de1c::t_cbd23482f76b99 187
+  s_23ea5bc305de1c::t_ef7965c1b5ad30 72
+  s_23ea5bc305de1c::t_15be65d2ab14ab 105
+dist/src/streaming-tfidf-keywords.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 3-4,6
+dist/src/topic-stopwords.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 2
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 11,115-117,276
+dist/src/discourse-lexicon.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 1-108
+dist/src/story.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 1,35,38-52,58,64
+dist/src/analysis.js.map
+  ai_agent 1
+test/repeat-phrase-counter.test.ts
+  s_23ea5bc305de1c::t_36bf42f8fbd45e 1-14
+dist/src/semantic-keywords.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 5,54,56,81,86-87
+dist/src/event-spine.js.map
+  ai_agent 1
+src/story.ts
+  s_23ea5bc305de1c::t_810598e1520887 1
+  s_23ea5bc305de1c::t_12fc41dfc4d5b9 100,102-116,120
+  s_23ea5bc305de1c::t_7584a9399af212 128
+dist/src/topic-map.js.map
+  ai_agent 1
+dist/src/embedding-cluster.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 15-48,53,90-108,110,129-133,140
+src/keyword-rank.ts
+  s_23ea5bc305de1c::t_0637f54908cfc1 3
+package.json
+  s_23ea5bc305de1c::t_ca0dcc61e9ec8c 3
+src/repeat-phrase-counter.ts
+  s_23ea5bc305de1c::t_7f7dd7be64f220 1,6,9,11,15-22,26-32,40,44-48,53,56-58
+dist/src/repeat-phrase-counter.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 3,6-7,12-19,23-28,37,40-43,48,52-55
+dist/src/discourse-lexicon.js.map
+  ai_agent 1
+dist/src/story.js.map
+  ai_agent 1
+src/streaming-tfidf-keywords.ts
+  s_23ea5bc305de1c::t_841463a2f40bcd 2,17-18,35-48,63,67-77,89-91,114,166,176,182
+dist/src/version.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 1
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 1-2
+src/aggregator.ts
+  s_23ea5bc305de1c::t_89f68121b87dc7 89-90
+  s_23ea5bc305de1c::t_287a0e42f6baa0 351
+  s_23ea5bc305de1c::t_c95a3a007015ca 21
+  s_23ea5bc305de1c::t_028d7058e9a07c 173
+  s_23ea5bc305de1c::t_dd0d11af3ccef9 172,174
+dist/src/semantic-policy.js.map
+  ai_agent 1
+AGENTS.md
+  s_23ea5bc305de1c::t_5ca7c7a56209f5 20,22-33
+dist/src/embedding-cluster.js.map
+  ai_agent 1
+dist/src/keyword-stopwords.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 1,23
+dist/src/topic-stopwords.js.map
+  ai_agent 1
+src/types.ts
+  s_23ea5bc305de1c::t_801ab933fcff39 93-94
+src/embedding-cluster.ts
+  s_23ea5bc305de1c::t_abd5a11bcf0025 16-18,20,22-45,47-54,56,94-115,119,129-130,150-154,160
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_273397286dcbe2 119
+  s_23ea5bc305de1c::t_109d4720e25c3d 104-112
+  s_23ea5bc305de1c::t_12d2ef9c85aec2 6
+  s_23ea5bc305de1c::t_919dec36e1aded 68,70
+test/discourse-lexicon.test.ts
+  s_23ea5bc305de1c::t_9a037e240d2c5b 1-16
+dist/src/topic-stopwords.js
+  s_23ea5bc305de1c::t_f3a89ac830f395 1,5,7,9,12
+src/event-spine.ts
+  s_23ea5bc305de1c::t_8f34b7c0910cea 71
+dist/src/discourse-lexicon.d.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 1-8
+src/version.ts
+  s_23ea5bc305de1c::t_f3a89ac830f395 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "5b8b7f459f847576a975fae852039068741e9144",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
