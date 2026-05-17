@@ -1,0 +1,40 @@
+dist/src/gap-stats.js
+  s_23ea5bc305de1c::t_ba56dd1cd4697d 66
+dist/src/topic-map.js.map
+  ai_agent 1
+src/topic-map.ts
+  s_23ea5bc305de1c::t_f464ec58284116 142
+scripts/bench-stream.mjs
+  s_23ea5bc305de1c::t_c90f8e926b33ee 28-38
+scripts/qa-serve.mjs
+  s_23ea5bc305de1c::t_48b8e16be8b994 100-111
+dist/src/gap-stats.js.map
+  ai_agent 1
+src/gap-stats.ts
+  s_23ea5bc305de1c::t_888e1cb98a7987 74
+test/topic-map.test.ts
+  s_23ea5bc305de1c::t_f9c64614273d91 28,30-31,33
+  s_23ea5bc305de1c::t_516799f2287f4c 34
+test/gap-stats.test.ts
+  s_23ea5bc305de1c::t_4753ef6028b6d0 25
+package.json
+  s_23ea5bc305de1c::t_c7429fb7e2aab9 33
+dist/src/topic-map.js
+  s_23ea5bc305de1c::t_ba56dd1cd4697d 130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "fe986da000b4ddb83eebbeeb3f85c3acd77f9d57",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": null
+    }
+  }
+}
