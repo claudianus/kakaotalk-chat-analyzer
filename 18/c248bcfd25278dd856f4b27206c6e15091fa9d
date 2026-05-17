@@ -1,0 +1,78 @@
+test/semantic-keyword-boost.test.ts
+  s_23ea5bc305de1c::t_69791d01fd171f 16,20-24,26-31,34-36,39
+dist/src/keyword-merge.js
+  s_23ea5bc305de1c::t_e6a09ba1d20998 24,26-28,32,36-37
+src/streaming-tfidf-keywords.ts
+  s_23ea5bc305de1c::t_05605b156a6516 25-26
+dist/src/aggregator.d.ts
+  s_23ea5bc305de1c::t_e6a09ba1d20998 96-101
+dist/src/semantic-keywords.js
+  s_23ea5bc305de1c::t_e6a09ba1d20998 5,87,92-97,99
+package.json
+  s_23ea5bc305de1c::t_78aaf4f47e14e0 3
+dist/src/keyword-rank.js
+  s_23ea5bc305de1c::t_e6a09ba1d20998 8-10,12-13,15
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_eb7785d44b8d9a 1-2
+src/aggregator.ts
+  s_23ea5bc305de1c::t_4eca93eb137e33 546
+  s_23ea5bc305de1c::t_e6405da89a554d 227,234-242
+src/analysis.ts
+  s_23ea5bc305de1c::t_f18dae5cf76dbf 79
+test/keyword-merge.test.ts
+  s_23ea5bc305de1c::t_4fbeed7e7ea2ee 6,14-15,18,25,28
+dist/src/streaming-tfidf-keywords.js
+  s_23ea5bc305de1c::t_e6a09ba1d20998 20-21
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_e6a09ba1d20998 66
+test/keyword-large-corpus.test.ts
+  s_23ea5bc305de1c::t_16fdc7a7db8377 1-2,4-35,37-40
+  s_23ea5bc305de1c::t_52369e1a44c0af 36
+  s_23ea5bc305de1c::t_a5a66571a87021 3
+dist/src/version.js
+  s_23ea5bc305de1c::t_eb7785d44b8d9a 1
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/keyword-rank.js.map
+  ai_agent 1
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_fedbc47ecadf1b 6
+  s_23ea5bc305de1c::t_a54c00e0aa891c 128,133-137,139
+dist/src/aggregator.js.map
+  ai_agent 1
+kcachat/package.json
+  s_23ea5bc305de1c::t_9b90e96d8dfdcf 15
+  s_23ea5bc305de1c::t_62637efb563e5a 3
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+src/keyword-rank.ts
+  s_23ea5bc305de1c::t_1ff0043d20bea8 20-23
+src/keyword-merge.ts
+  s_23ea5bc305de1c::t_dd523c2b745352 42-43,45-46,50,58
+README.md
+  s_23ea5bc305de1c::t_a8fa0021c36241 219
+src/version.ts
+  s_23ea5bc305de1c::t_eb7785d44b8d9a 1
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_e6a09ba1d20998 164,171-179,461
+dist/src/keyword-merge.js.map
+  ai_agent 1
+dist/src/streaming-tfidf-keywords.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "18c248bcfd25278dd856f4b27206c6e15091fa9d",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
