@@ -160,12 +160,35 @@
     }
     .demo-gallery {
       display: grid;
-      gap: 20px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       padding-bottom: 48px;
     }
-    @media (max-width: 900px) { .demo-gallery { grid-template-columns: 1fr; } }
-    .demo-card { margin: 0; }
+    .demo-gallery.is-loading { min-height: 120px; opacity: 0.6; }
+    .demo-thumb {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 0;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: zoom-in;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      border-radius: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .demo-thumb { transition: none; }
+    }
+    .demo-thumb:hover,
+    .demo-thumb:focus-visible {
+      transform: translateY(-3px);
+      outline: 2px solid rgba(62, 232, 197, 0.45);
+      outline-offset: 3px;
+    }
     .demo-frame {
       border-radius: 12px;
       overflow: hidden;
@@ -194,13 +217,111 @@
       height: auto;
       vertical-align: middle;
     }
-    figcaption {
+    .demo-thumb-label {
+      display: block;
       margin-top: 10px;
       font-size: 14px;
       color: var(--muted);
-      line-height: 1.5;
+      line-height: 1.45;
     }
-    figcaption strong { color: var(--text); font-weight: 600; }
+    .demo-thumb-label strong {
+      display: block;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .demo-lightbox {
+      padding: 0;
+      border: none;
+      max-width: none;
+      max-height: none;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+    .demo-lightbox::backdrop {
+      background: rgba(4, 8, 14, 0.92);
+      backdrop-filter: blur(8px);
+    }
+    .demo-lightbox-inner {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 56px 24px;
+      pointer-events: none;
+    }
+    .demo-lightbox-inner > * { pointer-events: auto; }
+    .demo-lightbox-img {
+      display: block;
+      max-width: min(96vw, 1400px);
+      max-height: min(82vh, 1200px);
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65);
+    }
+    .demo-lightbox-title {
+      margin: 14px 0 0;
+      font-size: 15px;
+      color: var(--text);
+      text-align: center;
+      max-width: 52ch;
+    }
+    .demo-lightbox-title span {
+      display: block;
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .demo-lightbox-btn {
+      position: fixed;
+      z-index: 2;
+      border: 1px solid var(--stroke);
+      background: rgba(12, 16, 24, 0.85);
+      color: var(--text);
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 1;
+    }
+    .demo-lightbox-btn:hover { border-color: rgba(62, 232, 197, 0.5); color: var(--accent); }
+    .demo-lightbox-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .demo-lightbox-close {
+      top: 16px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      font-size: 24px;
+    }
+    .demo-lightbox-prev,
+    .demo-lightbox-next {
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 52px;
+      font-size: 28px;
+    }
+    .demo-lightbox-prev { left: 12px; }
+    .demo-lightbox-next { right: 12px; }
+    @media (max-width: 640px) {
+      .demo-lightbox-inner { padding: 12px 12px 72px; }
+      .demo-lightbox-prev,
+      .demo-lightbox-next {
+        top: auto;
+        bottom: 16px;
+        transform: none;
+      }
+      .demo-lightbox-prev { left: 16px; }
+      .demo-lightbox-next { right: 16px; }
+    }
+    .demo-fallback { margin: 0; }
     .panel {
       border-radius: var(--radius);
       border: 1px solid var(--stroke);
@@ -319,31 +440,27 @@
 
     <section id="demo" aria-labelledby="demo-heading">
       <h2 id="demo-heading" class="section-head">리포트 미리보기</h2>
-      <p class="section-lede">집계·통계만 담긴 HTML입니다. 참여자 이름은 일부만 보이게 마스킹됩니다.</p>
-      <div class="demo-gallery">
-        <figure class="demo-card">
-          <div class="demo-frame">
-            <div class="demo-chrome" aria-hidden="true"><span></span><span></span><span></span></div>
-            <img src="assets/demo/wrapped.png" width="1440" height="900" alt="Wrapped 요약과 활동 그리드" loading="lazy" decoding="async">
-          </div>
-          <figcaption><strong>Wrapped</strong> · 한 장면 요약·활동 달력</figcaption>
-        </figure>
-        <figure class="demo-card">
-          <div class="demo-frame">
-            <div class="demo-chrome" aria-hidden="true"><span></span><span></span><span></span></div>
-            <img src="assets/demo/charts.png" width="1440" height="900" alt="워드클라우드와 시간대 차트" loading="lazy" decoding="async">
-          </div>
-          <figcaption><strong>차트</strong> · 워드클라우드·요일·시간대</figcaption>
-        </figure>
-        <figure class="demo-card">
-          <div class="demo-frame">
-            <div class="demo-chrome" aria-hidden="true"><span></span><span></span><span></span></div>
-            <img src="assets/demo/keywords.png" width="1440" height="900" alt="키워드 순위 표" loading="lazy" decoding="async">
-          </div>
-          <figcaption><strong>키워드</strong> · 순위·비율 표</figcaption>
-        </figure>
-      </div>
+      <p class="section-lede">집계·통계만 담긴 HTML입니다. 참여자 이름은 일부만 보이게 마스킹됩니다. <strong style="color:var(--text)">썸네일을 누르면 크게</strong> 볼 수 있어요.</p>
+      <div id="demo-gallery" class="demo-gallery is-loading" aria-busy="true"></div>
+      <noscript>
+        <div class="demo-gallery demo-fallback">
+          <figure>
+            <img src="assets/demo/wrapped.png" alt="Wrapped" width="1440" height="900">
+            <figcaption>Wrapped · 한 장면 요약</figcaption>
+          </figure>
+        </div>
+      </noscript>
     </section>
+
+    <dialog id="demo-lightbox" class="demo-lightbox" aria-labelledby="demo-lightbox-title">
+      <div class="demo-lightbox-inner">
+        <button type="button" class="demo-lightbox-btn demo-lightbox-close" aria-label="닫기">×</button>
+        <button type="button" class="demo-lightbox-btn demo-lightbox-prev" aria-label="이전">‹</button>
+        <img id="demo-lightbox-img" class="demo-lightbox-img" alt="">
+        <p id="demo-lightbox-title" class="demo-lightbox-title" aria-live="polite"></p>
+        <button type="button" class="demo-lightbox-btn demo-lightbox-next" aria-label="다음">›</button>
+      </div>
+    </dialog>
 
     <section id="start" class="panel" aria-labelledby="start-heading">
       <h3 id="start-heading">3단계로 시작</h3>
@@ -425,6 +542,110 @@
         });
       });
     });
+
+    (function () {
+      var gallery = document.getElementById("demo-gallery");
+      var dialog = document.getElementById("demo-lightbox");
+      var imgEl = document.getElementById("demo-lightbox-img");
+      var titleEl = document.getElementById("demo-lightbox-title");
+      var items = [];
+      var index = 0;
+      var lastFocus = null;
+
+      function assetUrl(file) {
+        return "assets/demo/" + file;
+      }
+
+      function renderGallery() {
+        if (!gallery || !items.length) return;
+        gallery.innerHTML = "";
+        items.forEach(function (item, i) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "demo-thumb";
+          btn.setAttribute("data-index", String(i));
+          btn.setAttribute("aria-label", item.title + " 크게 보기");
+          btn.innerHTML =
+            '<span class="demo-frame">' +
+            '<span class="demo-chrome" aria-hidden="true"><span></span><span></span><span></span></span>' +
+            '<img src="' + assetUrl(item.file) + '" alt="" width="1440" height="900" loading="lazy" decoding="async">' +
+            "</span>" +
+            '<span class="demo-thumb-label"><strong>' + item.title + "</strong>" + item.caption + "</span>";
+          btn.addEventListener("click", function () { openLightbox(i); });
+          gallery.appendChild(btn);
+        });
+        gallery.classList.remove("is-loading");
+        gallery.removeAttribute("aria-busy");
+      }
+
+      function renderFallback() {
+        if (!gallery) return;
+        var fallback = [
+          { file: "wrapped.png", title: "Wrapped", caption: "한 장면 요약" },
+          { file: "charts-viz.png", title: "차트", caption: "워드클라우드" },
+          { file: "keywords.png", title: "키워드", caption: "순위 표" },
+        ];
+        items = fallback;
+        renderGallery();
+      }
+
+      function setLightbox(i) {
+        if (!items.length || !imgEl || !titleEl) return;
+        index = (i + items.length) % items.length;
+        var item = items[index];
+        imgEl.src = assetUrl(item.file);
+        imgEl.alt = item.title + " — " + item.caption;
+        titleEl.innerHTML = "<strong>" + item.title + "</strong><span>" + item.caption + "</span>";
+      }
+
+      function openLightbox(i) {
+        if (!dialog) return;
+        lastFocus = document.activeElement;
+        setLightbox(i);
+        dialog.showModal();
+        var closeBtn = dialog.querySelector(".demo-lightbox-close");
+        if (closeBtn) closeBtn.focus();
+      }
+
+      function closeLightbox() {
+        if (!dialog || !dialog.open) return;
+        dialog.close();
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+      }
+
+      function step(delta) {
+        setLightbox(index + delta);
+      }
+
+      if (dialog) {
+        dialog.querySelector(".demo-lightbox-close")?.addEventListener("click", closeLightbox);
+        dialog.querySelector(".demo-lightbox-prev")?.addEventListener("click", function () { step(-1); });
+        dialog.querySelector(".demo-lightbox-next")?.addEventListener("click", function () { step(1); });
+        dialog.addEventListener("click", function (e) {
+          if (e.target === dialog) closeLightbox();
+        });
+        dialog.addEventListener("cancel", function (e) {
+          e.preventDefault();
+          closeLightbox();
+        });
+        dialog.addEventListener("keydown", function (e) {
+          if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
+          if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+        });
+      }
+
+      fetch("assets/demo/manifest.json")
+        .then(function (r) { if (!r.ok) throw new Error("manifest"); return r.json(); })
+        .then(function (data) {
+          if (data && data.items && data.items.length) {
+            items = data.items;
+            renderGallery();
+          } else {
+            renderFallback();
+          }
+        })
+        .catch(function () { renderFallback(); });
+    })();
   </script>
 </body>
 </html>

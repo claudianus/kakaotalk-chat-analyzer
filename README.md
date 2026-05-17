@@ -20,10 +20,12 @@ npx kcachat@latest
 <table>
   <tr>
     <td align="center" width="33%"><strong>Wrapped</strong><br><img src="docs/assets/demo/wrapped.png" alt="Wrapped 요약" width="100%" /></td>
-    <td align="center" width="33%"><strong>차트</strong><br><img src="docs/assets/demo/charts.png" alt="차트" width="100%" /></td>
+    <td align="center" width="33%"><strong>차트</strong><br><img src="docs/assets/demo/charts-viz.png" alt="차트" width="100%" /></td>
     <td align="center" width="33%"><strong>키워드</strong><br><img src="docs/assets/demo/keywords.png" alt="키워드" width="100%" /></td>
   </tr>
 </table>
+
+<p><sub><a href="https://claudianus.github.io/kakaotalk-chat-analyzer/#demo">리포트 미리보기 전체</a> (12장 · 탭하면 크게 보기)</sub></p>
 
 </div>
 

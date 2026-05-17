@@ -1,0 +1,65 @@
+{
+  "version": "0.16.1",
+  "items": [
+    {
+      "file": "wrapped.png",
+      "title": "Wrapped",
+      "caption": "한 장면 요약·활동 카드"
+    },
+    {
+      "file": "facts.png",
+      "title": "핵심 지표",
+      "caption": "메시지·참여자·리듬 숫자 요약"
+    },
+    {
+      "file": "personas.png",
+      "title": "페르소나",
+      "caption": "참여자 아키타입 라벨"
+    },
+    {
+      "file": "calendar.png",
+      "title": "활동 그리드",
+      "caption": "일별 활동 히트맵"
+    },
+    {
+      "file": "topics.png",
+      "title": "주제 맵",
+      "caption": "c-TF-IDF 테마·연관"
+    },
+    {
+      "file": "charts-viz.png",
+      "title": "인터랙티브 차트",
+      "caption": "워드클라우드·ECharts"
+    },
+    {
+      "file": "charts-rhythm.png",
+      "title": "리듬·히트맵",
+      "caption": "시간대·일별 활동"
+    },
+    {
+      "file": "keywords.png",
+      "title": "키워드",
+      "caption": "순위·비율 표"
+    },
+    {
+      "file": "participants.png",
+      "title": "참여자",
+      "caption": "랭킹·말풍선 맵"
+    },
+    {
+      "file": "narrative.png",
+      "title": "방 프로필",
+      "caption": "자동 서사 요약"
+    },
+    {
+      "file": "dyad.png",
+      "title": "상호작용",
+      "caption": "누가 누구에게 답하는가"
+    },
+    {
+      "file": "mobile-wrapped.png",
+      "title": "모바일 Wrapped",
+      "caption": "390px 화면"
+    }
+  ]
+}
