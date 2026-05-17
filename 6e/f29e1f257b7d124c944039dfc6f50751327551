@@ -1,0 +1,26 @@
+src/analysis.ts
+  s_23ea5bc305de1c::t_5c69d0793af3b2 257
+  s_23ea5bc305de1c::t_5c14d5b4ebd114 325
+  s_23ea5bc305de1c::t_dcb78dee606a8a 243
+  s_23ea5bc305de1c::t_b8eb1c6706a86d 282
+dist/src/analysis.js
+  ai_agent 191,207,237,277
+dist/src/analysis.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "6ef29e1f257b7d124c944039dfc6f50751327551",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
