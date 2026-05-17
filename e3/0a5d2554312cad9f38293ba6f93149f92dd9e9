@@ -1,0 +1,129 @@
+dist/src/gap-stats.js.map
+  ai_agent 1
+test/keyword-audit.test.ts
+  s_23ea5bc305de1c::t_bbb37287731a89 8-15
+  s_23ea5bc305de1c::t_559192d763fe0a 31-38,42-44
+  s_23ea5bc305de1c::t_defe07f53bf2b8 39-41
+dist/src/ctfidf.js.map
+  ai_agent 1
+dist/src/keyword-merge.d.ts
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 4
+dist/src/semantic-policy.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 4
+scripts/bench-stream.mjs
+  s_23ea5bc305de1c::t_71c945db12cd8e 17,22-25,28-35
+src/report-enrichment.ts
+  s_23ea5bc305de1c::t_3a7b36fba9fd91 8-17
+src/discourse-lexicon.ts
+  s_23ea5bc305de1c::t_eead7c6e12957b 57
+src/gap-stats.ts
+  s_23ea5bc305de1c::t_f76a9fcc3659bf 81-84
+  s_23ea5bc305de1c::t_47e311f145e86c 5-7,9,15,26-29,74-80,85-94,97
+dist/src/discourse-lexicon.js.map
+  ai_agent 1
+dist/src/report-styles.d.ts
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 2
+kcachat/package.json
+  s_23ea5bc305de1c::t_efa2c2da40d27d 3
+  s_23ea5bc305de1c::t_7d52c16a9b6b6b 15
+dist/src/keyword-merge.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 2
+dist/src/report-enrichment.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 7-12
+test/fixtures/vibecoding-room-sample.csv
+  s_23ea5bc305de1c::t_795bd2229f76a4 1-313
+src/keyword-tokenize.ts
+  s_23ea5bc305de1c::t_8d3076123c0eca 85
+src/report-styles.ts
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 1761-1763,2541-2558
+test/semantic-policy.test.ts
+  s_23ea5bc305de1c::t_87c4d2fdff28ef 33,36-37
+dist/src/keyword-merge.js.map
+  ai_agent 1
+package.json
+  s_23ea5bc305de1c::t_cc2689cf2cf2b8 3
+test/topic-map.test.ts
+  s_23ea5bc305de1c::t_a87bb2e2788caf 14-16
+  s_23ea5bc305de1c::t_07c6b542e6c61e 24-37
+dist/src/report-styles.js.map
+  ai_agent 1
+src/topic-map.ts
+  s_23ea5bc305de1c::t_e9d1ac9ad0085c 94,99-103
+  s_23ea5bc305de1c::t_5c775acffffadc 123
+  s_23ea5bc305de1c::t_b0b8fbd7acc148 142-143
+  s_23ea5bc305de1c::t_6ce3238344426a 9-10
+  s_23ea5bc305de1c::t_e549de41265380 159
+  s_23ea5bc305de1c::t_332b22fcf1648b 226-231
+  s_23ea5bc305de1c::t_fbf4f8ee32af47 104-105
+dist/src/keyword-tokenize.js.map
+  ai_agent 1
+dist/src/report-enrichment.js.map
+  ai_agent 1
+dist/src/report-styles.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 1761-1763,2541-2558
+test/report-enrichment.test.ts
+  s_23ea5bc305de1c::t_3960660cc5de57 55-69
+dist/src/topic-map.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 7-8,78,83-89,92,109,130-131,146,207-213
+  s_23ea5bc305de1c::t_ef8b423034ef02 90-91
+src/ctfidf.ts
+  s_23ea5bc305de1c::t_bce1849cc91ca9 6,8
+  s_23ea5bc305de1c::t_84502eadc8d115 42-43
+src/report/css/08-kca-innovation.css
+  s_23ea5bc305de1c::t_485945630633e9 76-93
+scripts/keyword-audit.mjs
+  s_23ea5bc305de1c::t_d39ad465ae6b74 5,22-30,32-33,35-46,49-58,61-64,67-74,77
+  s_23ea5bc305de1c::t_bef1da17c4e076 31
+dist/src/gap-stats.d.ts
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 1,7
+src/semantic-policy.ts
+  s_23ea5bc305de1c::t_e10866fa8893ab 7
+src/report/css/06-kca-responsive.css
+  s_23ea5bc305de1c::t_1aaec8e101e711 58-60
+test/ctfidf.test.ts
+  s_23ea5bc305de1c::t_6c8c50cd520d38 21-30
+README.md
+  s_23ea5bc305de1c::t_cc4000bee938fe 133
+dist/src/report-innovation.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 88-90
+dist/src/ctfidf.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 2-3,34-36
+dist/src/gap-stats.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 5-8,14,26-28,66-84,87
+dist/src/version.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 1
+dist/src/ctfidf.d.ts
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 2-4
+test/gap-stats.test.ts
+  s_23ea5bc305de1c::t_346eed89a54cd3 17-26
+src/version.ts
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 1
+dist/src/discourse-lexicon.js
+  s_23ea5bc305de1c::t_511fdb5353c338 56
+docs/index.html
+  s_23ea5bc305de1c::t_dd959540d48e3c 264
+dist/src/keyword-tokenize.js
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 84
+dist/src/topic-map.js.map
+  ai_agent 1
+src/report-innovation.ts
+  s_23ea5bc305de1c::t_be39acc9a04d72 101-103
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_b7a0685dfc55c7 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e30a5d2554312cad9f38293ba6f93149f92dd9e9",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
