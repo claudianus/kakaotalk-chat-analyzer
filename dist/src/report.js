@@ -92,9 +92,7 @@ export function renderReportHtml(data) {
       ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구를 본문과 분리해 집계합니다. 아래 막대는 일별 운영·유입 펄스예요.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
       ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 똑같은 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
     </section>
-    ${data.shopSearchTopics.length > 0
-        ? `<section style="margin-bottom:14px">${panel("샵검색 키워드", "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(data.shopSearchTopics))}</section>`
-        : ""}
+    ${renderShopSearchSection(data)}
     </div>
 
     ${renderSelfServeCallout()}
@@ -675,9 +673,23 @@ function renderTopicMap(data) {
     ${periodBlock}
   </section>`;
 }
+function renderShopSearchSection(data) {
+    const topics = data.shopSearchTopics;
+    const noticeCount = data.roomEvents.shopSearchCount;
+    if (topics.length === 0 && noticeCount === 0)
+        return "";
+    if (topics.length === 0) {
+        return `<section style="margin-bottom:14px">${panel("샵검색 키워드", `시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건이 있으나, <code>샵검색:</code> 형식에서 #주제를 추출하지 못했습니다. 보내기 형식이 바뀌었을 수 있습니다.`, '<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>')}</section>`;
+    }
+    const tagSum = topics.reduce((s, t) => s + t.count, 0);
+    const footnote = noticeCount > tagSum
+        ? `<p class="chart-hint" style="margin:10px 0 0">시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건 중 태그 추출 <strong>${formatNumber(tagSum)}</strong>건입니다.</p>`
+        : "";
+    return `<section style="margin-bottom:14px">${panel("샵검색 키워드", "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote)}</section>`;
+}
 function renderKeywordCssFold(data) {
     const body = renderKeywordSnapshot(data.keywords, data);
-    return `<details class="kw-css-fold">
+    return `<details class="kw-css-fold" open>
     <summary>키워드 상위 12개 요약<small>전체 순위·막대는 「④ 인터랙티브 차트」</small></summary>
     <div class="kw-css-body">
       <p class="chart-hint" style="margin:0 0 10px">숫자는 메시지 등장 횟수입니다.</p>

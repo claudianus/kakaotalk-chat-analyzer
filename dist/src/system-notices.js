@@ -7,7 +7,8 @@ const SLOW_ON_LINE = /^관리자만\s+말하기\s+기능이\s+활성화되었습
 const SLOW_OFF_LINE = /^관리자만\s+말하기\s+기능이\s+해제되었습니다\.?$/u;
 const SUB_MANAGER_LINE = /^.+님이\s+부방장이\s+되었습니다\.?$/u;
 const MANAGER_LINE = /^.+님이\s+방장이\s+되었습니다\.?$/u;
-const SHOP_SEARCH_LINE = /^샵검색:\s*(.+)$/u;
+const SHOP_SEARCH_LINE = /^샵검색[:\s]+(.+)$/u;
+const SHOP_SEARCH_HASH_ONLY = /^#\S{2,80}$/u;
 const PHOTO_BUNDLE_LINE = /^사진\s+\d+\s*장$/u;
 /** CSV 연속 줄에 붙는 시스템 꼬리 (`,"","…"`) */
 const EMBEDDED_SYS_RE = /,\s*"",\s*"([^"]+)"/g;
@@ -96,12 +97,24 @@ function extractEmbeddedSystemLines(raw) {
     }
     return out;
 }
+function normalizeShopSearchTag(raw) {
+    let tag = raw.trim().slice(0, 80);
+    if (!tag)
+        return null;
+    if (!tag.startsWith("#"))
+        tag = `#${tag}`;
+    if (tag.length < 2)
+        return null;
+    return tag;
+}
 export function extractShopSearchTag(line) {
     const t = normalizeNoticeLine(line);
     const m = t.match(SHOP_SEARCH_LINE);
-    if (!m?.[1])
-        return null;
-    return m[1].trim().slice(0, 80);
+    if (m?.[1])
+        return normalizeShopSearchTag(m[1]);
+    if (SHOP_SEARCH_HASH_ONLY.test(t))
+        return normalizeShopSearchTag(t);
+    return null;
 }
 /** 멀티라인·CSV 꼬리에서 시스템 알림 분리 */
 export function splitMessageForAnalysis(message) {

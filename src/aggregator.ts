@@ -16,6 +16,7 @@ import { adaptiveMinCount, StreamingTfidfKeywords } from "./streaming-tfidf-keyw
 import { TopicMapAccumulator } from "./topic-map.js";
 import { extractHashtagKeywords } from "./korean-hashtags.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
+import { buildTopicStopwords } from "./topic-stopwords.js";
 import { MessageReservoir } from "./message-reservoir.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
@@ -503,7 +504,7 @@ export class ReportAggregator {
       minDocFreq: adaptiveMinCount(total, finalizeOpts?.koreanPrimary !== false),
     });
     const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit);
-    const topics = this.topicMap.buildTopics(total, keywordStop);
+    const topics = this.topicMap.buildTopics(total, buildTopicStopwords());
     const keywordTop1SharePercent = top1ShareFromCounts(keywords, total);
     let attachmentMarkerSum = 0;
     for (const c of this.attachments.values()) attachmentMarkerSum += c;

@@ -1,5 +1,6 @@
 import { classTfidfTopTerms } from "./ctfidf.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
+import { filterMeaningfulTopicTerms } from "./topic-stopwords.js";
 import type { ReportTopic } from "./types.js";
 
 const MAX_GRAPH_NODES = 140;
@@ -128,13 +129,17 @@ export class TopicMapAccumulator {
     const topics: ReportTopic[] = [];
 
     for (const [classId, termScores] of ranked) {
-      const terms = termScores.map((x) => x.term).filter((t) => !stopwords.has(t));
+      const terms = filterMeaningfulTopicTerms(
+        termScores.map((x) => x.term),
+        stopwords,
+      );
       if (terms.length < 2) continue;
       const idx = Number(classId.replace("theme-", ""));
       const community = communities[idx] ?? terms;
       let msgHits = 0;
       for (const t of community) msgHits += this.tokenDocFreq.get(t) ?? 0;
-      const messagePercent = Math.round(Math.min(100, (msgHits / Math.max(totalMessages, 1)) * 100) * 10) / 10;
+      const cappedHits = Math.min(msgHits, this.messages, totalMessages);
+      const messagePercent = Math.round(Math.min(100, (cappedHits / Math.max(totalMessages, 1)) * 100) * 10) / 10;
       const lead = terms[0] ?? "주제";
       const sub = terms[1];
       topics.push({
@@ -172,7 +177,10 @@ export class TopicMapAccumulator {
     const topics: ReportTopic[] = [];
 
     for (const [ym, termScores] of ranked) {
-      const terms = termScores.map((x) => x.term);
+      const terms = filterMeaningfulTopicTerms(
+        termScores.map((x) => x.term),
+        stopwords,
+      );
       if (terms.length < 2) continue;
       const monthMsgs = this.monthlyMessages.get(ym) ?? 0;
       const messagePercent = Math.round((monthMsgs / Math.max(totalMessages, 1)) * 1000) / 10;

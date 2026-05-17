@@ -380,11 +380,14 @@ function buildCalendarGrid(daily) {
         weeks.push({ cells: week });
     }
     const weekCount = Math.min(MAX_CALENDAR_WEEKS, weeks.length);
+    const sliced = weeks.slice(-weekCount);
+    const calendarDays = sliced.reduce((n, w) => n + w.cells.filter((c) => c.date).length, 0);
+    const activeDays = sorted.length;
     return {
-        weeks: weeks.slice(-weekCount),
-        spanLabel: `${first} ~ ${last} · 활동 ${weekCount}주`,
+        weeks: sliced,
+        spanLabel: `${first} ~ ${last} · 활동 ${weekCount}주 · ${calendarDays}일(메시지 ${activeDays}일)`,
         totalMessages,
-        monthLabels: buildMonthLabels(weeks),
+        monthLabels: buildMonthLabels(sliced),
     };
 }
 /** GitHub 잔디와 같이 활동 분포 사분위로 4단계 + 빈 칸 */

@@ -111,6 +111,52 @@ test("buildReportStory produces wrapped cards and headline", () => {
   assert.ok(story.tone.laughPer100 > 0);
 });
 
+test("buildReportStory calendar grid has one cell per day in padded range", () => {
+  const dailySender = new Map<string, Map<string, number>>();
+  dailySender.set("2026-05-01", new Map([["Alice", 30]]));
+  dailySender.set("2026-05-20", new Map([["Alice", 10]]));
+
+  const story = buildReportStory({
+    chatRoomName: "캘린더",
+    totalMessages: 40,
+    activeDays: 2,
+    firstMessage: "2026-05-01 09:00:00",
+    lastMessage: "2026-05-20 22:00:00",
+    longestStreak: 1,
+    peakHour: 21,
+    busiestWeekdayLabel: "금요일",
+    nightSharePercent: 0,
+    emojiMessages: 0,
+    participants,
+    daily: [
+      { date: "2026-05-01", count: 30 },
+      { date: "2026-05-20", count: 10 },
+    ],
+    dailySenderCounts: dailySender,
+    senderAliases: new Map([["Alice", "A***e"]]),
+    insights: baseInsights,
+    laughMessages: 0,
+    shortMessages: 0,
+    laughBySender: new Map(),
+    shortBySender: new Map(),
+    burstDays: [],
+    activityArc: [],
+    conversationPace: { label: "테스트", emoji: "🌊", detail: "" },
+    roomPulse: [],
+  });
+
+  const dated = story.calendarWeeks.flatMap((w) => w.cells).filter((c) => c.date);
+  assert.ok(dated.length >= 20);
+  const dateSet = new Set(dated.map((c) => c.date));
+  for (let day = 1; day <= 20; day += 1) {
+    const key = `2026-05-${String(day).padStart(2, "0")}`;
+    assert.equal(dateSet.has(key), true, `missing calendar day ${key}`);
+  }
+  for (const w of story.calendarWeeks) {
+    assert.equal(w.cells.length, 7);
+  }
+});
+
 test("buildReportStory limits duplicate persona titles", () => {
   const many: ParticipantStat[] = Array.from({ length: 8 }, (_, i) => ({
     alias: `U${i}`,

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   detectSystemNoticeLine,
+  extractShopSearchTag,
   isOpenChatBoilerplate,
   splitMessageForAnalysis,
 } from "../src/system-notices.js";
@@ -13,6 +14,9 @@ test("detectSystemNoticeLine covers moderation and open-chat templates", () => {
   assert.equal(detectSystemNoticeLine("관리자만 말하기 기능이 활성화되었습니다."), "slowModeOn");
   assert.equal(detectSystemNoticeLine("🐥삐약이/운영진님이 부방장이 되었습니다."), "subManager");
   assert.equal(detectSystemNoticeLine("샵검색: #한국 코스피"), "shopSearch");
+  assert.equal(detectSystemNoticeLine("샵검색 #계산기"), "shopSearch");
+  assert.equal(extractShopSearchTag("샵검색: #계산기"), "#계산기");
+  assert.equal(extractShopSearchTag("샵검색 미국 환율"), "#미국 환율");
   assert.equal(detectSystemNoticeLine("사진 3장"), "photoBundle");
   assert.equal(detectSystemNoticeLine("선물과 메시지를 보냈습니다."), null);
 });

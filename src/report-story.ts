@@ -63,17 +63,21 @@ function renderGitHubCalendar(data: ReportData): string {
     .map((d) => `<span>${d}</span>`)
     .join("");
 
-  const cells = s.calendarWeeks
-    .flatMap((w) => w.cells)
-    .map((c) => {
-      if (!c.date) {
-        return `<span class="gh-cal-cell gh-cal-cell--pad" data-level="0" aria-hidden="true"></span>`;
-      }
-      const label =
-        c.count > 0
-          ? `${formatCalendarDate(c.date)} · ${formatNumber(c.count)}건`
-          : `${formatCalendarDate(c.date)} · 활동 없음`;
-      return `<button type="button" class="gh-cal-cell" data-level="${c.level}" data-date="${escapeHtml(c.date)}" data-count="${c.count}" data-label="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"></button>`;
+  const weekCols = s.calendarWeeks
+    .map((w) => {
+      const cells = w.cells
+        .map((c) => {
+          if (!c.date) {
+            return `<span class="gh-cal-cell gh-cal-cell--pad" data-level="0" aria-hidden="true"></span>`;
+          }
+          const label =
+            c.count > 0
+              ? `${formatCalendarDate(c.date)} · ${formatNumber(c.count)}건`
+              : `${formatCalendarDate(c.date)} · 활동 없음`;
+          return `<button type="button" class="gh-cal-cell" data-level="${c.level}" data-date="${escapeHtml(c.date)}" data-count="${c.count}" data-label="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"></button>`;
+        })
+        .join("");
+      return `<div class="gh-cal-week-col">${cells}</div>`;
     })
     .join("");
 
@@ -91,7 +95,7 @@ function renderGitHubCalendar(data: ReportData): string {
       <div class="gh-cal-graph" style="--gh-weeks:${weekCount}" role="group" aria-label="일별 활동 히트맵">
         <div class="gh-cal-months" aria-hidden="true">${monthCells}</div>
         <div class="gh-cal-days" aria-hidden="true">${dayLabels}</div>
-        <div class="gh-cal-weeks">${cells}</div>
+        <div class="gh-cal-weeks">${weekCols}</div>
       </div>
     </div>
     <footer class="gh-cal-legend" aria-hidden="true">

@@ -1235,11 +1235,15 @@ a:hover {
     }
     .gh-cal-weeks {
       grid-area: weeks;
+      display: flex;
+      flex-direction: row;
+      gap: var(--gh-cell-gap);
+      align-items: start;
+    }
+    .gh-cal-week-col {
       display: grid;
-      grid-template-columns: repeat(var(--gh-weeks), var(--gh-cell-size));
       grid-template-rows: repeat(7, var(--gh-cell-size));
       gap: var(--gh-cell-gap);
-      grid-auto-flow: column;
     }
     .gh-cal-cell {
       width: var(--gh-cell-size);
@@ -1274,9 +1278,13 @@ a:hover {
     .gh-cal-cell[data-level="3"] { background: var(--gh-cell-3); }
     .gh-cal-cell[data-level="4"] { background: var(--gh-cell-4); }
     .gh-cal-cell[data-level="0"] { background: var(--gh-cell-0); }
+    .gh-cal-cell[data-level="0"][data-date] {
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent);
+    }
     .gh-cal-cell--pad {
       pointer-events: none;
       border: none;
+      opacity: 0.35;
     }
     .gh-cal-legend {
       display: flex;

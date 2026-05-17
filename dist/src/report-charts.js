@@ -202,6 +202,12 @@ export const CHARTS_INIT_SCRIPT = `
       }
 
       var charts = [];
+      function disposeCharts() {
+        charts.forEach(function (c) {
+          try { c.dispose(); } catch (e) {}
+        });
+        charts.length = 0;
+      }
       function resizeAll() {
         charts.forEach(function (c) {
           try { c.resize(); } catch (e) {}
@@ -248,6 +254,17 @@ export const CHARTS_INIT_SCRIPT = `
       }
       var themeObs = new MutationObserver(function () { setTimeout(resizeAll, 60); });
       themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+      var mqOsTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+      function onOsThemeChange() {
+        if (document.documentElement.getAttribute("data-theme")) return;
+        disposeCharts();
+        run();
+      }
+      if (mqOsTheme && mqOsTheme.addEventListener) {
+        mqOsTheme.addEventListener("change", onOsThemeChange);
+      } else if (mqOsTheme && mqOsTheme.addListener) {
+        mqOsTheme.addListener(onOsThemeChange);
+      }
 
       function hourBarColor(h) {
         if (h <= 5) return dark ? "#6366f1" : "#4f46e5";
@@ -455,21 +472,30 @@ export const CHARTS_INIT_SCRIPT = `
 
       if (data.interaction && data.interaction.aliases.length && document.getElementById("chart-dyad")) {
         var ix = data.interaction;
+        var dyEl = document.getElementById("chart-dyad");
+        var dg = layout(dyEl);
+        var dyLabelFs = dg.w < 380 ? 7 : 8;
         var heat = [];
         var maxV = 1;
         for (var ri = 0; ri < ix.matrix.length; ri += 1) {
           for (var ci = 0; ci < ix.matrix[ri].length; ci += 1) {
             var v = ix.matrix[ri][ci];
             if (v > maxV) maxV = v;
-            if (v > 0) heat.push({ value: [ci, ri, v], label: { show: v >= maxV * 0.15, formatter: String(v), color: text, fontSize: 9 } });
+            if (v > 0) heat.push({
+              value: [ci, ri, v],
+              label: {
+                show: true,
+                formatter: String(v),
+                color: text,
+                fontSize: dyLabelFs,
+              },
+            });
           }
         }
-        var dyEl = document.getElementById("chart-dyad");
-        var dg = layout(dyEl);
         var splitFill = dark ? ["rgba(255,255,255,0.03)", "rgba(255,255,255,0.06)"] : ["rgba(0,0,0,0.02)", "rgba(0,0,0,0.05)"];
         init("chart-dyad", Object.assign(baseOpt(), {
           tooltip: { position: "top", formatter: function (p) { var v = p.value[2]; return ix.aliases[p.value[1]] + " → " + ix.aliases[p.value[0]] + ": " + v; } },
-          grid: { left: Math.max(dg.leftCat, 72), right: dg.right, top: dg.top, bottom: 56 },
+          grid: { left: Math.max(dg.leftCat, 80), right: dg.right, top: dg.top, bottom: 56 },
           xAxis: {
             type: "category",
             data: ix.aliases,
@@ -494,6 +520,7 @@ export const CHARTS_INIT_SCRIPT = `
           series: [{
             type: "heatmap",
             data: heat,
+            label: { show: true, hideOverlap: false },
             itemStyle: { borderWidth: 0 },
             emphasis: { itemStyle: { shadowBlur: 12, shadowColor: dark ? "rgba(62,232,197,0.5)" : "rgba(15,107,92,0.35)" } },
           }],
