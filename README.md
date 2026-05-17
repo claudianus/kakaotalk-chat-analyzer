@@ -12,9 +12,23 @@
 
 [**랜딩 (GitHub Pages)**](https://claudianus.github.io/kakaotalk-chat-analyzer/) · [**소스 코드**](https://github.com/claudianus/kakaotalk-chat-analyzer) · [**이슈**](https://github.com/claudianus/kakaotalk-chat-analyzer/issues)
 
-<br>
+카카오톡 **CSV 보내기** → 터미널 **한 줄** → 브라우저에서 읽는 Wrapped·차트 리포트 링크.
 
-<img src="https://readme-typing-svg.demolab.com?font=DM+Sans&weight=700&size=22&pause=1200&color=3EE8C5&center=true&vCenter=true&width=780&lines=Streaming+analytics+for+months+of+KakaoTalk+CSV;ECharts+charts+%2B+120+keywords+%2B+one-line+share" alt="tagline animation" />
+```bash
+npx kcachat@latest "./KakaoTalk_Chat_....csv"
+```
+
+[Node.js 22+](https://nodejs.org/) · 경로는 저장한 CSV로 바꿉니다 · PC에만 저장하려면 [빠른 시작](#빠른-시작)의 `--local`
+
+<table>
+  <tr>
+    <td align="center" width="33%"><strong>Wrapped</strong><br><img src="docs/assets/demo/wrapped.png" alt="Wrapped 요약과 활동 그리드" width="100%" /></td>
+    <td align="center" width="33%"><strong>차트</strong><br><img src="docs/assets/demo/charts.png" alt="워드클라우드와 시간대 차트" width="100%" /></td>
+    <td align="center" width="33%"><strong>키워드</strong><br><img src="docs/assets/demo/keywords.png" alt="키워드 순위 표" width="100%" /></td>
+  </tr>
+</table>
+
+<p><sub>미리보기는 테스트 fixture 리포트 캡처입니다. UI 변경 후 <code>npm run docs:capture-demo</code>로 갱신.</sub></p>
 
 </div>
 
@@ -116,6 +130,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.13.6** | 활동 그리드 일별 셀·dyad 전체 숫자·주제맵 품질·키워드 요약 펼침·샵검색 집계·시스템 테마 |
 | **0.13.5** | 키워드 **순위 목록** 통합(ECharts 막대+표 → 인라인 막대 표) · ② 요약 상위 12·접기 기본 |
 | **0.13.4** | Worker 분석 시 provenance **`kiwiAvailable`** 정확 표시 (`kiwiAvailableAtAnalysis`) |
 | **0.13.3** | HTML **provenance**: `kca` 버전·`#kca-provenance` JSON·**리포트 정보** `<details>`·`kcachat` → `KCA_INVOKER` |
@@ -272,7 +287,7 @@ npm run build   # sync-version → CSS 번들 → tsc
 npm test
 ```
 
-유용한 스크립트: `npm run report:qa` · `report:qa:serve` · `report:screenshots` · `keyword:audit` · `bench:stream` · Pages pill 동기화 `node scripts/sync-docs-version.mjs`
+유용한 스크립트: `npm run report:qa` · `report:qa:serve` · `report:screenshots` · `docs:capture-demo` · `keyword:audit` · `bench:stream` · Pages pill `node scripts/sync-docs-version.mjs`
 
 ---
 
@@ -286,7 +301,7 @@ npm test
 - **키워드 비교**: `npm run keyword:diff -- ./KakaoTalk_Chat_....csv 30`
 - LGPL 고지: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
-랜딩 페이지([`docs/index.html`](docs/index.html))는 **v0.13.x** 리포트(혁신 레이어·OLED·provenance)·**복사 가능한 `npx` 예시**를 담은 단일 HTML이며, **GitHub Actions**가 `main`에 `docs/` 변경을 푸시할 때마다 배포합니다. pill 버전은 `node scripts/sync-docs-version.mjs`로 `package.json`과 맞출 수 있습니다.
+랜딩([`docs/index.html`](docs/index.html))은 **업로드 한 줄 명령**·**리포트 데모 스크린샷**·짧은 팁만 담은 단일 HTML입니다. 상세 옵션은 이 README를 봅니다. `main`에 `docs/` 변경을 푸시하면 **GitHub Actions**가 Pages를 배포합니다.
 
 - **공개 URL:** [https://claudianus.github.io/kakaotalk-chat-analyzer/](https://claudianus.github.io/kakaotalk-chat-analyzer/)
 - **워크플로:** [`.github/workflows/pages.yml`](.github/workflows/pages.yml)
