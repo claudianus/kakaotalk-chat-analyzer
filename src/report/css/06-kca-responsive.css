@@ -55,6 +55,9 @@ main {
 #s-topics,
 #s-viz,
 #s-charts,
+#s-bench,
+#s-compare,
+#s-explorer,
 #s-help {
   scroll-margin-top: var(--kca-topbar-offset);
 }
@@ -358,8 +361,9 @@ main {
     justify-content: center;
   }
 
-  .gh-cal-cell {
-    min-width: 44px;
-    min-height: 44px;
+  /* 연간(가로 스크롤) 그리드만 터치 타깃 확대 — compact는 100% 셀에 맡김 */
+  .gh-contrib:not(.gh-contrib--compact) .gh-cal-cell[data-date] {
+    min-width: 28px;
+    min-height: 28px;
   }
 }

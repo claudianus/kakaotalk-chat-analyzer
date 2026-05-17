@@ -30,11 +30,11 @@ describe("semantic-policy", () => {
   });
 
   it("semanticSampleCap scales with corpus size not drained sample count", () => {
-    assert.equal(semanticSampleCap(93_042), 720);
+    assert.equal(semanticSampleCap(93_042), 640);
     assert.equal(semanticSampleCap(720), 480);
     assert.equal(semanticSampleCap(100), 480);
-    assert.equal(semanticReservoirCap(undefined), 720);
-    assert.equal(semanticReservoirCap(93_042), 720);
+    assert.equal(semanticReservoirCap(undefined), 640);
+    assert.equal(semanticReservoirCap(93_042), 640);
     assert.equal(semanticReservoirCap(5_000), 480);
   });
 

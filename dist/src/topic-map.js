@@ -4,6 +4,8 @@ import { isNoiseKeyword } from "./keyword-quality.js";
 import { filterMeaningfulTopicTerms } from "./topic-stopwords.js";
 const MIN_THEME_MESSAGE_PERCENT = 1.5;
 const MAX_THEME_DISCOURSE_RATIO = 0.5;
+const LARGE_CORPUS_MESSAGES = 50_000;
+const MIN_EDGE_PMI = 0.35;
 const MAX_GRAPH_NODES = 140;
 const MAX_TOPICS = 8;
 const MIN_MONTH_MESSAGES = 40;
@@ -73,9 +75,20 @@ export class TopicMapAccumulator {
         const neighbors = new Map();
         for (const term of nodes)
             neighbors.set(term, new Map());
+        const minEdgeWeight = totalMessages >= LARGE_CORPUS_MESSAGES ? 4 : 2;
         for (const [key, weight] of this.cooc) {
             const [a, b] = key.split("\t");
             if (!a || !b || !nodeSet.has(a) || !nodeSet.has(b))
+                continue;
+            if (weight < minEdgeWeight)
+                continue;
+            const dfA = this.tokenDocFreq.get(a) ?? 0;
+            const dfB = this.tokenDocFreq.get(b) ?? 0;
+            if (dfA < 2 || dfB < 2)
+                continue;
+            const pmi = Math.log((weight * Math.max(this.messages, 1)) / (dfA * dfB));
+            const minPmi = totalMessages >= LARGE_CORPUS_MESSAGES ? MIN_EDGE_PMI : 0;
+            if (pmi < minPmi)
                 continue;
             neighbors.get(a).set(b, weight);
             neighbors.get(b).set(a, weight);
@@ -93,7 +106,7 @@ export class TopicMapAccumulator {
                 community.push(cur);
                 const adj = [...(neighbors.get(cur)?.entries() ?? [])].sort((a, b) => b[1] - a[1]);
                 for (const [next, w] of adj.slice(0, 12)) {
-                    if (assigned.has(next) || w < 2)
+                    if (assigned.has(next) || w < minEdgeWeight)
                         continue;
                     assigned.add(next);
                     queue.push(next);
@@ -129,7 +142,7 @@ export class TopicMapAccumulator {
                 msgHits += this.tokenDocFreq.get(t) ?? 0;
             const cappedHits = Math.min(msgHits, this.messages, totalMessages);
             const messagePercent = Math.round(Math.min(100, (cappedHits / Math.max(totalMessages, 1)) * 100) * 10) / 10;
-            if (messagePercent < MIN_THEME_MESSAGE_PERCENT && terms.length < 4)
+            if (messagePercent < MIN_THEME_MESSAGE_PERCENT)
                 continue;
             const lead = pickThemeLead(terms);
             const sub = terms.find((t) => t !== lead && !isDiscourseTerm(t));
@@ -190,6 +203,13 @@ function refineTopics(topics) {
         const terms = t.terms.filter((term) => !usedTerms.has(term));
         if (terms.length < 2)
             continue;
+        if (t.kind === "theme") {
+            if (t.messagePercent < MIN_THEME_MESSAGE_PERCENT)
+                continue;
+            const lead = pickThemeLead(terms);
+            if (isDiscourseTerm(lead) && discourseRatio(terms) >= 0.75)
+                continue;
+        }
         const overlap = jaccard(terms, [...usedTerms]);
         if (overlap > 0.55 && t.kind === "theme")
             continue;

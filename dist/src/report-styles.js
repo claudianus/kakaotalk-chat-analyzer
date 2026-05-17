@@ -1197,6 +1197,8 @@ a:hover {
       row-gap: 4px;
       width: max-content;
       min-width: min(100%, max-content);
+      justify-items: start;
+      align-items: start;
     }
     .gh-cal-days {
       grid-area: days;
@@ -1235,10 +1237,11 @@ a:hover {
     }
     .gh-cal-weeks {
       grid-area: weeks;
-      display: flex;
-      flex-direction: row;
+      display: grid;
+      grid-template-columns: repeat(var(--gh-weeks), var(--gh-cell-size));
       gap: var(--gh-cell-gap);
       align-items: start;
+      width: max-content;
     }
     .gh-cal-week-col {
       display: grid;
@@ -1311,12 +1314,32 @@ a:hover {
       font-style: normal;
       background: var(--gh-cell-0);
     }
+    /* 짧은 기간(≤14주): GitHub처럼 고정 셀 — 카드 전체를 채우지 않음 */
+    .gh-contrib--compact {
+      --gh-cell-size: clamp(11px, 1.6vw, 14px);
+    }
     .gh-contrib--compact .gh-cal-scroll {
+      width: 100%;
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
     }
     .gh-contrib--compact .gh-cal-graph {
-      --gh-cell-size: clamp(14px, calc((min(100%, 420px) - (var(--gh-weeks) - 1) * var(--gh-cell-gap)) / var(--gh-weeks)), 20px);
+      width: max-content;
+      max-width: 100%;
+    }
+    .gh-contrib--compact .gh-cal-weeks {
+      width: max-content;
+      grid-template-columns: repeat(var(--gh-weeks), var(--gh-cell-size));
+    }
+    .gh-contrib--compact .gh-cal-months {
+      grid-template-columns: repeat(var(--gh-weeks), var(--gh-cell-size));
+    }
+    .gh-contrib--compact .gh-cal-week-col {
+      grid-template-rows: repeat(7, var(--gh-cell-size));
+    }
+    .gh-contrib--compact .gh-cal-cell {
+      width: var(--gh-cell-size);
+      height: var(--gh-cell-size);
     }
     .gh-cal-legend-scale i[data-level="1"] { background: var(--gh-cell-1); }
     .gh-cal-legend-scale i[data-level="2"] { background: var(--gh-cell-2); }
@@ -1758,6 +1781,9 @@ main {
 #s-topics,
 #s-viz,
 #s-charts,
+#s-bench,
+#s-compare,
+#s-explorer,
 #s-help {
   scroll-margin-top: var(--kca-topbar-offset);
 }
@@ -2061,9 +2087,10 @@ main {
     justify-content: center;
   }
 
-  .gh-cal-cell {
-    min-width: 44px;
-    min-height: 44px;
+  /* 연간(가로 스크롤) 그리드만 터치 타깃 확대 — compact는 100% 셀에 맡김 */
+  .gh-contrib:not(.gh-contrib--compact) .gh-cal-cell[data-date] {
+    min-width: 28px;
+    min-height: 28px;
   }
 }
 
@@ -2535,6 +2562,24 @@ body.kca-oled .theme-btn.kca-ripple {
 .kw-shift p { margin: 0; color: var(--muted); line-height: 1.5; }
 @media (max-width: 640px) { .kw-shift { grid-template-columns: 1fr; } }
 
+.bench-card {
+  border-style: dashed;
+  border-color: color-mix(in oklab, var(--muted) 40%, var(--line));
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+}
+.bench-estimate-tag {
+  font-size: 0.62em;
+  font-weight: 750;
+  color: var(--muted);
+  vertical-align: middle;
+}
+.bench-disclaimer {
+  font-size: 12px;
+  color: var(--muted);
+  border-left: 3px solid color-mix(in oklab, var(--muted) 50%, var(--line));
+  padding-left: 10px;
+  margin-bottom: 12px;
+}
 .bench-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .bench-table th, .bench-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; }
 .bench-band {

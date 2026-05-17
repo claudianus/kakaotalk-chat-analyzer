@@ -5,6 +5,14 @@ import { describe, it } from "node:test";
 import { buildReportFromExportSync } from "../src/analysis.js";
 
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures", "keyword-golden.csv");
+const VIBE_FIXTURE = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+  "test",
+  "fixtures",
+  "vibecoding-room-sample.csv",
+);
 
 describe("keyword audit golden", () => {
   it("surfaces claude and codex in top keywords for AI-tool chat fixture", async () => {
@@ -19,5 +27,19 @@ describe("keyword audit golden", () => {
     assert.ok(hasClaude, `expected 클로드 in top30, got: ${[...labels].slice(0, 12).join(", ")}`);
     assert.ok(hasCodex, `expected 코덱스 in top30, got: ${[...labels].slice(0, 12).join(", ")}`);
     assert.ok(report.topics.length >= 1, "expected at least one topic");
+  });
+
+  it("vibecoding sample keeps domain terms and drops discourse from top20", async () => {
+    const report = await buildReportFromExportSync(VIBE_FIXTURE, {
+      progress: false,
+      worker: false,
+      semanticKeywords: false,
+    });
+    const top20 = report.keywords.slice(0, 20).map((k) => k.label);
+    assert.ok(
+      top20.some((l) => l.includes("클로드") || l.includes("코덱스") || l.includes("playwright")),
+    );
+    assert.equal(top20.includes("감사합니다"), false);
+    assert.equal(top20.includes("있어요"), false);
   });
 });

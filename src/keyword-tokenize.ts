@@ -81,8 +81,6 @@ export function tokenizeForKeywords(raw: string): string[] {
   if (!kiwi || !shouldRunKiwiMorph(doc)) return heur;
 
   const slice = doc.length > KIWI_MORPH_MAX_CHARS ? doc.slice(0, KIWI_MORPH_MAX_CHARS) : doc;
-  const tailSlice = doc.length > KIWI_MORPH_MAX_CHARS ? doc.slice(KIWI_MORPH_MAX_CHARS) : "";
   const fromKiwi = kiwiKeywordTokens(slice);
-  const fromTail = tailSlice ? spaceTokens(tailSlice) : [];
-  return mergeTokens(fromKiwi, heur, fromTail);
+  return mergeTokens(fromKiwi, heur);
 }

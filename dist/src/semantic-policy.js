@@ -1,7 +1,7 @@
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 const MIN_SEMANTIC_MESSAGES = 48;
 const DEFAULT_SEMANTIC_SAMPLE_CAP = 480;
-const LARGE_CORPUS_SEMANTIC_CAP = 720;
+const LARGE_CORPUS_SEMANTIC_CAP = 640;
 const LARGE_CORPUS_MESSAGES = 50_000;
 export function semanticSampleCap(messageCount) {
     return messageCount >= LARGE_CORPUS_MESSAGES ? LARGE_CORPUS_SEMANTIC_CAP : DEFAULT_SEMANTIC_SAMPLE_CAP;
