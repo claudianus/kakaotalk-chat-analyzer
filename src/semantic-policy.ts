@@ -52,10 +52,13 @@ export const LEGACY_SEMANTIC_MODEL = "Xenova/paraphrase-multilingual-MiniLM-L12-
 
 const E5_QUERY_PREFIX = "query: ";
 
-export function semanticEmbeddingModelId(options?: BuildReportOptions): string {
+export function semanticEmbeddingModelId(
+  options?: BuildReportOptions,
+  messageCount?: number,
+): string {
   const env = process.env.KCA_SEMANTIC_MODEL?.trim();
   if (env) return env;
-  const preset = getPresetEffectiveFlags(options).preset;
+  const preset = getPresetEffectiveFlags(options, messageCount).preset;
   if (preset === "quality") return QUALITY_KOREAN_SEMANTIC_MODEL;
   return DEFAULT_KOREAN_SEMANTIC_MODEL;
 }
@@ -105,7 +108,7 @@ export function effectiveSemanticSampleCap(
   messageCount: number,
   options?: BuildReportOptions,
 ): number {
-  const cap = getPresetEffectiveFlags(options).semanticCap;
+  const cap = getPresetEffectiveFlags(options, messageCount).semanticCap;
   const base = semanticSampleCap(messageCount);
   if (cap === undefined) return base;
   return Math.min(base, cap);

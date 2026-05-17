@@ -28,8 +28,8 @@ async function loadPipelineForModel(modelId) {
         quantized: true,
     });
 }
-async function loadPipeline(buildOptions) {
-    const modelId = semanticEmbeddingModelId(buildOptions);
+async function loadPipeline(buildOptions, messageCount) {
+    const modelId = semanticEmbeddingModelId(buildOptions, messageCount);
     if (pipelinePromise && loadedModelId === modelId)
         return pipelinePromise;
     pipelinePromise = null;
@@ -87,7 +87,7 @@ export async function extractSemanticKeywords(messages, options) {
     if (samples.length < MIN_SAMPLES)
         return [];
     const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
-    const pipe = await loadPipeline(options.buildOptions);
+    const pipe = await loadPipeline(options.buildOptions, options.corpusMessages ?? samples.length);
     const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap, options.buildOptions);
     if (vectors.length < MIN_SAMPLES)
         return [];

@@ -44,11 +44,11 @@ export const QUALITY_KOREAN_SEMANTIC_MODEL = "dragonkue/multilingual-e5-small-ko
 /** 이전 기본값(롤백: `KCA_SEMANTIC_MODEL` 로 지정) */
 export const LEGACY_SEMANTIC_MODEL = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
 const E5_QUERY_PREFIX = "query: ";
-export function semanticEmbeddingModelId(options) {
+export function semanticEmbeddingModelId(options, messageCount) {
     const env = process.env.KCA_SEMANTIC_MODEL?.trim();
     if (env)
         return env;
-    const preset = getPresetEffectiveFlags(options).preset;
+    const preset = getPresetEffectiveFlags(options, messageCount).preset;
     if (preset === "quality")
         return QUALITY_KOREAN_SEMANTIC_MODEL;
     return DEFAULT_KOREAN_SEMANTIC_MODEL;
@@ -98,7 +98,7 @@ export function resolveSemanticKeywords(options, prepass, sampleMessages) {
 }
 /** preset·환경에 따른 임베딩 상한 (balanced 600 / quality 1200) */
 export function effectiveSemanticSampleCap(messageCount, options) {
-    const cap = getPresetEffectiveFlags(options).semanticCap;
+    const cap = getPresetEffectiveFlags(options, messageCount).semanticCap;
     const base = semanticSampleCap(messageCount);
     if (cap === undefined)
         return base;

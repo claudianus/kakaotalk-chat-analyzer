@@ -43,9 +43,11 @@ export async function configureTransformersEnv(mod) {
         env.backends.onnx.wasm = env.backends.onnx.wasm ?? {};
         env.backends.onnx.wasm.proxy = false;
     }
-    if (process.env.KCA_TRANSFORMERS_DEVICE?.trim()) {
+    const forcedDevice = process.env.KCA_TRANSFORMERS_DEVICE?.trim().toLowerCase();
+    if (forcedDevice === "webgpu") {
         env.backends.onnx = env.backends.onnx ?? {};
         env.backends.onnx.wasm = env.backends.onnx.wasm ?? {};
+        env.backends.onnx.wasm.proxy = false;
     }
     return gpu;
 }

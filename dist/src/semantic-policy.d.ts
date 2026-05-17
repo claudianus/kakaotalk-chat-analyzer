@@ -12,7 +12,7 @@ export declare const DEFAULT_KOREAN_SEMANTIC_MODEL = "Xenova/multilingual-e5-sma
 export declare const QUALITY_KOREAN_SEMANTIC_MODEL = "dragonkue/multilingual-e5-small-ko-v2";
 /** 이전 기본값(롤백: `KCA_SEMANTIC_MODEL` 로 지정) */
 export declare const LEGACY_SEMANTIC_MODEL = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
-export declare function semanticEmbeddingModelId(options?: BuildReportOptions): string;
+export declare function semanticEmbeddingModelId(options?: BuildReportOptions, messageCount?: number): string;
 /** E5 계열은 대칭 클러스터링에도 MS 권장 `query:` 접두사 사용 */
 export declare function needsE5QueryPrefix(modelId: string): boolean;
 export declare function formatTextForEmbedding(text: string, modelId?: string): string;

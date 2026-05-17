@@ -46,8 +46,11 @@ async function loadPipelineForModel(modelId: string): Promise<FeaturePipeline> {
   }) as Promise<FeaturePipeline>;
 }
 
-async function loadPipeline(buildOptions?: BuildReportOptions): Promise<FeaturePipeline> {
-  const modelId = semanticEmbeddingModelId(buildOptions);
+async function loadPipeline(
+  buildOptions?: BuildReportOptions,
+  messageCount?: number,
+): Promise<FeaturePipeline> {
+  const modelId = semanticEmbeddingModelId(buildOptions, messageCount);
   if (pipelinePromise && loadedModelId === modelId) return pipelinePromise;
   pipelinePromise = null;
   loadedModelId = modelId;
@@ -124,7 +127,7 @@ export async function extractSemanticKeywords(
   if (samples.length < MIN_SAMPLES) return [];
 
   const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
-  const pipe = await loadPipeline(options.buildOptions);
+  const pipe = await loadPipeline(options.buildOptions, options.corpusMessages ?? samples.length);
   const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap, options.buildOptions);
   if (vectors.length < MIN_SAMPLES) return [];
 
