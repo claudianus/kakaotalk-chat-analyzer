@@ -10,8 +10,9 @@ import {
 } from "../src/sentiment-policy.js";
 
 describe("sentiment-policy", () => {
-  it("picks KLUE model for quality preset via message count", () => {
-    assert.equal(sentimentModelId(undefined, 95_000, {}), "Xenova/klue-roberta-small-sentiment");
+  it("picks KLUE model for quality preset", () => {
+    assert.equal(sentimentModelId("quality"), "Xenova/klue-roberta-small-sentiment");
+    assert.equal(sentimentModelId(undefined, 95_000, { preset: "quality" }), "Xenova/klue-roberta-small-sentiment");
   });
 
   it("defaults to distilbert multilingual sentiment model", () => {
