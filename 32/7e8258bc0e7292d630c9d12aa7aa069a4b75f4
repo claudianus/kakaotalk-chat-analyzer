@@ -1,0 +1,119 @@
+dist/src/analysis-effective-config.d.ts
+  s_23ea5bc305de1c::t_f716d99be73241 40
+dist/src/analysis-capability.js.map
+  ai_agent 1
+dist/src/llm-policy.d.ts
+  s_23ea5bc305de1c::t_f716d99be73241 1
+kcachat/package.json
+  s_23ea5bc305de1c::t_1c73baea300bbd 3
+  s_23ea5bc305de1c::t_fef3b5d8358abc 15
+test/analysis-budget.test.ts
+  s_23ea5bc305de1c::t_c97eb9e1644d7a 10,25
+dist/src/analysis-preset.d.ts
+  s_23ea5bc305de1c::t_f716d99be73241 13
+dist/src/llm-policy.js
+  s_23ea5bc305de1c::t_f716d99be73241 1,26-27,33,37
+dist/src/memory-probe.d.ts
+  s_23ea5bc305de1c::t_f716d99be73241 1-18
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/analysis-preset.js
+  s_23ea5bc305de1c::t_f716d99be73241 1,18,20-23,25-33
+src/analysis-effective-config.ts
+  s_23ea5bc305de1c::t_0ced47d794e139 318-322
+  s_23ea5bc305de1c::t_d526272c4ceecc 94
+  s_23ea5bc305de1c::t_7eb1e2a98e04ab 335
+  s_23ea5bc305de1c::t_a9a69fbc6df1db 198-199
+  s_23ea5bc305de1c::t_4cc157331d8d5f 4,8
+  s_23ea5bc305de1c::t_f3f669fc0f93ca 63
+  s_23ea5bc305de1c::t_f4476820907a6e 220
+  s_23ea5bc305de1c::t_2ef8237b932021 265
+dist/src/analysis-capability.js
+  s_23ea5bc305de1c::t_f716d99be73241 1-2,4-6,9-10,14,36-37,43
+dist/src/memory-probe.js.map
+  ai_agent 1
+dist/src/analysis-capability.d.ts
+  s_23ea5bc305de1c::t_f716d99be73241 4,6-7,13
+dist/src/analysis-profile.js.map
+  ai_agent 1
+src/memory-probe.ts
+  s_23ea5bc305de1c::t_5a506fac49e0f1 1-125
+src/llm-policy.ts
+  s_23ea5bc305de1c::t_91302fc61f1fc0 1
+  s_23ea5bc305de1c::t_f524e0afd27acf 29-30,37,40
+dist/src/analysis-effective-config.js
+  s_23ea5bc305de1c::t_f716d99be73241 1-2,28,132-134,150,194,234-237,249
+package.json
+  s_23ea5bc305de1c::t_e6df0cb2b16c25 3
+test/analysis-preset.test.ts
+  s_23ea5bc305de1c::t_26a5ddc2fec128 14,24,31-41,54-56
+test/analysis-effective-config.test.ts
+  s_23ea5bc305de1c::t_13b41666bbfea4 15
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_f716d99be73241 1-2
+dist/src/analysis-profile.d.ts
+  s_23ea5bc305de1c::t_f716d99be73241 9-10
+src/version.ts
+  s_23ea5bc305de1c::t_f716d99be73241 1
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_f716d99be73241 28-29,63,138,170,362,435
+src/ml-batch-size.ts
+  s_23ea5bc305de1c::t_268d57ab8f61d2 1
+  s_23ea5bc305de1c::t_25b0f3b1a9330d 42,44
+  s_23ea5bc305de1c::t_292ba0517176f4 17-18,29-30
+src/analysis-capability.ts
+  s_23ea5bc305de1c::t_47dd6ca6f81c45 2-6,13,15-16,23-26,29-30,34,68-69,80
+dist/src/analysis-preset.js.map
+  ai_agent 1
+dist/src/kiwi-worker-config.js.map
+  ai_agent 1
+dist/src/ml-batch-size.js.map
+  ai_agent 1
+dist/src/version.js
+  s_23ea5bc305de1c::t_f716d99be73241 1
+dist/src/analysis-profile.js
+  s_23ea5bc305de1c::t_f716d99be73241 2-3,10-11
+test/memory-probe.test.ts
+  s_23ea5bc305de1c::t_9a3cc25228a66f 1-27,29-44
+src/analysis-preset.ts
+  s_23ea5bc305de1c::t_86cd6f78c7ff5b 2-6
+  s_23ea5bc305de1c::t_aca14d4fbecdba 33,38-39,41-53
+dist/src/llm-policy.js.map
+  ai_agent 1
+src/analysis.ts
+  s_23ea5bc305de1c::t_3d40caaa945384 447-455
+  s_23ea5bc305de1c::t_b9d8e3a76fe90f 87
+  s_23ea5bc305de1c::t_aaa6387e2ca66e 214-222
+  s_23ea5bc305de1c::t_5818e8d037e7ae 40-45
+  s_23ea5bc305de1c::t_ef3b6336e63643 174
+  s_23ea5bc305de1c::t_545c65089f740a 527-535
+src/analysis-profile.ts
+  s_23ea5bc305de1c::t_f16b39c82c7382 13-17,23-27
+dist/src/ml-batch-size.js
+  s_23ea5bc305de1c::t_f716d99be73241 1,16-17,28-29,41,43
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+src/kiwi-worker-config.ts
+  s_23ea5bc305de1c::t_90d528bcf04f32 15-16,19
+  s_23ea5bc305de1c::t_292715cad7e215 2
+dist/src/kiwi-worker-config.js
+  s_23ea5bc305de1c::t_f716d99be73241 2,14-15,18
+dist/src/memory-probe.js
+  s_23ea5bc305de1c::t_f716d99be73241 1-115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "327e8258bc0e7292d630c9d12aa7aa069a4b75f4",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
