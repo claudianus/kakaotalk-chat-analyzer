@@ -1,0 +1,39 @@
+dist/src/ml-runtime.js.map
+  ai_agent 1
+dist/src/semantic-policy.js.map
+  ai_agent 1
+dist/src/semantic-policy.d.ts
+  s_23ea5bc305de1c::t_2bc6c8f97cd194 15
+dist/src/ml-runtime.js
+  s_23ea5bc305de1c::t_2bc6c8f97cd194 46-47,50
+dist/src/semantic-keywords.js
+  ai_agent 31-32,90
+dist/src/semantic-policy.js
+  s_23ea5bc305de1c::t_2bc6c8f97cd194 47,51,101
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+src/semantic-policy.ts
+  s_23ea5bc305de1c::t_d370f5bb36a022 55-58,61
+  s_23ea5bc305de1c::t_1d5caa3be56ec8 111
+src/ml-runtime.ts
+  s_23ea5bc305de1c::t_8fe8be0caa43b9 48-49,52
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_0f8a1cafc78d11 130
+  s_23ea5bc305de1c::t_501d00b31424b3 49-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "f32952c92b2e3f072ec923dd6365df9eef1695c0",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
