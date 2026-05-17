@@ -26,7 +26,8 @@ const phases = [
 ];
 
 console.log(`rows: ${rows.toLocaleString("ko-KR")}`);
-const prevEnv = { ...process.env };
+const prevKiwi = process.env.KCA_NO_KIWI;
+const prevSemantic = process.env.KCA_NO_SEMANTIC;
 try {
   for (const phase of phases) {
     process.env.KCA_NO_KIWI = "";
@@ -40,7 +41,9 @@ try {
     );
   }
 } finally {
-  process.env.KCA_NO_KIWI = prevEnv.KCA_NO_KIWI;
-  process.env.KCA_NO_SEMANTIC = prevEnv.KCA_NO_SEMANTIC;
+  if (prevKiwi === undefined) delete process.env.KCA_NO_KIWI;
+  else process.env.KCA_NO_KIWI = prevKiwi;
+  if (prevSemantic === undefined) delete process.env.KCA_NO_SEMANTIC;
+  else process.env.KCA_NO_SEMANTIC = prevSemantic;
   await rm(dir, { recursive: true, force: true });
 }

@@ -264,9 +264,11 @@ export class ReportAggregator {
                 for (const domain of foundDomains)
                     increment(this.domains, domain);
             }
-            if (messageLength >= 2 &&
+            if (isOpenChatBoilerplate(msg)) {
+                this.openChatBoilerplateExcluded += 1;
+            }
+            else if (messageLength >= 2 &&
                 HAS_TOKEN_CHAR_RE.test(msg) &&
-                !isOpenChatBoilerplate(msg) &&
                 shouldExtractKeywords(msg, foundAttachments)) {
                 if (!opts?.skipKeywords) {
                     const kwTokens = tokenizeForKeywords(msg);

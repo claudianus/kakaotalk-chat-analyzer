@@ -13,6 +13,7 @@ import { extractSemanticKeywords } from "./semantic-keywords.js";
 import type { StreamParseOptions } from "./stream-options.js";
 import { createMessageSpoolPath, iterateSpoolRecords, removeSpool } from "./analysis-spool.js";
 import { createWriteStream } from "node:fs";
+import { stat } from "node:fs/promises";
 import { streamKakaoExport } from "./stream-parser.js";
 import { recordOnOrAfter } from "./report-date-filter.js";
 import type { ChatRecord, EncodingName, ParseResult, PrivacyMode, ReportData } from "./types.js";
@@ -256,7 +257,16 @@ export async function buildReportFromExportSync(
 
     agg.resetKeywordPipeline();
     if (showProgress) logReportProgress({ phase: "키워드·주제", current: 0 });
+    let spoolReady = false;
     if (spoolPath) {
+      try {
+        const st = await stat(spoolPath);
+        spoolReady = st.size > 0;
+      } catch {
+        spoolReady = false;
+      }
+    }
+    if (spoolPath && spoolReady) {
       await runKeywordPassFromSpool(spoolPath, agg, since);
     } else {
       await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { createInterface } from "node:readline";
 import { unlink } from "node:fs/promises";
@@ -6,7 +7,7 @@ import { join } from "node:path";
 import type { ChatRecord } from "./types.js";
 
 export async function createMessageSpoolPath(): Promise<string> {
-  return join(tmpdir(), `kca-spool-${process.pid}-${Date.now()}.ndjson`);
+  return join(tmpdir(), `kca-spool-${process.pid}-${randomUUID()}.ndjson`);
 }
 
 export async function removeSpool(spoolPath: string | null): Promise<void> {

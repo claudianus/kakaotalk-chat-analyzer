@@ -4,6 +4,7 @@ import {
   buildReportProvenance,
   formatGeneratorLine,
   parseKcaInvokerEnv,
+  patchReportProvenance,
 } from "../src/report-provenance.js";
 import { emptyReportData } from "../src/report-empty.js";
 import { VERSION } from "../src/version.js";
@@ -48,4 +49,23 @@ test("formatGeneratorLine shows kcachat chain", () => {
     },
   });
   assert.match(line, /kcachat 0\.1\.31 → kca 0\.13\.3/);
+});
+
+test("patchReportProvenance updates timing lines in HTML", () => {
+  const html = `<p><strong>생성 소요</strong><br>1ms (집계 1ms · HTML 0ms · 저장 0ms)</p>
+<ul class="kca-provenance-list"><li>생성 소요: 1ms</li></ul>
+<footer>room · file · 경고 0건 · 생성 1ms · 본 리포트</footer>
+<script type="application/json" id="kca-provenance">{}</script>`;
+  const data = emptyReportData();
+  const provenance = buildReportProvenance(data, {
+    privacy: "public-masked",
+    top: 40,
+    workerUsed: false,
+    kiwiAvailable: false,
+    buildTiming: { parseAggregateMs: 100, renderHtmlMs: 50, writeFileMs: 10, totalMs: 160 },
+    htmlBytes: 1000,
+  });
+  const patched = patchReportProvenance(html, provenance);
+  assert.match(patched, /집계 100ms/);
+  assert.match(patched, /생성 160ms/);
 });

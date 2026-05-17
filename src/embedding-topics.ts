@@ -9,13 +9,15 @@ export function semanticItemsToTopics(
   totalMessages: number,
 ): ReportTopic[] {
   const topics: ReportTopic[] = [];
+  const semanticHits = items.reduce((sum, item) => sum + item.messageHits, 0);
+  const denom = Math.max(semanticHits, totalMessages, 1);
   for (const item of items.slice(0, MAX_EMBEDDING_THEMES)) {
     const terms = item.label
       .split(/\s+/)
       .map((t) => t.trim())
       .filter((t) => t.length >= 2);
     if (terms.length < 1) continue;
-    const pct = Math.round(Math.min(100, (item.messageHits / Math.max(totalMessages, 1)) * 100) * 10) / 10;
+    const pct = Math.round(Math.min(100, (item.messageHits / denom) * 100) * 10) / 10;
     if (pct < 1) continue;
     topics.push({
       id: `embed-${topics.length}`,
