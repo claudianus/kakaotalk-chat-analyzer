@@ -1,0 +1,31 @@
+src/report/css/03-kca-story.css
+  s_23ea5bc305de1c::t_d6d14afa05c189 332,334,337-366
+  s_23ea5bc305de1c::t_20afc889555a9d 212
+  s_23ea5bc305de1c::t_175653b8239313 255-256,259
+src/report-styles.ts
+  s_23ea5bc305de1c::t_3368cf68127cee 1195,1238-1239,1242,1315,1317,1320-1349,2097-2100
+dist/src/report-styles.js
+  s_23ea5bc305de1c::t_3368cf68127cee 1195,1238-1239,1242,1315,1317,1320-1349,2097-2100
+src/report/css/06-kca-responsive.css
+  s_23ea5bc305de1c::t_359911cec502b9 364-367
+dist/src/report-styles.d.ts
+  s_23ea5bc305de1c::t_3368cf68127cee 2
+dist/src/report-styles.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "7cfee7819d7f9b1cb452c307daea78579d49e06a",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
