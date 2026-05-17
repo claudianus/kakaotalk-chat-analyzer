@@ -1,0 +1,22 @@
+scripts/qa-serve.mjs
+  s_23ea5bc305de1c::t_2102a17d397a25 17-30
+  s_23ea5bc305de1c::t_90899e461942f4 67
+  s_23ea5bc305de1c::t_09f7ba1d9d88d1 6
+  s_23ea5bc305de1c::t_553165aec51213 98-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "946de8f57f0290a37a2326954dbbd52254c1ed13",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
