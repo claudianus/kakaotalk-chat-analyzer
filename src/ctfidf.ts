@@ -3,7 +3,9 @@
 export function classTfidfTopTerms(
   classTermFreq: Map<string, Map<string, number>>,
   topPerClass: number,
+  options?: { minDocFreq?: number },
 ): Map<string, Array<{ term: string; score: number }>> {
+  const minDocFreq = options?.minDocFreq ?? 1;
   const classSizes = new Map<string, number>();
   let totalTerms = 0;
   let classCount = 0;
@@ -36,8 +38,9 @@ export function classTfidfTopTerms(
 
     const scored: Array<{ term: string; score: number }> = [];
     for (const [term, tf] of terms) {
-      const tfNorm = tf / classSum;
       const df = docFreq.get(term) ?? 1;
+      if (df < minDocFreq) continue;
+      const tfNorm = tf / classSum;
       const idf = Math.log(1 + avgTermsPerClass / df);
       scored.push({ term, score: tfNorm * idf });
     }

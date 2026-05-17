@@ -5,7 +5,16 @@ export function computeBurstDays(daily: DailyCount[]): DailyCount[] {
   const counts = daily.map((d) => d.count).sort((a, b) => a - b);
   const median = medianSorted(counts);
   const p90 = counts[Math.min(counts.length - 1, Math.floor(counts.length * 0.9))] ?? median;
-  const threshold = Math.max(Math.ceil(median * 1.35), Math.ceil(p90 * 0.92), median + Math.max(3, Math.floor(median * 0.15)));
+  const activeDays = daily.length;
+  const spanScale = Math.min(1, Math.max(0.35, activeDays / 120));
+  const medianMult = 1.12 + 0.28 * spanScale;
+  const p90Mult = 0.86 + 0.1 * spanScale;
+  const floorBump = Math.max(2, Math.floor(median * (0.1 + 0.08 * spanScale)));
+  const threshold = Math.max(
+    Math.ceil(median * medianMult),
+    Math.ceil(p90 * p90Mult),
+    median + floorBump,
+  );
   return daily
     .filter((d) => d.count >= threshold)
     .sort((a, b) => b.count - a.count)

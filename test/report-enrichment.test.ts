@@ -52,6 +52,21 @@ test("computeBurstDays finds high-volume days in skewed chat", () => {
   assert.equal(burst[0]!.date, "2026-04-04");
 });
 
+test("computeBurstDays scales threshold for short active spans", () => {
+  const daily = Array.from({ length: 35 }, (_, i) => ({
+    date: `2026-05-${String(i + 1).padStart(2, "0")}`,
+    count: i === 20 ? 200 : 40 + (i % 5),
+  }));
+  const burst = computeBurstDays(daily);
+  assert.ok(burst.some((d) => d.date === "2026-05-21"));
+  const longSpanDaily = Array.from({ length: 200 }, (_, i) => ({
+    date: `2025-01-${String((i % 28) + 1).padStart(2, "0")}`,
+    count: i === 100 ? 200 : 30,
+  }));
+  const burstLong = computeBurstDays(longSpanDaily);
+  assert.ok(burstLong.length >= 1);
+});
+
 test("computeConversationPace labels realtime debate rooms", () => {
   const pace = computeConversationPace(
     baseInsights({ burstGapUnder1mPercent: 90, speakerSwitchRatePer100: 78 }),

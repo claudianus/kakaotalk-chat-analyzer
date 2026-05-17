@@ -53,6 +53,7 @@ export const DISCOURSE_LEXICON = new Set([
     "부탁",
     "환영",
     "한데",
+    "모여요",
     "감사합니다",
     "말씀",
     "필요",

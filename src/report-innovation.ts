@@ -98,9 +98,9 @@ function renderBenchmarkBlock(data: ReportData): string {
         `<tr><td>${escapeHtml(b.label)}</td><td class="num">${b.value}</td><td class="num">${b.percentile}%</td><td><span class="bench-band">${escapeHtml(b.band)}</span></td></tr>`,
     )
     .join("");
-  return `<section id="s-bench" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.052s" aria-label="참고 벤치마크">
-    <h2>참고 밴드 (추정)</h2>
-    <p class="chart-hint">합성·공개 fixture 기준 <strong>상대 분위</strong>예요. 업로드 데이터와 무관합니다.</p>
+  return `<section id="s-bench" class="card bench-card anim-enter" style="margin-bottom:14px;--enter-delay:0.052s" aria-label="참고 벤치마크">
+    <h2>참고 밴드 <span class="bench-estimate-tag">추정·표본 기반</span></h2>
+    <p class="chart-hint bench-disclaimer">합성·공개 fixture만으로 만든 <strong>상대 분위 추정</strong>입니다. 실제 업로드 방과 직접 비교·순위 확정 용도로 쓰지 마세요.</p>
     <table class="bench-table"><thead><tr><th>지표</th><th>값</th><th>분위</th><th>밴드</th></tr></thead><tbody>${rows}</tbody></table>
   </section>`;
 }

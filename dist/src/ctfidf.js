@@ -1,5 +1,6 @@
 /** BERTopic-style class-based TF-IDF (Maarten Grootendorst c-TF-IDF) */
-export function classTfidfTopTerms(classTermFreq, topPerClass) {
+export function classTfidfTopTerms(classTermFreq, topPerClass, options) {
+    const minDocFreq = options?.minDocFreq ?? 1;
     const classSizes = new Map();
     let totalTerms = 0;
     let classCount = 0;
@@ -29,8 +30,10 @@ export function classTfidfTopTerms(classTermFreq, topPerClass) {
             continue;
         const scored = [];
         for (const [term, tf] of terms) {
-            const tfNorm = tf / classSum;
             const df = docFreq.get(term) ?? 1;
+            if (df < minDocFreq)
+                continue;
+            const tfNorm = tf / classSum;
             const idf = Math.log(1 + avgTermsPerClass / df);
             scored.push({ term, score: tfNorm * idf });
         }

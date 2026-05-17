@@ -18,4 +18,14 @@ describe("classTfidfTopTerms", () => {
   it("returns empty map for empty input", () => {
     assert.equal(classTfidfTopTerms(new Map(), 5).size, 0);
   });
+
+  it("respects minDocFreq across classes", () => {
+    const classes = new Map<string, Map<string, number>>([
+      ["a", new Map([["rare", 5], ["common", 10]])],
+      ["b", new Map([["common", 8]])],
+    ]);
+    const ranked = classTfidfTopTerms(classes, 5, { minDocFreq: 2 });
+    assert.equal(ranked.get("a")!.some((x) => x.term === "rare"), false);
+    assert.ok(ranked.get("a")!.some((x) => x.term === "common"));
+  });
 });

@@ -130,6 +130,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.13.8** | burst 활동일 스케일·대용량 gap exact quantile·주제맵 PMI/약한 edge·벤치 **추정** UI·회귀 fixture |
 | **0.13.7** | **BM25** 키워드·**담화어** 통합 lexicon·주제맵 discourse 게이트·시맨틱 k-means++/coherence·타임라인 meme **peakDate** |
 | **0.13.6** | 활동 그리드 일별 셀·dyad 전체 숫자·주제맵 품질·키워드 요약 펼침·샵검색 집계·시스템 테마 |
 | **0.13.5** | 키워드 **순위 목록** 통합(ECharts 막대+표 → 인라인 막대 표) · ② 요약 상위 12·접기 기본 |

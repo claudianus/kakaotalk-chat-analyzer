@@ -4,7 +4,7 @@ import type { BuildReportOptions } from "./analyze-pool.js";
 
 const MIN_SEMANTIC_MESSAGES = 48;
 const DEFAULT_SEMANTIC_SAMPLE_CAP = 480;
-const LARGE_CORPUS_SEMANTIC_CAP = 720;
+const LARGE_CORPUS_SEMANTIC_CAP = 640;
 const LARGE_CORPUS_MESSAGES = 50_000;
 
 export function semanticSampleCap(messageCount: number): number {

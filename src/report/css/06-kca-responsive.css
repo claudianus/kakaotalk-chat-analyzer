@@ -55,6 +55,9 @@ main {
 #s-topics,
 #s-viz,
 #s-charts,
+#s-bench,
+#s-compare,
+#s-explorer,
 #s-help {
   scroll-margin-top: var(--kca-topbar-offset);
 }

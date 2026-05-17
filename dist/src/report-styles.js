@@ -1758,6 +1758,9 @@ main {
 #s-topics,
 #s-viz,
 #s-charts,
+#s-bench,
+#s-compare,
+#s-explorer,
 #s-help {
   scroll-margin-top: var(--kca-topbar-offset);
 }
@@ -2535,6 +2538,24 @@ body.kca-oled .theme-btn.kca-ripple {
 .kw-shift p { margin: 0; color: var(--muted); line-height: 1.5; }
 @media (max-width: 640px) { .kw-shift { grid-template-columns: 1fr; } }
 
+.bench-card {
+  border-style: dashed;
+  border-color: color-mix(in oklab, var(--muted) 40%, var(--line));
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+}
+.bench-estimate-tag {
+  font-size: 0.62em;
+  font-weight: 750;
+  color: var(--muted);
+  vertical-align: middle;
+}
+.bench-disclaimer {
+  font-size: 12px;
+  color: var(--muted);
+  border-left: 3px solid color-mix(in oklab, var(--muted) 50%, var(--line));
+  padding-left: 10px;
+  margin-bottom: 12px;
+}
 .bench-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .bench-table th, .bench-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; }
 .bench-band {
