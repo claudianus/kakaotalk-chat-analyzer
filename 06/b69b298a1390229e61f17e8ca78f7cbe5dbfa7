@@ -1,0 +1,132 @@
+dist/src/sentiment-analyze.js
+  s_534094c40d80e9::t_fea3b89171ef0d 1-2,13,15-24,93-96,135
+  s_534094c40d80e9::t_49466fc4cc25ae 4,25-33,42,44,106
+dist/src/sentiment-analyze.js.map
+  ai_agent 1
+dist/src/semantic-keywords.js
+  s_534094c40d80e9::t_49466fc4cc25ae 6,27,29
+dist/src/ml-transformers-env.js
+  s_534094c40d80e9::t_fea3b89171ef0d 5,26-28
+  s_534094c40d80e9::t_49466fc4cc25ae 4,29-30
+dist/src/sentiment-policy.d.ts
+  s_534094c40d80e9::t_fea3b89171ef0d 6,8,10-12,14
+  s_534094c40d80e9::t_49466fc4cc25ae 4-5,7
+dist/src/sentiment-hub-registry.js
+  s_534094c40d80e9::t_fea3b89171ef0d 1-18
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/ml-bundled-models.js.map
+  ai_agent 1
+src/sentiment-analyze.ts
+  s_534094c40d80e9::t_4ac54168118178 39,41-47
+  s_534094c40d80e9::t_a82251ffd2f5e7 138
+  s_534094c40d80e9::t_d686a1b116e2cd 2,4-5
+  s_534094c40d80e9::t_62e50f82f611b8 127-130
+  s_534094c40d80e9::t_a6136be329a910 48-54,60-61
+  s_534094c40d80e9::t_de59691412ce51 179-180
+  s_534094c40d80e9::t_af94847e3f999d 13
+src/sentiment-hub-registry.ts
+  s_534094c40d80e9::t_84b3455e997764 1-22
+package-lock.json
+  ai_agent 3,9
+src/ml-bundled-models.ts
+  s_534094c40d80e9::t_5f5815d573e8bb 1-29
+scripts/check-sentiment-hub-access.mjs
+  s_534094c40d80e9::t_3f1013c7bb1701 1-39
+.gitignore
+  s_534094c40d80e9::t_8964142f6ab1fd 8-9
+test/sentiment-hub-registry.test.ts
+  s_534094c40d80e9::t_ddbff8bc3e0a83 1-20
+dist/src/sentiment-hub-registry.d.ts
+  s_534094c40d80e9::t_fea3b89171ef0d 1-4
+dist/src/ml-bundled-models.d.ts
+  s_534094c40d80e9::t_fea3b89171ef0d 1-8
+test/fixtures/sentiment-golden.json
+  s_534094c40d80e9::t_9c99ddbb6ef098 11-31
+  s_534094c40d80e9::t_877646a93c523b 1-10,32
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+test/sentiment-policy.test.ts
+  s_534094c40d80e9::t_3ac56dec0b398c 4
+  s_534094c40d80e9::t_0af34a60872c45 34
+  s_534094c40d80e9::t_8263e498efe41d 7,9,16-26,29-33,45-57
+package.json
+  s_534094c40d80e9::t_443f4a680de487 3
+  s_534094c40d80e9::t_4aac253593d8ae 34-36
+dist/src/version.d.ts
+  s_534094c40d80e9::t_fea3b89171ef0d 1-2
+dist/src/version.js.map
+  ai_agent 1
+src/analysis.ts
+  s_534094c40d80e9::t_3afba4c11ea82e 400-415
+dist/src/sentiment-policy.js.map
+  ai_agent 1
+src/semantic-keywords.ts
+  s_534094c40d80e9::t_dede930d893efa 46-50
+  s_534094c40d80e9::t_559c0e9965df47 14
+src/ml-transformers-env.ts
+  s_534094c40d80e9::t_4b7a33b7f87d15 35
+  s_534094c40d80e9::t_a45b48c22cf2ba 4
+  s_534094c40d80e9::t_df921cf8a37c55 5
+  s_534094c40d80e9::t_d050e4e5cc4ae5 33-34
+src/ml-hub-access.ts
+  s_534094c40d80e9::t_46ca745d96446a 1-57
+scripts/convert-sentiment-onnx.mjs
+  s_534094c40d80e9::t_dde1ee60532fba 1-80
+dist/src/ml-hub-access.d.ts
+  s_534094c40d80e9::t_49466fc4cc25ae 1-11
+dist/src/ml-hub-access.js
+  s_534094c40d80e9::t_49466fc4cc25ae 1-54
+test/ml-hub-access.test.ts
+  s_534094c40d80e9::t_03a7f6a9115639 1-37,39-40,42-43
+  s_534094c40d80e9::t_cb497a91f6d005 38,41
+dist/src/version.js
+  s_534094c40d80e9::t_fea3b89171ef0d 1
+kcachat/package.json
+  s_534094c40d80e9::t_9a7d0d1d9612e2 15
+  s_534094c40d80e9::t_2764e8012f80ed 3
+src/version.ts
+  s_534094c40d80e9::t_fea3b89171ef0d 1
+dist/src/sentiment-hub-registry.js.map
+  ai_agent 1
+dist/src/analysis.js
+  s_534094c40d80e9::t_49466fc4cc25ae 310-321
+scripts/bench-sentiment.mjs
+  s_534094c40d80e9::t_282c18b4e4353d 1-46
+data/ml-models/kca-koelectra-korean-sentiment/README.md
+  s_534094c40d80e9::t_e5ec578eb759dc 1-2,4,6-7,15-16,18
+  s_534094c40d80e9::t_8335926f4afe99 3,5,8-14,17,19-24
+test/ml-bundled-models.test.ts
+  s_534094c40d80e9::t_5e7059bc9b4563 1-20
+dist/src/ml-hub-access.js.map
+  ai_agent 1
+dist/src/sentiment-policy.js
+  s_534094c40d80e9::t_fea3b89171ef0d 3,9,11,13-21,31-33,36,39-41
+  s_534094c40d80e9::t_49466fc4cc25ae 7-8,10
+dist/src/ml-bundled-models.js
+  s_534094c40d80e9::t_fea3b89171ef0d 1-23
+dist/src/ml-transformers-env.js.map
+  ai_agent 1
+.github/workflows/pr-test.yml
+  s_534094c40d80e9::t_3b3f7ceb5fe2ad 34-36
+src/sentiment-policy.ts
+  s_534094c40d80e9::t_83b83f19d08a48 6-8,26,30,33-37,57-58,62,69-70
+  s_534094c40d80e9::t_a641a115dffe93 23-24,27-28
+  s_534094c40d80e9::t_63b3713e62332b 38-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "06b69b298a1390229e61f17e8ca78f7cbe5dbfa7",
+  "prompts": {},
+  "sessions": {
+    "s_534094c40d80e9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a2cf7980-54a3-4189-8aaa-7e09603b2e1e",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
