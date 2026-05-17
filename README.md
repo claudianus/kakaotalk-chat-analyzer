@@ -231,7 +231,7 @@ KCA_BENCH_COMPARE=1 npm run bench:semantic
 
 </details>
 
-**버전 고정:** `npx kakaotalk-chat-analyzer@0.18.0` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
+**버전 고정:** `npx kakaotalk-chat-analyzer@0.18.2` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
 
 **로컬 개발:**
 

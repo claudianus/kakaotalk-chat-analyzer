@@ -2,30 +2,30 @@
 
 export function keywordSummaryTop(): number {
   const n = Number(process.env.KCA_KEYWORD_SUMMARY_TOP);
-  if (Number.isFinite(n) && n > 0) return Math.min(Math.floor(n), 48);
+  if (Number.isFinite(n) && n >= 1) return Math.min(Math.floor(n), 48);
   return 12;
 }
 
 export function shopSearchDisplayTop(): number {
   const n = Number(process.env.KCA_SHOP_SEARCH_TOP);
-  if (Number.isFinite(n) && n > 0) return Math.min(Math.floor(n), 100);
+  if (Number.isFinite(n) && n >= 1) return Math.min(Math.floor(n), 100);
   return 30;
 }
 
 export function topicDisplayMax(): number {
   const n = Number(process.env.KCA_TOPIC_MAX);
-  if (Number.isFinite(n) && n > 0) return Math.min(Math.floor(n), 16);
+  if (Number.isFinite(n) && n >= 1) return Math.min(Math.floor(n), 16);
   return 12;
 }
 
 export function topicMinThemesLargeCorpus(): number {
   const n = Number(process.env.KCA_TOPIC_MIN_THEMES);
-  if (Number.isFinite(n) && n > 0) return Math.min(Math.floor(n), 12);
+  if (Number.isFinite(n) && n >= 1) return Math.min(Math.floor(n), 12);
   return 4;
 }
 
 export function embeddingThemeMax(): number {
   const n = Number(process.env.KCA_EMBEDDING_TOPIC_MAX);
-  if (Number.isFinite(n) && n > 0) return Math.min(Math.floor(n), 12);
+  if (Number.isFinite(n) && n >= 1) return Math.min(Math.floor(n), 12);
   return 10;
 }

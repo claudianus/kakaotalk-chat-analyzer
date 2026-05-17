@@ -11,7 +11,8 @@ export function sentimentModelId(preset) {
     const env = process.env.KCA_SENTIMENT_MODEL?.trim();
     if (env)
         return env;
-    if (preset === "quality")
+    const envPreset = process.env.KCA_PRESET?.trim().toLowerCase();
+    if (preset === "quality" || envPreset === "quality")
         return KLUE_SENTIMENT_MODEL;
     return DEFAULT_SENTIMENT_MODEL;
 }
@@ -24,8 +25,6 @@ export function shouldCollectSentimentSamples(messageCount) {
  * - `KCA_NO_SENTIMENT=1` / `--no-sentiment` 로 끔
  */
 export function resolveSentiment(options, prepass, sampleMessages) {
-    if (presetForcesSentimentOff(options))
-        return false;
     if (process.env.KCA_NO_SENTIMENT === "1")
         return false;
     if (options?.sentiment === false)
@@ -36,6 +35,8 @@ export function resolveSentiment(options, prepass, sampleMessages) {
         return true;
     if (process.env.KCA_SENTIMENT === "1")
         return true;
+    if (presetForcesSentimentOff(options))
+        return false;
     if (process.env.KCA_SENTIMENT === "0")
         return false;
     if (process.env.KCA_SENTIMENT_DEFAULT === "opt-in")

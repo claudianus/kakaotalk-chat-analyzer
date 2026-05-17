@@ -4,7 +4,7 @@ import { VERSION } from "./version.js";
 export const REPORT_SCHEMA = "2026-05";
 export function resolveTopicModel(data) {
     const embedEnv = process.env.KCA_EMBEDDING_TOPICS === "1";
-    const hasEmbedTheme = data.topics.some((t) => t.kind === "theme" && t.title.includes("임베딩"));
+    const hasEmbedTheme = data.topics.some((t) => t.kind === "theme" && (t.id.startsWith("embed-") || t.title.includes("임베딩")));
     if (embedEnv && hasEmbedTheme && data.summary.usedSemanticKeywords)
         return "hybrid";
     if (embedEnv && hasEmbedTheme)

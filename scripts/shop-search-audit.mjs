@@ -8,6 +8,7 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse } from "csv-parse/sync";
 import { splitMessageForAnalysis, extractShopSearchTag } from "../dist/src/system-notices.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -15,11 +16,10 @@ const csvPath = process.argv[2] || join(root, "test/fixtures/keyword-golden.csv"
 
 function loadMessages(path) {
   const raw = readFileSync(path, "utf8");
-  return raw.split(/\r?\n/).slice(1).map((line) => {
-    const i = line.lastIndexOf(",");
-    if (i < 0) return "";
-    return line.slice(i + 1).replace(/^"|"$/g, "").trim();
-  });
+  const rows = parse(raw, { columns: true, skip_empty_lines: true, relax_column_count: true });
+  return rows
+    .map((row) => String(row.Message ?? row.message ?? "").trim())
+    .filter((msg) => msg.length > 0);
 }
 
 function main() {

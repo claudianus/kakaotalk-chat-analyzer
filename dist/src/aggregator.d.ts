@@ -1,4 +1,5 @@
 import type { ChatRecord, EncodingName, PrivacyMode, ReportData, SentimentStats } from "./types.js";
+import type { BuildReportOptions } from "./analyze-pool.js";
 export interface FinalizeSourceMeta {
     filePath: string;
     encoding: EncodingName;
@@ -95,7 +96,7 @@ export declare class ReportAggregator {
     constructor(filePath: string, privacy: PrivacyMode, top: number, options?: AggregatorOptions);
     /** 스트리밍 1패스 후 실제 건수로 리저보어 상한 보정(추정치 과소 시) */
     ensureSampleCaps(messageCount: number): void;
-    drainSemanticSamples(): string[];
+    drainSemanticSamples(buildOptions?: BuildReportOptions): string[];
     drainSentimentSamples(): {
         text: string;
         sender: string;

@@ -32,7 +32,9 @@ export interface BuildReportProvenanceOptions {
 
 export function resolveTopicModel(data: ReportData): "graph" | "embedding" | "hybrid" {
   const embedEnv = process.env.KCA_EMBEDDING_TOPICS === "1";
-  const hasEmbedTheme = data.topics.some((t) => t.kind === "theme" && t.title.includes("임베딩"));
+  const hasEmbedTheme = data.topics.some(
+    (t) => t.kind === "theme" && (t.id.startsWith("embed-") || t.title.includes("임베딩")),
+  );
   if (embedEnv && hasEmbedTheme && data.summary.usedSemanticKeywords) return "hybrid";
   if (embedEnv && hasEmbedTheme) return "embedding";
   return "graph";

@@ -55,7 +55,7 @@ async function applySemanticKeywords(agg, enabled, showProgress, options) {
     if (!enabled)
         return false;
     const corpusMessages = agg.messageCount();
-    const samples = agg.drainSemanticSamples();
+    const samples = agg.drainSemanticSamples(options);
     if (samples.length < 48)
         return false;
     const profileSettings = getAnalysisProfileSettings(options);

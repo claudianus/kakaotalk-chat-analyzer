@@ -33,7 +33,7 @@ function renderLlmInsightsBlock(data) {
         .map((b) => `<li>${renderHighlightLine(b)}</li>`)
         .join("");
     const proposals = (ins.topicProposals ?? [])
-        .map((p) => `<li><strong>${escapeHtml(p.title)}</strong> — ${p.terms.map((t) => escapeHtml(t)).join(", ")}</li>`)
+        .map((p) => `<li><strong>${escapeHtml(p.title)}</strong> — ${(Array.isArray(p.terms) ? p.terms : []).map((t) => escapeHtml(String(t))).join(", ")}</li>`)
         .join("");
     const extra = [
         ins.shopSearchSummary ? `<p class="llm-extra"><strong>샵검색</strong> ${renderHighlightLine(ins.shopSearchSummary)}</p>` : "",

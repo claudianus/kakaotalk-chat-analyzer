@@ -154,11 +154,11 @@ export class ReportAggregator {
             this.sentimentReservoir.growTo(sentNeed);
         }
     }
-    drainSemanticSamples() {
+    drainSemanticSamples(buildOptions) {
         const raw = this.semanticReservoir?.drain() ?? [];
         if (raw.length === 0)
             return raw;
-        const cap = effectiveSemanticSampleCap(Math.max(this.total, raw.length));
+        const cap = effectiveSemanticSampleCap(Math.max(this.total, raw.length), buildOptions);
         return subsampleSemanticMessages(raw, cap);
     }
     drainSentimentSamples() {

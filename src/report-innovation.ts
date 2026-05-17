@@ -37,7 +37,7 @@ function renderLlmInsightsBlock(data: ReportData): string {
   const proposals = (ins.topicProposals ?? [])
     .map(
       (p) =>
-        `<li><strong>${escapeHtml(p.title)}</strong> — ${p.terms.map((t) => escapeHtml(t)).join(", ")}</li>`,
+        `<li><strong>${escapeHtml(p.title)}</strong> — ${(Array.isArray(p.terms) ? p.terms : []).map((t) => escapeHtml(String(t))).join(", ")}</li>`,
     )
     .join("");
   const extra = [

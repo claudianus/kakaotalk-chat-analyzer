@@ -1,6 +1,6 @@
 import { mkdir, stat } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { Readable } from "node:stream";
 import type { LlmTier } from "./llm-policy.js";
@@ -12,11 +12,18 @@ export function parsePullTier(raw: string): Exclude<LlmTier, "off"> {
   throw new Error(`지원 tier: 0.8b | 2b | 4b (또는 qwen3.5-2b 형식). 받은 값: "${raw}"`);
 }
 
+const MIN_GGUF_BYTES: Record<Exclude<LlmTier, "off">, number> = {
+  "0.8b": 250_000_000,
+  "2b": 700_000_000,
+  "4b": 2_000_000_000,
+};
+
 export async function pullLlmGguf(tier: Exclude<LlmTier, "off">): Promise<string> {
   const dest = ggufPathForTier(tier);
+  const minBytes = MIN_GGUF_BYTES[tier];
   try {
     const st = await stat(dest);
-    if (st.size > 1_000_000) {
+    if (st.size >= minBytes) {
       process.stderr.write(`[kca] 이미 있음: ${dest} (${(st.size / 1024 / 1024).toFixed(1)} MiB)\n`);
       return dest;
     }
@@ -26,7 +33,7 @@ export async function pullLlmGguf(tier: Exclude<LlmTier, "off">): Promise<string
 
   const { repo, file } = TIER_GGUF[tier];
   const url = hfDownloadUrl(repo, file);
-  await mkdir(join(llmCacheRoot(), tier), { recursive: true });
+  await mkdir(dirname(dest), { recursive: true });
   process.stderr.write(`[kca] 다운로드: ${url}\n→ ${dest}\n`);
 
   const headers: Record<string, string> = {};

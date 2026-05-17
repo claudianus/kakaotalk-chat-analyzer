@@ -66,8 +66,8 @@ function tensorToRows(tensor) {
     }
     return out;
 }
-async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampleCap(messages.length)) {
-    const modelId = semanticEmbeddingModelId();
+async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampleCap(messages.length), buildOptions) {
+    const modelId = loadedModelId ?? semanticEmbeddingModelId(buildOptions);
     const subsampled = subsampleSemanticMessages(messages, maxSamples);
     const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
     const vectors = [];
@@ -88,7 +88,7 @@ export async function extractSemanticKeywords(messages, options) {
         return [];
     const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
     const pipe = await loadPipeline(options.buildOptions);
-    const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap);
+    const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap, options.buildOptions);
     if (vectors.length < MIN_SAMPLES)
         return [];
     const tokenBags = samples.map((m) => tokenizeForKeywords(m));

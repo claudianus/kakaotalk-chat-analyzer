@@ -20,11 +20,11 @@ export function resolveLlmTier(preset, profile) {
         return "off";
     if (process.env.KCA_LLM !== "1" && preset === "custom")
         return "off";
-    if (preset === "custom" && process.env.KCA_LLM === "1")
+    if (preset === "custom" && process.env.KCA_LLM === "1" && forced !== "9b")
         return "2b";
     if (profile.freeMemGb < 8)
         return "off";
-    if (process.env.KCA_LLM_MODEL === "9b") {
+    if (forced === "9b") {
         if (preset === "custom") {
             process.stderr.write("[kca] Qwen3.5-9B는 custom 전용입니다. node-llama-cpp 대신 KCA_LLM_BACKEND=ollama 를 권장합니다.\n");
         }

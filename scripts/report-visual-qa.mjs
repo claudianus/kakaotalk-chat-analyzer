@@ -95,7 +95,7 @@ function assertTopicSanity(data, label) {
   const topKw = data.keywords?.[0]?.label;
   if (!topKw) return;
   const inTheme = themes.some((t) => t.terms?.some((term) => topKw.includes(term) || term.includes(topKw)));
-  if (!inTheme && themes.length < 1) {
+  if (!inTheme) {
     throw new Error(
       `[${label}] topics: ${themes.length} themes for ${n.toLocaleString()} messages; top keyword "${topKw}" not in theme terms`,
     );

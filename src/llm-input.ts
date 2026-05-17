@@ -3,7 +3,7 @@ import type { ReportData } from "./types.js";
 /** LLM 입력 — 원문 메시지·PII 없이 통계·키워드·주제만 */
 export function buildLlmPromptPayload(data: ReportData): string {
   const lines: string[] = [];
-  lines.push(`방: ${data.source.chatRoomName}`);
+  lines.push(`방: 대화방(이름 미전송)`);
   lines.push(`메시지: ${data.summary.totalMessages} · 참여자: ${data.summary.participants}`);
   lines.push(`리듬: ${data.conversationPace.label} (${data.insights.rhythmScore}/100)`);
   lines.push(
@@ -13,7 +13,7 @@ export function buildLlmPromptPayload(data: ReportData): string {
   const kw = data.keywords.slice(0, 25).map((k) => `${k.label}(${k.count})`);
   if (kw.length) lines.push(`키워드: ${kw.join(", ")}`);
 
-  const topics = data.topics.slice(0, 8).map((t, i) => `${i}:${t.title} [${t.terms.slice(0, 5).join(" ")}]`);
+  const topics = data.topics.slice(0, 12).map((t, i) => `${i}:${t.title} [${t.terms.slice(0, 5).join(" ")}]`);
   if (topics.length) lines.push(`주제후보: ${topics.join(" | ")}`);
 
   const bullets = data.highlights.slice(0, 15);

@@ -32,8 +32,8 @@ export function resolvePresetNameWithAuto(options, messageCount) {
     }
     return autoPresetFromMachine(probeMachineProfileSync(), messageCount);
 }
-export function getPresetEffectiveFlags(options) {
-    const preset = resolvePresetName(options);
+export function getPresetEffectiveFlags(options, messageCount) {
+    const preset = messageCount !== undefined ? resolvePresetNameWithAuto(options, messageCount) : resolvePresetName(options);
     if (preset === "speed") {
         return { preset, profile: "fast", llmEnabled: false, preferWorker: true };
     }

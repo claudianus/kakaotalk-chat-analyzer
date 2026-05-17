@@ -17,7 +17,7 @@ import { buildKeywordStopwords } from "../dist/src/keyword-stopwords.js";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const fixture = join(root, "test/fixtures/keyword-golden.csv");
 
-function loadSampleMessages(limit = 500): string[] {
+function loadSampleMessages(limit = 500) {
   const raw = readFileSync(fixture, "utf8");
   const lines = raw.split(/\r?\n/).slice(1);
   const out = [];

@@ -33,15 +33,20 @@ export function buildKeywordSeedTopics(
   if (totalMessages < 30) return [];
 
   const seen = new Set<string>();
+  const distinctiveLabels = new Set(keywordsDistinctive.slice(0, 8).map((k) => k.label));
   const seeds: { label: string; count: number; distinctive: boolean }[] = [];
 
   for (const k of keywordsByFreq.slice(0, 12)) {
     if (seen.has(k.label)) continue;
     seen.add(k.label);
-    seeds.push({ label: k.label, count: k.count, distinctive: false });
+    seeds.push({ label: k.label, count: k.count, distinctive: distinctiveLabels.has(k.label) });
   }
   for (const k of keywordsDistinctive.slice(0, 8)) {
-    if (seen.has(k.label)) continue;
+    if (seen.has(k.label)) {
+      const hit = seeds.find((s) => s.label === k.label);
+      if (hit) hit.distinctive = true;
+      continue;
+    }
     seen.add(k.label);
     seeds.push({ label: k.label, count: k.count, distinctive: true });
   }

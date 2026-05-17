@@ -31,6 +31,7 @@ import {
   semanticReservoirCap,
   subsampleSemanticMessages,
 } from "./semantic-policy.js";
+import type { BuildReportOptions } from "./analyze-pool.js";
 import { mergeDualLaneKeywords } from "./keyword-rank-dual.js";
 import { shopSearchDisplayTop } from "./report-config.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
@@ -228,10 +229,10 @@ export class ReportAggregator {
     }
   }
 
-  drainSemanticSamples(): string[] {
+  drainSemanticSamples(buildOptions?: BuildReportOptions): string[] {
     const raw = this.semanticReservoir?.drain() ?? [];
     if (raw.length === 0) return raw;
-    const cap = effectiveSemanticSampleCap(Math.max(this.total, raw.length));
+    const cap = effectiveSemanticSampleCap(Math.max(this.total, raw.length), buildOptions);
     return subsampleSemanticMessages(raw, cap);
   }
 

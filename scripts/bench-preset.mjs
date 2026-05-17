@@ -26,8 +26,13 @@ async function main() {
   const prevSemantic = process.env.KCA_NO_SEMANTIC;
   const prevSentiment = process.env.KCA_NO_SENTIMENT;
   const prevLlm = process.env.KCA_LLM;
-  process.env.KCA_NO_SEMANTIC = preset === "speed" ? "1" : process.env.KCA_NO_SEMANTIC;
-  process.env.KCA_NO_SENTIMENT = preset === "speed" ? "1" : process.env.KCA_NO_SENTIMENT;
+  if (preset === "speed") {
+    process.env.KCA_NO_SEMANTIC = "1";
+    process.env.KCA_NO_SENTIMENT = "1";
+  } else {
+    delete process.env.KCA_NO_SEMANTIC;
+    delete process.env.KCA_NO_SENTIMENT;
+  }
   process.env.KCA_LLM = "0";
 
   const t0 = performance.now();

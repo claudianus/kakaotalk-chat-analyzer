@@ -12,6 +12,8 @@ export class MessageReservoir {
     growTo(newCap) {
         if (newCap <= this.cap)
             return;
+        if (this.seen > this.cap)
+            return;
         this.cap = newCap;
     }
     push(message) {

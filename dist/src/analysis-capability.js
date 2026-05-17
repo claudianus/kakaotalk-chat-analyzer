@@ -29,7 +29,7 @@ export function estimateAnalysisSeconds(preset, messageCount, profile) {
     const base = n / 900;
     const memFactor = profile.freeMemGb < 6 ? 1.4 : profile.freeMemGb < 12 ? 1.1 : 1;
     const presetFactor = preset === "speed" ? 0.55 : preset === "balanced" ? 1 : preset === "quality" ? 1.45 : 1.1;
-    return Math.round(base * memFactor * presetFactor);
+    return Math.max(1000, Math.round(base * memFactor * presetFactor));
 }
 export function formatCapabilitiesReport(profile, opts) {
     const lines = [

@@ -25,7 +25,8 @@ export const KLUE_SENTIMENT_MODEL = "Xenova/klue-roberta-small-sentiment";
 export function sentimentModelId(preset?: string): string {
   const env = process.env.KCA_SENTIMENT_MODEL?.trim();
   if (env) return env;
-  if (preset === "quality") return KLUE_SENTIMENT_MODEL;
+  const envPreset = process.env.KCA_PRESET?.trim().toLowerCase();
+  if (preset === "quality" || envPreset === "quality") return KLUE_SENTIMENT_MODEL;
   return DEFAULT_SENTIMENT_MODEL;
 }
 
@@ -43,12 +44,12 @@ export function resolveSentiment(
   prepass: HeuristicPrepassCollector,
   sampleMessages: string[],
 ): boolean {
-  if (presetForcesSentimentOff(options)) return false;
   if (process.env.KCA_NO_SENTIMENT === "1") return false;
   if (options?.sentiment === false) return false;
   if (prepass.messageCount < MIN_SENTIMENT_MESSAGES) return false;
   if (options?.sentiment === true) return true;
   if (process.env.KCA_SENTIMENT === "1") return true;
+  if (presetForcesSentimentOff(options)) return false;
   if (process.env.KCA_SENTIMENT === "0") return false;
   if (process.env.KCA_SENTIMENT_DEFAULT === "opt-in") return false;
   return isPrimarilyKoreanMessages(sampleMessages);
