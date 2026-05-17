@@ -3,7 +3,13 @@ import { join } from "node:path";
 import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./embedding-cluster.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import type { KeywordRankItem } from "./keyword-rank.js";
-import { formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap } from "./semantic-policy.js";
+import { isNoiseKeyword } from "./keyword-quality.js";
+import {
+  formatTextForEmbedding,
+  semanticEmbeddingModelId,
+  semanticSampleCap,
+  subsampleSemanticMessages,
+} from "./semantic-policy.js";
 
 const MIN_SAMPLES = 48;
 const EMBED_BATCH = 12;
@@ -66,9 +72,8 @@ async function embedMessages(
   maxSamples = semanticSampleCap(messages.length),
 ): Promise<number[][]> {
   const modelId = semanticEmbeddingModelId();
-  const clipped = messages
-    .slice(0, maxSamples)
-    .map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
+  const subsampled = subsampleSemanticMessages(messages, maxSamples);
+  const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
   const vectors: number[][] = [];
   for (let i = 0; i < clipped.length; i += EMBED_BATCH) {
     const batch = clipped.slice(i, i + EMBED_BATCH);
@@ -84,6 +89,7 @@ export interface SemanticKeywordOptions {
   /** 코퍼스 전체 메시지 수(임베딩 샘플 상한·리저보어 cap 정렬용) */
   corpusMessages?: number;
   limit?: number;
+  minClusterCoherence?: number;
   onProgress?: (current: number, total: number) => void;
 }
 
@@ -104,6 +110,7 @@ export async function extractSemanticKeywords(
   const tokenBags = samples.map((m) => tokenizeForKeywords(m));
   const k = Math.max(4, Math.min(14, Math.floor(Math.sqrt(vectors.length / 18))));
   const assignments = kMeansAssignments(vectors, k);
+  const minCoherence = options.minClusterCoherence ?? 0.32;
   const labels = labelClustersFromTokens(
     assignments,
     tokenBags,
@@ -111,7 +118,7 @@ export async function extractSemanticKeywords(
     options.stopwords,
     4,
     vectors,
-    0.32,
+    minCoherence,
   );
 
   const limit = options.limit ?? 24;
@@ -120,7 +127,7 @@ export async function extractSemanticKeywords(
 
   for (const cluster of labels) {
     const label = cluster.terms.slice(0, 2).join(" ");
-    if (!label || seen.has(label) || options.stopwords.has(label)) continue;
+    if (!label || seen.has(label) || options.stopwords.has(label) || isNoiseKeyword(label)) continue;
     seen.add(label);
     const score = (cluster.size / vectors.length) * 100;
     items.push({

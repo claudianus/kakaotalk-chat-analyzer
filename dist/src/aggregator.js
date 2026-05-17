@@ -10,6 +10,7 @@ import { buildTopicStopwords } from "./topic-stopwords.js";
 import { MessageReservoir } from "./message-reservoir.js";
 import { semanticReservoirCap, semanticSampleCap, subsampleSemanticMessages } from "./semantic-policy.js";
 import { mergeKeywordRankings } from "./keyword-merge.js";
+import { isNoiseKeyword } from "./keyword-quality.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
 import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
@@ -47,6 +48,10 @@ const EMOJI_RE = /\p{Extended_Pictographic}/u;
 const LAUGH_RE = /(?:ㅋ{2,}|ㅎ{2,}|ㅠ+|ㅜ+|ㅇㅇ|ㅋㅋ|ㅎㅎ|ㅋㅎ|ㅎㅋ)/;
 const LINK_HINT_RE = /https?:\/\/|www\./i;
 const HAS_TOKEN_CHAR_RE = /[가-힣A-Za-z]/;
+/** 시맨틱 supplement messageHits 상한 — RRF 독점 방지 */
+export function semanticSupplementHitCap(corpusMessages) {
+    return Math.min(24, 4 + Math.floor(Math.sqrt(Math.max(corpusMessages, 1))));
+}
 export class ReportAggregator {
     filePath;
     privacy;
@@ -156,14 +161,17 @@ export class ReportAggregator {
         if (this.semanticReservoir && messageLength >= 12)
             this.semanticReservoir.push(msg);
     }
-    applySemanticKeywordBoost(items) {
-        this.semanticThemeCandidates = items.map((item) => ({
+    applySemanticKeywordBoost(items, corpusMessages) {
+        const hitCap = semanticSupplementHitCap(corpusMessages);
+        const valid = items.filter((item) => !isNoiseKeyword(item.label));
+        this.semanticThemeCandidates = valid.map((item) => ({
             label: item.label,
             messageHits: item.messageHits,
             score: item.score ?? item.messageHits,
         }));
-        for (const item of items) {
-            this.keywordSupplement.addHits(item.label, Math.max(2, item.messageHits));
+        for (const item of valid) {
+            const hits = Math.max(2, Math.min(item.messageHits, hitCap));
+            this.keywordSupplement.addHits(item.label, hits);
         }
     }
     consume(record, opts) {
@@ -445,9 +453,9 @@ export class ReportAggregator {
             limit: keywordLimit,
             minDocFreq: adaptiveMinCount(total, finalizeOpts?.koreanPrimary !== false),
         });
-        const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit);
+        const keywords = mergeKeywordRankings(wordRankItems, this.keywordSupplement, keywordLimit, finalizeOpts?.semanticSupplementRrfWeight ?? 0.5);
         let topics = this.topicMap.buildTopics(total, buildTopicStopwords());
-        if (process.env.KCA_EMBEDDING_TOPICS === "1" && this.semanticThemeCandidates.length > 0) {
+        if (finalizeOpts?.useEmbeddingTopics && this.semanticThemeCandidates.length > 0) {
             topics = mergeEmbeddingThemes(topics, this.semanticThemeCandidates, total);
         }
         const burstDetectionMethod = resolveBurstDetectionMethod();

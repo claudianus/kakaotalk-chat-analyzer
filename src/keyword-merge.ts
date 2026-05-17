@@ -14,6 +14,7 @@ export function mergeKeywordRankings(
   ranked: KeywordRankItem[],
   supplement: KeywordCounter,
   limit: number,
+  semanticSupplementWeight = 0.85,
 ): CountItem[] {
   const bm25 = ranked
     .filter((item) => !isNoiseKeyword(item.label))
@@ -41,7 +42,7 @@ export function mergeKeywordRankings(
   suppTop.forEach((item, i) => {
     const prev = fused.get(item.label);
     fused.set(item.label, {
-      rrf: (prev?.rrf ?? 0) + rrf(i + 1) * 0.85,
+      rrf: (prev?.rrf ?? 0) + rrf(i + 1) * semanticSupplementWeight,
       messageHits: Math.max(prev?.messageHits ?? 0, item.count),
     });
   });

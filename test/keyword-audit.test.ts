@@ -42,4 +42,20 @@ describe("keyword audit golden", () => {
     assert.equal(top20.includes("감사합니다"), false);
     assert.equal(top20.includes("있어요"), false);
   });
+
+  it("vibecoding sample with semantic on keeps domain terms in top20", async () => {
+    if (process.env.KCA_NO_SEMANTIC === "1") return;
+    const report = await buildReportFromExportSync(VIBE_FIXTURE, {
+      progress: false,
+      worker: false,
+      semanticKeywords: true,
+    });
+    const top20 = report.keywords.slice(0, 20).map((k) => k.label);
+    assert.ok(
+      top20.some((l) => l.includes("클로드") || l.includes("코덱스") || l.includes("playwright")),
+      `expected domain terms, got: ${top20.join(", ")}`,
+    );
+    assert.equal(top20.includes("감사합니다"), false);
+    assert.equal(top20.includes("있어요"), false);
+  });
 });

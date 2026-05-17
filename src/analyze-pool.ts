@@ -1,6 +1,7 @@
 import { stat } from "node:fs/promises";
 import { Worker } from "node:worker_threads";
 import { fileURLToPath } from "node:url";
+import { resolveAnalysisProfile } from "./analysis-profile.js";
 import type { PrivacyMode, ReportData } from "./types.js";
 
 const WORKER_THRESHOLD_BYTES = 3 * 1024 * 1024;
@@ -24,6 +25,9 @@ export async function shouldUseAnalyzeWorker(
 ): Promise<boolean> {
   if (options?.worker === false) return false;
   if (options?.semanticKeywords === true) return false;
+  const profile = resolveAnalysisProfile(options);
+  const wantWorker = options?.worker === true || profile === "fast";
+  if (!wantWorker) return false;
   try {
     const { size } = await stat(filePath);
     return size >= WORKER_THRESHOLD_BYTES;

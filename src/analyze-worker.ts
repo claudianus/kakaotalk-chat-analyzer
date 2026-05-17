@@ -1,10 +1,11 @@
 import { parentPort, workerData } from "node:worker_threads";
 import { buildReportFromExportSync } from "./analysis.js";
-import type { PrivacyMode, ReportData } from "./types.js";
+import type { BuildReportOptions } from "./analyze-pool.js";
+import type { ReportData } from "./types.js";
 
 interface WorkerPayload {
   filePath: string;
-  options?: { privacy?: PrivacyMode; top?: number };
+  options?: BuildReportOptions;
 }
 
 try {

@@ -58,7 +58,13 @@ function registerPipelineOptions(cmd: Command): void {
     .option("--top <count>", "랭킹·상위 목록 길이", String(DEFAULT_TOP))
     .option("-o, --out <dir>", "리포트 출력 폴더", DEFAULT_OUT)
     .option("--profile", "파싱·집계·HTML 단계별 소요 시간을 출력합니다.", false)
-    .option("--no-worker", "3MB 이상 파일도 Worker 없이 메인 스레드에서 집계합니다.", false)
+    .option(
+      "--worker",
+      "3MB 이상 CSV를 Worker 스레드로 집계합니다(빠름). 기본은 품질 우선(메인 스레드).",
+      false,
+    )
+    .option("--no-worker", "Worker를 쓰지 않고 메인 스레드에서 집계합니다(기본과 동일).", false)
+    .option("--fast", "속도 우선 프로필(Worker·가벼운 시맨틱 융합). --worker 와 동일 효과.", false)
     .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
     .option(
       "--no-semantic-keywords",
@@ -129,7 +135,7 @@ async function runMainPipeline(csvPath: string, options: MainOptions): Promise<v
     privacy,
     top,
     profile: options.profile,
-    worker: options.noWorker || options.profile ? false : undefined,
+    worker: options.fast || options.worker ? true : options.noWorker ? false : undefined,
     progress: !options.noProgress,
     semanticKeywords: options.noSemanticKeywords
       ? false
@@ -286,6 +292,8 @@ interface MainOptions {
   top: string;
   out: string;
   profile: boolean;
+  worker: boolean;
+  fast: boolean;
   noWorker: boolean;
   noProgress: boolean;
   noSemanticKeywords: boolean;

@@ -1,5 +1,6 @@
 import type { UserWord } from "kiwi-nlp";
-import { ReportAggregator } from "./aggregator.js";
+import { getAnalysisProfileSettings } from "./analysis-profile.js";
+import { ReportAggregator, type FinalizeOptions } from "./aggregator.js";
 import { HeuristicPrepassCollector } from "./export-prepass.js";
 import { loadGlossaryForExport } from "./glossary.js";
 import { buildKeywordStopwords } from "./keyword-stopwords.js";
@@ -21,6 +22,15 @@ import type { ChatRecord, EncodingName, ParseResult, PrivacyMode, ReportData } f
 const DEFAULT_TOP = 30;
 
 export type { BuildReportOptions };
+
+function finalizeProfileOpts(options?: BuildReportOptions, extra?: FinalizeOptions): FinalizeOptions {
+  const settings = getAnalysisProfileSettings(options);
+  return {
+    ...extra,
+    useEmbeddingTopics: settings.useEmbeddingTopics,
+    semanticSupplementRrfWeight: settings.semanticSupplementRrfWeight,
+  };
+}
 
 function withKiwiAnalysisFlag(report: ReportData): ReportData {
   return { ...report, kiwiAvailableAtAnalysis: getKiwiRuntime() != null };
@@ -48,6 +58,7 @@ async function applySemanticKeywords(
   agg: ReportAggregator,
   enabled: boolean,
   showProgress: boolean,
+  options?: BuildReportOptions,
 ): Promise<boolean> {
   if (!enabled) return false;
 
@@ -55,15 +66,17 @@ async function applySemanticKeywords(
   const samples = agg.drainSemanticSamples();
   if (samples.length < 48) return false;
 
+  const profileSettings = getAnalysisProfileSettings(options);
   if (showProgress) logReportProgress({ phase: "시맨틱 키워드", current: 0 });
   const items = await extractSemanticKeywords(samples, {
     stopwords: buildKeywordStopwords(),
     corpusMessages,
+    minClusterCoherence: profileSettings.semanticClusterMinCoherence,
     onProgress: showProgress
       ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
       : undefined,
   });
-  if (items.length > 0) agg.applySemanticKeywordBoost(items);
+  if (items.length > 0) agg.applySemanticKeywordBoost(items, corpusMessages);
   return items.length > 0;
 }
 
@@ -89,7 +102,7 @@ export function buildReportData(result: ParseResult, options?: BuildReportOption
         physicalLines: result.physicalLines,
         warningCount: result.warnings.length,
       },
-      { koreanPrimary: korean },
+      finalizeProfileOpts(options, { koreanPrimary: korean }),
     ),
   );
 }
@@ -114,7 +127,7 @@ export async function buildReportDataAsync(
     if (since && !recordOnOrAfter(record, since)) continue;
     agg.consume(record);
   }
-  const usedSemantic = await applySemanticKeywords(agg, useSemantic, false);
+  const usedSemantic = await applySemanticKeywords(agg, useSemantic, false, options);
   return withKiwiAnalysisFlag(
     agg.finalize(
       {
@@ -123,7 +136,10 @@ export async function buildReportDataAsync(
         physicalLines: result.physicalLines,
         warningCount: result.warnings.length,
       },
-      { usedSemanticKeywords: usedSemantic, koreanPrimary: prepass.isPrimarilyKorean() },
+      finalizeProfileOpts(options, {
+        usedSemanticKeywords: usedSemantic,
+        koreanPrimary: prepass.isPrimarilyKorean(),
+      }),
     ),
   );
 }
@@ -340,11 +356,14 @@ export async function buildReportFromExportSync(
 
   if (showProgress) logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
 
-  const usedSemantic = await applySemanticKeywords(agg, useSemantic, showProgress);
-  const report = agg.finalize(meta!, {
-    usedSemanticKeywords: usedSemantic,
-    koreanPrimary: prepass.isPrimarilyKorean(),
-  });
+  const usedSemantic = await applySemanticKeywords(agg, useSemantic, showProgress, options);
+  const report = agg.finalize(
+    meta!,
+    finalizeProfileOpts(options, {
+      usedSemanticKeywords: usedSemantic,
+      koreanPrimary: prepass.isPrimarilyKorean(),
+    }),
+  );
 
   if (showProgress) {
     logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });

@@ -8,7 +8,11 @@ export interface FinalizeSourceMeta {
 export interface FinalizeOptions {
     usedSemanticKeywords?: boolean;
     koreanPrimary?: boolean;
+    useEmbeddingTopics?: boolean;
+    semanticSupplementRrfWeight?: number;
 }
+/** 시맨틱 supplement messageHits 상한 — RRF 독점 방지 */
+export declare function semanticSupplementHitCap(corpusMessages: number): number;
 export interface AggregatorOptions {
     /** 시맨틱 키워드용 메시지 샘플 수집 */
     semanticSamples?: boolean;
@@ -89,7 +93,7 @@ export declare class ReportAggregator {
         label: string;
         messageHits: number;
         score?: number;
-    }[]): void;
+    }[], corpusMessages: number): void;
     consume(record: ChatRecord, opts?: {
         keywordsOnly?: boolean;
         skipKeywords?: boolean;

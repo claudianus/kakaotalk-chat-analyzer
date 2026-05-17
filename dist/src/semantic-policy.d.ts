@@ -1,9 +1,10 @@
 import type { HeuristicPrepassCollector } from "./export-prepass.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
+/** 코퍼스 규모별 임베딩·리저보어 상한 */
 export declare function semanticSampleCap(messageCount: number): number;
 /** 스트리밍·사전 집계 없을 때 리저보어 상한 */
 export declare function semanticReservoirCap(estimatedMessages?: number): number;
-/** 리저보어·임베딩 상한 초과 시 무작위 subsample */
+/** 리저보어·임베딩 상한 초과 시 결정적 subsample (회귀·재현용) */
 export declare function subsampleSemanticMessages(messages: string[], cap: number): string[];
 /** 한국어 MTEB 경량 1위급 — intfloat/multilingual-e5-small (Xenova ONNX) */
 export declare const DEFAULT_KOREAN_SEMANTIC_MODEL = "Xenova/multilingual-e5-small";

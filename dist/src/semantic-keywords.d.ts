@@ -4,6 +4,7 @@ export interface SemanticKeywordOptions {
     /** 코퍼스 전체 메시지 수(임베딩 샘플 상한·리저보어 cap 정렬용) */
     corpusMessages?: number;
     limit?: number;
+    minClusterCoherence?: number;
     onProgress?: (current: number, total: number) => void;
 }
 /** 다국어(한국어 우선) 임베딩 + k-means → 클러스터 대표 키워드 */

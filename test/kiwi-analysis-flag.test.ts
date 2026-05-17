@@ -39,7 +39,7 @@ test("worker path sets kiwiAvailableAtAnalysis inside worker", async () => {
   try {
     const data = await buildReportFromExport(csvPath, {
       privacy: "public-masked",
-      worker: undefined,
+      worker: true,
       progress: false,
       semanticKeywords: false,
     });

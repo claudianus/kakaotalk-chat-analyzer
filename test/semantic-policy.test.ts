@@ -9,6 +9,7 @@ import {
   semanticEmbeddingModelId,
   semanticReservoirCap,
   semanticSampleCap,
+  subsampleSemanticMessages,
 } from "../src/semantic-policy.js";
 
 describe("semantic-policy", () => {
@@ -31,13 +32,23 @@ describe("semantic-policy", () => {
     assert.equal(needsE5QueryPrefix("Xenova/paraphrase-multilingual-MiniLM-L12-v2"), false);
   });
 
-  it("semanticSampleCap scales with corpus size not drained sample count", () => {
-    assert.equal(semanticSampleCap(93_042), 640);
+  it("semanticSampleCap scales with corpus size", () => {
+    assert.equal(semanticSampleCap(150_000), 2_000);
+    assert.equal(semanticSampleCap(93_042), 1_200);
+    assert.equal(semanticSampleCap(25_000), 800);
     assert.equal(semanticSampleCap(720), 480);
     assert.equal(semanticSampleCap(100), 480);
-    assert.equal(semanticReservoirCap(undefined), 640);
-    assert.equal(semanticReservoirCap(93_042), 640);
+    assert.equal(semanticReservoirCap(undefined), 2_000);
+    assert.equal(semanticReservoirCap(93_042), 1_200);
     assert.equal(semanticReservoirCap(5_000), 480);
+  });
+
+  it("subsampleSemanticMessages is deterministic", () => {
+    const msgs = ["a".repeat(20), "b".repeat(20), "c".repeat(20), "d".repeat(20)];
+    const a = subsampleSemanticMessages(msgs, 2);
+    const b = subsampleSemanticMessages(msgs, 2);
+    assert.deepEqual(a, b);
+    assert.equal(a.length, 2);
   });
 
   it("formatTextForEmbedding adds query prefix for e5", () => {

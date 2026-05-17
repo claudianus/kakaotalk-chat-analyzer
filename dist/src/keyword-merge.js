@@ -4,7 +4,7 @@ function rrf(rank) {
     return 1 / (RRF_K + rank);
 }
 /** BM25(score) + 시맨틱 supplement RRF 병합 */
-export function mergeKeywordRankings(ranked, supplement, limit) {
+export function mergeKeywordRankings(ranked, supplement, limit, semanticSupplementWeight = 0.85) {
     const bm25 = ranked
         .filter((item) => !isNoiseKeyword(item.label))
         .sort((a, b) => b.score - a.score ||
@@ -24,7 +24,7 @@ export function mergeKeywordRankings(ranked, supplement, limit) {
     suppTop.forEach((item, i) => {
         const prev = fused.get(item.label);
         fused.set(item.label, {
-            rrf: (prev?.rrf ?? 0) + rrf(i + 1) * 0.85,
+            rrf: (prev?.rrf ?? 0) + rrf(i + 1) * semanticSupplementWeight,
             messageHits: Math.max(prev?.messageHits ?? 0, item.count),
         });
     });
