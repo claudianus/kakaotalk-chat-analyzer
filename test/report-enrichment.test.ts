@@ -86,6 +86,19 @@ test("computeActivityArc compares head and tail windows", () => {
   assert.ok(tail.messages > head.messages);
 });
 
+test("computeBurstDays mad method detects outliers", () => {
+  const daily = [
+    { date: "2026-04-01", count: 10 },
+    { date: "2026-04-02", count: 12 },
+    { date: "2026-04-03", count: 11 },
+    { date: "2026-04-04", count: 9 },
+    { date: "2026-04-05", count: 200 },
+    { date: "2026-04-06", count: 10 },
+  ];
+  const burst = computeBurstDays(daily, "mad");
+  assert.ok(burst.some((d) => d.date === "2026-04-05"));
+});
+
 test("buildRoomPulse aligns with activity dates", () => {
   const pulse = buildRoomPulse(
     ["2026-04-01", "2026-04-02"],

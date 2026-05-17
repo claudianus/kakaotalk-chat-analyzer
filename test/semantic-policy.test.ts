@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { HeuristicPrepassCollector } from "../src/export-prepass.js";
 import {
   DEFAULT_KOREAN_SEMANTIC_MODEL,
   formatTextForEmbedding,
   needsE5QueryPrefix,
+  resolveSemanticKeywords,
   semanticEmbeddingModelId,
   semanticReservoirCap,
   semanticSampleCap,
@@ -48,5 +50,18 @@ describe("semantic-policy", () => {
       formatTextForEmbedding("그대로", "Xenova/paraphrase-multilingual-MiniLM-L12-v2"),
       "그대로",
     );
+  });
+
+  it("KCA_SEMANTIC_DEFAULT=opt-in disables auto semantic", () => {
+    const prev = process.env.KCA_SEMANTIC_DEFAULT;
+    process.env.KCA_SEMANTIC_DEFAULT = "opt-in";
+    const prepass = new HeuristicPrepassCollector();
+    for (let i = 0; i < 60; i += 1) prepass.onMessageText("한국어 테스트 메시지입니다");
+    try {
+      assert.equal(resolveSemanticKeywords(undefined, prepass, prepass.sampleTexts()), false);
+    } finally {
+      if (prev === undefined) delete process.env.KCA_SEMANTIC_DEFAULT;
+      else process.env.KCA_SEMANTIC_DEFAULT = prev;
+    }
   });
 });

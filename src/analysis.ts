@@ -11,6 +11,9 @@ import { logReportProgress, resetReportProgress } from "./report-progress.js";
 import { resolveSemanticKeywords, shouldCollectSemanticSamples } from "./semantic-policy.js";
 import { extractSemanticKeywords } from "./semantic-keywords.js";
 import type { StreamParseOptions } from "./stream-options.js";
+import { createMessageSpoolPath, iterateSpoolRecords, removeSpool } from "./analysis-spool.js";
+import { createWriteStream } from "node:fs";
+import { stat } from "node:fs/promises";
 import { streamKakaoExport } from "./stream-parser.js";
 import { recordOnOrAfter } from "./report-date-filter.js";
 import type { ChatRecord, EncodingName, ParseResult, PrivacyMode, ReportData } from "./types.js";
@@ -134,6 +137,7 @@ async function runStatsPass(
   agg: ReportAggregator,
   prepass: HeuristicPrepassCollector,
   streamOpts?: StreamParseOptions,
+  spoolPath?: string | null,
 ): Promise<{ filePath: string; encoding: EncodingName; physicalLines: number; warningCount: number } | null> {
   let meta: {
     filePath: string;
@@ -143,21 +147,49 @@ async function runStatsPass(
   } | null = null;
 
   const since = streamOpts?.since;
-  for await (const event of streamKakaoExport(filePath, streamOpts)) {
-    if (event.type === "record") {
-      if (since && !recordOnOrAfter(event.record, since)) continue;
-      prepass.onMessageText(messageTextFromRecord(event.record));
-      agg.consume(event.record, { skipKeywords: true });
-    } else {
-      meta = {
-        filePath: event.meta.filePath,
-        encoding: event.meta.encoding,
-        physicalLines: event.meta.physicalLines,
-        warningCount: event.meta.warnings.length,
-      };
+  let spoolWriter: ReturnType<typeof createWriteStream> | undefined;
+  try {
+    for await (const event of streamKakaoExport(filePath, streamOpts)) {
+      if (event.type === "record") {
+        if (since && !recordOnOrAfter(event.record, since)) continue;
+        prepass.onMessageText(messageTextFromRecord(event.record));
+        agg.consume(event.record, { skipKeywords: true });
+        if (spoolPath) {
+          if (!spoolWriter) spoolWriter = createWriteStream(spoolPath, { encoding: "utf8" });
+          const line = `${JSON.stringify(event.record)}\n`;
+          if (!spoolWriter.write(line)) {
+            await new Promise<void>((resolve) => spoolWriter!.once("drain", resolve));
+          }
+        }
+      } else {
+        meta = {
+          filePath: event.meta.filePath,
+          encoding: event.meta.encoding,
+          physicalLines: event.meta.physicalLines,
+          warningCount: event.meta.warnings.length,
+        };
+      }
+    }
+  } finally {
+    if (spoolWriter) {
+      await new Promise<void>((resolve, reject) => {
+        spoolWriter!.end(() => resolve());
+        spoolWriter!.once("error", reject);
+      });
     }
   }
   return meta;
+}
+
+async function runKeywordPassFromSpool(
+  spoolPath: string,
+  agg: ReportAggregator,
+  since?: string,
+): Promise<void> {
+  for await (const record of iterateSpoolRecords(spoolPath)) {
+    if (since && !recordOnOrAfter(record, since)) continue;
+    agg.consume(record, { keywordsOnly: true });
+  }
 }
 
 async function runKeywordPass(
@@ -207,9 +239,12 @@ export async function buildReportFromExportSync(
     warningCount: number;
   } | null = null;
 
+  const spoolPath = useKiwi ? await createMessageSpoolPath() : null;
+  let kiwiAvailableAtAnalysis = false;
+  try {
   if (useKiwi) {
     if (showProgress) logReportProgress({ phase: "대화 집계", current: 0 });
-    meta = await runStatsPass(filePath, agg, prepass, progressOpts("대화 집계"));
+    meta = await runStatsPass(filePath, agg, prepass, progressOpts("대화 집계"), spoolPath);
     if (!meta) throw new Error(`No messages parsed from export: ${filePath}`);
 
     const estimated = prepass.messageCount;
@@ -219,17 +254,32 @@ export async function buildReportFromExportSync(
     const glossary = await loadGlossaryForExport(filePath);
     const userWords = mergeUserWords(glossary, prepass.toUserWords());
     await initKiwiRuntime(userWords);
+    kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
     if (showProgress) logReportProgress({ phase: "형태소 엔진 준비", current: 1, total: 1 });
 
     agg.resetKeywordPipeline();
     if (showProgress) logReportProgress({ phase: "키워드·주제", current: 0 });
-    await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));
+    let spoolReady = false;
+    if (spoolPath) {
+      try {
+        const st = await stat(spoolPath);
+        spoolReady = st.size > 0;
+      } catch {
+        spoolReady = false;
+      }
+    }
+    if (spoolPath && spoolReady) {
+      await runKeywordPassFromSpool(spoolPath, agg, since);
+    } else {
+      await runKeywordPass(filePath, agg, progressOpts("키워드·주제", estimated));
+    }
     if (showProgress) {
       logReportProgress({ phase: "키워드·주제", current: estimated, total: estimated });
     }
   } else {
     if (showProgress) logReportProgress({ phase: "대화 분석", current: 0 });
     await initKiwiRuntime([]);
+    kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
     for await (const event of streamKakaoExport(filePath, progressOpts("대화 분석"))) {
       if (event.type === "record") {
         if (since && !recordOnOrAfter(event.record, since)) continue;
@@ -272,7 +322,10 @@ export async function buildReportFromExportSync(
     );
   }
 
-  return withKiwiAnalysisFlag(report);
+  return { ...report, kiwiAvailableAtAnalysis };
+  } finally {
+    await removeSpool(spoolPath);
+  }
 }
 
 export async function buildReportFromExport(

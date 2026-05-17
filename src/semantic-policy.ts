@@ -77,5 +77,6 @@ export function resolveSemanticKeywords(
   if (options?.semanticKeywords === true) return true;
   if (process.env.KCA_SEMANTIC === "1") return true;
   if (process.env.KCA_SEMANTIC === "0") return false;
+  if (process.env.KCA_SEMANTIC_DEFAULT === "opt-in") return false;
   return isPrimarilyKoreanMessages(sampleMessages);
 }

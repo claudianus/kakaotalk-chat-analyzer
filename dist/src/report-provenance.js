@@ -1,3 +1,4 @@
+import { escapeHtml } from "./report-util.js";
 import { VERSION } from "./version.js";
 export const REPORT_SCHEMA = "2026-05";
 export function parseKcaInvokerEnv(value) {
@@ -46,6 +47,22 @@ export function buildReportProvenance(data, options) {
         provenance.output = output;
     }
     return provenance;
+}
+/** HTML 1회 생성 후 provenance JSON·상세·생성 소요·푸터 타이밍 갱신 */
+export function patchReportProvenance(html, provenance) {
+    const script = `<script type="application/json" id="kca-provenance">${JSON.stringify(provenance)}</script>`;
+    let out = html.includes('id="kca-provenance"')
+        ? html.replace(/<script type="application\/json" id="kca-provenance">[\s\S]*?<\/script>/, script)
+        : html.replace("</body>", `${script}\n</body>`);
+    const lines = formatProvenanceDetails(provenance);
+    out = out.replace(/<ul class="kca-provenance-list">[\s\S]*?<\/ul>/, `<ul class="kca-provenance-list">${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`);
+    if (provenance.output?.buildTiming) {
+        const timingText = escapeHtml(formatBuildTimingForProvenance(provenance.output.buildTiming));
+        out = out.replace(/<p><strong>생성 소요<\/strong><br>[^<]*<\/p>/, `<p><strong>생성 소요</strong><br>${timingText}</p>`);
+        const short = escapeHtml(formatDurationMs(provenance.output.buildTiming.totalMs));
+        out = out.replace(/ · 생성 [^·]+ · 본 리포트/, ` · 생성 ${short} · 본 리포트`);
+    }
+    return out;
 }
 export function formatGeneratorLine(provenance) {
     const { generator } = provenance;

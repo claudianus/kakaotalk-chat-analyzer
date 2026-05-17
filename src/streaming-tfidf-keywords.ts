@@ -186,8 +186,8 @@ export class StreamingTfidfKeywords {
     return items
       .sort(
         (a, b) =>
-          b.messageHits - a.messageHits ||
           b.score - a.score ||
+          b.messageHits - a.messageHits ||
           b.label.length - a.label.length ||
           a.label.localeCompare(b.label),
       )

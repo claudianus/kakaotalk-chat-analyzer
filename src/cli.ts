@@ -3,7 +3,7 @@ import { mkdir, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Command } from "commander";
 import { buildReportFromExport, reportUsedAnalyzeWorker } from "./analysis.js";
-import { buildReportProvenance } from "./report-provenance.js";
+import { buildReportProvenance, patchReportProvenance } from "./report-provenance.js";
 import { clearOwnerToken, getConfigPath, getOwnerToken, saveOwnerToken } from "./config.js";
 import { describeStreamedExport } from "./stream-parser.js";
 import { createProvider, parseHostName } from "./providers/index.js";
@@ -259,8 +259,19 @@ async function generateReport(
     totalMs: parseAggregateMs,
   };
 
+  const preliminaryProvenance = buildReportProvenance(data, {
+    privacy: options.privacy,
+    top: options.top,
+    since: options.since,
+    workerRequested: resolveWorkerRequested(options.worker),
+    workerUsed,
+    semanticRequested: resolveSemanticRequested(options.semanticKeywords),
+    kiwiAvailable: data.kiwiAvailableAtAnalysis === true,
+    buildTiming: { ...buildTiming },
+  });
+
   t0 = performance.now();
-  let html = renderReportHtml({ ...data, buildTiming });
+  let html = renderReportHtml({ ...data, buildTiming, provenance: preliminaryProvenance });
   buildTiming.renderHtmlMs = Math.round(performance.now() - t0);
   log("render HTML", buildTiming.renderHtmlMs);
 
@@ -268,14 +279,7 @@ async function generateReport(
     console.error(`[kca] messages: ${data.summary.totalMessages.toLocaleString("ko-KR")}`);
   }
 
-  t0 = performance.now();
-  await mkdir(outDir, { recursive: true });
-  await writeFile(htmlPath, html, "utf8");
-  buildTiming.writeFileMs = Math.round(performance.now() - t0);
-  log("write file", buildTiming.writeFileMs);
-
-  buildTiming.totalMs =
-    buildTiming.parseAggregateMs + buildTiming.renderHtmlMs + buildTiming.writeFileMs;
+  buildTiming.totalMs = buildTiming.parseAggregateMs + buildTiming.renderHtmlMs;
 
   const provenance = buildReportProvenance(data, {
     privacy: options.privacy,
@@ -289,8 +293,14 @@ async function generateReport(
     htmlBytes: Buffer.byteLength(html, "utf8"),
   });
 
-  html = renderReportHtml({ ...data, buildTiming, provenance });
+  html = patchReportProvenance(html, provenance);
+
+  t0 = performance.now();
+  await mkdir(outDir, { recursive: true });
   await writeFile(htmlPath, html, "utf8");
+  buildTiming.writeFileMs = Math.round(performance.now() - t0);
+  buildTiming.totalMs += buildTiming.writeFileMs;
+  log("write file", buildTiming.writeFileMs);
 
   if (options.profile) {
     console.error(

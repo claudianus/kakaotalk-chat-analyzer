@@ -130,6 +130,7 @@ npm run bench:stream -- 100000
 
 | 버전 | 요약 |
 |------|------|
+| **0.15.0** | Trust UX(조건부 네비·참여자 카드)·키워드 RRF·burst MAD·Kiwi 1×CSV read·오픈채팅 인사이트·임베딩 주제 옵션 |
 | **0.13.8** | burst 활동일 스케일·대용량 gap exact quantile·주제맵 PMI/약한 edge·벤치 **추정** UI·회귀 fixture |
 | **0.13.7** | **BM25** 키워드·**담화어** 통합 lexicon·주제맵 discourse 게이트·시맨틱 k-means++/coherence·타임라인 meme **peakDate** |
 | **0.13.6** | 활동 그리드 일별 셀·dyad 전체 숫자·주제맵 품질·키워드 요약 펼침·샵검색 집계·시스템 테마 |
@@ -168,6 +169,12 @@ npm run bench:stream -- 100000
 ### npx 한 줄 (추천)
 
 **짧은 패키지명 [`kcachat`](https://www.npmjs.com/package/kcachat)** 으로 본체(`kakaotalk-chat-analyzer`)와 똑같이 실행할 수 있습니다.
+
+| 상황 | 대략 소요 (M1급, 참고) |
+|------|------------------------|
+| 최초 `npx` + Kiwi 모델 | 1~3분 (1회) |
+| 2천 건 · `--local` · 시맨틱 끔 | 수 초 |
+| 9만 건 · Kiwi ON · 시맨틱 ON | 수십 초~2분 |
 
 **로컬에만** (`--local`: HTML만 만들고 기본 BrewPage 업로드는 생략. 출력 기본 `.tmp/kca-report`, `-o ./report`로 변경):
 
