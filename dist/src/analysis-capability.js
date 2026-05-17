@@ -21,7 +21,7 @@ export async function probeMachineProfile() {
 export function analysisBudgetMs(preset, messageCount, profile) {
     const sec = estimateAnalysisSeconds(preset, messageCount, profile);
     const cap = preset === "speed" ? 180_000 : preset === "balanced" ? 300_000 : preset === "quality" ? 360_000 : 300_000;
-    return Math.min(cap, sec * 1000);
+    return Math.min(cap, Math.max(1000, sec * 1000));
 }
 /** 90k 메시지 기준 대략 예상(초) — preset·RAM 휴리스틱 */
 export function estimateAnalysisSeconds(preset, messageCount, profile) {
@@ -29,7 +29,7 @@ export function estimateAnalysisSeconds(preset, messageCount, profile) {
     const base = n / 900;
     const memFactor = profile.freeMemGb < 6 ? 1.4 : profile.freeMemGb < 12 ? 1.1 : 1;
     const presetFactor = preset === "speed" ? 0.55 : preset === "balanced" ? 1 : preset === "quality" ? 1.45 : 1.1;
-    return Math.max(1000, Math.round(base * memFactor * presetFactor));
+    return Math.max(1, Math.round(base * memFactor * presetFactor));
 }
 export function formatCapabilitiesReport(profile, opts) {
     const lines = [
