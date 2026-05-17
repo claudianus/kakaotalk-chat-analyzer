@@ -1,0 +1,162 @@
+dist/src/kiwi-worker-config.js.map
+  ai_agent 1
+dist/src/analysis-spool.js.map
+  ai_agent 1
+src/semantic-keywords.ts
+  s_23ea5bc305de1c::t_4e25386c757cf4 109-111
+  s_23ea5bc305de1c::t_0a789f50dc7c2b 73-80
+  s_23ea5bc305de1c::t_f031b09250f88f 17
+dist/src/sentiment-analyze.js.map
+  ai_agent 1
+dist/src/analysis-phase-profile.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-49
+dist/src/kiwi-worker-config.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-3
+dist/src/keyword-record-tokens.js.map
+  ai_agent 1
+dist/src/sentiment-analyze.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 5,64-67,77-79
+src/ml-batch-size.ts
+  s_23ea5bc305de1c::t_57875b59964e02 1-44
+dist/src/analysis-phase-profile.js.map
+  ai_agent 1
+dist/src/analysis.js
+  s_23ea5bc305de1c::t_605f5d52e4a783 308-313
+  s_23ea5bc305de1c::t_dde48f086a6fda 12,14-16,22,185,277-279,284,286,291,294-301,304-307,314-330,333,337-370,372,374-378,380-381,415-416,425,430,437,445,453
+src/analysis-spool.ts
+  s_23ea5bc305de1c::t_d190ea732e2b2b 18-23
+dist/src/kiwi-tokenize-worker.js.map
+  ai_agent 1
+dist/src/analysis.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 4,11
+dist/src/ml-batch-size.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-5
+test/analysis-speed.test.ts
+  s_23ea5bc305de1c::t_cd5887700171e8 1-49,52-65,67,71,73-74,76
+  s_23ea5bc305de1c::t_33590534ec5e5f 50-51
+  s_23ea5bc305de1c::t_0abc55b443b2fa 66,68-70,72,75
+dist/src/sentiment-analyze.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 8-16,20
+dist/src/semantic-keywords.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 9,52-55,78-80
+src/aggregator.ts
+  s_23ea5bc305de1c::t_6e5ece1c25636b 267-292,294-298,301-305
+  s_23ea5bc305de1c::t_d1d4d6c82ba384 15
+  s_23ea5bc305de1c::t_c07f4580fb408b 36
+  s_23ea5bc305de1c::t_5e55d582eee165 328-331
+  s_23ea5bc305de1c::t_33cb26e3e90719 455,480-483,485-486
+  s_23ea5bc305de1c::t_2043308dee7d40 199-200
+  s_23ea5bc305de1c::t_b529e7f8d34009 453-454,469,484
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/kiwi-runtime.js.map
+  ai_agent 1
+dist/src/kiwi-keyword-pool.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-4
+src/kiwi-keyword-pool.ts
+  s_23ea5bc305de1c::t_aa3ed0f62b6ba9 6
+  s_23ea5bc305de1c::t_feb6e39c13fa77 1-5,7-103
+src/sentiment-analyze.ts
+  s_23ea5bc305de1c::t_f17c92961515ef 12
+  s_23ea5bc305de1c::t_5234fc3858871e 103-105
+  s_23ea5bc305de1c::t_418686f76f946b 83-87
+dist/src/keyword-record-tokens.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-7
+dist/src/semantic-keywords.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 3-11,23
+dist/src/kiwi-tokenize-worker.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-19
+dist/src/aggregator.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 4,16,127-128,188-197,199-203,205-206,208-209,213-228,357-360,372,384-392
+dist/src/keyword-eligibility.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-36
+src/kiwi-worker-config.ts
+  s_23ea5bc305de1c::t_5d1a4e5e2307cb 1-24
+dist/src/analysis-spool.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 4-8
+src/analysis-phase-profile.ts
+  s_23ea5bc305de1c::t_aa16abc1260da7 1-49
+src/keyword-record-tokens.ts
+  s_23ea5bc305de1c::t_dc62c73983b186 6-10
+  s_23ea5bc305de1c::t_5ae13fcf343b72 3-5,11-31
+  s_23ea5bc305de1c::t_925dff72030ac7 1-2
+dist/src/ml-batch-size.js.map
+  ai_agent 1
+src/kiwi-runtime.ts
+  s_23ea5bc305de1c::t_a1ce4e44c0cb19 107-115,119,124-127,134
+  s_23ea5bc305de1c::t_c214b26f8e5fe8 215
+  s_23ea5bc305de1c::t_a9fbeb8342fb9e 32-37
+src/version.ts
+  s_23ea5bc305de1c::t_4f65b6fd988f8e 1
+dist/src/version.d.ts
+  s_23ea5bc305de1c::t_4f65b6fd988f8e 1-2
+dist/src/analysis-phase-profile.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-9
+dist/src/kiwi-tokenize-worker.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 1
+dist/src/aggregator.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 90-91,110-113,128
+dist/src/kiwi-worker-config.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-23
+README.md
+  s_23ea5bc305de1c::t_fc4d313a54b36e 207-209
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/kiwi-keyword-pool.js.map
+  ai_agent 1
+kcachat/package.json
+  s_23ea5bc305de1c::t_c02f9ab4d00011 3
+  s_23ea5bc305de1c::t_e45f7956a9a9b3 15
+dist/src/version.js
+  s_23ea5bc305de1c::t_4f65b6fd988f8e 1
+dist/src/ml-batch-size.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-45
+dist/src/keyword-eligibility.js.map
+  ai_agent 1
+package.json
+  s_23ea5bc305de1c::t_5c09eb6983bc3a 3
+dist/src/kiwi-runtime.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 28-33,96-103,107,112-116,124,201
+dist/src/keyword-eligibility.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-2
+dist/src/kiwi-keyword-pool.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-89
+src/keyword-eligibility.ts
+  s_23ea5bc305de1c::t_0854d650548f1c 1-5,11-36
+  s_23ea5bc305de1c::t_24ba10fa6267d5 6-10
+src/kiwi-tokenize-worker.ts
+  s_23ea5bc305de1c::t_958a69e7b0829b 1-25
+scripts/bench-preset.mjs
+  s_23ea5bc305de1c::t_20c8af23f9a456 8-9,11,18,26-38,41,58,75-78
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/keyword-record-tokens.js
+  s_23ea5bc305de1c::t_dde48f086a6fda 1-25
+dist/src/kiwi-runtime.d.ts
+  s_23ea5bc305de1c::t_dde48f086a6fda 3-4
+src/analysis.ts
+  s_23ea5bc305de1c::t_943cbb18d76efd 272
+  s_23ea5bc305de1c::t_de82b92e3bc2ef 390-393
+  s_23ea5bc305de1c::t_7e22b575e84703 496-497,506,511-512,523,529,541
+  s_23ea5bc305de1c::t_96ab4d39a7d920 13,15-17
+  s_23ea5bc305de1c::t_fa511f5e887717 428-429,432
+  s_23ea5bc305de1c::t_fd1a59c6779b2d 354-356,360,368,373,376-383,385-389,394-408,411,415-427,430-431,433-451,453-454,456-462,464-466
+  s_23ea5bc305de1c::t_088c18b02e8b00 24-29
+  s_23ea5bc305de1c::t_e05b01b8b8c2c4 244
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "4329bd3f8d075288a5b16fb1bee9f91a876b6424",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
