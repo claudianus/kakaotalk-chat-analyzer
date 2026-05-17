@@ -1,0 +1,45 @@
+dist/src/report-charts.js
+  s_23ea5bc305de1c::t_dec4484033839d 209,363-383,630-634,638,665,667-703
+dist/src/topic-normalize.js.map
+  ai_agent 1
+src/topic-normalize.ts
+  s_23ea5bc305de1c::t_dd5a0af267fe2b 19,21
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+test/topic-merge.test.ts
+  s_23ea5bc305de1c::t_10e53f1f641a11 17-20
+test/analysis-effective-config.test.ts
+  s_23ea5bc305de1c::t_57c69273cb2734 48-58
+dist/src/topic-normalize.js
+  s_23ea5bc305de1c::t_dec4484033839d 16-17
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/report-charts.d.ts
+  s_23ea5bc305de1c::t_dec4484033839d 77
+src/report-charts.ts
+  s_23ea5bc305de1c::t_036bf1940d6fe1 674-678,682,709,711-747
+  s_23ea5bc305de1c::t_fa7f2e38608444 407-427
+  s_23ea5bc305de1c::t_52daaae4e655ee 253
+dist/src/analysis-effective-config.js
+  s_23ea5bc305de1c::t_dec4484033839d 2,42-43,158,202,204-205,212-216
+src/analysis-effective-config.ts
+  s_23ea5bc305de1c::t_4e1533ff78dd6b 228
+  s_23ea5bc305de1c::t_4c2688fa5bd7f6 280,282-283,290-294
+  s_23ea5bc305de1c::t_c671076a4b055f 110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "8449d0279f9fec8906d401111483b0649e0003b8",
+  "prompts": {},
+  "sessions": {
+    "s_23ea5bc305de1c": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5363c4dc-75e7-4cfa-8208-e076c96c7f93",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
