@@ -1,0 +1,113 @@
+dist/src/topic-stopwords.d.ts
+  s_d404882750412e::t_0aeef869e6f5cd 1-3
+test/topic-stopwords.test.ts
+  s_d404882750412e::t_1f3c3582e06c10 1-15
+src/report/css/03-kca-story.css
+  s_d404882750412e::t_5399865401eded 255-260
+  s_d404882750412e::t_51ca390f7bff49 298-300,304
+dist/src/report-charts.js
+  s_d404882750412e::t_0aeef869e6f5cd 205-210,257-267,475-477,484-492,498,523
+dist/src/report-styles.d.ts
+  s_d404882750412e::t_0aeef869e6f5cd 2
+src/report-styles.ts
+  s_d404882750412e::t_0aeef869e6f5cd 1238-1243,1281-1283,1287
+src/report-charts.ts
+  s_d404882750412e::t_5ead2573967f59 240-245
+  s_d404882750412e::t_8f5cb55c60f515 292-302
+  s_d404882750412e::t_17ea1d593df531 519-524,526-527
+  s_d404882750412e::t_0dfcaa5aeb3934 558
+  s_d404882750412e::t_744945d6ce0690 533
+  s_d404882750412e::t_e610e9505a285a 510-512,525
+src/topic-stopwords.ts
+  s_d404882750412e::t_c15f61ce5995f3 1-64
+test/story.test.ts
+  s_d404882750412e::t_8ddafe5cb54006 114-159
+dist/src/report-charts.d.ts
+  s_d404882750412e::t_0aeef869e6f5cd 61
+docs/index.html
+  s_d404882750412e::t_255f632e3525d9 264
+dist/src/report.js.map
+  ai_agent 1
+dist/src/system-notices.js.map
+  ai_agent 1
+dist/src/topic-stopwords.js.map
+  ai_agent 1
+src/aggregator.ts
+  s_d404882750412e::t_bc8825e26bacea 507
+  s_d404882750412e::t_96156f53c07b46 19
+dist/src/report-story.js
+  s_d404882750412e::t_0aeef869e6f5cd 59-72,86
+src/topic-map.ts
+  s_d404882750412e::t_a82459e26da326 132-135,141-142
+  s_d404882750412e::t_66988e0632ea4a 180-183
+  s_d404882750412e::t_a04d2668520436 3
+dist/src/story.js
+  s_d404882750412e::t_0aeef869e6f5cd 383-385,387-388,390
+dist/src/system-notices.js
+  s_d404882750412e::t_0aeef869e6f5cd 10-11,100-109,113-117
+dist/src/aggregator.js
+  s_d404882750412e::t_0aeef869e6f5cd 9,425
+src/report-story.ts
+  s_d404882750412e::t_7ebf231b1d6abf 66-79
+  s_d404882750412e::t_822ccfc2f1e23c 80
+  s_d404882750412e::t_e4977a6820fd68 98
+src/system-notices.ts
+  s_d404882750412e::t_ca0490bbcb058e 123-130,134-136
+  s_d404882750412e::t_b4404ef590599a 29-30
+dist/src/topic-stopwords.js
+  s_d404882750412e::t_0aeef869e6f5cd 1-59
+dist/src/topic-map.js
+  s_d404882750412e::t_0aeef869e6f5cd 3,117,125-126,162
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/report-styles.js
+  s_d404882750412e::t_0aeef869e6f5cd 1238-1243,1281-1283,1287
+dist/src/version.d.ts
+  s_d404882750412e::t_255f632e3525d9 1-2
+test/system-notices.test.ts
+  s_d404882750412e::t_f228e5946bdf10 17
+  s_d404882750412e::t_5e6f80286ffa72 5
+  s_d404882750412e::t_1c5970e2215996 18-19
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/report-story.js.map
+  ai_agent 1
+dist/src/story.js.map
+  ai_agent 1
+src/version.ts
+  s_d404882750412e::t_255f632e3525d9 1
+dist/src/version.js
+  s_d404882750412e::t_255f632e3525d9 1
+src/report.ts
+  s_d404882750412e::t_30134b984ffa9d 770
+  s_d404882750412e::t_c559aed15092c1 768-769,771-790
+  s_d404882750412e::t_dfe3b322ed95b8 793
+  s_d404882750412e::t_3c4091b3a01524 131
+package.json
+  s_d404882750412e::t_22cc78014b4ce9 3
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/report.js
+  s_d404882750412e::t_0aeef869e6f5cd 95,676-677,679-689,692
+  s_d404882750412e::t_8f24ce1ab64992 678
+src/story.ts
+  s_d404882750412e::t_e53e0fadd2ea09 494-496,499-500,502
+dist/src/topic-map.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e1433cc58421b46430f76f88c5ddc6c5a4e83be4",
+  "prompts": {},
+  "sessions": {
+    "s_d404882750412e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0081775a-7074-4bf0-86c1-a04985430fa9",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
