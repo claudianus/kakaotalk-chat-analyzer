@@ -81,6 +81,17 @@ export interface SentimentStats {
   }[];
 }
 
+/** lexicon profanity 와 별도 — ML·샘플 기반 공격적 톤 추정 */
+export interface ToxicityStats {
+  sampleSize: number;
+  toxicPercent: number;
+  neutralPercent: number;
+  messagesWithToxicity: number;
+  usedMlModel: boolean;
+  modelId?: string;
+  tier: "lexicon" | "ml";
+}
+
 /** c-TF-IDF·공기 군집으로 뽑은 대화 주제 */
 export interface ReportTopic {
   id: string;
@@ -446,6 +457,8 @@ export interface ReportData {
     usedSemanticKeywords?: boolean;
     /** transformers 감정 분석 샘플을 반영했는지 */
     usedSentimentAnalysis?: boolean;
+    /** ML·lexicon 독성 샘플 반영 */
+    usedToxicityAnalysis?: boolean;
     /** 로컬 LLM(Qwen GGUF) 서사·주제 보강 사용 여부 */
     usedLlmAnalysis?: boolean;
   };
@@ -455,6 +468,7 @@ export interface ReportData {
   participantsByCharacters: ParticipantStat[];
   profanity: ProfanityStats;
   sentiment: SentimentStats | null;
+  toxicity: ToxicityStats | null;
   daily: DailyCount[];
   hourly: number[];
   weekdays: CountItem[];

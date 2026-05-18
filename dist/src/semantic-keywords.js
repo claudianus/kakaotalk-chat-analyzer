@@ -3,9 +3,11 @@ import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import { DEFAULT_KOREAN_SEMANTIC_MODEL, formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
+import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveEmbedBatchSize } from "./ml-batch-size.js";
+import { bundledMlModelsDir, isLocalBundledEmbedModel } from "./ml-bundled-models.js";
 const MIN_SAMPLES = 48;
 let pipelinePromise = null;
 let loadedModelId = null;
@@ -22,10 +24,14 @@ async function loadPipelineForModel(modelId) {
         const { pipeline } = mod;
         const gpu = await configureTransformersEnv(mod);
         const quantized = preferQuantizedModels(gpu);
+        if (isLocalBundledEmbedModel(modelId)) {
+            mod.env.localModelPath = bundledMlModelsDir();
+        }
         process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
-        return pipeline("feature-extraction", modelId, {
+        const load = () => pipeline("feature-extraction", modelId, {
             quantized,
         });
+        return isLocalBundledEmbedModel(modelId) ? load() : runWithHubMirrors(mod, load);
     });
 }
 async function loadPipeline(buildOptions, messageCount) {

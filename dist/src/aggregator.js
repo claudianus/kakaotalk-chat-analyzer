@@ -124,6 +124,7 @@ export class ReportAggregator {
     sentimentReservoir;
     profanityCounter;
     sentimentStats = null;
+    toxicityStats = null;
     /** stats pass에서 리저보어를 채웠으면 keyword pass 중복 push 방지 */
     samplesCollectedInStatsPass = false;
     prevMs = null;
@@ -174,6 +175,9 @@ export class ReportAggregator {
     }
     applySentimentStats(stats) {
         this.sentimentStats = stats;
+    }
+    applyToxicityStats(stats) {
+        this.toxicityStats = stats;
     }
     senderAliasMap() {
         return buildSenderLabels([...this.senderStats.keys()], this.privacy);
@@ -755,12 +759,14 @@ export class ReportAggregator {
                 emojiMessages: this.emojiMessages,
                 usedSemanticKeywords: finalizeOpts?.usedSemanticKeywords === true,
                 usedSentimentAnalysis: finalizeOpts?.usedSentimentAnalysis === true,
+                usedToxicityAnalysis: finalizeOpts?.usedToxicityAnalysis === true,
             },
             insights,
             participants: participantStats,
             participantsByCharacters,
             profanity: this.profanityCounter.buildProfanityStats(total, aliases),
             sentiment: this.sentimentStats,
+            toxicity: this.toxicityStats,
             daily: dailySorted,
             hourly: this.hourly,
             weekdays: this.weekdays.map((count, index) => ({

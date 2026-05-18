@@ -1,6 +1,8 @@
 import type { SentimentStats } from "./types.js";
+import { isLocalBundledSentimentModel } from "./ml-bundled-models.js";
 import {
-  DEFAULT_SENTIMENT_MODEL,
+  binarySentimentConfidenceHigh,
+  isBinarySentimentModel,
   sentimentModelFallbacks,
   sentimentModelId,
   sentimentSampleCap,
@@ -8,6 +10,7 @@ import {
 } from "./sentiment-policy.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
+import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
 import { isTransformersFetchError } from "./ml-transformers-env.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
@@ -33,15 +36,29 @@ let pipelinePromise: Promise<ClassificationPipeline> | null = null;
 let loadedModelId: string | null = null;
 let loadKey: string | null = null;
 
-function normalizeLabel(raw: string, modelId?: string): SentimentLabel {
+function normalizeLabel(raw: string, modelId?: string, score?: number): SentimentLabel {
   const id = raw.toLowerCase();
+  if (modelId && isBinarySentimentModel(modelId) && score !== undefined) {
+    const high = binarySentimentConfidenceHigh();
+    if (score < high) return "neutral";
+    if (id.includes("pos") || id === "label_1") return "positive";
+    if (id.includes("neg") || id === "label_0") return "negative";
+    return "neutral";
+  }
+  const starMatch = id.match(/^(\d)\s*stars?$/);
+  if (starMatch) {
+    const stars = Number(starMatch[1]);
+    if (stars <= 2) return "negative";
+    if (stars >= 4) return "positive";
+    return "neutral";
+  }
   if (modelId?.includes("klue")) {
     if (id === "label_0" || id.includes("neg")) return "negative";
     if (id === "label_1" || id.includes("neu")) return "neutral";
     if (id === "label_2" || id.includes("pos")) return "positive";
   }
-  if (id.includes("pos") || id === "label_2" || id === "5 stars") return "positive";
-  if (id.includes("neg") || id === "label_0" || id === "1 star") return "negative";
+  if (id.includes("pos") || id === "label_2") return "positive";
+  if (id.includes("neg") || id === "label_0") return "negative";
   return "neutral";
 }
 
@@ -107,7 +124,10 @@ async function loadPipeline(
         process.stderr.write(
           `[kca] 감정 분석 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`,
         );
-        const pipe = await instantiateSentimentPipeline(mod, modelId, quantized);
+        const load = () => instantiateSentimentPipeline(mod, modelId, quantized);
+        const pipe = isLocalBundledSentimentModel(modelId)
+          ? await load()
+          : await runWithHubMirrors(mod, load);
         loadedModelId = modelId;
         return pipe;
       } catch (error) {
@@ -115,7 +135,7 @@ async function loadPipeline(
         if (i < candidates.length - 1) continue;
         const msg = error instanceof Error ? error.message : String(error);
         const hint = isTransformersFetchError(error)
-          ? " cwd의 tokenizer.json·네트워크·HF_TOKEN(허깅페이스 토큰)을 확인하세요."
+          ? " 네트워크·cwd의 tokenizer.json(이름 변경)을 확인하세요. 게이트 모델만 KCA_USE_HF_TOKEN=1 과 유효한 HF 토큰이 필요합니다."
           : "";
         throw new Error(`${msg}${hint}`, { cause: error });
       }
@@ -156,7 +176,8 @@ export async function analyzeSentimentBatch(
     const batch = messages.slice(i, i + batchSize).map((m) => m.slice(0, 512));
     const out = await pipe(batch.length === 1 ? batch[0]! : batch);
     const rows = asBatchOutput(out);
-    for (const row of rows) labels.push(normalizeLabel(row.label, loadedModelId ?? modelId));
+    for (const row of rows)
+      labels.push(normalizeLabel(row.label, loadedModelId ?? modelId, row.score));
     onProgress?.(Math.min(i + batch.length, messages.length), messages.length);
   }
   return labels;

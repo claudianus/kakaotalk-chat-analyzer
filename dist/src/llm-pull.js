@@ -6,14 +6,15 @@ import { Readable } from "node:stream";
 import { TIER_GGUF, ggufPathForTier, hfDownloadUrl } from "./llm-cache.js";
 export function parsePullTier(raw) {
     const t = raw.trim().toLowerCase().replace(/^qwen3\.5-/, "");
-    if (t === "0.8b" || t === "2b" || t === "4b")
+    if (t === "0.8b" || t === "2b" || t === "4b" || t === "8b")
         return t;
-    throw new Error(`지원 tier: 0.8b | 2b | 4b (또는 qwen3.5-2b 형식). 받은 값: "${raw}"`);
+    throw new Error(`지원 tier: 0.8b | 2b | 4b | 8b (또는 qwen3.5-2b 형식). 받은 값: "${raw}"`);
 }
 const MIN_GGUF_BYTES = {
     "0.8b": 250_000_000,
     "2b": 700_000_000,
     "4b": 2_000_000_000,
+    "8b": 4_000_000_000,
 };
 export async function pullLlmGguf(tier) {
     const dest = ggufPathForTier(tier);

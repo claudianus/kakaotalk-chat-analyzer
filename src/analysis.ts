@@ -3,16 +3,15 @@ import { getAnalysisProfileSettings } from "./analysis-profile.js";
 import { ReportAggregator, type FinalizeOptions } from "./aggregator.js";
 import { HeuristicPrepassCollector } from "./export-prepass.js";
 import { loadGlossaryForExport } from "./glossary.js";
-import { buildKeywordStopwords } from "./keyword-stopwords.js";
 import { getKiwiRuntime, initKiwiRuntime } from "./kiwi-runtime.js";
 export { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { runAnalyzeWorker, shouldUseAnalyzeWorker, type BuildReportOptions } from "./analyze-pool.js";
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { logReportProgress, resetReportProgress } from "./report-progress.js";
 import { resolveSemanticKeywords, shouldCollectSemanticSamples } from "./semantic-policy.js";
-import { extractSemanticKeywords, preloadSemanticPipeline } from "./semantic-keywords.js";
 import { resolveSentiment, shouldCollectSentimentSamples } from "./sentiment-policy.js";
-import { analyzeSentimentFromSamples, preloadSentimentPipeline } from "./sentiment-analyze.js";
+import { resolveToxicityMl } from "./toxicity-policy.js";
+import { preloadUtteranceMl, runUtteranceMlPass } from "./utterance-features.js";
 import { PhaseProfiler } from "./analysis-phase-profile.js";
 import { runKeywordPassFromSpoolPooled } from "./kiwi-keyword-pool.js";
 import { enrichReportWithLlm } from "./llm-apply.js";
@@ -72,69 +71,6 @@ export async function prepareReportEngine(): Promise<void> {
   await initKiwiRuntime();
 }
 
-async function applySemanticKeywords(
-  agg: ReportAggregator,
-  enabled: boolean,
-  showProgress: boolean,
-  options?: BuildReportOptions,
-): Promise<boolean> {
-  if (!enabled) return false;
-
-  const corpusMessages = agg.messageCount();
-  const samples = agg.drainSemanticSamples(options);
-  if (samples.length < 48) return false;
-
-  const profileSettings = getAnalysisProfileSettings(options, corpusMessages);
-  if (showProgress) logReportProgress({ phase: "시맨틱 키워드", current: 0 });
-  try {
-    const items = await extractSemanticKeywords(samples, {
-      stopwords: buildKeywordStopwords(),
-      corpusMessages,
-      buildOptions: options,
-      minClusterCoherence: profileSettings.semanticClusterMinCoherence,
-      onProgress: showProgress
-        ? (current, total) => logReportProgress({ phase: "시맨틱 키워드", current, total })
-        : undefined,
-    });
-    if (items.length > 0) agg.applySemanticKeywordBoost(items);
-    return items.length > 0;
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    process.stderr.write(`[kca] 시맨틱 키워드 건너뜀: ${msg}\n`);
-    return false;
-  }
-}
-
-async function applySentimentAnalysis(
-  agg: ReportAggregator,
-  enabled: boolean,
-  showProgress: boolean,
-  options?: BuildReportOptions,
-): Promise<boolean> {
-  if (!enabled) return false;
-  const corpusMessages = agg.messageCount();
-  const samples = agg.drainSentimentSamples();
-  if (samples.length < 48) return false;
-  if (showProgress) logReportProgress({ phase: "감정 분석", current: 0 });
-  try {
-    const stats = await analyzeSentimentFromSamples(
-      samples,
-      corpusMessages,
-      agg.senderAliasMap(),
-      showProgress
-        ? (current, total) => logReportProgress({ phase: "감정 분석", current, total })
-        : undefined,
-      options,
-    );
-    if (!stats) return false;
-    agg.applySentimentStats(stats);
-    return true;
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    process.stderr.write(`[kca] 감정 분석 건너뜀: ${msg}\n`);
-    return false;
-  }
-}
 
 function aggregatorSampleOptions(
   messageCount: number,
@@ -188,6 +124,7 @@ export async function buildReportDataAsync(
   for (const t of texts) prepass.onMessageText(t);
   const useSemantic = resolveSemanticKeywords(options, prepass, texts);
   const useSentiment = resolveSentiment(options, prepass, texts);
+  const useToxicity = resolveToxicityMl(options, prepass, texts);
   const agg = new ReportAggregator(
     result.filePath,
     privacy,
@@ -199,10 +136,14 @@ export async function buildReportDataAsync(
     if (since && !recordOnOrAfter(record, since)) continue;
     agg.consume(record);
   }
-  const [usedSemantic, usedSentiment] = await Promise.all([
-    applySemanticKeywords(agg, useSemantic, false, options),
-    applySentimentAnalysis(agg, useSentiment, false, options),
-  ]);
+  const { usedSemantic, usedSentiment, usedToxicity } = await runUtteranceMlPass(agg, {
+    useSentiment: useSentiment,
+    useSemantic: useSemantic,
+    useToxicity: useToxicity,
+    showProgress: false,
+    buildOptions: options,
+    messageCount: result.records.length,
+  });
   return withKiwiAnalysisFlag(
     agg.finalize(
       {
@@ -216,6 +157,7 @@ export async function buildReportDataAsync(
         {
           usedSemanticKeywords: usedSemantic,
           usedSentimentAnalysis: usedSentiment,
+          usedToxicityAnalysis: usedToxicity,
           koreanPrimary: prepass.isPrimarilyKorean(),
         },
         result.records.length,
@@ -386,8 +328,10 @@ export async function buildReportFromExportSync(
 
     let useSemanticOverlap = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
     let useSentimentOverlap = resolveSentiment(options, prepass, prepass.sampleTexts());
+    let useToxicityOverlap = resolveToxicityMl(options, prepass, prepass.sampleTexts());
     if (useSemanticOverlap && budget.shouldSkip("semantic")) useSemanticOverlap = false;
     if (useSentimentOverlap && budget.shouldSkip("sentiment")) useSentimentOverlap = false;
+    if (useToxicityOverlap && budget.shouldSkip("sentiment")) useToxicityOverlap = false;
 
     if (showProgress) logReportProgress({ phase: "형태소 엔진 준비", current: 0 });
 
@@ -397,8 +341,18 @@ export async function buildReportFromExportSync(
       const userWords = mergeUserWords(glossary, prepass.toUserWords());
       const warmups: Promise<unknown>[] = [initKiwiRuntime(userWords)];
       const mlOpts = { ...options, preset: resolvePresetNameWithAuto(options, estimated) };
-      if (useSemanticOverlap) warmups.push(preloadSemanticPipeline(mlOpts, estimated));
-      if (useSentimentOverlap) warmups.push(preloadSentimentPipeline(mlOpts, estimated));
+      if (useSemanticOverlap || useSentimentOverlap || useToxicityOverlap) {
+        warmups.push(
+          preloadUtteranceMl({
+            useSentiment: useSentimentOverlap,
+            useSemantic: useSemanticOverlap,
+            useToxicity: useToxicityOverlap,
+            showProgress: false,
+            buildOptions: mlOpts,
+            messageCount: estimated,
+          }),
+        );
+      }
       await Promise.all(warmups);
       kiwiAvailableAtAnalysis = getKiwiRuntime() != null;
       phaseProfiler.end("kiwi_prep");
@@ -434,11 +388,22 @@ export async function buildReportFromExportSync(
     };
 
     phaseProfiler.start("ml_overlap");
-    const [, usedSemanticOverlap, usedSentimentOverlap] = await Promise.all([
+    const [, mlOverlap] = await Promise.all([
       runKiwiAndKeywordPass(),
-      applySemanticKeywords(agg, useSemanticOverlap, showProgress, options),
-      applySentimentAnalysis(agg, useSentimentOverlap, showProgress, options),
+      runUtteranceMlPass(agg, {
+        useSentiment: useSentimentOverlap,
+        useSemantic: useSemanticOverlap,
+        useToxicity: useToxicityOverlap,
+        showProgress,
+        buildOptions: options,
+        messageCount: estimated,
+      }),
     ]);
+    const {
+      usedSemantic: usedSemanticOverlap,
+      usedSentiment: usedSentimentOverlap,
+      usedToxicity: usedToxicityOverlap,
+    } = mlOverlap;
     phaseProfiler.end("ml_overlap");
 
     if (showProgress) logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
@@ -450,6 +415,7 @@ export async function buildReportFromExportSync(
         {
           usedSemanticKeywords: usedSemanticOverlap,
           usedSentimentAnalysis: usedSentimentOverlap,
+          usedToxicityAnalysis: usedToxicityOverlap,
           koreanPrimary: prepass.isPrimarilyKorean(),
         },
         prepass.messageCount,
@@ -469,9 +435,10 @@ export async function buildReportFromExportSync(
       logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
       const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
       const sent = report.summary.usedSentimentAnalysis ? " · 감정" : "";
+      const tox = report.summary.usedToxicityAnalysis ? " · 독성" : "";
       const llm = report.summary.usedLlmAnalysis ? " · LLM" : "";
       console.error(
-        `[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}${sent}${llm}`,
+        `[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}${sent}${tox}${llm}`,
       );
     }
 
@@ -511,16 +478,23 @@ export async function buildReportFromExportSync(
 
   let useSemantic = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
   let useSentiment = resolveSentiment(options, prepass, prepass.sampleTexts());
+  let useToxicity = resolveToxicityMl(options, prepass, prepass.sampleTexts());
   if (useSemantic && budget.shouldSkip("semantic")) useSemantic = false;
   if (useSentiment && budget.shouldSkip("sentiment")) useSentiment = false;
+  if (useToxicity && budget.shouldSkip("sentiment")) useToxicity = false;
 
   if (showProgress) logReportProgress({ phase: "리포트 마무리", current: 0, total: 1 });
 
   phaseProfiler.start("ml");
-  const [usedSemantic, usedSentiment] = await Promise.all([
-    applySemanticKeywords(agg, useSemantic, showProgress, options),
-    applySentimentAnalysis(agg, useSentiment, showProgress, options),
-  ]);
+  const mlResult = await runUtteranceMlPass(agg, {
+    useSentiment: useSentiment,
+    useSemantic: useSemantic,
+    useToxicity: useToxicity,
+    showProgress,
+    buildOptions: options,
+    messageCount: prepass.messageCount,
+  });
+  const { usedSemantic, usedSentiment, usedToxicity } = mlResult;
   phaseProfiler.end("ml");
 
   let report = agg.finalize(
@@ -530,6 +504,7 @@ export async function buildReportFromExportSync(
       {
         usedSemanticKeywords: usedSemantic,
         usedSentimentAnalysis: usedSentiment,
+        usedToxicityAnalysis: usedToxicity,
         koreanPrimary: prepass.isPrimarilyKorean(),
       },
       prepass.messageCount,
@@ -549,9 +524,10 @@ export async function buildReportFromExportSync(
     logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
     const sem = report.summary.usedSemanticKeywords ? " · 시맨틱" : "";
     const sent = report.summary.usedSentimentAnalysis ? " · 감정" : "";
+    const tox = report.summary.usedToxicityAnalysis ? " · 독성" : "";
     const llm = report.summary.usedLlmAnalysis ? " · LLM" : "";
     console.error(
-      `[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}${sent}${llm}`,
+      `[kca] 완료 ${report.summary.totalMessages.toLocaleString("ko-KR")}건 · 주제 ${report.topics.length}개${sem}${sent}${tox}${llm}`,
     );
   }
 

@@ -1,6 +1,8 @@
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
+import { clearHubTokensForPublicFetch } from "./ml-hub-access.js";
+import { bundledMlModelsRoot } from "./ml-bundled-models.js";
 import { ensureMlStderrQuantizationFilter } from "./ml-stderr.js";
 const DEFAULT_CACHE = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
 export function huggingFaceAccessToken() {
@@ -21,9 +23,17 @@ export function applyTransformersEnv(mod, cacheDir = DEFAULT_CACHE) {
     env.cacheDir = cacheDir;
     env.allowLocalModels = true;
     env.allowRemoteModels = true;
-    const token = huggingFaceAccessToken();
-    if (token && !process.env.HF_TOKEN)
-        process.env.HF_TOKEN = token;
+    const bundledRoot = bundledMlModelsRoot();
+    if (bundledRoot)
+        env.localModelPath = bundledRoot;
+    if (process.env.KCA_USE_HF_TOKEN !== "1") {
+        clearHubTokensForPublicFetch();
+    }
+    else {
+        const token = huggingFaceAccessToken();
+        if (token && !process.env.HF_TOKEN)
+            process.env.HF_TOKEN = token;
+    }
     warnCwdTokenizerShadow();
 }
 export function isTransformersFetchError(error) {

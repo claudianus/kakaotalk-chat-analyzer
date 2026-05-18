@@ -31,3 +31,6 @@ jobs:
 
       - name: npm test
         run: npm test
+
+      - name: Sentiment Hub anonymous access
+        run: npm run check:sentiment-hub

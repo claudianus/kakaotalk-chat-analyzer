@@ -22,6 +22,11 @@ export interface AnalysisEffectiveConfig {
     workerUsed: boolean;
     semantic: PhaseEffectiveState;
     sentiment: PhaseEffectiveState;
+    encoderPlane: {
+        sentiment: string;
+        embedding: string;
+        toxicity: string;
+    };
     llm: {
         tier: LlmTier;
         used: boolean;

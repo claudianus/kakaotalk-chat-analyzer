@@ -20,7 +20,13 @@ function parseLlmJson(text) {
 async function runOllama(prompt, tier, timeoutMs) {
     const host = process.env.KCA_OLLAMA_HOST?.trim() || "http://127.0.0.1:11434";
     const model = process.env.KCA_OLLAMA_MODEL?.trim() ||
-        (tier === "4b" ? "qwen2.5:7b" : tier === "2b" ? "qwen2.5:3b" : "qwen2.5:0.5b");
+        (tier === "8b"
+            ? "qwen3:8b"
+            : tier === "4b"
+                ? "qwen2.5:7b"
+                : tier === "2b"
+                    ? "qwen2.5:3b"
+                    : "qwen2.5:0.5b");
     const body = {
         model,
         prompt: `${LLM_SYSTEM_PROMPT}\n\n---\n\n${prompt}`,
@@ -96,7 +102,7 @@ async function runMockLlm() {
 }
 export async function runLlmCompletion(data, tier) {
     const prompt = buildLlmPromptPayload(data);
-    const timeoutMs = tier === "4b" ? 60_000 : llmTimeoutMs();
+    const timeoutMs = tier === "8b" ? 90_000 : tier === "4b" ? 60_000 : llmTimeoutMs();
     try {
         if (process.env.KCA_LLM_MOCK === "1") {
             return runMockLlm();

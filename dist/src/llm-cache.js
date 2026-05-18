@@ -14,6 +14,10 @@ export const TIER_GGUF = {
         repo: "Qwen/Qwen3-4B-GGUF",
         file: "Qwen3-4B-Q4_K_M.gguf",
     },
+    "8b": {
+        repo: "Qwen/Qwen3-8B-GGUF",
+        file: "Qwen3-8B-Q4_K_M.gguf",
+    },
 };
 export function llmCacheRoot() {
     return process.env.KCA_LLM_CACHE?.trim() || join(homedir(), ".cache", "kakaotalk-chat-analyzer", "llm");

@@ -9,6 +9,7 @@ import type {
   ReportData,
   ReportInsights,
   SentimentStats,
+  ToxicityStats,
 } from "./types.js";
 import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats, SessionGapStats } from "./gap-stats.js";
@@ -102,6 +103,7 @@ export interface FinalizeSourceMeta {
 export interface FinalizeOptions {
   usedSemanticKeywords?: boolean;
   usedSentimentAnalysis?: boolean;
+  usedToxicityAnalysis?: boolean;
   koreanPrimary?: boolean;
   useEmbeddingTopics?: boolean;
   semanticSupplementRrfWeight?: number;
@@ -196,6 +198,7 @@ export class ReportAggregator {
   private readonly sentimentReservoir: SenderMessageReservoir | null;
   private readonly profanityCounter: ProfanityCounter;
   private sentimentStats: SentimentStats | null = null;
+  private toxicityStats: ToxicityStats | null = null;
   /** stats pass에서 리저보어를 채웠으면 keyword pass 중복 push 방지 */
   private samplesCollectedInStatsPass = false;
 
@@ -249,6 +252,10 @@ export class ReportAggregator {
 
   applySentimentStats(stats: SentimentStats): void {
     this.sentimentStats = stats;
+  }
+
+  applyToxicityStats(stats: ToxicityStats): void {
+    this.toxicityStats = stats;
   }
 
   senderAliasMap(): Map<string, string> {
@@ -892,12 +899,14 @@ export class ReportAggregator {
         emojiMessages: this.emojiMessages,
         usedSemanticKeywords: finalizeOpts?.usedSemanticKeywords === true,
         usedSentimentAnalysis: finalizeOpts?.usedSentimentAnalysis === true,
+        usedToxicityAnalysis: finalizeOpts?.usedToxicityAnalysis === true,
       },
       insights,
       participants: participantStats,
       participantsByCharacters,
       profanity: this.profanityCounter.buildProfanityStats(total, aliases),
       sentiment: this.sentimentStats,
+      toxicity: this.toxicityStats,
       daily: dailySorted,
       hourly: this.hourly,
       weekdays: this.weekdays.map((count, index) => ({

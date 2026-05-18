@@ -1,21 +1,37 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { HeuristicPrepassCollector } from "../src/export-prepass.js";
+import { BUNDLED_SENTIMENT_MODEL_ID, isBundledSentimentModelReady } from "../src/ml-bundled-models.js";
 import {
   DEFAULT_SENTIMENT_MODEL,
+  isBinarySentimentModel,
   resolveSentiment,
+  sentimentModelFallbacks,
   sentimentModelId,
   sentimentSampleCap,
   subsampleSentimentRecords,
 } from "../src/sentiment-policy.js";
 
 describe("sentiment-policy", () => {
-  it("picks KLUE model for quality preset", () => {
-    assert.equal(sentimentModelId("quality"), "Xenova/klue-roberta-small-sentiment");
-    assert.equal(sentimentModelId(undefined, 95_000, { preset: "quality" }), "Xenova/klue-roberta-small-sentiment");
+  it("uses default accessible model for all presets when bundle absent", () => {
+    const prev = process.env.KCA_SENTIMENT_MODEL;
+    delete process.env.KCA_SENTIMENT_MODEL;
+    try {
+      assert.equal(sentimentModelId("quality"), DEFAULT_SENTIMENT_MODEL);
+      assert.equal(sentimentModelId(undefined, 95_000, { preset: "quality" }), DEFAULT_SENTIMENT_MODEL);
+      assert.equal(sentimentModelId("speed"), DEFAULT_SENTIMENT_MODEL);
+    } finally {
+      if (prev === undefined) delete process.env.KCA_SENTIMENT_MODEL;
+      else process.env.KCA_SENTIMENT_MODEL = prev;
+    }
   });
 
-  it("defaults to distilbert multilingual sentiment model", () => {
+  it("quality prefers bundled koelectra when onnx present", () => {
+    if (!isBundledSentimentModelReady()) return;
+    assert.equal(sentimentModelId("quality"), BUNDLED_SENTIMENT_MODEL_ID);
+  });
+
+  it("defaults to accessible multilingual uncased sentiment model", () => {
     const prev = process.env.KCA_SENTIMENT_MODEL;
     delete process.env.KCA_SENTIMENT_MODEL;
     try {
@@ -24,6 +40,21 @@ describe("sentiment-policy", () => {
       if (prev === undefined) delete process.env.KCA_SENTIMENT_MODEL;
       else process.env.KCA_SENTIMENT_MODEL = prev;
     }
+  });
+
+  it("sentimentModelFallbacks is single entry when primary is default", () => {
+    const chain = sentimentModelFallbacks("quality");
+    if (chain[0] === DEFAULT_SENTIMENT_MODEL) {
+      assert.deepEqual(chain, [DEFAULT_SENTIMENT_MODEL]);
+    } else {
+      assert.deepEqual(chain, [BUNDLED_SENTIMENT_MODEL_ID, DEFAULT_SENTIMENT_MODEL]);
+    }
+  });
+
+  it("detects binary koelectra models", () => {
+    assert.equal(isBinarySentimentModel(BUNDLED_SENTIMENT_MODEL_ID), true);
+    assert.equal(isBinarySentimentModel("cringepnh/koelectra-korean-sentiment"), true);
+    assert.equal(isBinarySentimentModel(DEFAULT_SENTIMENT_MODEL), false);
   });
 
   it("sentimentSampleCap matches semantic tiers", () => {
