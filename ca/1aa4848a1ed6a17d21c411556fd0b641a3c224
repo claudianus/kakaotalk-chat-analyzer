@@ -1,0 +1,178 @@
+test/llm-enrichment.test.ts
+  s_534094c40d80e9::t_be2bf37b4ea3dc 28-39
+src/llm-policy.ts
+  s_534094c40d80e9::t_7378018fa2215d 1,4,6-7,14,18-19,21,24-33,47-48,52,55
+  s_534094c40d80e9::t_5769c2d7c22992 20
+  s_534094c40d80e9::t_9c1e01d59f2d05 3,8-13,36-39,49
+src/llm-pull.ts
+  s_534094c40d80e9::t_6760d0da9410ca 6-7,9-11,13,16,19-21,32
+  s_534094c40d80e9::t_1b322698502aaa 3
+  s_534094c40d80e9::t_fce7f1fbb76d9f 12,14-15,35
+dist/src/llm-qwen35.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 1-2,9-15,17,19-24
+  s_534094c40d80e9::t_297c1779137386 3-8,16,18
+dist/src/llm-pull.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 1-3
+src/analysis.ts
+  s_534094c40d80e9::t_0e9f311e74c4f3 485-486
+  s_534094c40d80e9::t_8901c91b668c46 20
+  s_534094c40d80e9::t_fa346910ad1553 306-313
+  s_534094c40d80e9::t_3b6371e349d33d 524
+  s_534094c40d80e9::t_7d767a5158ca7b 433,435
+  s_534094c40d80e9::t_8d375611d759eb 334-335
+dist/src/analysis-capability.js.map
+  ai_agent 1
+dist/src/analysis-effective-config.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 3,31-33
+src/llm-qwen35.ts
+  s_534094c40d80e9::t_5a34abf13e5304 1-2,12-19,21,23-33,35-44,46-55,57-66,68-77,80-81,84-106,109-113
+  s_534094c40d80e9::t_cb63dd8719f9a0 3-11,20,22,34,45,56,67,78-79,82-83,107-108,114
+src/analysis-preset.ts
+  s_534094c40d80e9::t_de1dc2496709c7 82,84,92,101,108
+dist/src/analysis-capability.js
+  s_534094c40d80e9::t_81051fa270c57a 3-4,38-39,60-70
+test/llm-resolve.test.ts
+  s_534094c40d80e9::t_d9f8d8a76b0f3a 1-86
+dist/src/cli.js
+  s_534094c40d80e9::t_81051fa270c57a 18-20,224,226-239
+  s_534094c40d80e9::t_015da94377f031 58
+dist/src/llm-qwen35.js.map
+  ai_agent 1
+dist/src/analysis-budget.js
+  s_534094c40d80e9::t_81051fa270c57a 2,9,30,38,41,44,52
+kcachat/package.json
+  s_534094c40d80e9::t_24e2eeee574d2b 3
+  s_534094c40d80e9::t_cb67b6821d0a9f 15
+dist/src/version.js
+  s_534094c40d80e9::t_81051fa270c57a 1
+dist/src/llm-qwen35.js
+  s_534094c40d80e9::t_81051fa270c57a 3,5-15,17-26,28-37,39-48,50-56,58-59,61-84,86-90
+  s_534094c40d80e9::t_297c1779137386 1-2,4,16,27,38,49,57,60,85,91-92
+package-lock.json
+  ai_agent 3,9-10,13,17,38-44,318,324,330,336,352,358,364,370,376,573,795,866,1029,1279,1314,1320,1379,1438,1487,1503,1509,1619,1686-1689,1731,1826,1858,1876,2025,2136,2409,2516,2860,2974
+dist/src/analysis.js
+  s_534094c40d80e9::t_81051fa270c57a 19,230-232,248-249,335,337,389-390,420
+dist/src/llm-resolve.js
+  s_534094c40d80e9::t_81051fa270c57a 1-88
+src/analysis-capability.ts
+  s_534094c40d80e9::t_883269615dbf59 63
+  s_534094c40d80e9::t_49bf046f27f176 94-103
+  s_534094c40d80e9::t_69b290458f99d3 7-8
+src/version.ts
+  s_534094c40d80e9::t_f3378534b13d9e 1
+dist/src/analysis-budget.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 3,6,11,14
+dist/src/llm-policy.js.map
+  ai_agent 1
+src/analysis-budget.ts
+  s_534094c40d80e9::t_e1edd3d5881ed3 3-4
+  s_534094c40d80e9::t_2f6ca6f170228a 49
+  s_534094c40d80e9::t_624fdc3d8fd6bc 19
+  s_534094c40d80e9::t_77f2238730fc9e 35
+  s_534094c40d80e9::t_3af2616243651a 60
+src/llm-resolve.ts
+  s_534094c40d80e9::t_ef8ea2f32dbbe8 1-114
+dist/src/llm-summarize.js.map
+  ai_agent 1
+dist/src/llm-pull.js.map
+  ai_agent 1
+dist/src/llm-pull.js
+  s_534094c40d80e9::t_81051fa270c57a 6-11,13,15-17,28
+  s_534094c40d80e9::t_297c1779137386 12,31
+dist/src/analysis-budget.js.map
+  ai_agent 1
+dist/src/llm-cache.js
+  s_534094c40d80e9::t_81051fa270c57a 3-4,8,12-13
+dist/src/llm-cache.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 1-2,4
+dist/src/analysis-effective-config.js
+  s_534094c40d80e9::t_81051fa270c57a 1,5-6,124,127-134,153,185-187,189-190,269-270,306-310
+dist/src/analysis.js.map
+  ai_agent 1
+src/llm-summarize.ts
+  s_534094c40d80e9::t_6538f0f09d5fa2 3-4,6,17,43-48,50-51,75-77,79-81,102,130,132-133,135,142,144,147,173,181-184,186-187,192,200
+  s_534094c40d80e9::t_1aac9938cc29c7 5
+  s_534094c40d80e9::t_1b1f54c20af5c8 78,83
+dist/src/llm-ensure.js
+  s_534094c40d80e9::t_81051fa270c57a 2,4,6,9,16,19,29,38
+  s_534094c40d80e9::t_34fd6bd891b747 1,3,5,7-8,10-15,17-18,20-28,30-37,39-42
+dist/src/llm-policy.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 1,3-12,14-15,17-18
+src/cli.ts
+  s_534094c40d80e9::t_3fc400a452cb0c 298,300-313
+  s_534094c40d80e9::t_64160363288968 90
+  s_534094c40d80e9::t_c003cfdf9573ee 31-33
+package.json
+  s_534094c40d80e9::t_b7daf1c4102c87 22
+  s_534094c40d80e9::t_9d402d0dec56ed 61
+  s_534094c40d80e9::t_50f6295f8e1020 62-63
+  s_534094c40d80e9::t_0db841c9f28f09 3
+  s_534094c40d80e9::t_e8de27e94f578d 21,23,29
+dist/src/analysis-preset.js
+  s_534094c40d80e9::t_81051fa270c57a 53,55,63,72,79
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+dist/src/analysis-preset.js.map
+  ai_agent 1
+dist/src/llm-cache.js.map
+  ai_agent 1
+dist/src/llm-resolve.js.map
+  ai_agent 1
+src/llm-cache.ts
+  s_534094c40d80e9::t_169ca0950bd1a5 3,5,11,14-15
+README.md
+  s_534094c40d80e9::t_be42c9175524f5 203-205
+  s_534094c40d80e9::t_4846661b20f6f0 216
+  s_534094c40d80e9::t_1a5458b98ae27a 194-197
+  s_534094c40d80e9::t_f245931886d4b4 208
+dist/src/llm-summarize.js
+  s_534094c40d80e9::t_34fd6bd891b747 5,59,62
+  s_534094c40d80e9::t_81051fa270c57a 3-4,6,22-27,29-31,56-58,60,79,103-106,108,114,116,120,144,148-152,154,158,164
+test/analysis-preset.test.ts
+  s_534094c40d80e9::t_0365fe0d71c9f1 61-71
+src/analysis-effective-config.ts
+  s_534094c40d80e9::t_a9b911fb1c5c7d 198,201-207
+  s_534094c40d80e9::t_645fa2c18d16b8 231
+  s_534094c40d80e9::t_8d374d35da2f13 264-266,268-269
+  s_534094c40d80e9::t_ad71ac09adaabd 364-365,367
+  s_534094c40d80e9::t_f76c0e9d7893bb 417-421
+  s_534094c40d80e9::t_bcac62cb337ebc 59-61
+  s_534094c40d80e9::t_99599f3355b0b1 19-20
+dist/src/version.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 1-2
+dist/src/llm-policy.js
+  s_534094c40d80e9::t_297c1779137386 8
+  s_534094c40d80e9::t_81051fa270c57a 1-4,6-7,9,11-12,14-19,25-30,34
+dist/src/llm-ensure.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 1,3
+  s_534094c40d80e9::t_34fd6bd891b747 2
+test/analysis-effective-config.test.ts
+  s_534094c40d80e9::t_31b3af51a1090a 27,32-51
+dist/src/llm-resolve.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 1-23
+dist/src/cli.js.map
+  ai_agent 1
+src/llm-ensure.ts
+  s_534094c40d80e9::t_24e09f77f1a2e1 1,3,5,7-8,10-11,13-18,20-21,23-29,31-37,39-41
+  s_534094c40d80e9::t_57511776d8d77d 2,4,6,9,12,19,22,30,38
+dist/src/llm-summarize.d.ts
+  s_534094c40d80e9::t_81051fa270c57a 1,8,13-14
+dist/src/llm-ensure.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "ca1aa4848a1ed6a17d21c411556fd0b641a3c224",
+  "prompts": {},
+  "sessions": {
+    "s_534094c40d80e9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a2cf7980-54a3-4189-8aaa-7e09603b2e1e",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
