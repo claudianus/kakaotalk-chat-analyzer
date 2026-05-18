@@ -1,0 +1,19 @@
+.github/workflows/pr-test.yml
+  s_4f3b28b212a103::t_c2592342654bb6 34-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "b48df422373e8424627a02f9f58f278f8338ceb4",
+  "prompts": {},
+  "sessions": {
+    "s_4f3b28b212a103": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "eb03d681-229b-4988-8de2-3f93f45940e9",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
