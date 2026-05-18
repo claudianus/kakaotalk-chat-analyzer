@@ -46,7 +46,7 @@ jobs:
       - name: Bootstrap models package
         run: |
           set -euo pipefail
-          MODELS_VER="$(node -p "require('./package.json').dependencies['kakaotalk-chat-analyzer-models']")"
+          MODELS_VER="$(node -p "const p=require('./package.json'); p.optionalDependencies?.['kakaotalk-chat-analyzer-models'] || p.dependencies?.['kakaotalk-chat-analyzer-models']")"
           if npm view "kakaotalk-chat-analyzer-models@${MODELS_VER}" version >/dev/null 2>&1; then
             echo "models@${MODELS_VER} on registry"
             exit 0

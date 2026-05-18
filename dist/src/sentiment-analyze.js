@@ -70,6 +70,7 @@ async function instantiateSentimentPipeline(mod, modelId, quantized) {
 }
 async function loadPipeline(buildOptions, messageCount) {
     const opts = resolveSentimentBuildOptions(buildOptions, messageCount);
+    await ensureCoreMlBundles();
     const preset = opts?.preset;
     const candidates = sentimentModelFallbacks(preset, messageCount, opts);
     const key = candidates.join("|");
@@ -79,7 +80,6 @@ async function loadPipeline(buildOptions, messageCount) {
     loadedModelId = null;
     loadKey = key;
     pipelinePromise = withQuietMlStderr(async () => {
-        await ensureCoreMlBundles();
         const mod = await importTransformers();
         const gpu = await configureTransformersEnv(mod);
         const quantized = preferQuantizedModels(gpu);

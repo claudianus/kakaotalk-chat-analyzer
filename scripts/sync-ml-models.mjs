@@ -168,8 +168,8 @@ function main() {
     else fixOnnxLayout(outDir);
   }
   syncManifest(primaryRoot, EXPORTS);
-  syncManifest(MODEL_ROOTS[1], NPM_EXPORTS);
   copyNpmModelsToPackage(primaryRoot, MODEL_ROOTS[1]);
+  syncManifest(MODEL_ROOTS[1], NPM_EXPORTS);
   createToxicityReleaseZip(primaryRoot);
   const totalMb = spawnSync("du", ["-sh", primaryRoot], { encoding: "utf8" });
   console.log(`[sync:ml-models] root=${primaryRoot} exported=${exported}/${EXPORTS.length} size=${(totalMb.stdout || "").trim()}`);

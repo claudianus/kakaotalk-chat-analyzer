@@ -1,5 +1,5 @@
 export { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
-/** transformers `env.localModelPath` — 해당 모델이 있는 첫 루트 */
+/** transformers `env.localModelPath` — 코어 번들(NSMC+embed)이 함께 있는 루트 우선 */
 export declare function bundledMlModelsDir(): string;
 export declare function bundledModelDir(modelId: string): string;
 export declare function bundledSentimentModelDir(): string;

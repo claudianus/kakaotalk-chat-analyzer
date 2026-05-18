@@ -38,9 +38,7 @@ jobs:
             data/ml-models
             kakaotalk-chat-analyzer-models/data/ml-models
             .venv-ml
-          key: kca-ml-onnx-v1-${{ hashFiles('scripts/sync-ml-models.mjs', 'src/ml/model-ids.ts') }}
-          restore-keys: |
-            kca-ml-onnx-v1-
+          key: kca-ml-onnx-v1-${{ hashFiles('scripts/sync-ml-models.mjs', 'src/ml/model-ids.ts', 'kakaotalk-chat-analyzer-models/package.json') }}
 
       - name: Setup Python venv (optimum)
         run: |
@@ -89,8 +87,8 @@ jobs:
           set -euo pipefail
           ZIP="kca-kcelectra-base-toxicity-onnx.zip"
           if [ ! -f "$ZIP" ]; then
-            echo "No toxicity zip; skip release."
-            exit 0
+            echo "No toxicity zip generated; failing to prevent broken lazy-download URL."
+            exit 1
           fi
           VER="$(node -p "require('./kakaotalk-chat-analyzer-models/package.json').version")"
           TAG="ml-models-v${VER}"

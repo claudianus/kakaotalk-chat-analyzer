@@ -18,6 +18,9 @@
   "files": [
     "dist/src",
     "data",
+    "scripts/ensure-ml-bundles.mjs",
+    "scripts/ml-bundle-install.mjs",
+    "scripts/ml-bundle-lib.mjs",
     "README.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md"

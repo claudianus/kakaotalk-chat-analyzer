@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -27,8 +28,13 @@ export {
   BUNDLED_TOXICITY_MODEL_ID,
 } from "./ml-bundle-ids.js";
 
-/** transformers `env.localModelPath` — 해당 모델이 있는 첫 루트 */
+/** transformers `env.localModelPath` — 코어 번들(NSMC+embed)이 함께 있는 루트 우선 */
 export function bundledMlModelsDir(): string {
+  for (const root of listMlModelRoots()) {
+    const sent = join(root, BUNDLED_SENTIMENT_MODEL_ID, "onnx", "model.onnx");
+    const embed = join(root, BUNDLED_EMBED_MODEL_ID, "onnx", "model.onnx");
+    if (existsSync(sent) && existsSync(embed)) return root;
+  }
   for (const modelId of [
     BUNDLED_SENTIMENT_MODEL_ID,
     BUNDLED_EMBED_MODEL_ID,

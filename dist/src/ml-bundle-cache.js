@@ -96,7 +96,10 @@ export async function ensureToxicityBundle() {
     if (process.env.KCA_NO_TOXICITY_DOWNLOAD === "1")
         return false;
     if (!toxicityDownloadPromise) {
-        toxicityDownloadPromise = downloadToxicityBundle();
+        toxicityDownloadPromise = downloadToxicityBundle().finally(() => {
+            if (!isToxicityBundleReady())
+                toxicityDownloadPromise = null;
+        });
     }
     return toxicityDownloadPromise;
 }

@@ -4,6 +4,7 @@ import { ensureToxicityBundle } from "../../ml-bundle-cache.js";
 import { preloadSentimentPipeline } from "./sentiment.js";
 import { preloadSemanticPipeline } from "./embedding.js";
 import { preloadToxicityPipeline } from "../../toxicity-analyze.js";
+import { isBundledToxicityModelReady } from "../../ml-bundled-models.js";
 
 export interface PreloadUtteranceMlTasksOptions {
   sentiment: boolean;
@@ -21,7 +22,7 @@ export async function preloadUtteranceMlTasks(opts: PreloadUtteranceMlTasksOptio
       process.stderr.write(`[kca] ML 번들 준비 건너뜀: ${msg}\n`);
     });
   }
-  if (opts.toxicity) {
+  if (opts.toxicity && !process.env.KCA_TOXICITY_MODEL?.trim() && !isBundledToxicityModelReady()) {
     await ensureToxicityBundle().catch((error) => {
       const msg = error instanceof Error ? error.message : String(error);
       process.stderr.write(`[kca] 독성 번들 준비 건너뜀: ${msg}\n`);

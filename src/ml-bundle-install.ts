@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { isCoreBundleReady, readModelsPackageVersion } from "./ml-bundle-cache.js";
 
 let coreInstallPromise: Promise<boolean> | null = null;
@@ -11,7 +12,11 @@ function kcaPackageRoot(): string {
     const req = createRequire(import.meta.url);
     return dirname(req.resolve("kakaotalk-chat-analyzer/package.json"));
   } catch {
-    return process.cwd();
+    try {
+      return dirname(fileURLToPath(new URL("../../package.json", import.meta.url)));
+    } catch {
+      return process.cwd();
+    }
   }
 }
 
