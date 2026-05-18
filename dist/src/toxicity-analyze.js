@@ -48,6 +48,8 @@ function scoreToToxicPercent(score, label) {
 async function loadPipeline(modelId) {
     if (pipelinePromise && loadedModelId === modelId)
         return pipelinePromise;
+    pipelinePromise = null;
+    loadedModelId = null;
     pipelinePromise = withQuietMlStderr(async () => {
         const mod = await importTransformers();
         const gpu = await configureTransformersEnv(mod);
@@ -58,9 +60,10 @@ async function loadPipeline(modelId) {
         }
         const { pipeline } = mod;
         const load = () => pipeline("text-classification", modelId, { quantized });
-        return isLocalBundledToxicityModel(modelId) ? load() : runWithHubMirrors(mod, load);
+        const pipe = isLocalBundledToxicityModel(modelId) ? await load() : await runWithHubMirrors(mod, load);
+        loadedModelId = modelId;
+        return pipe;
     });
-    loadedModelId = modelId;
     return pipelinePromise;
 }
 export async function preloadToxicityPipeline() {

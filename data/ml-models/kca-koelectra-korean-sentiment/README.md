@@ -11,7 +11,7 @@ pip install "optimum[onnxruntime]" onnx transformers
 optimum-cli export onnx \
   --model cringepnh/koelectra-korean-sentiment \
   --task text-classification \
-  /Users/modumaru/Desktop/code/kakaotalk-chat-analyzer/data/ml-models/kca-koelectra-korean-sentiment
+  data/ml-models/kca-koelectra-korean-sentiment
 ```
 
 또는: `npm run convert:sentiment-onnx` (optimum-cli 가 PATH 에 있으면 자동 실행)

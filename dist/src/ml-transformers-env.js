@@ -26,8 +26,14 @@ export function applyTransformersEnv(mod, cacheDir = DEFAULT_CACHE) {
     const bundledRoot = bundledMlModelsRoot();
     if (bundledRoot)
         env.localModelPath = bundledRoot;
-    if (process.env.KCA_USE_HF_TOKEN !== "1")
+    if (process.env.KCA_USE_HF_TOKEN !== "1") {
         clearHubTokensForPublicFetch();
+    }
+    else {
+        const token = huggingFaceAccessToken();
+        if (token && !process.env.HF_TOKEN)
+            process.env.HF_TOKEN = token;
+    }
     warnCwdTokenizerShadow();
 }
 export function isTransformersFetchError(error) {

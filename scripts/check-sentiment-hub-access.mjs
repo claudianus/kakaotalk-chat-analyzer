@@ -13,7 +13,8 @@ const MUST_FAIL = [...SENTIMENT_HUB_ANONYMOUS_BLOCKLIST];
 
 function headStatus(modelId) {
   const url = `https://huggingface.co/${modelId}/resolve/main/config.json`;
-  const r = spawnSync("curl", ["-sI", "-o", "/dev/null", "-w", "%{http_code}", url], {
+  const nullDevice = process.platform === "win32" ? "NUL" : "/dev/null";
+  const r = spawnSync("curl", ["-sI", "-o", nullDevice, "-w", "%{http_code}", url], {
     encoding: "utf8",
   });
   return (r.stdout || "").trim();

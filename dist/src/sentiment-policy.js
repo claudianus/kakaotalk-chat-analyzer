@@ -16,8 +16,9 @@ export function isBinarySentimentModel(modelId) {
 }
 /** 이진 NSMC 계열: confidence < high 이면 neutral */
 export function binarySentimentConfidenceHigh() {
-    const n = Number(process.env.KCA_SENTIMENT_BINARY_HIGH ?? "0.72");
-    return Number.isFinite(n) ? n : 0.72;
+    const raw = process.env.KCA_SENTIMENT_BINARY_HIGH?.trim();
+    const n = Number(raw && raw.length > 0 ? raw : "0.72");
+    return Number.isFinite(n) && n >= 0 && n <= 1 ? n : 0.72;
 }
 export function sentimentModelId(preset, messageCount, options) {
     const env = process.env.KCA_SENTIMENT_MODEL?.trim();

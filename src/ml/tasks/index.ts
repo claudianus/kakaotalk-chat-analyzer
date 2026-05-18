@@ -38,5 +38,5 @@ export async function preloadUtteranceMlTasks(opts: PreloadUtteranceMlTasksOptio
       }),
     );
   }
-  await Promise.all(warmups);
+  for (const task of warmups) await task;
 }

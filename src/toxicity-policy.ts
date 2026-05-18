@@ -1,5 +1,4 @@
 import type { HeuristicPrepassCollector } from "./export-prepass.js";
-import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { isBundledToxicityModelReady } from "./ml-bundled-models.js";
@@ -29,8 +28,5 @@ export function resolveToxicityMl(
 
   const preset = resolvePresetNameWithAuto(options, prepass.messageCount);
   if (preset === "quality" && isBundledToxicityModelReady()) return true;
-  if (preset === "quality" && isPrimarilyKoreanMessages(sampleMessages)) {
-    return process.env.KCA_TOXICITY === "1";
-  }
   return false;
 }

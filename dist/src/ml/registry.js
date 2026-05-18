@@ -17,7 +17,7 @@ export const ML_MODEL_REGISTRY = {
     toxicity: {
         task: "toxicity",
         bundledId: BUNDLED_TOXICITY_MODEL_ID,
-        hubFallback: "Xenova/bert-base-multilingual-uncased-sentiment",
+        hubFallback: "",
         hubTask: "text-classification",
     },
 };

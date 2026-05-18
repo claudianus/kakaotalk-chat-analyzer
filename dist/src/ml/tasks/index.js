@@ -22,6 +22,7 @@ export async function preloadUtteranceMlTasks(opts) {
             process.stderr.write(`[kca] 독성 워밍업 건너뜀: ${msg}\n`);
         }));
     }
-    await Promise.all(warmups);
+    for (const task of warmups)
+        await task;
 }
 //# sourceMappingURL=index.js.map

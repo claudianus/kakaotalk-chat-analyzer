@@ -13,6 +13,7 @@ Optional npm package with bundled Korean encoder ONNX weights for [kakaotalk-cha
 Generate ONNX locally or in CI:
 
 ```bash
+# 저장소 루트에서
 npm run sync:ml-models
 ```
 

@@ -32,7 +32,12 @@ export function applyTransformersEnv(mod: TransformersModule, cacheDir = DEFAULT
   env.allowRemoteModels = true;
   const bundledRoot = bundledMlModelsRoot();
   if (bundledRoot) env.localModelPath = bundledRoot;
-  if (process.env.KCA_USE_HF_TOKEN !== "1") clearHubTokensForPublicFetch();
+  if (process.env.KCA_USE_HF_TOKEN !== "1") {
+    clearHubTokensForPublicFetch();
+  } else {
+    const token = huggingFaceAccessToken();
+    if (token && !process.env.HF_TOKEN) process.env.HF_TOKEN = token;
+  }
   warnCwdTokenizerShadow();
 }
 

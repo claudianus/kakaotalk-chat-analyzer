@@ -4,6 +4,18 @@ const HUB_TOKEN_KEYS = ["HF_TOKEN", "HF_ACCESS_TOKEN", "HUGGING_FACE_HUB_TOKEN"]
 
 const DEFAULT_HUB_HOSTS = ["https://huggingface.co/", "https://hf-mirror.com/"] as const;
 
+let hubMirrorChain: Promise<void> = Promise.resolve();
+
+function withHubMirrorLock<T>(fn: () => Promise<T>): Promise<T> {
+  let release!: () => void;
+  const slot = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const run = hubMirrorChain.then(() => fn());
+  hubMirrorChain = slot;
+  return run.finally(() => release());
+}
+
 /** 공개 Xenova 모델 — 만료·잘못된 HF 토큰이 401을 유발할 수 있어 기본은 헤더 미전송 */
 export function clearHubTokensForPublicFetch(): Map<string, string | undefined> {
   const saved = new Map<string, string | undefined>();
@@ -35,23 +47,25 @@ export async function runWithHubMirrors<T>(
   mod: TransformersModule,
   fn: () => Promise<T>,
 ): Promise<T> {
-  const useToken = process.env.KCA_USE_HF_TOKEN === "1";
-  const savedTokens = useToken ? null : clearHubTokensForPublicFetch();
-  const previousHost = mod.env.remoteHost;
-  const hosts = hubMirrorHosts();
-  let lastError: unknown;
-  try {
-    for (const host of hosts) {
-      mod.env.remoteHost = host;
-      try {
-        return await fn();
-      } catch (error) {
-        lastError = error;
+  return withHubMirrorLock(async () => {
+    const useToken = process.env.KCA_USE_HF_TOKEN === "1";
+    const savedTokens = useToken ? null : clearHubTokensForPublicFetch();
+    const previousHost = mod.env.remoteHost;
+    const hosts = hubMirrorHosts();
+    let lastError: unknown;
+    try {
+      for (const host of hosts) {
+        mod.env.remoteHost = host;
+        try {
+          return await fn();
+        } catch (error) {
+          lastError = error;
+        }
       }
+      throw lastError instanceof Error ? lastError : new Error(String(lastError));
+    } finally {
+      mod.env.remoteHost = previousHost;
+      if (savedTokens) restoreHubTokens(savedTokens);
     }
-    throw lastError instanceof Error ? lastError : new Error(String(lastError));
-  } finally {
-    mod.env.remoteHost = previousHost;
-    if (savedTokens) restoreHubTokens(savedTokens);
-  }
+  });
 }

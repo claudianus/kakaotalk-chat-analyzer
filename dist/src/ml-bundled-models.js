@@ -67,11 +67,12 @@ export function bundledMlModelsRoot() {
     return undefined;
 }
 export function isLocalBundledSentimentModel(modelId) {
-    if (!isBundledSentimentModelReady())
-        return false;
-    return (modelId === BUNDLED_SENTIMENT_MODEL_ID ||
-        modelId === LEGACY_BUNDLED_SENTIMENT_MODEL_ID ||
-        modelId === resolveBundledSentimentModelId());
+    if (modelId === BUNDLED_SENTIMENT_MODEL_ID)
+        return modelConfigExists(BUNDLED_SENTIMENT_MODEL_ID);
+    if (modelId === LEGACY_BUNDLED_SENTIMENT_MODEL_ID) {
+        return modelConfigExists(LEGACY_BUNDLED_SENTIMENT_MODEL_ID);
+    }
+    return false;
 }
 export function isLocalBundledEmbedModel(modelId) {
     return modelId === BUNDLED_EMBED_MODEL_ID && isBundledEmbedModelReady();

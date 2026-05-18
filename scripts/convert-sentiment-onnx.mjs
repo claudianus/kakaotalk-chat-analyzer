@@ -43,7 +43,7 @@ optimum-cli export onnx \\
 변환 후 quality preset 이 \`kca-koelectra-korean-sentiment\` 로컬 모델을 우선 사용합니다.
 이진 출력은 \`KCA_SENTIMENT_BINARY_HIGH\`(기본 0.72) 미만 confidence 를 neutral 로 매핑합니다.
 
-원본: ${sourceModel} (MIT)
+원본: ${sourceModel}
 `;
   mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, "README.md"), readme, "utf8");
