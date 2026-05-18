@@ -44,16 +44,14 @@ test("minFreeGbForLlmRetry default is 1.5", () => {
   }
 });
 
-test("buildKcaLlmJsonSchema requires paragraphs", () => {
+test("buildKcaLlmJsonSchema defines paragraphs array", () => {
   const schema = buildKcaLlmJsonSchema() as unknown as {
     type: string;
-    required?: string[];
-    properties?: { paragraphs?: { maxItems?: number } };
+    properties?: { paragraphs?: { maxItems?: number; minItems?: number } };
   };
   assert.equal(schema.type, "object");
-  assert.ok(Array.isArray(schema.required));
-  assert.ok(schema.required?.includes("paragraphs"));
   assert.equal(schema.properties?.paragraphs?.maxItems, 3);
+  assert.equal(schema.properties?.paragraphs?.minItems, 2);
 });
 
 test("isLlmGrammarEnabled defaults on", () => {

@@ -8,7 +8,10 @@ export async function getKcaLlmGrammar(llama) {
     if (!isLlmGrammarEnabled())
         return null;
     if (!grammarPromise) {
-        grammarPromise = llama.createGrammarForJsonSchema(buildKcaLlmJsonSchema());
+        grammarPromise = llama.createGrammarForJsonSchema(buildKcaLlmJsonSchema()).catch((error) => {
+            grammarPromise = null;
+            throw error;
+        });
     }
     return grammarPromise;
 }

@@ -12,7 +12,6 @@ export function buildKcaLlmJsonSchema() {
             i: { type: "integer" },
             title: { type: "string", maxLength: 48 },
           },
-          required: ["i", "title"],
         },
       },
       topicProposals: {
@@ -27,13 +26,7 @@ export function buildKcaLlmJsonSchema() {
               maxItems: 6,
               items: { type: "string", maxLength: 32 },
             },
-            keywordEvidence: {
-              type: "array",
-              maxItems: 6,
-              items: { type: "string", maxLength: 32 },
-            },
           },
-          required: ["title"],
         },
       },
       paragraphs: {
@@ -50,6 +43,5 @@ export function buildKcaLlmJsonSchema() {
       shopSearchSummary: { type: "string", maxLength: 120 },
       dyadInsight: { type: "string", maxLength: 120 },
     },
-    required: ["paragraphs"],
   } as const;
 }

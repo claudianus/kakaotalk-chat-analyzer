@@ -16,7 +16,6 @@ export declare function buildKcaLlmJsonSchema(): {
                         readonly maxLength: 48;
                     };
                 };
-                readonly required: readonly ["i", "title"];
             };
         };
         readonly topicProposals: {
@@ -37,16 +36,7 @@ export declare function buildKcaLlmJsonSchema(): {
                             readonly maxLength: 32;
                         };
                     };
-                    readonly keywordEvidence: {
-                        readonly type: "array";
-                        readonly maxItems: 6;
-                        readonly items: {
-                            readonly type: "string";
-                            readonly maxLength: 32;
-                        };
-                    };
                 };
-                readonly required: readonly ["title"];
             };
         };
         readonly paragraphs: {
@@ -75,5 +65,4 @@ export declare function buildKcaLlmJsonSchema(): {
             readonly maxLength: 120;
         };
     };
-    readonly required: readonly ["paragraphs"];
 };

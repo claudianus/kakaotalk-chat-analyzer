@@ -46,8 +46,10 @@ test("applyGgmlMetalCompatibilityEnv sets tensor disable on darwin auto", () => 
 test("resolveLlmSamplingParams Qwen3.5 instruct defaults", () => {
   const prevT = process.env.KCA_LLM_TEMPERATURE;
   const prevP = process.env.KCA_LLM_TOP_P;
+  const prevK = process.env.KCA_LLM_TOP_K;
   delete process.env.KCA_LLM_TEMPERATURE;
   delete process.env.KCA_LLM_TOP_P;
+  delete process.env.KCA_LLM_TOP_K;
   try {
     const s = resolveLlmSamplingParams();
     assert.equal(s.temperature, 0.7);
@@ -58,5 +60,7 @@ test("resolveLlmSamplingParams Qwen3.5 instruct defaults", () => {
     else process.env.KCA_LLM_TEMPERATURE = prevT;
     if (prevP === undefined) delete process.env.KCA_LLM_TOP_P;
     else process.env.KCA_LLM_TOP_P = prevP;
+    if (prevK === undefined) delete process.env.KCA_LLM_TOP_K;
+    else process.env.KCA_LLM_TOP_K = prevK;
   }
 });
