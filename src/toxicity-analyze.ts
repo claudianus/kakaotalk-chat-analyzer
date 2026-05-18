@@ -117,6 +117,7 @@ export async function analyzeToxicityFromSamples(
 
   try {
     const pipe = await loadPipeline(modelId);
+    const resolvedModelId = loadedModelId ?? modelId;
     const batchSize = resolveSentimentBatchSize();
     let toxicSum = 0;
     let count = 0;
@@ -139,7 +140,7 @@ export async function analyzeToxicityFromSamples(
       neutralPercent: Math.round((100 - toxicPercent) * 10) / 10,
       messagesWithToxicity,
       usedMlModel: true,
-      modelId,
+      modelId: resolvedModelId,
       tier: "ml",
     };
   } catch (error) {
