@@ -1,5 +1,11 @@
 import type { ToxicityStats } from "./types.js";
-import { isLocalBundledToxicityModel } from "./ml-bundled-models.js";
+import {
+  BUNDLED_TOXICITY_MODEL_ID,
+  isBundledToxicityModelReady,
+  isLocalBundledToxicityModel,
+} from "./ml-bundled-models.js";
+import { ensureToxicityBundle } from "./ml-bundle-cache.js";
+import { HUB_KCELECTRA_TOXICITY } from "./ml/model-ids.js";
 import { resolveToxicityModelId } from "./ml/registry.js";
 import type { SentimentBatchItem } from "./sentiment-analyze.js";
 import { runWithHubMirrors } from "./ml-hub-access.js";
@@ -60,7 +66,16 @@ function scoreToToxicPercent(score: number, label: string): number {
   return Math.round((1 - score) * 30) / 10;
 }
 
-async function loadPipeline(modelId: string): Promise<ClassificationPipeline> {
+async function resolveToxicityLoadModelId(requestedId: string): Promise<string> {
+  if (requestedId !== BUNDLED_TOXICITY_MODEL_ID) return requestedId;
+  if (isBundledToxicityModelReady()) return BUNDLED_TOXICITY_MODEL_ID;
+  const ok = await ensureToxicityBundle();
+  if (ok && isBundledToxicityModelReady()) return BUNDLED_TOXICITY_MODEL_ID;
+  return HUB_KCELECTRA_TOXICITY;
+}
+
+async function loadPipeline(requestedModelId: string): Promise<ClassificationPipeline> {
+  const modelId = await resolveToxicityLoadModelId(requestedModelId);
   if (pipelinePromise && loadedModelId === modelId) return pipelinePromise;
   if (loadedModelId !== modelId) {
     pipelinePromise = null;
@@ -98,13 +113,11 @@ export async function analyzeToxicityFromSamples(
 ): Promise<ToxicityStats | null> {
   if (samples.length < MIN_SAMPLES) return null;
   const modelId = resolveToxicityModelId();
-  if (!modelId) {
-    if (process.env.KCA_TOXICITY === "1") return lexiconToxicityFromSamples(samples);
-    return null;
-  }
+  if (!modelId) return null;
 
   try {
     const pipe = await loadPipeline(modelId);
+    const resolvedModelId = loadedModelId ?? modelId;
     const batchSize = resolveSentimentBatchSize();
     let toxicSum = 0;
     let count = 0;
@@ -127,7 +140,7 @@ export async function analyzeToxicityFromSamples(
       neutralPercent: Math.round((100 - toxicPercent) * 10) / 10,
       messagesWithToxicity,
       usedMlModel: true,
-      modelId,
+      modelId: resolvedModelId,
       tier: "ml",
     };
   } catch (error) {

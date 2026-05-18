@@ -1,20 +1,24 @@
 #!/usr/bin/env node
 /**
- * Export bundled Korean encoder ONNX into kakaotalk-chat-analyzer-models (and local data/).
+ * Export bundled Korean encoder ONNX into data/ml-models (+ models npm package).
  *
  * Usage:
- *   node scripts/sync-ml-models.mjs
- *   KCA_ML_MODELS_DIR=./kakaotalk-chat-analyzer-models/data/ml-models node scripts/sync-ml-models.mjs
+ *   npm run sync:ml-models
+ *
+ * Requires: .venv-ml (auto-created) or optimum-cli on PATH
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const TOXICITY_ONNX_ASSET = "kca-kcelectra-base-toxicity-onnx.zip";
+
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const modelsRoot =
-  process.env.KCA_ML_MODELS_DIR?.trim() ||
-  join(root, "kakaotalk-chat-analyzer-models", "data", "ml-models");
+const MODEL_ROOTS = [
+  join(root, "data", "ml-models"),
+  join(root, "kakaotalk-chat-analyzer-models", "data", "ml-models"),
+];
 
 const EXPORTS = [
   {
@@ -34,8 +38,31 @@ const EXPORTS = [
   },
 ];
 
-function writeModelReadme(entry) {
-  const outDir = join(modelsRoot, entry.id);
+/** npm `kakaotalk-chat-analyzer-models` tarball (~110MB) */
+const NPM_EXPORTS = EXPORTS.filter((e) => e.id !== "kca-kcelectra-base-toxicity");
+
+function optimumCli() {
+  const venv = join(root, ".venv-ml", "bin", "optimum-cli");
+  if (existsSync(venv)) return venv;
+  return "optimum-cli";
+}
+
+/** @xenova/transformers 는 onnx/model.onnx 경로를 기대 */
+function fixOnnxLayout(modelDir) {
+  const flat = join(modelDir, "model.onnx");
+  const nestedDir = join(modelDir, "onnx");
+  const nested = join(nestedDir, "model.onnx");
+  if (!existsSync(flat)) return;
+  mkdirSync(nestedDir, { recursive: true });
+  cpSync(flat, nested);
+  try {
+    unlinkSync(flat);
+  } catch {
+    /* ignore */
+  }
+}
+
+function writeModelReadme(entry, outDir) {
   mkdirSync(outDir, { recursive: true });
   const readme = `# ${entry.id}
 
@@ -43,58 +70,111 @@ Source: \`${entry.source}\`
 Task: \`${entry.task}\`
 
 \`\`\`bash
-optimum-cli export onnx --model ${entry.source} --task ${entry.task} ${outDir}
+npm run sync:ml-models
 \`\`\`
-
-Or: \`npm run sync:ml-models\` (requires optimum-cli on PATH)
 `;
   writeFileSync(join(outDir, "README.md"), readme, "utf8");
 }
 
-function tryOptimumExport(entry) {
-  const outDir = join(modelsRoot, entry.id);
-  if (existsSync(join(outDir, "config.json"))) {
+function tryOptimumExport(entry, outDir) {
+  if (existsSync(join(outDir, "config.json")) && existsSync(join(outDir, "onnx", "model.onnx"))) {
     console.log(`[sync:ml-models] skip (exists): ${entry.id}`);
     return true;
   }
-  const check = spawnSync("optimum-cli", ["--help"], { encoding: "utf8" });
-  if (check.status !== 0) return false;
+  const cli = optimumCli();
+  const check = spawnSync(cli, ["--help"], { encoding: "utf8" });
+  if (check.status !== 0) {
+    console.error(`[sync:ml-models] ${cli} not found — run: python3 -m venv .venv-ml && .venv-ml/bin/pip install "optimum[onnxruntime]" onnx transformers torch`);
+    return false;
+  }
   mkdirSync(outDir, { recursive: true });
   console.log(`[sync:ml-models] exporting ${entry.source} → ${outDir}`);
   const run = spawnSync(
-    "optimum-cli",
+    cli,
     ["export", "onnx", "--model", entry.source, "--task", entry.task, outDir],
     { stdio: "inherit", encoding: "utf8" },
   );
-  return run.status === 0 && existsSync(join(outDir, "config.json"));
+  if (run.status !== 0) return false;
+  fixOnnxLayout(outDir);
+  return existsSync(join(outDir, "config.json")) && existsSync(join(outDir, "onnx", "model.onnx"));
 }
 
-function syncManifest() {
+function syncManifest(modelsRoot, entries, version = "0.2.0") {
   const manifestPath = join(modelsRoot, "manifest.json");
-  let manifest = { schema: "kca-ml-models/1", version: "0.1.0", models: [] };
-  if (existsSync(manifestPath)) {
-    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  }
-  manifest.models = EXPORTS.map((e) => ({
-    id: e.id,
-    task: e.task,
-    source: e.source,
-    bundled: existsSync(join(modelsRoot, e.id, "config.json")),
-  }));
+  const manifest = {
+    schema: "kca-ml-models/1",
+    version,
+    bundled: entries === NPM_EXPORTS,
+    models: entries.map((e) => ({
+      id: e.id,
+      task: e.task,
+      source: e.source,
+      bundled: existsSync(join(modelsRoot, e.id, "onnx", "model.onnx")),
+    })),
+  };
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
 
+function pruneModelsPackage(modelsRoot) {
+  const toxic = join(modelsRoot, "kca-kcelectra-base-toxicity");
+  if (existsSync(toxic)) {
+    rmSync(toxic, { recursive: true, force: true });
+    console.log(`[sync:ml-models] removed toxicity from npm package tree: ${modelsRoot}`);
+  }
+}
+
+function copyNpmModelsToPackage(primaryRoot, secondaryRoot) {
+  if (primaryRoot === secondaryRoot) return;
+  pruneModelsPackage(secondaryRoot);
+  for (const entry of NPM_EXPORTS) {
+    const src = join(primaryRoot, entry.id);
+    const dest = join(secondaryRoot, entry.id);
+    if (!existsSync(join(src, "onnx", "model.onnx"))) continue;
+    mkdirSync(dest, { recursive: true });
+    cpSync(src, dest, { recursive: true });
+    console.log(`[sync:ml-models] copied ${entry.id} → ${secondaryRoot}`);
+  }
+}
+
+function createToxicityReleaseZip(primaryRoot) {
+  const toxicId = "kca-kcelectra-base-toxicity";
+  const toxicDir = join(primaryRoot, toxicId);
+  if (!existsSync(join(toxicDir, "onnx", "model.onnx"))) {
+    console.warn("[sync:ml-models] toxicity ONNX missing; skip release zip");
+    return null;
+  }
+  const zipPath = join(root, TOXICITY_ONNX_ASSET);
+  if (existsSync(zipPath)) rmSync(zipPath, { force: true });
+  const run = spawnSync("zip", ["-r", zipPath, toxicId], {
+    cwd: primaryRoot,
+    encoding: "utf8",
+  });
+  if (run.status !== 0) {
+    console.error("[sync:ml-models] zip failed:", run.stderr || run.stdout);
+    return null;
+  }
+  console.log(`[sync:ml-models] release asset: ${zipPath}`);
+  return zipPath;
+}
+
 function main() {
-  mkdirSync(modelsRoot, { recursive: true });
+  const primaryRoot = MODEL_ROOTS[0];
+  mkdirSync(primaryRoot, { recursive: true });
   let exported = 0;
   for (const entry of EXPORTS) {
-    writeModelReadme(entry);
-    if (tryOptimumExport(entry)) exported += 1;
+    const outDir = join(primaryRoot, entry.id);
+    writeModelReadme(entry, outDir);
+    if (tryOptimumExport(entry, outDir)) exported += 1;
+    else fixOnnxLayout(outDir);
   }
-  syncManifest();
-  console.log(`[sync:ml-models] root=${modelsRoot} exported=${exported}/${EXPORTS.length}`);
+  syncManifest(primaryRoot, EXPORTS);
+  copyNpmModelsToPackage(primaryRoot, MODEL_ROOTS[1]);
+  syncManifest(MODEL_ROOTS[1], NPM_EXPORTS);
+  createToxicityReleaseZip(primaryRoot);
+  const totalMb = spawnSync("du", ["-sh", primaryRoot], { encoding: "utf8" });
+  console.log(`[sync:ml-models] root=${primaryRoot} exported=${exported}/${EXPORTS.length} size=${(totalMb.stdout || "").trim()}`);
   if (exported < EXPORTS.length) {
-    console.log("[sync:ml-models] optimum-cli missing or export failed — README stubs only.");
+    process.exitCode = 1;
   }
 }
 

@@ -1,0 +1,96 @@
+name: Publish ML models
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kakaotalk-chat-analyzer-models/**"
+      - "scripts/sync-ml-models.mjs"
+      - "src/ml/model-ids.ts"
+      - ".github/workflows/publish-ml-models.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: publish-ml-models
+  cancel-in-progress: false
+
+jobs:
+  export-and-publish:
+    runs-on: ubuntu-latest
+    if: github.repository == 'claudianus/kakaotalk-chat-analyzer'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Cache ONNX export
+        uses: actions/cache@v4
+        id: ml-onnx-cache
+        with:
+          path: |
+            data/ml-models
+            kakaotalk-chat-analyzer-models/data/ml-models
+            .venv-ml
+          key: kca-ml-onnx-v1-${{ hashFiles('scripts/sync-ml-models.mjs', 'src/ml/model-ids.ts', 'kakaotalk-chat-analyzer-models/package.json') }}
+
+      - name: Setup Python venv (optimum)
+        run: |
+          python3 -m venv .venv-ml
+          .venv-ml/bin/pip install -q "optimum[onnxruntime]" onnx transformers torch
+
+      - name: Export ONNX bundles
+        run: node scripts/sync-ml-models.mjs
+
+      - name: Verify npm models package ONNX
+        run: |
+          set -euo pipefail
+          ROOT="kakaotalk-chat-analyzer-models/data/ml-models"
+          for id in kca-koelectra-small-v3-nsmc kca-koelectra-small-v3-embed; do
+            test -f "$ROOT/$id/onnx/model.onnx"
+            test -f "$ROOT/$id/config.json"
+          done
+          test ! -f "$ROOT/kca-kcelectra-base-toxicity/onnx/model.onnx" || {
+            echo "toxicity must not ship in npm models package"
+            exit 1
+          }
+
+      - name: Publish kakaotalk-chat-analyzer-models if version is new
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "NPM_TOKEN not set; skip models publish."
+            exit 0
+          fi
+          cd kakaotalk-chat-analyzer-models
+          LOCAL="$(node -p "require('./package.json').version")"
+          REMOTE="$(npm view kakaotalk-chat-analyzer-models version 2>/dev/null || true)"
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "kakaotalk-chat-analyzer-models@$LOCAL already on registry; skip."
+          else
+            echo "Publishing kakaotalk-chat-analyzer-models@$LOCAL (registry had: ${REMOTE:-none})"
+            npm publish --access public
+          fi
+
+      - name: Upload toxicity ONNX release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          ZIP="kca-kcelectra-base-toxicity-onnx.zip"
+          if [ ! -f "$ZIP" ]; then
+            echo "No toxicity zip generated; failing to prevent broken lazy-download URL."
+            exit 1
+          fi
+          VER="$(node -p "require('./kakaotalk-chat-analyzer-models/package.json').version")"
+          TAG="ml-models-v${VER}"
+          gh release view "$TAG" 2>/dev/null || gh release create "$TAG" --title "ML models v${VER}" --notes "Bundled ONNX: NSMC+embed via npm; toxicity zip for lazy install."
+          gh release upload "$TAG" "$ZIP" --clobber

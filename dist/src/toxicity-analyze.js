@@ -1,4 +1,6 @@
-import { isLocalBundledToxicityModel } from "./ml-bundled-models.js";
+import { BUNDLED_TOXICITY_MODEL_ID, isBundledToxicityModelReady, isLocalBundledToxicityModel, } from "./ml-bundled-models.js";
+import { ensureToxicityBundle } from "./ml-bundle-cache.js";
+import { HUB_KCELECTRA_TOXICITY } from "./ml/model-ids.js";
 import { resolveToxicityModelId } from "./ml/registry.js";
 import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
@@ -45,7 +47,18 @@ function scoreToToxicPercent(score, label) {
         return Math.round(score * 1000) / 10;
     return Math.round((1 - score) * 30) / 10;
 }
-async function loadPipeline(modelId) {
+async function resolveToxicityLoadModelId(requestedId) {
+    if (requestedId !== BUNDLED_TOXICITY_MODEL_ID)
+        return requestedId;
+    if (isBundledToxicityModelReady())
+        return BUNDLED_TOXICITY_MODEL_ID;
+    const ok = await ensureToxicityBundle();
+    if (ok && isBundledToxicityModelReady())
+        return BUNDLED_TOXICITY_MODEL_ID;
+    return HUB_KCELECTRA_TOXICITY;
+}
+async function loadPipeline(requestedModelId) {
+    const modelId = await resolveToxicityLoadModelId(requestedModelId);
     if (pipelinePromise && loadedModelId === modelId)
         return pipelinePromise;
     if (loadedModelId !== modelId) {
@@ -80,13 +93,11 @@ export async function analyzeToxicityFromSamples(samples, corpusMessages) {
     if (samples.length < MIN_SAMPLES)
         return null;
     const modelId = resolveToxicityModelId();
-    if (!modelId) {
-        if (process.env.KCA_TOXICITY === "1")
-            return lexiconToxicityFromSamples(samples);
+    if (!modelId)
         return null;
-    }
     try {
         const pipe = await loadPipeline(modelId);
+        const resolvedModelId = loadedModelId ?? modelId;
         const batchSize = resolveSentimentBatchSize();
         let toxicSum = 0;
         let count = 0;
@@ -109,7 +120,7 @@ export async function analyzeToxicityFromSamples(samples, corpusMessages) {
             neutralPercent: Math.round((100 - toxicPercent) * 10) / 10,
             messagesWithToxicity,
             usedMlModel: true,
-            modelId,
+            modelId: resolvedModelId,
             tier: "ml",
         };
     }

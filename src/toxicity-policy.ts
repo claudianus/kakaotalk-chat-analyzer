@@ -1,7 +1,6 @@
 import type { HeuristicPrepassCollector } from "./export-prepass.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
-import { isBundledToxicityModelReady } from "./ml-bundled-models.js";
 import { shouldCollectSentimentSamples } from "./sentiment-policy.js";
 
 const MIN_TOXICITY_MESSAGES = 48;
@@ -27,6 +26,6 @@ export function resolveToxicityMl(
   if (options?.toxicityMl === true) return true;
 
   const preset = resolvePresetNameWithAuto(options, prepass.messageCount);
-  if (preset === "quality" && isBundledToxicityModelReady()) return true;
+  if (preset === "quality") return true;
   return false;
 }

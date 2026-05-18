@@ -1,17 +1,13 @@
 import type { HeuristicPrepassCollector } from "./export-prepass.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
+import { HUB_KOELECTRA_NSMC } from "./ml/model-ids.js";
 export { semanticSampleCap as sentimentSampleCap, semanticReservoirCap as sentimentReservoirCap, subsampleSemanticMessages as subsampleSentimentSamples, } from "./semantic-policy.js";
-/** 익명 Hub 다운로드 가능한 Xenova ONNX (nlptown 1–5 stars → pos/neu/neg) */
-export declare const DEFAULT_SENTIMENT_MODEL = "Xenova/bert-base-multilingual-uncased-sentiment";
-/** Hub 익명 401 — `KCA_SENTIMENT_MODEL` 로만 지정 */
-export declare const LEGACY_DISTILBERT_SENTIMENT_MODEL = "Xenova/distilbert-base-multilingual-cased-sentiment";
-/** Hub 익명 401 — `KCA_SENTIMENT_MODEL` 로만 지정 */
-export declare const KLUE_SENTIMENT_MODEL = "Xenova/klue-roberta-small-sentiment";
+export { HUB_KOELECTRA_NSMC as DEFAULT_SENTIMENT_MODEL };
 export declare function isBinarySentimentModel(modelId: string): boolean;
 /** 이진 NSMC 계열: confidence < high 이면 neutral */
 export declare function binarySentimentConfidenceHigh(): number;
-export declare function sentimentModelId(preset?: string, messageCount?: number, options?: BuildReportOptions): string;
-/** primary 실패 시 Hub accessible Xenova 로 폴백 (primary가 이미 default면 단일) */
+export declare function sentimentModelId(_preset?: string, _messageCount?: number, _options?: BuildReportOptions): string;
+/** 번들 → Hub NSMC (구 bert Xenova 폴백 제거) */
 export declare function sentimentModelFallbacks(preset?: string, messageCount?: number, options?: BuildReportOptions): string[];
 export declare function shouldCollectSentimentSamples(messageCount: number): boolean;
 /**

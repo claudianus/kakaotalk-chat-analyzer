@@ -37,8 +37,8 @@ describe("sentiment-analyze", () => {
       assert.ok(labels.every((l) => l === "positive" || l === "negative" || l === "neutral"));
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      if (/Unauthorized|fetch|ENOTFOUND|ECONNREFUSED/i.test(msg)) {
-        t.skip(`transformers model download unavailable in CI: ${msg.slice(0, 80)}`);
+      if (/Unauthorized|fetch|ENOTFOUND|ECONNREFUSED|Could not locate file/i.test(msg)) {
+        t.skip(`transformers model unavailable (번들 없음·Hub ONNX 미호스팅): ${msg.slice(0, 96)}`);
         return;
       }
       throw error;

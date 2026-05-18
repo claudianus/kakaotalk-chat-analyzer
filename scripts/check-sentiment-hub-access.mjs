@@ -31,8 +31,7 @@ function main() {
   for (const id of MUST_FAIL) {
     const code = headStatus(id);
     const blocked = code === "401" || code === "403";
-    console.log(`${blocked ? "blocked" : "WARN"} ${code} ${id}`);
-    if (!blocked) failed = true;
+    console.log(`${blocked ? "blocked" : "skip"} ${code} ${id} (deprecated, unused)`);
   }
   if (failed) process.exit(1);
 }

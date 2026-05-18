@@ -16,6 +16,7 @@ import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveEmbedBatchSize } from "./ml-batch-size.js";
 import { bundledMlModelsDir, isLocalBundledEmbedModel } from "./ml-bundled-models.js";
+import { ensureCoreMlBundles } from "./ml-bundle-install.js";
 
 const MIN_SAMPLES = 48;
 
@@ -29,6 +30,7 @@ let loadedModelId: string | null = null;
 
 async function loadPipelineForModel(modelId: string): Promise<FeaturePipeline> {
   return withQuietMlStderr(async () => {
+    await ensureCoreMlBundles();
     let mod: typeof import("@xenova/transformers");
     try {
       mod = await import("@xenova/transformers");
@@ -67,13 +69,12 @@ async function loadPipeline(
     try {
       return await loadPipelineForModel(modelId);
     } catch (error) {
-      if (modelId === DEFAULT_KOREAN_SEMANTIC_MODEL) throw error;
+      const fallback = modelId === DEFAULT_KOREAN_SEMANTIC_MODEL ? null : DEFAULT_KOREAN_SEMANTIC_MODEL;
+      if (!fallback) throw error;
       const msg = error instanceof Error ? error.message : String(error);
-      process.stderr.write(
-        `[kca] 시맨틱 모델 ${modelId} 로드 실패 → ${DEFAULT_KOREAN_SEMANTIC_MODEL}: ${msg}\n`,
-      );
-      loadedModelId = DEFAULT_KOREAN_SEMANTIC_MODEL;
-      return loadPipelineForModel(DEFAULT_KOREAN_SEMANTIC_MODEL);
+      process.stderr.write(`[kca] 시맨틱 모델 ${modelId} 로드 실패 → ${fallback}: ${msg}\n`);
+      loadedModelId = fallback;
+      return loadPipelineForModel(fallback);
     }
   })();
   return pipelinePromise;

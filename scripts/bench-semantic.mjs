@@ -4,7 +4,7 @@
  *
  * Usage:
  *   npm run bench:semantic
- *   KCA_SEMANTIC_MODEL=Xenova/multilingual-e5-small npm run bench:semantic
+ *   KCA_SEMANTIC_MODEL=daekeun-ml/koelectra-small-v3-korsts npm run bench:semantic
  */
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";

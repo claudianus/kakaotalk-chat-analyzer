@@ -9,6 +9,9 @@ on:
       - "src/**"
       - "dist/**"
       - "kcachat/**"
+      - "kakaotalk-chat-analyzer-models/package.json"
+      - "scripts/ensure-ml-bundles.mjs"
+      - "scripts/ml-bundle-lib.mjs"
       - ".github/workflows/npm-publish.yml"
   workflow_dispatch:
 
@@ -39,6 +42,29 @@ jobs:
           key: kca-cache-v2-${{ runner.os }}-${{ hashFiles('src/kiwi-runtime.ts', 'src/semantic-keywords.ts') }}
           restore-keys: |
             kiwi-base-v1-${{ runner.os }}-
+
+      - name: Bootstrap models package
+        run: |
+          set -euo pipefail
+          MODELS_VER="$(node -p "const p=require('./package.json'); p.optionalDependencies?.['kakaotalk-chat-analyzer-models'] || p.dependencies?.['kakaotalk-chat-analyzer-models']")"
+          if npm view "kakaotalk-chat-analyzer-models@${MODELS_VER}" version >/dev/null 2>&1; then
+            echo "models@${MODELS_VER} on registry"
+            exit 0
+          fi
+          ONNX="kakaotalk-chat-analyzer-models/data/ml-models/kca-koelectra-small-v3-nsmc/onnx/model.onnx"
+          if [ -f "$ONNX" ]; then
+            echo "Installing models from monorepo (pre-publish bootstrap)"
+            npm install "./kakaotalk-chat-analyzer-models"
+            exit 0
+          fi
+          for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+            if npm view "kakaotalk-chat-analyzer-models@${MODELS_VER}" version >/dev/null 2>&1; then
+              exit 0
+            fi
+            echo "Waiting for kakaotalk-chat-analyzer-models@${MODELS_VER} (publish-ml-models)…"
+            sleep 10
+          done
+          exit 1
 
       - name: Install and test (main)
         run: npm ci && npm test

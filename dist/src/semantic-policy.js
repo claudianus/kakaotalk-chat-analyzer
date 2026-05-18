@@ -1,6 +1,7 @@
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { getPresetEffectiveFlags, presetForcesSemanticOff } from "./analysis-preset.js";
 import { BUNDLED_EMBED_MODEL_ID, isBundledEmbedModelReady } from "./ml-bundled-models.js";
+import { HUB_KOELECTRA_EMBED, HUB_KOELECTRA_KORSTS } from "./ml/model-ids.js";
 const MIN_SEMANTIC_MESSAGES = 48;
 /** 코퍼스 규모별 임베딩·리저보어 상한 */
 export function semanticSampleCap(messageCount) {
@@ -38,27 +39,26 @@ export function subsampleSemanticMessages(messages, cap) {
         .slice(0, cap)
         .map((x) => x.m);
 }
-/** balanced·speed — Xenova ONNX (검증됨) */
-export const DEFAULT_KOREAN_SEMANTIC_MODEL = "Xenova/multilingual-e5-small";
-/** quality preset — dragonkue ko-v2 (ONNX 미호스팅 시 런타임 fallback) */
-export const QUALITY_KOREAN_SEMANTIC_MODEL = "dragonkue/multilingual-e5-small-ko-v2";
-/** 이전 기본값(롤백: `KCA_SEMANTIC_MODEL` 로 지정) */
-export const LEGACY_SEMANTIC_MODEL = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
-const E5_QUERY_PREFIX = "query: ";
+/** balanced·speed — KorSTS 계열 Hub */
+export const DEFAULT_KOREAN_SEMANTIC_MODEL = HUB_KOELECTRA_KORSTS;
+/** quality — discriminator feature-extraction Hub */
+export const QUALITY_KOREAN_SEMANTIC_MODEL = HUB_KOELECTRA_EMBED;
 export function semanticEmbeddingModelId(options, messageCount) {
     const env = process.env.KCA_SEMANTIC_MODEL?.trim();
     if (env)
         return env;
     const preset = getPresetEffectiveFlags(options, messageCount).preset;
-    if (preset === "quality" && isBundledEmbedModelReady())
+    if (isBundledEmbedModelReady())
         return BUNDLED_EMBED_MODEL_ID;
     if (preset === "quality")
-        return QUALITY_KOREAN_SEMANTIC_MODEL;
-    return DEFAULT_KOREAN_SEMANTIC_MODEL;
+        return HUB_KOELECTRA_EMBED;
+    return HUB_KOELECTRA_KORSTS;
 }
-/** E5 계열은 대칭 클러스터링에도 MS 권장 `query:` 접두사 사용 */
+/** KoELECTRA는 E5 query 접두사 불필요 */
 export function needsE5QueryPrefix(modelId) {
     const id = modelId.toLowerCase();
+    if (id.includes("koelectra") || id.startsWith("kca-koelectra"))
+        return false;
     if (id.includes("minilm") || id.includes("paraphrase-multilingual"))
         return false;
     return id.includes("e5") || id.includes("koe5");
@@ -70,7 +70,7 @@ export function formatTextForEmbedding(text, modelId) {
     const trimmed = text.trimStart();
     if (trimmed.startsWith("query:") || trimmed.startsWith("passage:"))
         return text;
-    return `${E5_QUERY_PREFIX}${text}`;
+    return `query: ${text}`;
 }
 export function shouldCollectSemanticSamples(messageCount) {
     return messageCount >= MIN_SEMANTIC_MESSAGES && process.env.KCA_NO_SEMANTIC !== "1";

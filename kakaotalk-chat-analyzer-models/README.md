@@ -8,7 +8,8 @@ Optional npm package with bundled Korean encoder ONNX weights for [kakaotalk-cha
 |-----------|--------|------|
 | `kca-koelectra-small-v3-nsmc` | `daekeun-ml/koelectra-small-v3-nsmc` | Sentiment (NSMC) |
 | `kca-koelectra-small-v3-embed` | `monologg/koelectra-small-v3-discriminator` | Feature extraction |
-| `kca-kcelectra-base-toxicity` | `monologg/koelectra-base-v3-discriminator` | Toxicity (binary) |
+
+독성(`kca-kcelectra-base-toxicity`) ONNX는 npm tarball에 포함하지 않습니다. GitHub Release `ml-models-v*` zip으로 lazy 설치합니다.
 
 Generate ONNX locally or in CI:
 

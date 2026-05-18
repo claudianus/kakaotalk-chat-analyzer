@@ -6,6 +6,7 @@ import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js
 import { isTransformersFetchError } from "./ml-transformers-env.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveSentimentBatchSize } from "./ml-batch-size.js";
+import { ensureCoreMlBundles } from "./ml-bundle-install.js";
 const MIN_SAMPLES = 48;
 let pipelinePromise = null;
 let loadedModelId = null;
@@ -69,6 +70,7 @@ async function instantiateSentimentPipeline(mod, modelId, quantized) {
 }
 async function loadPipeline(buildOptions, messageCount) {
     const opts = resolveSentimentBuildOptions(buildOptions, messageCount);
+    await ensureCoreMlBundles();
     const preset = opts?.preset;
     const candidates = sentimentModelFallbacks(preset, messageCount, opts);
     const key = candidates.join("|");

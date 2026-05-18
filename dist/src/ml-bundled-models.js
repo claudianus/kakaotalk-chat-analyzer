@@ -1,61 +1,48 @@
 import { existsSync } from "node:fs";
-import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
+import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-/** NSMC KoELECTRA-Small (quality sentiment) */
-export const BUNDLED_SENTIMENT_MODEL_ID = "kca-koelectra-small-v3-nsmc";
-/** 이전 번들 디렉터리(호환) */
-export const LEGACY_BUNDLED_SENTIMENT_MODEL_ID = "kca-koelectra-korean-sentiment";
-/** KorSTS / semantic quality embedding */
-export const BUNDLED_EMBED_MODEL_ID = "kca-koelectra-small-v3-embed";
-/** KcELECTRA-base toxicity (optional, large) */
-export const BUNDLED_TOXICITY_MODEL_ID = "kca-kcelectra-base-toxicity";
-const PKG_DATA = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data");
-function tryModelsPackageMlDir() {
-    try {
-        const req = createRequire(import.meta.url);
-        const pkgJson = req.resolve("kakaotalk-chat-analyzer-models/package.json");
-        const dir = join(dirname(pkgJson), "data", "ml-models");
-        if (existsSync(dir))
-            return dir;
-    }
-    catch {
-        /* optional package not installed */
-    }
-    return undefined;
-}
-/** `data/ml-models/` — optional npm models 패키지 우선 */
+import { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
+import { isEmbedBundleReady, isSentimentBundleReady, isToxicityBundleReady, listMlModelRoots, resolveMlModelRootFor, } from "./ml-bundle-cache.js";
+const PKG_DATA_ML = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data", "ml-models");
+export { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
+/** transformers `env.localModelPath` — 코어 번들(NSMC+embed)이 함께 있는 루트 우선 */
 export function bundledMlModelsDir() {
-    const fromPkg = tryModelsPackageMlDir();
-    if (fromPkg)
-        return fromPkg;
-    return join(PKG_DATA, "ml-models");
+    for (const root of listMlModelRoots()) {
+        const sent = join(root, BUNDLED_SENTIMENT_MODEL_ID, "onnx", "model.onnx");
+        const embed = join(root, BUNDLED_EMBED_MODEL_ID, "onnx", "model.onnx");
+        if (existsSync(sent) && existsSync(embed))
+            return root;
+    }
+    for (const modelId of [
+        BUNDLED_SENTIMENT_MODEL_ID,
+        BUNDLED_EMBED_MODEL_ID,
+        BUNDLED_TOXICITY_MODEL_ID,
+    ]) {
+        const root = resolveMlModelRootFor(modelId);
+        if (root)
+            return root;
+    }
+    const roots = listMlModelRoots();
+    return roots[0] ?? PKG_DATA_ML;
 }
 export function bundledModelDir(modelId) {
-    return join(bundledMlModelsDir(), modelId);
+    const root = resolveMlModelRootFor(modelId) ?? bundledMlModelsDir();
+    return join(root, modelId);
 }
 export function bundledSentimentModelDir() {
-    return bundledModelDir(resolveBundledSentimentModelId());
-}
-function modelConfigExists(modelId) {
-    return existsSync(join(bundledMlModelsDir(), modelId, "config.json"));
+    return bundledModelDir(BUNDLED_SENTIMENT_MODEL_ID);
 }
 export function resolveBundledSentimentModelId() {
-    if (modelConfigExists(BUNDLED_SENTIMENT_MODEL_ID))
-        return BUNDLED_SENTIMENT_MODEL_ID;
-    if (modelConfigExists(LEGACY_BUNDLED_SENTIMENT_MODEL_ID))
-        return LEGACY_BUNDLED_SENTIMENT_MODEL_ID;
     return BUNDLED_SENTIMENT_MODEL_ID;
 }
 export function isBundledSentimentModelReady() {
-    return (modelConfigExists(BUNDLED_SENTIMENT_MODEL_ID) ||
-        modelConfigExists(LEGACY_BUNDLED_SENTIMENT_MODEL_ID));
+    return isSentimentBundleReady();
 }
 export function isBundledEmbedModelReady() {
-    return modelConfigExists(BUNDLED_EMBED_MODEL_ID);
+    return isEmbedBundleReady();
 }
 export function isBundledToxicityModelReady() {
-    return modelConfigExists(BUNDLED_TOXICITY_MODEL_ID);
+    return isToxicityBundleReady();
 }
 /** 번들 ONNX가 있으면 transformers `env.localModelPath` 로 쓸 루트 */
 export function bundledMlModelsRoot() {
@@ -67,12 +54,7 @@ export function bundledMlModelsRoot() {
     return undefined;
 }
 export function isLocalBundledSentimentModel(modelId) {
-    if (modelId === BUNDLED_SENTIMENT_MODEL_ID)
-        return modelConfigExists(BUNDLED_SENTIMENT_MODEL_ID);
-    if (modelId === LEGACY_BUNDLED_SENTIMENT_MODEL_ID) {
-        return modelConfigExists(LEGACY_BUNDLED_SENTIMENT_MODEL_ID);
-    }
-    return false;
+    return modelId === BUNDLED_SENTIMENT_MODEL_ID && isBundledSentimentModelReady();
 }
 export function isLocalBundledEmbedModel(modelId) {
     return modelId === BUNDLED_EMBED_MODEL_ID && isBundledEmbedModelReady();

@@ -1,7 +1,7 @@
 {
   "name": "kakaotalk-chat-analyzer-models",
-  "version": "0.1.0",
-  "description": "Bundled Korean encoder ONNX models for kakaotalk-chat-analyzer (optional install).",
+  "version": "0.2.0",
+  "description": "Bundled Korean encoder ONNX (NSMC sentiment + embed) for kakaotalk-chat-analyzer.",
   "type": "module",
   "files": [
     "data/ml-models/**",

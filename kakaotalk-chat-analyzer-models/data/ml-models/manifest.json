@@ -1,21 +1,19 @@
 {
   "schema": "kca-ml-models/1",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "bundled": true,
   "models": [
     {
       "id": "kca-koelectra-small-v3-nsmc",
       "task": "text-classification",
-      "source": "daekeun-ml/koelectra-small-v3-nsmc"
+      "source": "daekeun-ml/koelectra-small-v3-nsmc",
+      "bundled": true
     },
     {
       "id": "kca-koelectra-small-v3-embed",
       "task": "feature-extraction",
-      "source": "monologg/koelectra-small-v3-discriminator"
-    },
-    {
-      "id": "kca-kcelectra-base-toxicity",
-      "task": "text-classification",
-      "source": "monologg/koelectra-base-v3-discriminator"
+      "source": "monologg/koelectra-small-v3-discriminator",
+      "bundled": true
     }
   ]
 }
