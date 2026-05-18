@@ -79,8 +79,9 @@ export function getPresetEffectiveFlags(
 ): PresetEffectiveFlags {
   const preset =
     messageCount !== undefined ? resolvePresetNameWithAuto(options, messageCount) : resolvePresetName(options);
+  const llmEnabled = process.env.KCA_LLM !== "0";
   if (preset === "speed") {
-    return { preset, profile: "fast", llmEnabled: false, preferWorker: true };
+    return { preset, profile: "fast", llmEnabled, preferWorker: true };
   }
   if (preset === "balanced") {
     const headroom = memoryHeadroomGb(probeMachineProfileSync());
@@ -88,7 +89,7 @@ export function getPresetEffectiveFlags(
       preset,
       profile: "quality",
       semanticCap: headroom >= 16 ? 900 : 600,
-      llmEnabled: false,
+      llmEnabled,
       preferWorker: false,
     };
   }
@@ -97,14 +98,14 @@ export function getPresetEffectiveFlags(
       preset,
       profile: "quality",
       semanticCap: 1200,
-      llmEnabled: process.env.KCA_LLM === "1",
+      llmEnabled,
       preferWorker: false,
     };
   }
   return {
     preset: "custom",
     profile: process.env.KCA_PROFILE === "fast" ? "fast" : "quality",
-    llmEnabled: process.env.KCA_LLM === "1",
+    llmEnabled,
     preferWorker: options?.worker === true,
   };
 }

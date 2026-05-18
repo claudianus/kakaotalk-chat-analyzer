@@ -16,7 +16,8 @@ import {
   type AnalysisPresetName,
 } from "./analysis-preset.js";
 import { getAnalysisProfileSettings } from "./analysis-profile.js";
-import { resolveLlmTier, qwenModelIdForTier, type LlmTier } from "./llm-policy.js";
+import { resolveLlmRunPlan, qwenModelIdForPlan } from "./llm-policy.js";
+import { qwen35DisplayLabel, type Qwen35Size } from "./llm-qwen35.js";
 import type { BuildReportProvenanceOptions } from "./report-provenance.js";
 import { parseKcaInvokerEnv } from "./report-provenance.js";
 import { resolveTopicModel } from "./report-provenance.js";
@@ -55,7 +56,9 @@ export interface AnalysisEffectiveConfig {
     toxicity: string;
   };
   llm: {
-    tier: LlmTier;
+    enabled: boolean;
+    size?: Qwen35Size;
+    reason: string;
     used: boolean;
     modelId?: string;
     skippedReason?: string;
@@ -191,23 +194,17 @@ function inferSentimentSkipReason(
 }
 
 function inferLlmSkipReason(
-  preset: AnalysisPresetName,
-  tier: LlmTier,
   used: boolean,
-  profile: MachineProfile,
+  plan: ReturnType<typeof resolveLlmRunPlan>,
 ): string | undefined {
   if (used) return undefined;
-  if (process.env.KCA_LLM === "0") return "KCA_LLM=0";
-  if (tier !== "off") {
-    return "GGUF 없음·예산 부족·추론 실패 또는 JSON 파싱 실패";
-  }
-  if (preset === "speed" || preset === "balanced") {
-    return `${preset} preset (KCA_LLM=1 없음)`;
-  }
-  if (preset === "custom" && process.env.KCA_LLM !== "1") return "custom preset (KCA_LLM=1 필요)";
-  const headroom = memoryHeadroomGb(profile);
-  if (headroom < 8) return `가용 RAM ${headroom}GB (< 8GB)`;
-  return "LLM tier off";
+  if (!plan.enabled) return plan.reason;
+  return "GGUF 없음·예산 부족·추론 실패 또는 JSON 파싱 실패";
+}
+
+function llmProvenanceLabel(plan: ReturnType<typeof resolveLlmRunPlan>): string {
+  if (!plan.enabled || !plan.size) return "off";
+  return `${qwen35DisplayLabel(plan.size)} · ${plan.reason}`;
 }
 
 /** 집계 완료 후 실제 적용 설정 */
@@ -231,7 +228,7 @@ export function buildAnalysisEffectiveConfig(
   const semanticModel = semanticEmbeddingModelId(buildOpts, messageCount);
   const sentimentModel = sentimentModelId(preset);
   const semanticCap = effectiveSemanticSampleCap(messageCount, buildOpts);
-  const llmTier = resolveLlmTier(preset, profileMachine);
+  const llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount });
   const semanticUsed = data.summary.usedSemanticKeywords === true;
   const sentimentUsed = data.summary.usedSentimentAnalysis === true;
   const llmUsed = data.summary.usedLlmAnalysis === true;
@@ -264,10 +261,12 @@ export function buildAnalysisEffectiveConfig(
       toxicity: resolveToxicityModelId() || "lexicon",
     },
     llm: {
-      tier: llmTier,
+      enabled: llmPlan.enabled,
+      size: llmPlan.size,
+      reason: llmPlan.reason,
       used: llmUsed,
-      modelId: qwenModelIdForTier(llmTier),
-      skippedReason: inferLlmSkipReason(preset, llmTier, llmUsed, profileMachine),
+      modelId: qwenModelIdForPlan(llmPlan),
+      skippedReason: inferLlmSkipReason(llmUsed, llmPlan),
     },
     topicModel: resolveTopicModel(data),
     embeddingTopics: profileSettings.useEmbeddingTopics,
@@ -362,8 +361,10 @@ export function formatConfigSummaryKo(config: AnalysisEffectiveConfig): string {
   );
   if (!sent.used && sent.skippedReason) lines.push(`  ↳ 미사용 사유: ${sent.skippedReason}`);
   const llm = config.llm;
+  const llmLabel =
+    llm.enabled && llm.size ? qwen35DisplayLabel(llm.size) : "off";
   lines.push(
-    `LLM: tier ${llm.tier} · 실제 ${llm.used ? "사용" : "미사용"}${llm.modelId ? ` · ${llm.modelId}` : ""}`,
+    `LLM: ${llmLabel} (${llm.reason}) · 실제 ${llm.used ? "사용" : "미사용"}${llm.modelId ? ` · ${llm.modelId}` : ""}`,
   );
   if (!llm.used && llm.skippedReason) lines.push(`  ↳ 미사용 사유: ${llm.skippedReason}`);
   lines.push(
@@ -413,7 +414,11 @@ export function toProvenanceOptions(
       !config.sentiment.used && config.sentiment.skippedReason
         ? config.sentiment.skippedReason
         : undefined,
-    llmTier: config.llm.tier,
+    llmTier: llmProvenanceLabel({
+      enabled: config.llm.enabled,
+      size: config.llm.size,
+      reason: config.llm.reason,
+    }),
     llmUsed: config.llm.used,
     llmSkippedReason:
       !config.llm.used && config.llm.skippedReason ? config.llm.skippedReason : undefined,

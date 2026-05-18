@@ -1,6 +1,6 @@
 import { type MachineProfile } from "./analysis-capability.js";
 import { type AnalysisPresetName } from "./analysis-preset.js";
-import { type LlmTier } from "./llm-policy.js";
+import { type Qwen35Size } from "./llm-qwen35.js";
 import type { BuildReportProvenanceOptions } from "./report-provenance.js";
 import type { PrivacyMode, ReportData } from "./types.js";
 export type PresetSource = "cli" | "env" | "auto-ram" | "auto-corpus" | "legacy-fast";
@@ -28,7 +28,9 @@ export interface AnalysisEffectiveConfig {
         toxicity: string;
     };
     llm: {
-        tier: LlmTier;
+        enabled: boolean;
+        size?: Qwen35Size;
+        reason: string;
         used: boolean;
         modelId?: string;
         skippedReason?: string;

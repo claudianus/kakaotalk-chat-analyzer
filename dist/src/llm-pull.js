@@ -3,22 +3,18 @@ import { createWriteStream } from "node:fs";
 import { dirname } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { Readable } from "node:stream";
-import { TIER_GGUF, ggufPathForTier, hfDownloadUrl } from "./llm-cache.js";
-export function parsePullTier(raw) {
-    const t = raw.trim().toLowerCase().replace(/^qwen3\.5-/, "");
-    if (t === "0.8b" || t === "2b" || t === "4b" || t === "8b")
-        return t;
-    throw new Error(`지원 tier: 0.8b | 2b | 4b | 8b (또는 qwen3.5-2b 형식). 받은 값: "${raw}"`);
+import { ggufPathForSize, hfDownloadUrl } from "./llm-cache.js";
+import { MIN_GGUF_BYTES, parseQwen35Size, qwen35Entry } from "./llm-qwen35.js";
+export function parsePullSize(raw) {
+    const size = parseQwen35Size(raw);
+    if (!size) {
+        throw new Error(`지원 size: 0.8B | 2B | 4B | 9B (qwen3.5-4b 형식 가능). 받은 값: "${raw}"`);
+    }
+    return size;
 }
-const MIN_GGUF_BYTES = {
-    "0.8b": 250_000_000,
-    "2b": 700_000_000,
-    "4b": 2_000_000_000,
-    "8b": 4_000_000_000,
-};
-export async function pullLlmGguf(tier) {
-    const dest = ggufPathForTier(tier);
-    const minBytes = MIN_GGUF_BYTES[tier];
+export async function pullLlmGguf(size) {
+    const dest = ggufPathForSize(size);
+    const minBytes = MIN_GGUF_BYTES[size];
     try {
         const st = await stat(dest);
         if (st.size >= minBytes) {
@@ -29,10 +25,10 @@ export async function pullLlmGguf(tier) {
     catch {
         /* download */
     }
-    const { repo, file } = TIER_GGUF[tier];
+    const { repo, file, hubId } = qwen35Entry(size).gguf;
     const url = hfDownloadUrl(repo, file);
     await mkdir(dirname(dest), { recursive: true });
-    process.stderr.write(`[kca] 다운로드: ${url}\n→ ${dest}\n`);
+    process.stderr.write(`[kca] Qwen3.5 GGUF 다운로드 (${hubId})\n${url}\n→ ${dest}\n`);
     const headers = {};
     const token = process.env.HF_TOKEN || process.env.HUGGING_FACE_HUB_TOKEN;
     if (token)

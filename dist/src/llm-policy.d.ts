@@ -1,13 +1,19 @@
-import { type MachineProfile } from "./analysis-capability.js";
+import type { MachineProfile } from "./analysis-capability.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
-/** Qwen3.5 Instruct GGUF — 텍스트 요약·주제 보강용 */
-export declare const QWEN35_MODELS: {
-    readonly "0.8b": "Qwen/Qwen3.5-0.8B-Instruct-GGUF";
-    readonly "2b": "Qwen/Qwen3.5-2B-Instruct-GGUF";
-    readonly "4b": "Qwen/Qwen3.5-4B-Instruct-GGUF";
-    readonly "8b": "Qwen/Qwen3-8B-GGUF";
-};
-export type LlmTier = "off" | "0.8b" | "2b" | "4b" | "8b";
+import { type Qwen35Size } from "./llm-qwen35.js";
+import { type LlmRunPlan } from "./llm-resolve.js";
+export type { Qwen35Size } from "./llm-qwen35.js";
+export type { LlmRunPlan } from "./llm-resolve.js";
+export { resolveLlmRunPlan, pickLargestQwen35ForRam, isLlmAutoEnabled, llmPhaseReserveMs, } from "./llm-resolve.js";
+export { parseQwen35Size } from "./llm-qwen35.js";
+/** @deprecated LlmRunPlan 사용 */
+export type LlmTier = "off" | Qwen35Size;
+export declare function resolveLlmRunPlanForPreset(preset: AnalysisPresetName, profile: MachineProfile, messageCount?: number): LlmRunPlan;
+/** @deprecated resolveLlmRunPlan().enabled / .size 사용 */
 export declare function resolveLlmTier(preset: AnalysisPresetName, profile: MachineProfile): LlmTier;
+/** @deprecated parseQwen35Size 사용 */
+export declare function parseLlmTierName(raw: string): LlmTier | undefined;
 export declare function llmTimeoutMs(): number;
+export declare function qwenModelIdForPlan(plan: LlmRunPlan): string | undefined;
+/** @deprecated */
 export declare function qwenModelIdForTier(tier: LlmTier): string | undefined;

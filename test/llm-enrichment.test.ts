@@ -25,8 +25,16 @@ test("applyLlmEnrichment with KCA_LLM_MOCK updates narrative", async () => {
   }
 });
 
-test("applyLlmEnrichment skips for speed preset", async () => {
-  const data = emptyReportData();
-  const result = await applyLlmEnrichment(data, { preset: "speed" }, 10_000);
-  assert.equal(result.used, false);
+test("applyLlmEnrichment off when KCA_LLM=0 (any preset)", async () => {
+  const prev = process.env.KCA_LLM;
+  process.env.KCA_LLM = "0";
+  try {
+    const data = emptyReportData();
+    const result = await applyLlmEnrichment(data, { preset: "speed" }, 10_000);
+    assert.equal(result.used, false);
+    assert.equal(result.plan.enabled, false);
+  } finally {
+    if (prev === undefined) delete process.env.KCA_LLM;
+    else process.env.KCA_LLM = prev;
+  }
 });

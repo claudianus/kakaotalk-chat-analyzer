@@ -1,11 +1,12 @@
 import { analysisBudgetMs, memoryHeadroomGb } from "./analysis-capability.js";
+import { llmPhaseReserveMs } from "./llm-resolve.js";
 const BASE_RESERVE_MS = {
     semantic: 120_000,
     sentiment: 90_000,
     llm: 50_000,
 };
 /** preset·가용 RAM에 따른 단계 예약 시간 */
-export function phaseReserveMs(phase, preset, profile) {
+export function phaseReserveMs(phase, preset, profile, llmSize) {
     const headroom = memoryHeadroomGb(profile);
     if (phase === "semantic") {
         if (preset === "quality" && headroom >= 16)
@@ -26,9 +27,7 @@ export function phaseReserveMs(phase, preset, profile) {
         return BASE_RESERVE_MS.sentiment;
     }
     if (phase === "llm") {
-        if (headroom >= 16 && preset === "quality")
-            return 45_000;
-        return BASE_RESERVE_MS.llm;
+        return llmPhaseReserveMs(llmSize, preset);
     }
     return BASE_RESERVE_MS[phase];
 }
@@ -36,11 +35,13 @@ export function phaseReserveMs(phase, preset, profile) {
 export class AnalysisBudgetTracker {
     preset;
     profile;
+    llmSize;
     budgetMs;
     started = performance.now();
-    constructor(preset, messageCount, profile) {
+    constructor(preset, messageCount, profile, llmSize) {
         this.preset = preset;
         this.profile = profile;
+        this.llmSize = llmSize;
         this.budgetMs = analysisBudgetMs(preset, messageCount, profile);
     }
     remainingMs() {
@@ -48,7 +49,7 @@ export class AnalysisBudgetTracker {
     }
     shouldSkip(phase) {
         const remain = this.remainingMs();
-        let need = phaseReserveMs(phase, this.preset, this.profile);
+        let need = phaseReserveMs(phase, this.preset, this.profile, this.llmSize);
         if (phase === "semantic" &&
             this.preset === "quality" &&
             memoryHeadroomGb(this.profile) >= 14 &&

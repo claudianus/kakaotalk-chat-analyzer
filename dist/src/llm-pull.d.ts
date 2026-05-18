@@ -1,3 +1,3 @@
-import type { LlmTier } from "./llm-policy.js";
-export declare function parsePullTier(raw: string): Exclude<LlmTier, "off">;
-export declare function pullLlmGguf(tier: Exclude<LlmTier, "off">): Promise<string>;
+import { type Qwen35Size } from "./llm-qwen35.js";
+export declare function parsePullSize(raw: string): Qwen35Size;
+export declare function pullLlmGguf(size: Qwen35Size): Promise<string>;
