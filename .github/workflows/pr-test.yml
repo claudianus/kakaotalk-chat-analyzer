@@ -31,8 +31,6 @@ jobs:
 
       - name: npm test
         run: npm test
-        env:
-          KCA_LLM: "0"
 
       - name: Sentiment Hub anonymous access
         run: npm run check:sentiment-hub
