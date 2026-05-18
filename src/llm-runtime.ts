@@ -91,17 +91,19 @@ export async function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<st
     contextSequence: context.getSequence(),
   });
 
+  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
   try {
     const run = session.prompt(prompt, { maxTokens });
     const timed = Promise.race([
       run,
       new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error("LLM timeout")), timeoutMs);
+        timeoutHandle = setTimeout(() => reject(new Error("LLM timeout")), timeoutMs);
       }),
     ]);
     const reply = await timed;
     return typeof reply === "string" ? reply : String(reply);
   } finally {
+    if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
     await context.dispose?.();
     await model.dispose?.();
   }
