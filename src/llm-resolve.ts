@@ -1,4 +1,16 @@
 import { memoryHeadroomGb, type MachineProfile } from "./analysis-capability.js";
+
+const LLM_LOAD_RAM_GAP_GB = 4;
+
+/** GGUF 로드 시점 — macOS 등에서 available ≫ free 이면 free 기준으로 다운그레이드 */
+export function memoryHeadroomForLlmLoad(profile: MachineProfile): number {
+  const available = memoryHeadroomGb(profile);
+  const free = profile.freeMemGb;
+  if (available - free > LLM_LOAD_RAM_GAP_GB) {
+    return Math.min(available, Math.max(free, 3));
+  }
+  return available;
+}
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import {
   QWEN35_CATALOG,
@@ -34,8 +46,12 @@ export function pickLargestQwen35ForRam(headroomGb: number): Qwen35Size | undefi
 
 export function resolveLlmRunPlan(input: ResolveLlmRunPlanInput): LlmRunPlan {
   const { preset, profile } = input;
-  const headroom = memoryHeadroomGb(profile);
-  const ramNote = `RAM ${headroom}GB`;
+  const available = memoryHeadroomGb(profile);
+  const loadHeadroom = memoryHeadroomForLlmLoad(profile);
+  const ramNote =
+    loadHeadroom < available - 0.5
+      ? `RAM 로드 ${loadHeadroom}GB (가용 ${available}GB·free ${profile.freeMemGb}GB)`
+      : `RAM ${loadHeadroom}GB`;
 
   if (process.env.KCA_LLM === "0") {
     return { enabled: false, reason: "KCA_LLM=0" };
@@ -64,7 +80,7 @@ export function resolveLlmRunPlan(input: ResolveLlmRunPlanInput): LlmRunPlan {
       };
     }
     const e = qwen35Entry(size);
-    if (headroom < e.minHeadroomGb) {
+    if (loadHeadroom < e.minHeadroomGb) {
       return {
         enabled: false,
         reason: `${qwen35DisplayLabel(size)} 필요 RAM≥${e.minHeadroomGb}GB (${ramNote})`,
@@ -80,7 +96,7 @@ export function resolveLlmRunPlan(input: ResolveLlmRunPlanInput): LlmRunPlan {
     };
   }
 
-  const size = pickLargestQwen35ForRam(headroom);
+  const size = pickLargestQwen35ForRam(loadHeadroom);
   if (!size) {
     return {
       enabled: false,

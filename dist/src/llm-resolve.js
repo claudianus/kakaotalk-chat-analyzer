@@ -1,4 +1,14 @@
 import { memoryHeadroomGb } from "./analysis-capability.js";
+const LLM_LOAD_RAM_GAP_GB = 4;
+/** GGUF 로드 시점 — macOS 등에서 available ≫ free 이면 free 기준으로 다운그레이드 */
+export function memoryHeadroomForLlmLoad(profile) {
+    const available = memoryHeadroomGb(profile);
+    const free = profile.freeMemGb;
+    if (available - free > LLM_LOAD_RAM_GAP_GB) {
+        return Math.min(available, Math.max(free, 3));
+    }
+    return available;
+}
 import { QWEN35_CATALOG, qwen35DisplayLabel, qwen35Entry, parseQwen35Size, } from "./llm-qwen35.js";
 /** RAM 에 맞는 최대 Qwen3.5 (9B→4B→2B→0.8B) */
 export function pickLargestQwen35ForRam(headroomGb) {
@@ -10,8 +20,11 @@ export function pickLargestQwen35ForRam(headroomGb) {
 }
 export function resolveLlmRunPlan(input) {
     const { preset, profile } = input;
-    const headroom = memoryHeadroomGb(profile);
-    const ramNote = `RAM ${headroom}GB`;
+    const available = memoryHeadroomGb(profile);
+    const loadHeadroom = memoryHeadroomForLlmLoad(profile);
+    const ramNote = loadHeadroom < available - 0.5
+        ? `RAM 로드 ${loadHeadroom}GB (가용 ${available}GB·free ${profile.freeMemGb}GB)`
+        : `RAM ${loadHeadroom}GB`;
     if (process.env.KCA_LLM === "0") {
         return { enabled: false, reason: "KCA_LLM=0" };
     }
@@ -37,7 +50,7 @@ export function resolveLlmRunPlan(input) {
             };
         }
         const e = qwen35Entry(size);
-        if (headroom < e.minHeadroomGb) {
+        if (loadHeadroom < e.minHeadroomGb) {
             return {
                 enabled: false,
                 reason: `${qwen35DisplayLabel(size)} 필요 RAM≥${e.minHeadroomGb}GB (${ramNote})`,
@@ -52,7 +65,7 @@ export function resolveLlmRunPlan(input) {
             reason: `env KCA_LLM_MODEL (${qwen35DisplayLabel(size)}, ${ramNote})`,
         };
     }
-    const size = pickLargestQwen35ForRam(headroom);
+    const size = pickLargestQwen35ForRam(loadHeadroom);
     if (!size) {
         return {
             enabled: false,

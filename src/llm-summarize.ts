@@ -11,6 +11,7 @@ import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { mergeTopicProposals, type LlmTopicProposal } from "./topic-merge.js";
 import type { LlmInsights, ReportData, ReportTopic } from "./types.js";
 import type { RoomNarrative } from "./room-narrative.js";
+import { runLlamaPrompt } from "./llm-runtime.js";
 
 export interface LlmEnrichmentResult {
   used: boolean;
@@ -82,27 +83,8 @@ async function runNodeLlama(prompt: string, size: Qwen35Size, timeoutMs: number)
   }
   await stat(modelPath);
 
-  const mod = "node-llama-cpp";
-  const { getLlama, LlamaChatSession } = await import(mod);
-  const llama = await getLlama();
-  const model = await llama.loadModel({ modelPath });
-  const context = await model.createContext({ contextSize: 4096 });
-  const session = new LlamaChatSession({
-    contextSequence: context.getSequence(),
-  });
-
   const fullPrompt = `${LLM_SYSTEM_PROMPT}\n\n---\n\n${prompt}`;
-  const run = session.prompt(fullPrompt, { maxTokens: 768 });
-  const timed = Promise.race([
-    run,
-    new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error("LLM timeout")), timeoutMs);
-    }),
-  ]);
-  const reply = await timed;
-  await context.dispose?.();
-  await model.dispose?.();
-  return typeof reply === "string" ? reply : String(reply);
+  return runLlamaPrompt({ modelPath, prompt: fullPrompt, maxTokens: 768, timeoutMs });
 }
 
 async function runMockLlm(): Promise<string> {
