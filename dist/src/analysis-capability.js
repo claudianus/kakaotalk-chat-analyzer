@@ -25,9 +25,8 @@ export async function probeMachineProfile() {
     const gpu = await probeOnnxGpu();
     return { ...base, gpu };
 }
-/** preset·코퍼스·RAM 기준 분석 예산(ms) — 5분 SLA 휴리스틱 */
-export function analysisBudgetMs(preset, messageCount, profile) {
-    const sec = estimateAnalysisSeconds(preset, messageCount, profile);
+/** preset·RAM 기준 분석 SLA 상한(ms). 코퍼스 추정 시간과 무관하게 고정 — 단계 skip은 경과 시간으로 판단 */
+export function analysisBudgetMs(preset, _messageCount, profile) {
     const headroom = memoryHeadroomGb(profile);
     let cap = preset === "speed" ? 180_000 : preset === "balanced" ? 300_000 : preset === "quality" ? 360_000 : 300_000;
     if (headroom >= 16) {
@@ -38,7 +37,7 @@ export function analysisBudgetMs(preset, messageCount, profile) {
         else if (preset === "speed")
             cap = 210_000;
     }
-    return Math.min(cap, Math.max(1000, sec * 1000));
+    return cap;
 }
 /** 90k 메시지 기준 대략 예상(초) — preset·RAM 휴리스틱 */
 export function estimateAnalysisSeconds(preset, messageCount, profile) {

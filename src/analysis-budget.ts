@@ -74,6 +74,16 @@ export class AnalysisBudgetTracker {
       need = Math.max(50_000, remain - 8_000);
     }
 
+    if (
+      phase === "llm" &&
+      this.llmSize &&
+      (this.llmSize === "0.8B" || this.llmSize === "2B") &&
+      remain >= 45_000 &&
+      remain < need
+    ) {
+      need = Math.max(40_000, remain - 5_000);
+    }
+
     if (remain >= need) return false;
     process.stderr.write(
       `[kca] ${phase} 분석 건너뜀 (예산 ${Math.round(remain / 1000)}s 남음, 필요 ~${Math.round(need / 1000)}s)\n`,

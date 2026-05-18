@@ -166,18 +166,22 @@ export function llmInferTimeoutMs(size: Qwen35Size, plan?: LlmRunPlan): number {
   return qwen35Entry(size).timeoutMs;
 }
 
-/** 분석 예산용 LLM 단계 예약(ms) — 로드+추론 */
+/**
+ * 분석 예산용 LLM 단계 예약(ms) — 로드+추론.
+ * 실제 타임아웃(`llmLoadTimeoutMs`)보다 짧게 잡아, 빠른 파이프라인 뒤에도 LLM 여유를 남긴다.
+ */
 export function llmPhaseReserveMs(size: Qwen35Size | undefined, preset: AnalysisPresetName): number {
   if (!size) return 50_000;
-  const load = llmLoadTimeoutMs(size);
-  const infer = llmInferTimeoutMs(size);
-  let reserve = load + infer + 5_000;
+  const entry = qwen35Entry(size);
+  const loadPlan = entry.timeoutMs;
+  const inferPlan = llmInferTimeoutMs(size);
+  let reserve = loadPlan + inferPlan + 5_000;
   if (size === "9B" && preset === "quality") {
-    reserve = Math.max(reserve, 150_000);
+    reserve = Math.max(reserve, 120_000);
   } else if (size === "9B") {
-    reserve = Math.max(reserve, 130_000);
-  } else if (size === "4B") {
     reserve = Math.max(reserve, 100_000);
+  } else if (size === "4B") {
+    reserve = Math.max(reserve, 75_000);
   }
   return reserve;
 }

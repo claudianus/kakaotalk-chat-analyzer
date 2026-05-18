@@ -13,10 +13,16 @@ const profile = {
   gpu: "metal" as const,
 };
 
-test("analysisBudgetMs raises cap for quality on ample RAM", () => {
-  const ms = analysisBudgetMs("quality", 90_000, profile);
-  assert.ok(ms <= 420_000);
-  assert.ok(ms > 120_000);
+test("analysisBudgetMs uses SLA cap regardless of message count", () => {
+  const small = analysisBudgetMs("quality", 1_000, profile);
+  const large = analysisBudgetMs("quality", 90_000, profile);
+  assert.equal(small, 420_000);
+  assert.equal(large, 420_000);
+});
+
+test("analysisBudgetMs balanced cap on ample RAM", () => {
+  const ms = analysisBudgetMs("balanced", 90_000, profile);
+  assert.equal(ms, 360_000);
 });
 
 test("phaseReserveMs lowers semantic reserve when headroom is high", () => {
@@ -37,6 +43,13 @@ test("AnalysisBudgetTracker skips when remaining below reserve", () => {
   const tracker = new AnalysisBudgetTracker("speed", 90_000, lowProfile);
   tracker.remainingMs = () => 5_000;
   assert.equal(tracker.shouldSkip("semantic"), true);
+});
+
+test("AnalysisBudgetTracker allows LLM after fast pipeline on balanced", () => {
+  const tracker = new AnalysisBudgetTracker("balanced", 20_000, profile);
+  tracker.updateLlmSize("4B");
+  tracker.remainingMs = () => 330_000;
+  assert.equal(tracker.shouldSkip("llm"), false);
 });
 
 test("AnalysisBudgetTracker allows semantic at 101s remain on quality+ample RAM", () => {

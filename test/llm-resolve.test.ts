@@ -65,7 +65,8 @@ test("resolveLlmRunPlan 12GB available picks 2B after reserve", () => {
 
 test("llmPhaseReserveMs includes load and infer for 4B", () => {
   const ms = llmPhaseReserveMs("4B", "balanced");
-  assert.ok(ms >= 100_000, `4B reserve should be >=100s, got ${ms}`);
+  assert.ok(ms >= 75_000, `4B reserve should be >=75s, got ${ms}`);
+  assert.ok(ms < 140_000, `4B reserve should be <140s planning, got ${ms}`);
 });
 
 test("legacy KCA_LLM_MODEL=8b maps to 9B", () => {
