@@ -1,0 +1,19 @@
+test/keyword-audit.test.ts
+  s_4f3b28b212a103::t_b1acbf79696219 4,18-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "726bf0c242e30603ad05ffaa65d7d07e423f6a40",
+  "prompts": {},
+  "sessions": {
+    "s_4f3b28b212a103": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "eb03d681-229b-4988-8de2-3f93f45940e9",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
