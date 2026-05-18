@@ -62,23 +62,27 @@ function scoreToToxicPercent(score: number, label: string): number {
 
 async function loadPipeline(modelId: string): Promise<ClassificationPipeline> {
   if (pipelinePromise && loadedModelId === modelId) return pipelinePromise;
-  pipelinePromise = null;
-  loadedModelId = null;
-  pipelinePromise = withQuietMlStderr(async () => {
-    const mod = await importTransformers();
-    const gpu = await configureTransformersEnv(mod);
-    const quantized = preferQuantizedModels(gpu);
-    if (isLocalBundledToxicityModel(modelId)) {
-      const { bundledMlModelsDir } = await import("./ml-bundled-models.js");
-      mod.env.localModelPath = bundledMlModelsDir();
-    }
-    const { pipeline } = mod;
-    const load = () =>
-      pipeline("text-classification", modelId, { quantized }) as Promise<ClassificationPipeline>;
-    const pipe = isLocalBundledToxicityModel(modelId) ? await load() : await runWithHubMirrors(mod, load);
-    loadedModelId = modelId;
-    return pipe;
-  });
+  if (loadedModelId !== modelId) {
+    pipelinePromise = null;
+    loadedModelId = null;
+  }
+  if (!pipelinePromise) {
+    pipelinePromise = withQuietMlStderr(async () => {
+      const mod = await importTransformers();
+      const gpu = await configureTransformersEnv(mod);
+      const quantized = preferQuantizedModels(gpu);
+      if (isLocalBundledToxicityModel(modelId)) {
+        const { bundledMlModelsDir } = await import("./ml-bundled-models.js");
+        mod.env.localModelPath = bundledMlModelsDir();
+      }
+      const { pipeline } = mod;
+      const load = () =>
+        pipeline("text-classification", modelId, { quantized }) as Promise<ClassificationPipeline>;
+      const pipe = isLocalBundledToxicityModel(modelId) ? await load() : await runWithHubMirrors(mod, load);
+      loadedModelId = modelId;
+      return pipe;
+    });
+  }
   return pipelinePromise;
 }
 
