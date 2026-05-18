@@ -1,7 +1,9 @@
 import { stat } from "node:fs/promises";
 import { buildLlmPromptPayload, LLM_SYSTEM_PROMPT } from "./llm-input.js";
-import { ggufPathForTier } from "./llm-cache.js";
-import { llmTimeoutMs, resolveLlmTier } from "./llm-policy.js";
+import { ggufPathForSize } from "./llm-cache.js";
+import { llmTimeoutMs, resolveLlmRunPlan } from "./llm-policy.js";
+import { ensureLlmGgufReady } from "./llm-ensure.js";
+import { qwen35DisplayLabel } from "./llm-qwen35.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { mergeTopicProposals } from "./topic-merge.js";
@@ -17,16 +19,16 @@ function parseLlmJson(text) {
         return null;
     }
 }
-async function runOllama(prompt, tier, timeoutMs) {
+function resolveTimeoutMs(plan, size) {
+    if (plan.timeoutMs && plan.timeoutMs > 0)
+        return plan.timeoutMs;
+    return llmTimeoutMs();
+}
+async function runOllama(prompt, plan, size, timeoutMs) {
     const host = process.env.KCA_OLLAMA_HOST?.trim() || "http://127.0.0.1:11434";
-    const model = process.env.KCA_OLLAMA_MODEL?.trim() ||
-        (tier === "8b"
-            ? "qwen3:8b"
-            : tier === "4b"
-                ? "qwen2.5:7b"
-                : tier === "2b"
-                    ? "qwen2.5:3b"
-                    : "qwen2.5:0.5b");
+    const model = process.env.KCA_OLLAMA_MODEL?.trim() || plan.ollamaModel;
+    if (!model)
+        throw new Error("Ollama model 미설정");
     const body = {
         model,
         prompt: `${LLM_SYSTEM_PROMPT}\n\n---\n\n${prompt}`,
@@ -51,14 +53,13 @@ async function runOllama(prompt, tier, timeoutMs) {
         clearTimeout(timer);
     }
 }
-async function runNodeLlama(prompt, tier, timeoutMs) {
-    const modelPath = ggufPathForTier(tier);
-    try {
-        await stat(modelPath);
+async function runNodeLlama(prompt, size, timeoutMs) {
+    const ready = await ensureLlmGgufReady(size);
+    const modelPath = ggufPathForSize(size);
+    if (!ready) {
+        throw new Error(`Qwen3.5 GGUF 없음: ${modelPath} (kca llm pull 또는 네트워크 확인)`);
     }
-    catch {
-        throw new Error(`GGUF 없음: ${modelPath} (kca llm pull ${tier})`);
-    }
+    await stat(modelPath);
     const mod = "node-llama-cpp";
     const { getLlama, LlamaChatSession } = await import(mod);
     const llama = await getLlama();
@@ -68,7 +69,6 @@ async function runNodeLlama(prompt, tier, timeoutMs) {
         contextSequence: context.getSequence(),
     });
     const fullPrompt = `${LLM_SYSTEM_PROMPT}\n\n---\n\n${prompt}`;
-    let reply = "";
     const run = session.prompt(fullPrompt, { maxTokens: 768 });
     const timed = Promise.race([
         run,
@@ -76,7 +76,7 @@ async function runNodeLlama(prompt, tier, timeoutMs) {
             setTimeout(() => reject(new Error("LLM timeout")), timeoutMs);
         }),
     ]);
-    reply = await timed;
+    const reply = await timed;
     await context.dispose?.();
     await model.dispose?.();
     return typeof reply === "string" ? reply : String(reply);
@@ -100,21 +100,24 @@ async function runMockLlm() {
         dyadInsight: "상위 두 명이 대화 허브 역할을 합니다.",
     });
 }
-export async function runLlmCompletion(data, tier) {
+export async function runLlmCompletion(data, plan) {
+    if (!plan.enabled || !plan.size)
+        return null;
+    const size = plan.size;
     const prompt = buildLlmPromptPayload(data);
-    const timeoutMs = tier === "8b" ? 90_000 : tier === "4b" ? 60_000 : llmTimeoutMs();
+    const timeoutMs = resolveTimeoutMs(plan, size);
     try {
         if (process.env.KCA_LLM_MOCK === "1") {
             return runMockLlm();
         }
         if (process.env.KCA_LLM_BACKEND?.trim().toLowerCase() === "ollama") {
-            return await runOllama(prompt, tier, timeoutMs);
+            return await runOllama(prompt, plan, size, timeoutMs);
         }
-        return await runNodeLlama(prompt, tier, timeoutMs);
+        return await runNodeLlama(prompt, size, timeoutMs);
     }
     catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        process.stderr.write(`[kca] LLM 건너뜀: ${msg}\n`);
+        process.stderr.write(`[kca] LLM 건너뜀 (${qwen35DisplayLabel(size)}): ${msg}\n`);
         return null;
     }
 }
@@ -138,28 +141,27 @@ function mergeNarrative(data, parsed, base) {
         paragraphs: merged.slice(0, 5),
     };
 }
-/** quality 등 preset에서 LLM 서사·주제 보강 */
+/** preset·RAM 기준 Qwen3.5 자동 선택 후 서사·주제 보강 */
 export async function applyLlmEnrichment(data, options, messageCount) {
     const preset = resolvePresetNameWithAuto(options, messageCount ?? data.summary.totalMessages);
     const profile = probeMachineProfileSync();
-    const tier = resolveLlmTier(preset, profile);
-    if (tier === "off")
-        return { used: false, tier };
-    if (process.env.KCA_LLM === "0")
-        return { used: false, tier };
-    const raw = await runLlmCompletion(data, tier);
+    const plan = resolveLlmRunPlan({ preset, profile, messageCount });
+    if (!plan.enabled || !plan.size) {
+        return { used: false, plan };
+    }
+    const raw = await runLlmCompletion(data, plan);
     if (!raw)
-        return { used: false, tier };
+        return { used: false, plan };
     const parsed = parseLlmJson(raw);
     if (!parsed) {
         process.stderr.write("[kca] LLM JSON 파싱 실패 — 규칙 기반 서사 유지\n");
-        return { used: false, tier };
+        return { used: false, plan };
     }
     let topics = mergeTopics(data, parsed);
     topics = mergeTopicProposals(topics, parsed.topicProposals, data.keywords, data.summary.totalMessages);
     const narrative = mergeNarrative(data, parsed, data.narrative);
     const llmInsights = mergeLlmInsights(parsed, parsed.topicProposals);
-    return { used: true, tier, topics, narrative, llmInsights };
+    return { used: true, plan, topics, narrative, llmInsights };
 }
 function mergeLlmInsights(parsed, proposals) {
     const insightBullets = (parsed.insightBullets ?? []).filter((s) => s.trim().length > 4).slice(0, 5);

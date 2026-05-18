@@ -28,7 +28,9 @@ import {
   type AnalysisEffectiveConfig,
 } from "./analysis-effective-config.js";
 import { autoPresetFromMachine, type AnalysisPresetName } from "./analysis-preset.js";
-import { parsePullTier, pullLlmGguf } from "./llm-pull.js";
+import { pullLlmGguf, parsePullSize } from "./llm-pull.js";
+import { resolveLlmRunPlan } from "./llm-policy.js";
+import { qwen35DisplayLabel } from "./llm-qwen35.js";
 import { estimateKakaoMessageCount } from "./stream-parser.js";
 import { VERSION } from "./version.js";
 import type { HostName, PublishResult } from "./providers/types.js";
@@ -85,7 +87,7 @@ function registerPipelineOptions(cmd: Command): void {
     .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
     .option(
       "--no-semantic-keywords",
-      "한국어 방 기본 시맨틱 키워드(multilingual-e5-small)를 끕니다.",
+      "한국어 방 기본 시맨틱 키워드(KoELECTRA 임베딩)를 끕니다.",
       false,
     )
     .option(
@@ -293,11 +295,22 @@ const llmCmd = program.command("llm").description("로컬 LLM(GGUF) 모델 관�
 
 llmCmd
   .command("pull")
-  .argument("<tier>", "0.8b | 2b | 4b (또는 qwen3.5-2b)")
+  .argument("[size]", "0.8B | 2B | 4B | 9B — 생략 시 RAM 기준 자동 최대")
   .description("Hugging Face에서 GGUF를 ~/.cache/kakaotalk-chat-analyzer/llm/ 에 받습니다.")
-  .action(async (tier: string) => {
-    const t = parsePullTier(tier);
-    const path = await pullLlmGguf(t);
+  .option("--preset <name>", "자동 선택 시 preset (speed|balanced|quality)", "balanced")
+  .action(async (size: string | undefined, opts: { preset: string }) => {
+    const profile = await probeMachineProfile();
+    const preset = opts.preset as AnalysisPresetName;
+    const plan = size
+      ? { enabled: true as const, size: parsePullSize(size), reason: "CLI" }
+      : resolveLlmRunPlan({ preset, profile });
+    if (!plan.enabled || !plan.size) {
+      console.error(`[kca] LLM pull 불가: ${plan.reason}`);
+      process.exitCode = 1;
+      return;
+    }
+    process.stderr.write(`[kca] pull 대상: ${qwen35DisplayLabel(plan.size)} (${plan.reason})\n`);
+    const path = await pullLlmGguf(plan.size);
     console.log(`모델 경로: ${path}`);
   });
 

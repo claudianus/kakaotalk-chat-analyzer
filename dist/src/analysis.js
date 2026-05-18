@@ -16,7 +16,7 @@ import { runKeywordPassFromSpoolPooled } from "./kiwi-keyword-pool.js";
 import { enrichReportWithLlm } from "./llm-apply.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
-import { resolveLlmTier } from "./llm-policy.js";
+import { resolveLlmRunPlan } from "./llm-policy.js";
 import { AnalysisBudgetTracker } from "./analysis-budget.js";
 import { createMessageSpoolPath, iterateSpoolRecords, removeSpool, } from "./analysis-spool.js";
 import { createWriteStream } from "node:fs";
@@ -227,7 +227,9 @@ export async function buildReportFromExportSync(filePath, options) {
     let kiwiAvailableAtAnalysis = false;
     const phaseProfiler = new PhaseProfiler();
     let preset = resolvePresetNameWithAuto(options, messageEstimate);
-    let budget = new AnalysisBudgetTracker(preset, messageEstimate ?? 0, probeMachineProfileSync());
+    const profileMachine = probeMachineProfileSync();
+    let llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount: messageEstimate });
+    let budget = new AnalysisBudgetTracker(preset, messageEstimate ?? 0, profileMachine, llmPlan.size);
     try {
         if (useKiwi) {
             if (showProgress)
@@ -243,7 +245,8 @@ export async function buildReportFromExportSync(filePath, options) {
             if (showProgress)
                 logReportProgress({ phase: "대화 집계", current: estimated, total: estimated });
             preset = resolvePresetNameWithAuto(options, estimated);
-            budget = new AnalysisBudgetTracker(preset, estimated, probeMachineProfileSync());
+            llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount: estimated });
+            budget = new AnalysisBudgetTracker(preset, estimated, profileMachine, llmPlan.size);
             let useSemanticOverlap = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
             let useSentimentOverlap = resolveSentiment(options, prepass, prepass.sampleTexts());
             let useToxicityOverlap = resolveToxicityMl(options, prepass, prepass.sampleTexts());
@@ -329,9 +332,9 @@ export async function buildReportFromExportSync(filePath, options) {
                 usedToxicityAnalysis: usedToxicityOverlap,
                 koreanPrimary: prepass.isPrimarilyKorean(),
             }, prepass.messageCount));
-            const llmTier = resolveLlmTier(preset, probeMachineProfileSync());
+            llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount: prepass.messageCount });
             phaseProfiler.start("llm");
-            if (llmTier !== "off" && !budget.shouldSkip("llm")) {
+            if (llmPlan.enabled && !budget.shouldSkip("llm")) {
                 if (showProgress)
                     logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
                 report = await enrichReportWithLlm(report, options);
@@ -383,7 +386,8 @@ export async function buildReportFromExportSync(filePath, options) {
             }
         }
         preset = resolvePresetNameWithAuto(options, prepass.messageCount);
-        budget = new AnalysisBudgetTracker(preset, prepass.messageCount, probeMachineProfileSync());
+        llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount: prepass.messageCount });
+        budget = new AnalysisBudgetTracker(preset, prepass.messageCount, profileMachine, llmPlan.size);
         let useSemantic = resolveSemanticKeywords(options, prepass, prepass.sampleTexts());
         let useSentiment = resolveSentiment(options, prepass, prepass.sampleTexts());
         let useToxicity = resolveToxicityMl(options, prepass, prepass.sampleTexts());
@@ -412,9 +416,8 @@ export async function buildReportFromExportSync(filePath, options) {
             usedToxicityAnalysis: usedToxicity,
             koreanPrimary: prepass.isPrimarilyKorean(),
         }, prepass.messageCount));
-        const llmTier = resolveLlmTier(preset, probeMachineProfileSync());
         phaseProfiler.start("llm");
-        if (llmTier !== "off" && !budget.shouldSkip("llm")) {
+        if (llmPlan.enabled && !budget.shouldSkip("llm")) {
             if (showProgress)
                 logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
             report = await enrichReportWithLlm(report, options);

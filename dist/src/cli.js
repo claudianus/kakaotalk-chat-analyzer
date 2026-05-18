@@ -15,7 +15,9 @@ import { renderReportHtml } from "./report.js";
 import { formatCapabilitiesReport, probeMachineProfile } from "./analysis-capability.js";
 import { buildAnalysisEffectiveConfig, configToJson, formatConfigSummaryKo, formatEstimatedPresetHint, toProvenanceOptions, withWorkerUsed, } from "./analysis-effective-config.js";
 import { autoPresetFromMachine } from "./analysis-preset.js";
-import { parsePullTier, pullLlmGguf } from "./llm-pull.js";
+import { pullLlmGguf, parsePullSize } from "./llm-pull.js";
+import { resolveLlmRunPlan } from "./llm-policy.js";
+import { qwen35DisplayLabel } from "./llm-qwen35.js";
 import { estimateKakaoMessageCount } from "./stream-parser.js";
 import { VERSION } from "./version.js";
 const DEFAULT_NAMESPACE = "kakao-chat-report";
@@ -53,7 +55,7 @@ function registerPipelineOptions(cmd) {
         .option("--fast", "속도 우선(deprecated). --preset speed 와 동일.", false)
         .option("--preset <name>", "분석 preset: speed | balanced | quality | custom (미지정 시 RAM·코퍼스 자동)")
         .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
-        .option("--no-semantic-keywords", "한국어 방 기본 시맨틱 키워드(multilingual-e5-small)를 끕니다.", false)
+        .option("--no-semantic-keywords", "한국어 방 기본 시맨틱 키워드(KoELECTRA 임베딩)를 끕니다.", false)
         .option("--semantic-keywords", "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(e5-small, 최초 다운로드).", false)
         .option("--no-sentiment", "한국어 방 기본 감정 분석(transformers)을 끕니다.", false)
         .option("--sentiment", "한국어 비중과 관계없이 감정 분석을 강제합니다(최초 모델 다운로드).", false)
@@ -219,11 +221,22 @@ program
 const llmCmd = program.command("llm").description("로컬 LLM(GGUF) 모델 관리");
 llmCmd
     .command("pull")
-    .argument("<tier>", "0.8b | 2b | 4b (또는 qwen3.5-2b)")
+    .argument("[size]", "0.8B | 2B | 4B | 9B — 생략 시 RAM 기준 자동 최대")
     .description("Hugging Face에서 GGUF를 ~/.cache/kakaotalk-chat-analyzer/llm/ 에 받습니다.")
-    .action(async (tier) => {
-    const t = parsePullTier(tier);
-    const path = await pullLlmGguf(t);
+    .option("--preset <name>", "자동 선택 시 preset (speed|balanced|quality)", "balanced")
+    .action(async (size, opts) => {
+    const profile = await probeMachineProfile();
+    const preset = opts.preset;
+    const plan = size
+        ? { enabled: true, size: parsePullSize(size), reason: "CLI" }
+        : resolveLlmRunPlan({ preset, profile });
+    if (!plan.enabled || !plan.size) {
+        console.error(`[kca] LLM pull 불가: ${plan.reason}`);
+        process.exitCode = 1;
+        return;
+    }
+    process.stderr.write(`[kca] pull 대상: ${qwen35DisplayLabel(plan.size)} (${plan.reason})\n`);
+    const path = await pullLlmGguf(plan.size);
     console.log(`모델 경로: ${path}`);
 });
 program

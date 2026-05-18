@@ -58,10 +58,17 @@ test("autoPresetFromMachine uses available not free on macOS cache", () => {
   assert.equal(autoPresetFromMachine(macCachedMemory, 125_000), "balanced");
 });
 
-test("getPresetEffectiveFlags maps balanced semantic cap", () => {
-  const flags = getPresetEffectiveFlags({ preset: "balanced" });
-  assert.ok(flags.semanticCap === 600 || flags.semanticCap === 900);
-  assert.equal(flags.llmEnabled, false);
+test("getPresetEffectiveFlags maps balanced semantic cap and auto LLM", () => {
+  const prev = process.env.KCA_LLM;
+  delete process.env.KCA_LLM;
+  try {
+    const flags = getPresetEffectiveFlags({ preset: "balanced" });
+    assert.ok(flags.semanticCap === 600 || flags.semanticCap === 900);
+    assert.equal(flags.llmEnabled, true);
+  } finally {
+    if (prev === undefined) delete process.env.KCA_LLM;
+    else process.env.KCA_LLM = prev;
+  }
 });
 
 test("presetForcesSentimentOff blocks speed; quality is never forced off", () => {

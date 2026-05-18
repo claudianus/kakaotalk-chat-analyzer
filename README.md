@@ -191,20 +191,21 @@ kca --help
 
 | preset | 용도 | 90k 메시지 목표 | 시맨틱 | 감정 | LLM |
 |--------|------|-----------------|--------|------|-----|
-| `speed` | RAM·시간 최소 | ~3분 | 끔 | 끔 | 끔 |
-| `balanced` | 기본 권장 | ~5분 | e5-small | 자동 | 끔 |
-| `quality` | 한국어·서사 최대 | ~6분 | ko-v2 | KLUE | 2B/4B |
-| `custom` | 기능 직접 지정 | — | env/플래그 | env | `KCA_LLM=1` |
+| `speed` | RAM·시간 최소 | ~3분 | 끔 | 끔 | 자동( RAM 허용 시 최대 Qwen3.5 ) |
+| `balanced` | 기본 권장 | ~5분 | KorSTS KoELECTRA | NSMC | 자동( RAM 허용 시 최대 Qwen3.5 ) |
+| `quality` | 한국어·서사 최대 | ~6분 | KoELECTRA embed | NSMC | 자동( RAM 허용 시 최대 Qwen3.5 ) |
+| `custom` | 기능 직접 지정 | — | env/플래그 | env | 자동( `KCA_LLM=0` 만 끔 ) |
 
 ```bash
 kca capabilities                    # RAM·추천 preset
 kca ./chat.csv --preset balanced
 kca ./chat.csv --preset quality --local
-kca llm pull 2b                     # GGUF (optional node-llama-cpp)
-KCA_LLM_BACKEND=ollama KCA_LLM=1 kca ./chat.csv --preset custom
+kca llm pull                        # RAM 기준 자동 최대 Qwen3.5 GGUF
+kca llm pull 4B                     # 수동 size (없으면 분석 시 자동 다운로드)
+KCA_LLM_BACKEND=ollama kca ./chat.csv --preset custom
 ```
 
-환경 변수: `KCA_PRESET`, `KCA_SEMANTIC_MODEL`, `KCA_SENTIMENT_MODEL`, `KCA_LLM`, `KCA_LLM_MOCK`, `KCA_ONNX_GPU`, `KCA_EMBED_BATCH`, `KCA_SENTIMENT_BATCH`, `KCA_KIWI_WORKERS`, `KCA_NO_KIWI_WORKERS`, `KCA_PROFILE_PHASES`, `KCA_BENCH_CSV`, `KCA_KEYWORD_SUMMARY_TOP`, `KCA_SHOP_SEARCH_TOP`.
+환경 변수: `KCA_PRESET`, `KCA_SEMANTIC_MODEL`, `KCA_SENTIMENT_MODEL`, `KCA_LLM`(기본 on, `0`만 끔), `KCA_LLM_MODEL`(0.8B|2B|4B|9B), `KCA_LLM_BACKEND`, `KCA_OLLAMA_MODEL`, `KCA_LLM_MOCK`, `KCA_ONNX_GPU`, `KCA_EMBED_BATCH`, `KCA_SENTIMENT_BATCH`, `KCA_KIWI_WORKERS`, `KCA_NO_KIWI_WORKERS`, `KCA_PROFILE_PHASES`, `KCA_BENCH_CSV`, `KCA_KEYWORD_SUMMARY_TOP`, `KCA_SHOP_SEARCH_TOP`.
 
 **속도(품질 유지):** 대용량 CSV는 Kiwi worker pool(`KCA_KIWI_WORKERS`, RAM≥8GB 기본 2–4)·시맨틱/감정을 키워드 패스와 겹쳐 실행. `KCA_PROFILE_PHASES=1`로 단계별 ms. quality에서 GPU 가속: `onnxruntime-node` 설치 후 `KCA_ONNX_GPU=metal`(macOS)·`cuda`(Linux)·`dml`(Windows).
 
@@ -212,7 +213,7 @@ KCA_LLM_BACKEND=ollama KCA_LLM=1 kca ./chat.csv --preset custom
 
 **주제 맵:** graph(공기 군집)·keyword(상위 키워드 시드)·semantic(임베딩 클러스터) 3레인 RRF 병합 — 대용량 방에서 의미 테마 최대 12장. `KCA_TOPIC_MAX`, `KCA_TOPIC_MIN_THEMES`.
 
-**LLM (`quality` / `KCA_LLM=1`):** 주제 제목·서사 + `topicProposals`(키워드 화이트리스트) + 인사이트 bullet·샵검색/상호작용 한 줄(원문 미전송).
+**LLM (자동, `KCA_LLM=0` 제외):** RAM이 허용하는 최대 Qwen3.5(0.8B→9B)로 주제 제목·서사 + `topicProposals` + 인사이트 bullet·샵검색/상호작용 한 줄(원문 미전송).
 
 </details>
 

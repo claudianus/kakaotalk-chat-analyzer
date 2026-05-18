@@ -24,23 +24,31 @@ test("resolvePresetSource distinguishes RAM-only vs corpus auto preset", () => {
   assert.equal(resolvePresetSource(undefined, undefined, 5_000, richMachine), "auto-ram");
 });
 
-test("buildAnalysisEffectiveConfig reports LLM off for balanced preset", () => {
+test("buildAnalysisEffectiveConfig reports auto LLM for balanced on rich RAM", () => {
   const data = emptyReportData();
   data.summary.totalMessages = 125_000;
   data.summary.usedSemanticKeywords = true;
   data.summary.usedLlmAnalysis = false;
-  const config = buildAnalysisEffectiveConfig(
-    data,
-    { privacy: "public-masked", top: 40, preset: "balanced" },
-    richMachine,
-  );
-  assert.equal(config.preset, "balanced");
-  assert.equal(config.llm.tier, "off");
-  assert.equal(config.llm.used, false);
-  assert.ok(config.llm.skippedReason?.includes("balanced"));
-  const summary = formatConfigSummaryKo(config);
-  assert.match(summary, /preset: balanced/);
-  assert.match(summary, /LLM: tier off/);
+  const prev = process.env.KCA_LLM;
+  delete process.env.KCA_LLM;
+  try {
+    const config = buildAnalysisEffectiveConfig(
+      data,
+      { privacy: "public-masked", top: 40, preset: "balanced" },
+      richMachine,
+    );
+    assert.equal(config.preset, "balanced");
+    assert.equal(config.llm.enabled, true);
+    assert.equal(config.llm.size, "9B");
+    assert.equal(config.llm.used, false);
+    assert.ok(config.llm.skippedReason);
+    const summary = formatConfigSummaryKo(config);
+    assert.match(summary, /preset: balanced/);
+    assert.match(summary, /LLM: Qwen3.5-9B/);
+  } finally {
+    if (prev === undefined) delete process.env.KCA_LLM;
+    else process.env.KCA_LLM = prev;
+  }
 });
 
 test("resolvePresetSource detects CLI preset", () => {

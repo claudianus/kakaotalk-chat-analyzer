@@ -1,5 +1,7 @@
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import { analysisBudgetMs, memoryHeadroomGb, type MachineProfile } from "./analysis-capability.js";
+import { llmPhaseReserveMs } from "./llm-resolve.js";
+import type { Qwen35Size } from "./llm-qwen35.js";
 
 export type BudgetSkippablePhase = "semantic" | "sentiment" | "llm";
 
@@ -14,6 +16,7 @@ export function phaseReserveMs(
   phase: BudgetSkippablePhase,
   preset: AnalysisPresetName,
   profile: MachineProfile,
+  llmSize?: Qwen35Size,
 ): number {
   const headroom = memoryHeadroomGb(profile);
   if (phase === "semantic") {
@@ -29,8 +32,7 @@ export function phaseReserveMs(
     return BASE_RESERVE_MS.sentiment;
   }
   if (phase === "llm") {
-    if (headroom >= 16 && preset === "quality") return 45_000;
-    return BASE_RESERVE_MS.llm;
+    return llmPhaseReserveMs(llmSize, preset);
   }
   return BASE_RESERVE_MS[phase];
 }
@@ -44,6 +46,7 @@ export class AnalysisBudgetTracker {
     private readonly preset: AnalysisPresetName,
     messageCount: number,
     private readonly profile: MachineProfile,
+    private readonly llmSize?: Qwen35Size,
   ) {
     this.budgetMs = analysisBudgetMs(preset, messageCount, profile);
   }
@@ -54,7 +57,7 @@ export class AnalysisBudgetTracker {
 
   shouldSkip(phase: BudgetSkippablePhase): boolean {
     const remain = this.remainingMs();
-    let need = phaseReserveMs(phase, this.preset, this.profile);
+    let need = phaseReserveMs(phase, this.preset, this.profile, this.llmSize);
 
     if (
       phase === "semantic" &&

@@ -1,5 +1,7 @@
 import { totalmem, cpus, platform, arch } from "node:os";
 import { formatMemoryLine, probeAvailableMemoryBytes, probeFreeMemoryBytes, } from "./memory-probe.js";
+import { resolveLlmRunPlan } from "./llm-resolve.js";
+import { qwen35DisplayLabel } from "./llm-qwen35.js";
 import { probeOnnxGpu } from "./ml-runtime.js";
 export function memoryHeadroomGb(profile) {
     return profile.availableMemGb ?? profile.freeMemGb;
@@ -33,6 +35,8 @@ export function analysisBudgetMs(preset, messageCount, profile) {
             cap = 420_000;
         else if (preset === "balanced")
             cap = 360_000;
+        else if (preset === "speed")
+            cap = 210_000;
     }
     return Math.min(cap, Math.max(1000, sec * 1000));
 }
@@ -53,6 +57,17 @@ export function formatCapabilitiesReport(profile, opts) {
     ];
     if (opts?.preset) {
         lines.push(`Preset: ${opts.preset}`);
+        const llmPlan = resolveLlmRunPlan({
+            preset: opts.preset,
+            profile,
+            messageCount: opts.messageCount,
+        });
+        if (llmPlan.enabled && llmPlan.size) {
+            lines.push(`LLM: ${qwen35DisplayLabel(llmPlan.size)} (${llmPlan.reason})`);
+        }
+        else {
+            lines.push(`LLM: off (${llmPlan.reason})`);
+        }
         if (opts.messageCount) {
             lines.push(`Estimated analysis: ~${estimateAnalysisSeconds(opts.preset, opts.messageCount, profile)}s (${opts.messageCount.toLocaleString("ko-KR")} messages)`);
         }
