@@ -1,0 +1,239 @@
+src/version.ts
+  ai_agent 1
+src/aggregator.ts
+  s_534094c40d80e9::t_bc34390446c6ae 257
+  s_534094c40d80e9::t_2c03ee357eba4e 12
+  s_534094c40d80e9::t_fa499164744b83 902,909
+  s_534094c40d80e9::t_91ea128db091a8 106
+  s_534094c40d80e9::t_61941aa73874a7 201
+  s_534094c40d80e9::t_2a009dbd298b03 258-260
+src/toxicity-policy.ts
+  s_534094c40d80e9::t_8e30eb3dffcf2b 32-35
+  s_534094c40d80e9::t_dd4b2204bf3f36 1-31,36
+dist/src/analyze-pool.js.map
+  ai_agent 1
+dist/src/utterance-features.js
+  s_534094c40d80e9::t_3795f880738ba5 1-87
+dist/src/llm-summarize.js.map
+  ai_agent 1
+dist/src/toxicity-analyze.js.map
+  ai_agent 1
+dist/src/llm-policy.js.map
+  ai_agent 1
+dist/src/llm-policy.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 8,10
+src/ml/tasks/index.ts
+  s_534094c40d80e9::t_01f6d0ba33f13a 1-42
+dist/src/ml-bundled-models.js
+  s_534094c40d80e9::t_3795f880738ba5 2,5-12,14-27,29-31,34-36,38-48,51-58,62-67,70-80
+dist/src/semantic-keywords.js
+  s_534094c40d80e9::t_3795f880738ba5 10,27-29,31,33-34
+dist/src/analyze-pool.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 14-15
+dist/src/ml-bundled-models.js.map
+  ai_agent 1
+src/ml/hub-runtime.ts
+  s_534094c40d80e9::t_310d085d54d17c 1-3
+dist/src/ml/hub-runtime.js
+  s_534094c40d80e9::t_3795f880738ba5 1-4
+dist/src/ml/hub-runtime.js.map
+  ai_agent 1
+dist/src/semantic-policy.js.map
+  ai_agent 1
+dist/src/version.js.map
+  ai_agent 1
+src/ml/registry.ts
+  s_534094c40d80e9::t_4d0c20e4f69263 1-71
+dist/src/toxicity-policy.js
+  s_534094c40d80e9::t_3795f880738ba5 1-32
+src/analyze-pool.ts
+  s_534094c40d80e9::t_b74592947cd21c 22-23
+src/report-empty.ts
+  s_534094c40d80e9::t_36980f02ea6c51 98
+dist/src/llm-pull.js
+  s_534094c40d80e9::t_3795f880738ba5 9,11,17
+src/llm-policy.ts
+  s_534094c40d80e9::t_b868749ed040e7 9,12
+  s_534094c40d80e9::t_fe235336f61dac 23
+  s_534094c40d80e9::t_7dcede7cebb327 41
+src/llm-pull.ts
+  s_534094c40d80e9::t_7c6e8b48a01a99 11-12
+  s_534094c40d80e9::t_9e5d2b7da3f42b 19
+dist/src/ml/tasks/index.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-10
+dist/src/aggregator.js.map
+  ai_agent 1
+dist/src/ml/tasks/index.js.map
+  ai_agent 1
+dist/src/ml/hub-runtime.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-3
+src/ml/tasks/sentiment.ts
+  s_534094c40d80e9::t_b0ef9525912eb1 1-6
+src/analysis-effective-config.ts
+  s_534094c40d80e9::t_0b01d3242b10f9 258-262
+  s_534094c40d80e9::t_357db92d6b5e1e 28
+  s_534094c40d80e9::t_75cc95eb10decb 52-56
+dist/src/ml/tasks/index.js
+  s_534094c40d80e9::t_3795f880738ba5 1-27
+dist/src/utterance-features.js.map
+  ai_agent 1
+dist/src/sentiment-policy.js
+  s_534094c40d80e9::t_3795f880738ba5 3,33
+src/types.ts
+  s_534094c40d80e9::t_59303b8465ae7f 84-94
+  s_534094c40d80e9::t_86df045c4ea711 460-461
+  s_534094c40d80e9::t_30bc71d0fd2b19 471
+dist/src/analysis.js.map
+  ai_agent 1
+src/llm-summarize.ts
+  s_534094c40d80e9::t_f50047ba117ad0 132
+  s_534094c40d80e9::t_c11e8cb9700dda 45-51
+dist/src/ml/tasks/sentiment.js
+  s_534094c40d80e9::t_3795f880738ba5 1-2
+kakaotalk-chat-analyzer-models/package.json
+  s_534094c40d80e9::t_2f86c79f179e32 1-22
+package.json
+  s_534094c40d80e9::t_2c7ec6ef53d95c 3
+  s_534094c40d80e9::t_25d40431b9745e 35
+  s_534094c40d80e9::t_e275b8642a42f6 60
+dist/src/llm-summarize.js
+  s_534094c40d80e9::t_3795f880738ba5 23-29,105
+src/ml/tasks/embedding.ts
+  s_534094c40d80e9::t_4b81d6cf31cf8c 1-2
+src/analysis.ts
+  s_534094c40d80e9::t_df7d4cddd2b7b5 438,441
+  s_534094c40d80e9::t_9c38872db070cd 481,484
+  s_534094c40d80e9::t_e076449fc91304 489-497
+  s_534094c40d80e9::t_17099351279f4e 507,527
+  s_534094c40d80e9::t_3de92d4bc68a80 331,334
+  s_534094c40d80e9::t_3e34984e8bbf0e 530
+  s_534094c40d80e9::t_3d952278e30626 127
+  s_534094c40d80e9::t_b63c572ad62119 344,346-352
+  s_534094c40d80e9::t_06afd1c753b63a 13-14
+  s_534094c40d80e9::t_329a740b488523 139-146,160
+  s_534094c40d80e9::t_fd54159b62fca7 391,393-400,402-406
+  s_534094c40d80e9::t_89390f68cffb6c 418
+src/report.ts
+  s_534094c40d80e9::t_7610a5671b6a56 773
+  s_534094c40d80e9::t_640f749c838fd5 743-745
+  s_534094c40d80e9::t_af0ae5604e29c9 776
+  s_534094c40d80e9::t_28c446c8930e6a 771-772,774-775,777-778
+dist/src/aggregator.js
+  s_534094c40d80e9::t_3795f880738ba5 127,179-181,762,769
+dist/src/report-empty.js
+  s_534094c40d80e9::t_3795f880738ba5 96
+dist/src/semantic-policy.js
+  s_534094c40d80e9::t_3795f880738ba5 3,53-54
+dist/src/toxicity-policy.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-9
+kakaotalk-chat-analyzer-models/README.md
+  s_534094c40d80e9::t_0f225f2c1275de 1-19
+src/toxicity-analyze.ts
+  s_534094c40d80e9::t_b8ce78661c42ae 69-72,74-76
+  s_534094c40d80e9::t_708ab9df0f37c8 1-68,73,77-84,86-93,98-99,102-104,109-132
+  s_534094c40d80e9::t_ba8cbaa01bfadd 85
+  s_534094c40d80e9::t_492c74ea292475 100
+  s_534094c40d80e9::t_a23063beb57410 101,105-108
+  s_534094c40d80e9::t_e3aa62c5e24e11 94-97
+dist/src/llm-policy.js
+  s_534094c40d80e9::t_3795f880738ba5 7,16,38-39
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/llm-cache.js.map
+  ai_agent 1
+src/sentiment-policy.ts
+  s_534094c40d80e9::t_16b648c7cc7811 59
+  s_534094c40d80e9::t_6e147aad1a297b 8
+src/llm-cache.ts
+  s_534094c40d80e9::t_e0c015eefc74d3 19-22
+dist/src/analysis-effective-config.js
+  s_534094c40d80e9::t_3795f880738ba5 10,181-184
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+dist/src/version.js
+  s_534094c40d80e9::t_3795f880738ba5 1
+dist/src/llm-cache.js
+  s_534094c40d80e9::t_3795f880738ba5 17-20
+dist/src/ml/tasks/embedding.js
+  s_534094c40d80e9::t_3795f880738ba5 1-3
+dist/src/sentiment-policy.js.map
+  ai_agent 1
+kcachat/package.json
+  s_534094c40d80e9::t_6f3dec02addd09 15
+  s_534094c40d80e9::t_9f65415b6a4963 3
+dist/src/toxicity-policy.js.map
+  ai_agent 1
+dist/src/ml/tasks/sentiment.js.map
+  ai_agent 1
+dist/src/report.js.map
+  ai_agent 1
+dist/src/ml/registry.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-14
+dist/src/ml-bundled-models.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-9,11,13,15-16,20-21
+src/ml-bundled-models.ts
+  s_534094c40d80e9::t_1d6f9e9ec80906 2,6-16,20-32,34-35,39-42,44-54,58-69,74-81,85-98
+dist/src/version.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-2
+src/utterance-features.ts
+  s_534094c40d80e9::t_1df47c62d6f148 1-123
+dist/src/report.js
+  s_534094c40d80e9::t_3795f880738ba5 651-653,670-674
+dist/src/aggregator.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1,12,91,109
+src/semantic-policy.ts
+  s_534094c40d80e9::t_4ae8b365a285c9 5
+  s_534094c40d80e9::t_02bf326084211b 63
+dist/src/analysis.js
+  s_534094c40d80e9::t_3795f880738ba5 12-13,95,103-110,119,249,254-255,264-271,311,313-320,322,329,346,348,389,394-395,399-407,412,429,431
+dist/src/ml/registry.js
+  s_534094c40d80e9::t_3795f880738ba5 1-54
+dist/src/ml/tasks/embedding.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-2
+dist/src/utterance-features.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-19
+dist/src/toxicity-analyze.js
+  s_534094c40d80e9::t_3795f880738ba5 1-116
+test/kiwi-analysis-flag.test.ts
+  s_534094c40d80e9::t_9a80833965fa2e 49-52
+  s_534094c40d80e9::t_a3c7876b4027a7 19-22
+scripts/sync-ml-models.mjs
+  s_534094c40d80e9::t_72cf8d29332384 1-101
+src/semantic-keywords.ts
+  s_534094c40d80e9::t_aa66e9743a9a6f 41-42,44-46,50,53-54
+  s_534094c40d80e9::t_5cdbe8529e6db7 18
+dist/src/llm-pull.js.map
+  ai_agent 1
+dist/src/ml/registry.js.map
+  ai_agent 1
+dist/src/types.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 78-87,443-444,454
+dist/src/ml/tasks/sentiment.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1
+dist/src/analysis-effective-config.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 25-29
+dist/src/toxicity-analyze.d.ts
+  s_534094c40d80e9::t_3795f880738ba5 1-4
+dist/src/report-empty.js.map
+  ai_agent 1
+dist/src/ml/tasks/embedding.js.map
+  ai_agent 1
+kakaotalk-chat-analyzer-models/data/ml-models/manifest.json
+  s_534094c40d80e9::t_b6d4457425c3dc 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "d6f1135629c30bc79534a29f242ed3364979cc4a",
+  "prompts": {},
+  "sessions": {
+    "s_534094c40d80e9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a2cf7980-54a3-4189-8aaa-7e09603b2e1e",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
