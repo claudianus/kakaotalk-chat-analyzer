@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { MachineProfile } from "../src/analysis-capability.js";
-import { pickLargestQwen35ForRam, resolveLlmRunPlan } from "../src/llm-resolve.js";
+import {
+  memoryHeadroomForLlmLoad,
+  pickLargestQwen35ForRam,
+  resolveLlmRunPlan,
+} from "../src/llm-resolve.js";
 import { parseQwen35Size } from "../src/llm-qwen35.js";
 import { ggufPathForSize } from "../src/llm-cache.js";
 
-function profile(availableMemGb: number): MachineProfile {
+function profile(availableMemGb: number, freeMemGb = availableMemGb): MachineProfile {
   return {
     totalMemGb: availableMemGb + 4,
-    freeMemGb: availableMemGb,
+    freeMemGb,
     availableMemGb,
     cpuCores: 8,
     platform: "darwin",
@@ -16,6 +20,19 @@ function profile(availableMemGb: number): MachineProfile {
     gpu: "none",
   };
 }
+
+test("memoryHeadroomForLlmLoad uses free when available >> free", () => {
+  const p = profile(23.1, 3.5);
+  assert.equal(memoryHeadroomForLlmLoad(p), 3.5);
+  assert.equal(pickLargestQwen35ForRam(memoryHeadroomForLlmLoad(p)), "0.8B");
+});
+
+test("resolveLlmRunPlan auto picks 0.8B when free RAM low after heavy analysis", () => {
+  const plan = resolveLlmRunPlan({ preset: "balanced", profile: profile(23.1, 3.5) });
+  assert.equal(plan.enabled, true);
+  assert.equal(plan.size, "0.8B");
+  assert.match(plan.reason, /로드 3\.5GB/);
+});
 
 test("pickLargestQwen35ForRam greedy max", () => {
   assert.equal(pickLargestQwen35ForRam(28), "9B");

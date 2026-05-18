@@ -1,4 +1,6 @@
 import { type MachineProfile } from "./analysis-capability.js";
+/** GGUF 로드 시점 — macOS 등에서 available ≫ free 이면 free 기준으로 다운그레이드 */
+export declare function memoryHeadroomForLlmLoad(profile: MachineProfile): number;
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import { type Qwen35Size } from "./llm-qwen35.js";
 export interface LlmRunPlan {

@@ -7,6 +7,7 @@ import { qwen35DisplayLabel } from "./llm-qwen35.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { mergeTopicProposals } from "./topic-merge.js";
+import { runLlamaPrompt } from "./llm-runtime.js";
 function parseLlmJson(text) {
     const start = text.indexOf("{");
     const end = text.lastIndexOf("}");
@@ -60,26 +61,8 @@ async function runNodeLlama(prompt, size, timeoutMs) {
         throw new Error(`Qwen3.5 GGUF 없음: ${modelPath} (kca llm pull 또는 네트워크 확인)`);
     }
     await stat(modelPath);
-    const mod = "node-llama-cpp";
-    const { getLlama, LlamaChatSession } = await import(mod);
-    const llama = await getLlama();
-    const model = await llama.loadModel({ modelPath });
-    const context = await model.createContext({ contextSize: 4096 });
-    const session = new LlamaChatSession({
-        contextSequence: context.getSequence(),
-    });
     const fullPrompt = `${LLM_SYSTEM_PROMPT}\n\n---\n\n${prompt}`;
-    const run = session.prompt(fullPrompt, { maxTokens: 768 });
-    const timed = Promise.race([
-        run,
-        new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("LLM timeout")), timeoutMs);
-        }),
-    ]);
-    const reply = await timed;
-    await context.dispose?.();
-    await model.dispose?.();
-    return typeof reply === "string" ? reply : String(reply);
+    return runLlamaPrompt({ modelPath, prompt: fullPrompt, maxTokens: 768, timeoutMs });
 }
 async function runMockLlm() {
     return JSON.stringify({

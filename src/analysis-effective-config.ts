@@ -101,6 +101,7 @@ function collectEnvOverrides(): string[] {
     "KCA_LLM_MODEL",
     "KCA_LLM_MOCK",
     "KCA_LLM_BACKEND",
+    "KCA_LLM_GPU",
     "KCA_EMBEDDING_TOPICS",
     "KCA_INVOKER",
     "KCA_MEMORY_PROBE",
