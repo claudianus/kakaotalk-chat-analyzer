@@ -1,0 +1,23 @@
+dist/src/llm-runtime.js
+  s_902333c401ebd9::t_d2267ee32fe846 68,74,81-82
+dist/src/llm-runtime.js.map
+  ai_agent 1
+src/llm-runtime.ts
+  s_902333c401ebd9::t_93e007c0aad9eb 94,100,106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a46005f546afe61e769809df7c063d19fe3cb61a",
+  "prompts": {},
+  "sessions": {
+    "s_902333c401ebd9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "ee780d95-4446-4c75-92e2-535bbdb8b45f",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
