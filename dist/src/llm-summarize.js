@@ -203,13 +203,6 @@ export async function applyLlmEnrichment(data, options, messageCount) {
     else if (!shouldRetryAfterPrimaryFailure(primary)) {
         return { used: false, plan, skipReason: primary.skipReason };
     }
-    if (plan.size === "0.8B" && primary.ok) {
-        return {
-            used: false,
-            plan,
-            skipReason: `JSON 파싱 실패 (${qwen35DisplayLabel("0.8B")}, ${primary.elapsedMs}ms)`,
-        };
-    }
     const retrySize = "0.8B";
     const retryPlan = {
         ...plan,

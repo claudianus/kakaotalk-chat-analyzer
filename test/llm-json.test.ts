@@ -30,3 +30,9 @@ test("extractLlmJsonObject strips thinking block suffix", () => {
 test("extractLlmJsonObject returns null for non-JSON", () => {
   assert.equal(extractLlmJsonObject("서사만 한국어로 씁니다."), null);
 });
+
+test("extractLlmJsonObject ignores trailing braces after JSON", () => {
+  const raw = `{"paragraphs":["본문"]} 참고: } 잡음`;
+  const parsed = extractLlmJsonObject(raw);
+  assert.equal(parsed?.paragraphs?.[0], "본문");
+});

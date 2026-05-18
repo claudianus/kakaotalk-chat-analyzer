@@ -101,21 +101,22 @@ export async function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<st
   const { LlamaChatSession } = await import(mod);
   const llama = await getLlamaForKca();
 
-  const model = await raceTimeout(
-    llama.loadModel({ modelPath }),
-    loadTimeoutMs,
-    "LLM load timeout",
-  );
-  const context = await raceTimeout(
-    model.createContext({ contextSize: 4096 }),
-    Math.min(loadTimeoutMs, 30_000),
-    "LLM context timeout",
-  );
-  const session = new LlamaChatSession({
-    contextSequence: context.getSequence(),
-  });
-
+  let model: LlamaModelLike | undefined;
+  let context: LlamaContextLike | undefined;
   try {
+    model = await raceTimeout(
+      llama.loadModel({ modelPath }),
+      loadTimeoutMs,
+      "LLM load timeout",
+    );
+    context = await raceTimeout(
+      model.createContext({ contextSize: 4096 }),
+      Math.min(loadTimeoutMs, 30_000),
+      "LLM context timeout",
+    );
+    const session = new LlamaChatSession({
+      contextSequence: context.getSequence(),
+    });
     const reply = await raceTimeout(
       session.prompt(prompt, { maxTokens }),
       inferTimeoutMs,
@@ -123,7 +124,7 @@ export async function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<st
     );
     return typeof reply === "string" ? reply : String(reply);
   } finally {
-    await context.dispose?.();
-    await model.dispose?.();
+    await context?.dispose?.();
+    await model?.dispose?.();
   }
 }
