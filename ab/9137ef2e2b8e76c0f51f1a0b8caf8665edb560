@@ -1,0 +1,77 @@
+scripts/check-sentiment-hub-access.mjs
+  s_534094c40d80e9::t_58e79909f6672a 16-17
+dist/src/toxicity-analyze.js.map
+  ai_agent 1
+src/analysis-effective-config.ts
+  s_534094c40d80e9::t_1c52a97ab28bf9 94-96
+src/ml-bundled-models.ts
+  s_534094c40d80e9::t_f3cf2ba78d843b 85-89
+dist/src/ml-bundled-models.js.map
+  ai_agent 1
+dist/src/ml-hub-access.js
+  s_534094c40d80e9::t_1c79a33625bd44 3-12,41-55,57,59-64
+dist/src/ml/registry.js.map
+  ai_agent 1
+dist/src/ml-bundled-models.js
+  s_534094c40d80e9::t_1c79a33625bd44 70-75
+src/ml-hub-access.ts
+  s_534094c40d80e9::t_36f54571a1c0eb 50-63,65-68,70
+  s_534094c40d80e9::t_b33ea5cf082f35 7-18
+dist/src/ml-transformers-env.js
+  s_534094c40d80e9::t_1c79a33625bd44 29,31-36
+dist/src/toxicity-analyze.js
+  s_534094c40d80e9::t_1c79a33625bd44 51-52,63-65
+scripts/convert-sentiment-onnx.mjs
+  s_534094c40d80e9::t_58db497908ec49 46
+dist/src/ml/tasks/index.js.map
+  ai_agent 1
+dist/src/ml/tasks/index.js
+  s_534094c40d80e9::t_1c79a33625bd44 25-26
+src/ml-transformers-env.ts
+  s_534094c40d80e9::t_5b3476a8812fc0 35-40
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+dist/src/ml/registry.js
+  s_534094c40d80e9::t_1c79a33625bd44 20
+dist/src/sentiment-policy.js.map
+  ai_agent 1
+dist/src/toxicity-policy.js.map
+  ai_agent 1
+dist/src/analysis-effective-config.js
+  s_534094c40d80e9::t_1c79a33625bd44 23-25
+dist/src/ml-hub-access.js.map
+  ai_agent 1
+src/ml/registry.ts
+  s_534094c40d80e9::t_3039edbf57e32a 41
+src/ml/tasks/index.ts
+  s_534094c40d80e9::t_44f0922fdd7312 41
+data/ml-models/kca-koelectra-korean-sentiment/README.md
+  s_534094c40d80e9::t_76c8a839836c0b 14
+src/toxicity-analyze.ts
+  s_534094c40d80e9::t_111be98acb6021 65-66
+  s_534094c40d80e9::t_d368c6b2e15dd7 78-80
+src/sentiment-policy.ts
+  s_534094c40d80e9::t_25a3e52c90987a 41-43
+dist/src/sentiment-policy.js
+  s_534094c40d80e9::t_1c79a33625bd44 19-21
+kakaotalk-chat-analyzer-models/README.md
+  s_534094c40d80e9::t_29f3a8cf585225 16
+dist/src/ml-transformers-env.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "ab9137ef2e2b8e76c0f51f1a0b8caf8665edb560",
+  "prompts": {},
+  "sessions": {
+    "s_534094c40d80e9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a2cf7980-54a3-4189-8aaa-7e09603b2e1e",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
