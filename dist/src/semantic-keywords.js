@@ -62,6 +62,22 @@ async function loadPipeline(buildOptions, messageCount) {
 export function preloadSemanticPipeline(buildOptions, messageCount) {
     return loadPipeline(buildOptions, messageCount);
 }
+/** LLM 직전 ONNX 해제 */
+export async function disposeSemanticPipeline() {
+    if (!pipelinePromise)
+        return;
+    try {
+        const pipe = await pipelinePromise.catch(() => null);
+        const dispose = pipe?.dispose;
+        if (dispose)
+            await dispose.call(pipe);
+    }
+    catch {
+        /* ignore */
+    }
+    pipelinePromise = null;
+    loadedModelId = null;
+}
 function tensorToRows(tensor) {
     const data = tensor.data instanceof Float32Array ? tensor.data : Float32Array.from(tensor.data);
     const dims = tensor.dims;

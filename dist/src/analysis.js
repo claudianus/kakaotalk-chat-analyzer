@@ -14,6 +14,7 @@ import { preloadUtteranceMl, runUtteranceMlPass } from "./utterance-features.js"
 import { PhaseProfiler } from "./analysis-phase-profile.js";
 import { runKeywordPassFromSpoolPooled } from "./kiwi-keyword-pool.js";
 import { enrichReportWithLlm } from "./llm-apply.js";
+import { disposeUtteranceMlPipelines } from "./ml-dispose.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolveLlmRunPlan } from "./llm-policy.js";
@@ -211,7 +212,15 @@ async function runLlmPhaseIfAllowed(report, options, preset, budget, llmPlanHint
         const needSec = Math.round(phaseReserveMs("llm", preset, profile, llmPlan.size) / 1000);
         return reportWithLlmSkipped(report, `예산 부족 (남은 ~${remainSec}s, LLM 필요 ~${needSec}s)`);
     }
-    return enrichReportWithLlm(report, options);
+    try {
+        await disposeUtteranceMlPipelines();
+        return await enrichReportWithLlm(report, options);
+    }
+    catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        process.stderr.write(`[kca] LLM 건너뜀 — ${msg}\n`);
+        return reportWithLlmSkipped(report, `LLM 오류: ${msg}`);
+    }
 }
 export async function buildReportFromExportSync(filePath, options) {
     const showProgress = options?.progress !== false;

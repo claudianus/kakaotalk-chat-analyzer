@@ -1,10 +1,15 @@
+import { memoryHeadroomGb, probeMachineProfileSync } from "../../analysis-capability.js";
 import { ensureCoreMlBundles } from "../../ml-bundle-install.js";
 import { ensureToxicityBundle } from "../../ml-bundle-cache.js";
 import { preloadSentimentPipeline } from "./sentiment.js";
 import { preloadSemanticPipeline } from "./embedding.js";
 import { preloadToxicityPipeline } from "../../toxicity-analyze.js";
 import { isBundledToxicityModelReady } from "../../ml-bundled-models.js";
-/** transformers 파이프라인 병렬 워밍업(실패는 stderr 만) */
+function logWarmupSkip(label, error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`[kca] ${label} 워밍업 건너뜀: ${msg}\n`);
+}
+/** transformers 파이프라인 워밍업 — 저RAM(<12GB headroom)은 순차, 아니면 병렬 */
 export async function preloadUtteranceMlTasks(opts) {
     if (opts.sentiment || opts.semantic || opts.toxicity) {
         await ensureCoreMlBundles().catch((error) => {
@@ -18,26 +23,29 @@ export async function preloadUtteranceMlTasks(opts) {
             process.stderr.write(`[kca] 독성 번들 준비 건너뜀: ${msg}\n`);
         });
     }
-    const warmups = [];
+    const sequential = memoryHeadroomGb(probeMachineProfileSync()) < 12;
+    const runners = [];
     if (opts.sentiment) {
-        warmups.push(preloadSentimentPipeline(opts.buildOptions, opts.messageCount).catch((error) => {
-            const msg = error instanceof Error ? error.message : String(error);
-            process.stderr.write(`[kca] 감정 워밍업 건너뜀: ${msg}\n`);
+        runners.push(() => preloadSentimentPipeline(opts.buildOptions, opts.messageCount).catch((error) => {
+            logWarmupSkip("감정", error);
         }));
     }
     if (opts.semantic) {
-        warmups.push(preloadSemanticPipeline(opts.buildOptions, opts.messageCount).catch((error) => {
-            const msg = error instanceof Error ? error.message : String(error);
-            process.stderr.write(`[kca] 시맨틱 워밍업 건너뜀: ${msg}\n`);
+        runners.push(() => preloadSemanticPipeline(opts.buildOptions, opts.messageCount).catch((error) => {
+            logWarmupSkip("시맨틱", error);
         }));
     }
     if (opts.toxicity) {
-        warmups.push(preloadToxicityPipeline().catch((error) => {
-            const msg = error instanceof Error ? error.message : String(error);
-            process.stderr.write(`[kca] 독성 워밍업 건너뜀: ${msg}\n`);
+        runners.push(() => preloadToxicityPipeline().catch((error) => {
+            logWarmupSkip("독성", error);
         }));
     }
-    for (const task of warmups)
-        await task;
+    if (sequential) {
+        for (const run of runners)
+            await run();
+    }
+    else {
+        await Promise.all(runners.map((run) => run()));
+    }
 }
 //# sourceMappingURL=index.js.map

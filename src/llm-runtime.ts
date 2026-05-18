@@ -1,4 +1,5 @@
 import { platform } from "node:os";
+import { getKcaLlmGrammar } from "./llm-grammar.js";
 
 export type LlamaGpuMode = "none" | "metal" | "auto";
 
@@ -37,9 +38,16 @@ function isMetalInitFailure(error: unknown): boolean {
   );
 }
 
-type GetLlamaFn = (options?: { gpu?: false }) => Promise<{
+type LlamaBinding = {
   loadModel: (opts: { modelPath: string }) => Promise<LlamaModelLike>;
-}>;
+  createGrammarForJsonSchema: (schema: unknown) => Promise<LlamaGrammarLike>;
+};
+
+type GetLlamaFn = (options?: { gpu?: false }) => Promise<LlamaBinding>;
+
+interface LlamaGrammarLike {
+  parse: (json: string) => unknown;
+}
 
 interface LlamaModelLike {
   createContext: (opts: { contextSize: number }) => Promise<LlamaContextLike>;
@@ -52,7 +60,7 @@ interface LlamaContextLike {
 }
 
 /** node-llama-cpp `getLlama` — auto 시 Metal 실패하면 CPU 1회 재시도 */
-export async function getLlamaForKca(): Promise<Awaited<ReturnType<GetLlamaFn>>> {
+export async function getLlamaForKca(): Promise<LlamaBinding> {
   applyGgmlMetalCompatibilityEnv();
   const mod = "node-llama-cpp";
   const { getLlama } = (await import(mod)) as { getLlama: GetLlamaFn };
@@ -82,6 +90,22 @@ export interface RunLlamaPromptOptions {
   loadTimeoutMs: number;
 }
 
+/** Qwen3.5 instruct(non-thinking) 기본 — env로 override */
+export function resolveLlmSamplingParams(): {
+  temperature: number;
+  topP: number;
+  topK: number;
+} {
+  const temp = Number(process.env.KCA_LLM_TEMPERATURE);
+  const topP = Number(process.env.KCA_LLM_TOP_P);
+  const topK = Number(process.env.KCA_LLM_TOP_K);
+  return {
+    temperature: Number.isFinite(temp) && temp >= 0 ? temp : 0.7,
+    topP: Number.isFinite(topP) && topP > 0 && topP <= 1 ? topP : 0.8,
+    topK: Number.isFinite(topK) && topK >= 0 ? topK : 20,
+  };
+}
+
 function raceTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
   let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
   return Promise.race([
@@ -100,6 +124,10 @@ export async function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<st
   const mod = "node-llama-cpp";
   const { LlamaChatSession } = await import(mod);
   const llama = await getLlamaForKca();
+  const grammar = await getKcaLlmGrammar(
+    llama as Parameters<typeof getKcaLlmGrammar>[0],
+  );
+  const sampling = resolveLlmSamplingParams();
 
   let model: LlamaModelLike | undefined;
   let context: LlamaContextLike | undefined;
@@ -118,7 +146,14 @@ export async function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<st
       contextSequence: context.getSequence(),
     });
     const reply = await raceTimeout(
-      session.prompt(prompt, { maxTokens }),
+      session.prompt(prompt, {
+        maxTokens,
+        grammar: grammar ?? undefined,
+        temperature: sampling.temperature,
+        topP: sampling.topP,
+        topK: sampling.topK,
+        budgets: { thoughtTokens: 0 },
+      }),
       inferTimeoutMs,
       "LLM timeout",
     );

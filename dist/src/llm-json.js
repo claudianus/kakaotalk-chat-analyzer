@@ -69,4 +69,16 @@ export function extractLlmJsonObject(text) {
         return null;
     return tryParseObject(cleaned.slice(start, end + 1));
 }
+/** grammar.parse 1차, heuristic 2차 */
+export function parseLlmJsonResponse(raw, grammar) {
+    if (grammar) {
+        try {
+            return grammar.parse(raw);
+        }
+        catch {
+            /* fallback */
+        }
+    }
+    return extractLlmJsonObject(raw);
+}
 //# sourceMappingURL=llm-json.js.map

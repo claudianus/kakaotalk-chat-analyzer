@@ -9,6 +9,8 @@ type FeaturePipeline = (input: string | string[], options?: {
 }>;
 /** Kiwi 준비·키워드 패스와 병렬 워밍업 */
 export declare function preloadSemanticPipeline(buildOptions?: BuildReportOptions, messageCount?: number): Promise<FeaturePipeline>;
+/** LLM 직전 ONNX 해제 */
+export declare function disposeSemanticPipeline(): Promise<void>;
 export interface SemanticKeywordOptions {
     stopwords: ReadonlySet<string>;
     /** 코퍼스 전체 메시지 수(임베딩 샘플 상한·리저보어 cap 정렬용) */

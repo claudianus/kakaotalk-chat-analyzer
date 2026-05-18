@@ -25,6 +25,10 @@ export interface ResolveLlmRunPlanInput {
 export declare function pickLargestQwen35ForRam(headroomGb: number): Qwen35Size | undefined;
 export declare function resolveLlmRunPlan(input: ResolveLlmRunPlanInput): LlmRunPlan;
 export declare function isLlmAutoEnabled(): boolean;
+/** LLM 재시도·reprompt 전 free RAM 하한 — `KCA_LLM_MIN_FREE_GB` */
+export declare function minFreeGbForLlmRetry(): number;
+/** GGUF 재로드/reprompt 허용 여부 (dispose 후 reprobe 기준) */
+export declare function canRetryLlmRam(profile: MachineProfile, retrySize?: Qwen35Size): boolean;
 /** GGUF 첫 로드 상한(ms) */
 export declare function llmLoadTimeoutMs(size: Qwen35Size): number;
 /** 추론 단계 상한(ms) */

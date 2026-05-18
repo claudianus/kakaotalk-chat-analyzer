@@ -339,7 +339,11 @@ export function formatEstimatedPresetHint(
     Math.abs(machine.availableMemGb - machine.freeMemGb) < 0.3
       ? `가용 RAM ${machine.availableMemGb}GB`
       : `가용 RAM ${machine.availableMemGb}GB (free ${machine.freeMemGb}GB)`;
-  return `[kca] 예상 preset: ${preset} (${presetSourceLabel(source)} · ${ram}${n})`;
+  const lowFree =
+    machine.freeMemGb < 2
+      ? " · RAM 여유 낮음 — LLM 실패 시 KCA_LLM=0 또는 --local 권장"
+      : "";
+  return `[kca] 예상 preset: ${preset} (${presetSourceLabel(source)} · ${ram}${n})${lowFree}`;
 }
 
 function formatRequested(req: boolean | "auto"): string {
