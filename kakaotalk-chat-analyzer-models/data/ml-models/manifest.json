@@ -1,0 +1,21 @@
+{
+  "schema": "kca-ml-models/1",
+  "version": "0.1.0",
+  "models": [
+    {
+      "id": "kca-koelectra-small-v3-nsmc",
+      "task": "text-classification",
+      "source": "daekeun-ml/koelectra-small-v3-nsmc"
+    },
+    {
+      "id": "kca-koelectra-small-v3-embed",
+      "task": "feature-extraction",
+      "source": "monologg/koelectra-small-v3-discriminator"
+    },
+    {
+      "id": "kca-kcelectra-base-toxicity",
+      "task": "text-classification",
+      "source": "monologg/koelectra-base-v3-discriminator"
+    }
+  ]
+}

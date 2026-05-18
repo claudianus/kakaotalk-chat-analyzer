@@ -16,6 +16,10 @@ export const TIER_GGUF: Record<Exclude<LlmTier, "off">, { repo: string; file: st
     repo: "Qwen/Qwen3-4B-GGUF",
     file: "Qwen3-4B-Q4_K_M.gguf",
   },
+  "8b": {
+    repo: "Qwen/Qwen3-8B-GGUF",
+    file: "Qwen3-8B-Q4_K_M.gguf",
+  },
 };
 
 export function llmCacheRoot(): string {

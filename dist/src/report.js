@@ -648,6 +648,9 @@ function renderToneSignalsPanel(data) {
     if (data.sentiment && data.sentiment.sampleSize > 0) {
         blocks.push(renderSentimentInline(data.sentiment));
     }
+    if (data.toxicity && data.toxicity.sampleSize > 0) {
+        blocks.push(renderToxicityInline(data.toxicity));
+    }
     if (blocks.length === 0) {
         return panel("톤·감정 신호", "비속어 패턴·감정 분석(선택) 요약입니다.", `<p style="margin:0;color:var(--muted);font-size:13px">이 방에서는 감지된 비속 패턴이 없거나, 감정 분석 샘플이 부족합니다.</p>`);
     }
@@ -662,6 +665,13 @@ function renderProfanityInline(profanity, totalMessages) {
     <h3 class="insight-sub">비속·거친 표현(패턴)</h3>
     <p class="chart-hint">전체 <strong>${formatNumber(totalMessages)}</strong>건 중 패턴 매칭 메시지 <strong>${formatNumber(profanity.messagesWithProfanity)}</strong>건 · hit 합계 <strong>${formatNumber(profanity.totalHits)}</strong> · 100건당 <strong>${profanity.per100Messages}</strong></p>
     ${top ? `<ul class="dyad-pairs">${top}</ul>` : ""}
+  </div>`;
+}
+function renderToxicityInline(toxicity) {
+    const tierLabel = toxicity.usedMlModel ? "ML" : "사전";
+    return `<div id="s-toxicity" class="tone-block">
+    <h3 class="insight-sub">공격·거친 톤(${tierLabel}, 샘플 ${formatNumber(toxicity.sampleSize)}건)</h3>
+    <p class="chart-hint">독성 추정 <strong>${toxicity.toxicPercent}%</strong> · 중립 <strong>${toxicity.neutralPercent}%</strong> · 해당 샘플 <strong>${formatNumber(toxicity.messagesWithToxicity)}</strong>건</p>
   </div>`;
 }
 function renderSentimentInline(sentiment) {

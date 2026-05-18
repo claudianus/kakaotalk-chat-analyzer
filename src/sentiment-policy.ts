@@ -5,6 +5,7 @@ import { presetForcesSentimentOff, resolvePresetNameWithAuto } from "./analysis-
 import {
   BUNDLED_SENTIMENT_MODEL_ID,
   isBundledSentimentModelReady,
+  resolveBundledSentimentModelId,
 } from "./ml-bundled-models.js";
 import {
   semanticReservoirCap,
@@ -55,7 +56,7 @@ export function sentimentModelId(
       : undefined);
   const envPreset = process.env.KCA_PRESET?.trim().toLowerCase();
   const isQuality = resolved === "quality" || envPreset === "quality";
-  if (isQuality && isBundledSentimentModelReady()) return BUNDLED_SENTIMENT_MODEL_ID;
+  if (isQuality && isBundledSentimentModelReady()) return resolveBundledSentimentModelId();
   return DEFAULT_SENTIMENT_MODEL;
 }
 

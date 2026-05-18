@@ -1,0 +1,22 @@
+{
+  "name": "kakaotalk-chat-analyzer-models",
+  "version": "0.1.0",
+  "description": "Bundled Korean encoder ONNX models for kakaotalk-chat-analyzer (optional install).",
+  "type": "module",
+  "files": [
+    "data/ml-models/**",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/claudianus/kakaotalk-chat-analyzer.git",
+    "directory": "kakaotalk-chat-analyzer-models"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

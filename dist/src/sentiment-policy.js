@@ -1,6 +1,6 @@
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { presetForcesSentimentOff, resolvePresetNameWithAuto } from "./analysis-preset.js";
-import { BUNDLED_SENTIMENT_MODEL_ID, isBundledSentimentModelReady, } from "./ml-bundled-models.js";
+import { BUNDLED_SENTIMENT_MODEL_ID, isBundledSentimentModelReady, resolveBundledSentimentModelId, } from "./ml-bundled-models.js";
 import { subsampleSemanticMessages, } from "./semantic-policy.js";
 export { semanticSampleCap as sentimentSampleCap, semanticReservoirCap as sentimentReservoirCap, subsampleSemanticMessages as subsampleSentimentSamples, } from "./semantic-policy.js";
 const MIN_SENTIMENT_MESSAGES = 48;
@@ -30,7 +30,7 @@ export function sentimentModelId(preset, messageCount, options) {
     const envPreset = process.env.KCA_PRESET?.trim().toLowerCase();
     const isQuality = resolved === "quality" || envPreset === "quality";
     if (isQuality && isBundledSentimentModelReady())
-        return BUNDLED_SENTIMENT_MODEL_ID;
+        return resolveBundledSentimentModelId();
     return DEFAULT_SENTIMENT_MODEL;
 }
 /** primary 실패 시 Hub accessible Xenova 로 폴백 (primary가 이미 default면 단일) */

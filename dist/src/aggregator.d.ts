@@ -1,4 +1,4 @@
-import type { ChatRecord, EncodingName, PrivacyMode, ReportData, SentimentStats } from "./types.js";
+import type { ChatRecord, EncodingName, PrivacyMode, ReportData, SentimentStats, ToxicityStats } from "./types.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 export interface FinalizeSourceMeta {
     filePath: string;
@@ -9,6 +9,7 @@ export interface FinalizeSourceMeta {
 export interface FinalizeOptions {
     usedSemanticKeywords?: boolean;
     usedSentimentAnalysis?: boolean;
+    usedToxicityAnalysis?: boolean;
     koreanPrimary?: boolean;
     useEmbeddingTopics?: boolean;
     semanticSupplementRrfWeight?: number;
@@ -87,6 +88,7 @@ export declare class ReportAggregator {
     private readonly sentimentReservoir;
     private readonly profanityCounter;
     private sentimentStats;
+    private toxicityStats;
     /** stats pass에서 리저보어를 채웠으면 keyword pass 중복 push 방지 */
     private samplesCollectedInStatsPass;
     private prevMs;
@@ -104,6 +106,7 @@ export declare class ReportAggregator {
         sender: string;
     }[];
     applySentimentStats(stats: SentimentStats): void;
+    applyToxicityStats(stats: ToxicityStats): void;
     senderAliasMap(): Map<string, string>;
     messageCount(): number;
     resetKeywordPipeline(): void;

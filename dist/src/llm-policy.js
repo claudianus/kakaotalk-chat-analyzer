@@ -4,6 +4,7 @@ export const QWEN35_MODELS = {
     "0.8b": "Qwen/Qwen3.5-0.8B-Instruct-GGUF",
     "2b": "Qwen/Qwen3.5-2B-Instruct-GGUF",
     "4b": "Qwen/Qwen3.5-4B-Instruct-GGUF",
+    "8b": "Qwen/Qwen3-8B-GGUF",
 };
 const LLM_TIMEOUT_MS = 45_000;
 export function resolveLlmTier(preset, profile) {
@@ -12,7 +13,7 @@ export function resolveLlmTier(preset, profile) {
     if (process.env.KCA_LLM_MOCK === "1")
         return "0.8b";
     const forced = process.env.KCA_LLM_MODEL?.trim().toLowerCase();
-    if (forced === "0.8b" || forced === "2b" || forced === "4b")
+    if (forced === "0.8b" || forced === "2b" || forced === "4b" || forced === "8b")
         return forced;
     if (preset === "speed" || preset === "balanced") {
         return process.env.KCA_LLM === "1" ? "2b" : "off";
@@ -34,6 +35,8 @@ export function resolveLlmTier(preset, profile) {
             return "4b";
         return "off";
     }
+    if (preset === "quality" && headroom >= 24 && process.env.KCA_LLM === "1")
+        return "8b";
     if (preset === "quality" && headroom >= 14)
         return "4b";
     return "2b";

@@ -2,6 +2,7 @@ import type { HeuristicPrepassCollector } from "./export-prepass.js";
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { getPresetEffectiveFlags, presetForcesSemanticOff } from "./analysis-preset.js";
+import { BUNDLED_EMBED_MODEL_ID, isBundledEmbedModelReady } from "./ml-bundled-models.js";
 
 const MIN_SEMANTIC_MESSAGES = 48;
 
@@ -59,6 +60,7 @@ export function semanticEmbeddingModelId(
   const env = process.env.KCA_SEMANTIC_MODEL?.trim();
   if (env) return env;
   const preset = getPresetEffectiveFlags(options, messageCount).preset;
+  if (preset === "quality" && isBundledEmbedModelReady()) return BUNDLED_EMBED_MODEL_ID;
   if (preset === "quality") return QUALITY_KOREAN_SEMANTIC_MODEL;
   return DEFAULT_KOREAN_SEMANTIC_MODEL;
 }

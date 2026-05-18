@@ -1,5 +1,6 @@
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { getPresetEffectiveFlags, presetForcesSemanticOff } from "./analysis-preset.js";
+import { BUNDLED_EMBED_MODEL_ID, isBundledEmbedModelReady } from "./ml-bundled-models.js";
 const MIN_SEMANTIC_MESSAGES = 48;
 /** 코퍼스 규모별 임베딩·리저보어 상한 */
 export function semanticSampleCap(messageCount) {
@@ -49,6 +50,8 @@ export function semanticEmbeddingModelId(options, messageCount) {
     if (env)
         return env;
     const preset = getPresetEffectiveFlags(options, messageCount).preset;
+    if (preset === "quality" && isBundledEmbedModelReady())
+        return BUNDLED_EMBED_MODEL_ID;
     if (preset === "quality")
         return QUALITY_KOREAN_SEMANTIC_MODEL;
     return DEFAULT_KOREAN_SEMANTIC_MODEL;

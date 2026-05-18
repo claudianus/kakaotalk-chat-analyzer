@@ -740,6 +740,9 @@ function renderToneSignalsPanel(data: ReportData): string {
   if (data.sentiment && data.sentiment.sampleSize > 0) {
     blocks.push(renderSentimentInline(data.sentiment));
   }
+  if (data.toxicity && data.toxicity.sampleSize > 0) {
+    blocks.push(renderToxicityInline(data.toxicity));
+  }
   if (blocks.length === 0) {
     return panel(
       "톤·감정 신호",
@@ -762,6 +765,14 @@ function renderProfanityInline(
     <h3 class="insight-sub">비속·거친 표현(패턴)</h3>
     <p class="chart-hint">전체 <strong>${formatNumber(totalMessages)}</strong>건 중 패턴 매칭 메시지 <strong>${formatNumber(profanity.messagesWithProfanity)}</strong>건 · hit 합계 <strong>${formatNumber(profanity.totalHits)}</strong> · 100건당 <strong>${profanity.per100Messages}</strong></p>
     ${top ? `<ul class="dyad-pairs">${top}</ul>` : ""}
+  </div>`;
+}
+
+function renderToxicityInline(toxicity: NonNullable<ReportData["toxicity"]>): string {
+  const tierLabel = toxicity.usedMlModel ? "ML" : "사전";
+  return `<div id="s-toxicity" class="tone-block">
+    <h3 class="insight-sub">공격·거친 톤(${tierLabel}, 샘플 ${formatNumber(toxicity.sampleSize)}건)</h3>
+    <p class="chart-hint">독성 추정 <strong>${toxicity.toxicPercent}%</strong> · 중립 <strong>${toxicity.neutralPercent}%</strong> · 해당 샘플 <strong>${formatNumber(toxicity.messagesWithToxicity)}</strong>건</p>
   </div>`;
 }
 

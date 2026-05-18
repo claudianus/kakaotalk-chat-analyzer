@@ -19,6 +19,8 @@ export interface BuildReportOptions {
   semanticKeywords?: boolean;
   /** true=강제, false=끔, undefined=한국어 방이면 자동 */
   sentiment?: boolean;
+  /** true=강제 ML 독성, false=끔, undefined=quality+번들 시 자동 */
+  toxicityMl?: boolean;
   /** YYYY-MM-DD — 이 날짜(포함) 이후 메시지만 집계 */
   since?: string;
   /** speed | balanced | quality | custom — 미지정 시 RAM·코퍼스 기반 자동 */

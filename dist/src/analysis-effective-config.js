@@ -7,6 +7,7 @@ import { parseKcaInvokerEnv } from "./report-provenance.js";
 import { resolveTopicModel } from "./report-provenance.js";
 import { effectiveSemanticSampleCap, semanticEmbeddingModelId, } from "./semantic-policy.js";
 import { sentimentModelId } from "./sentiment-policy.js";
+import { resolveToxicityModelId } from "./ml/registry.js";
 function collectEnvOverrides() {
     const keys = [
         "KCA_PRESET",
@@ -176,6 +177,11 @@ export function buildAnalysisEffectiveConfig(data, cli, machine) {
             used: sentimentUsed,
             model: sentimentModel,
             skippedReason: inferSentimentSkipReason(buildOpts, preset, sentimentUsed, messageCount),
+        },
+        encoderPlane: {
+            sentiment: sentimentModel,
+            embedding: semanticModel,
+            toxicity: resolveToxicityModelId() || "lexicon",
         },
         llm: {
             tier: llmTier,

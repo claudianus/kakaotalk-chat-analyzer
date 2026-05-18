@@ -25,6 +25,7 @@ import {
   semanticEmbeddingModelId,
 } from "./semantic-policy.js";
 import { sentimentModelId } from "./sentiment-policy.js";
+import { resolveToxicityModelId } from "./ml/registry.js";
 import type { PrivacyMode, ReportData } from "./types.js";
 
 export type PresetSource = "cli" | "env" | "auto-ram" | "auto-corpus" | "legacy-fast";
@@ -48,6 +49,11 @@ export interface AnalysisEffectiveConfig {
   workerUsed: boolean;
   semantic: PhaseEffectiveState;
   sentiment: PhaseEffectiveState;
+  encoderPlane: {
+    sentiment: string;
+    embedding: string;
+    toxicity: string;
+  };
   llm: {
     tier: LlmTier;
     used: boolean;
@@ -248,6 +254,11 @@ export function buildAnalysisEffectiveConfig(
       used: sentimentUsed,
       model: sentimentModel,
       skippedReason: inferSentimentSkipReason(buildOpts, preset, sentimentUsed, messageCount),
+    },
+    encoderPlane: {
+      sentiment: sentimentModel,
+      embedding: semanticModel,
+      toxicity: resolveToxicityModelId() || "lexicon",
     },
     llm: {
       tier: llmTier,

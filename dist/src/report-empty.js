@@ -93,6 +93,7 @@ export function emptyReportData() {
         participantsByCharacters: [],
         profanity: emptyProfanityStats(),
         sentiment: null,
+        toxicity: null,
         daily: [],
         hourly: Array.from({ length: 24 }, () => 0),
         weekdays: ["일", "월", "화", "수", "목", "금", "토"].map((d) => ({ label: `${d}요일`, count: 0 })),
