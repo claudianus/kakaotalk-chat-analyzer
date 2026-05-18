@@ -44,6 +44,10 @@ export class AnalysisBudgetTracker {
         this.llmSize = llmSize;
         this.budgetMs = analysisBudgetMs(preset, messageCount, profile);
     }
+    /** LLM 직전 RAM 재프로브 후 예약 시간 갱신 */
+    updateLlmSize(size) {
+        this.llmSize = size;
+    }
     remainingMs() {
         return Math.max(0, this.budgetMs - (performance.now() - this.started));
     }

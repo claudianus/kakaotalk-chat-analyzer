@@ -54,32 +54,34 @@ export async function getLlamaForKca() {
         return getLlama({ gpu: false });
     }
 }
-/** GGUF 로드 → 채팅 1회 → 리소스 해제 */
+function raceTimeout(promise, timeoutMs, label) {
+    let timeoutHandle;
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => {
+            timeoutHandle = setTimeout(() => reject(new Error(label)), timeoutMs);
+        }),
+    ]).finally(() => {
+        if (timeoutHandle !== undefined)
+            clearTimeout(timeoutHandle);
+    });
+}
+/** GGUF 로드 → 채팅 1회 → 리소스 해제 (로드·추론 타임아웃 분리) */
 export async function runLlamaPrompt(options) {
-    const { modelPath, prompt, maxTokens = 768, timeoutMs } = options;
+    const { modelPath, prompt, maxTokens = 768, inferTimeoutMs, loadTimeoutMs } = options;
     const mod = "node-llama-cpp";
     const { LlamaChatSession } = await import(mod);
     const llama = await getLlamaForKca();
-    const model = await llama.loadModel({ modelPath });
-    const context = await model.createContext({ contextSize: 4096 });
+    const model = await raceTimeout(llama.loadModel({ modelPath }), loadTimeoutMs, "LLM load timeout");
+    const context = await raceTimeout(model.createContext({ contextSize: 4096 }), Math.min(loadTimeoutMs, 30_000), "LLM context timeout");
     const session = new LlamaChatSession({
         contextSequence: context.getSequence(),
     });
-    let timeoutHandle;
     try {
-        const run = session.prompt(prompt, { maxTokens });
-        const timed = Promise.race([
-            run,
-            new Promise((_, reject) => {
-                timeoutHandle = setTimeout(() => reject(new Error("LLM timeout")), timeoutMs);
-            }),
-        ]);
-        const reply = await timed;
+        const reply = await raceTimeout(session.prompt(prompt, { maxTokens }), inferTimeoutMs, "LLM timeout");
         return typeof reply === "string" ? reply : String(reply);
     }
     finally {
-        if (timeoutHandle !== undefined)
-            clearTimeout(timeoutHandle);
         await context.dispose?.();
         await model.dispose?.();
     }

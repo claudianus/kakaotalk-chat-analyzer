@@ -46,9 +46,14 @@ export class AnalysisBudgetTracker {
     private readonly preset: AnalysisPresetName,
     messageCount: number,
     private readonly profile: MachineProfile,
-    private readonly llmSize?: Qwen35Size,
+    private llmSize?: Qwen35Size,
   ) {
     this.budgetMs = analysisBudgetMs(preset, messageCount, profile);
+  }
+
+  /** LLM 직전 RAM 재프로브 후 예약 시간 갱신 */
+  updateLlmSize(size: Qwen35Size | undefined): void {
+    this.llmSize = size;
   }
 
   remainingMs(): number {

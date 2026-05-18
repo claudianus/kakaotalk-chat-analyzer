@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { MachineProfile } from "../src/analysis-capability.js";
 import {
+  llmPhaseReserveMs,
   memoryHeadroomForLlmLoad,
   pickLargestQwen35ForRam,
   resolveLlmRunPlan,
@@ -9,9 +10,9 @@ import {
 import { parseQwen35Size } from "../src/llm-qwen35.js";
 import { ggufPathForSize } from "../src/llm-cache.js";
 
-function profile(availableMemGb: number, freeMemGb = availableMemGb): MachineProfile {
+function profile(availableMemGb: number, freeMemGb = availableMemGb, totalMemGb?: number): MachineProfile {
   return {
-    totalMemGb: availableMemGb + 4,
+    totalMemGb: totalMemGb ?? availableMemGb + 4,
     freeMemGb,
     availableMemGb,
     cpuCores: 8,
@@ -21,17 +22,18 @@ function profile(availableMemGb: number, freeMemGb = availableMemGb): MachinePro
   };
 }
 
-test("memoryHeadroomForLlmLoad uses free when available >> free", () => {
-  const p = profile(23.1, 3.5);
-  assert.equal(memoryHeadroomForLlmLoad(p), 3.5);
-  assert.equal(pickLargestQwen35ForRam(memoryHeadroomForLlmLoad(p)), "0.8B");
+test("memoryHeadroomForLlmLoad uses available minus reserve with free safety cap", () => {
+  const p = profile(23.1, 3.5, 48);
+  const headroom = memoryHeadroomForLlmLoad(p);
+  assert.ok(headroom >= 8, `expected >=8GB headroom, got ${headroom}`);
+  assert.equal(pickLargestQwen35ForRam(headroom), "4B");
 });
 
-test("resolveLlmRunPlan auto picks 0.8B when free RAM low after heavy analysis", () => {
-  const plan = resolveLlmRunPlan({ preset: "balanced", profile: profile(23.1, 3.5) });
+test("resolveLlmRunPlan auto picks 4B when available high but free low (macOS)", () => {
+  const plan = resolveLlmRunPlan({ preset: "balanced", profile: profile(23.1, 3.5, 48) });
   assert.equal(plan.enabled, true);
-  assert.equal(plan.size, "0.8B");
-  assert.match(plan.reason, /로드 3\.5GB/);
+  assert.equal(plan.size, "4B");
+  assert.match(plan.reason, /가용 23\.1GB−예약/);
 });
 
 test("pickLargestQwen35ForRam greedy max", () => {
@@ -52,13 +54,18 @@ test("resolveLlmRunPlan auto picks 9B on 28GB quality", () => {
 test("resolveLlmRunPlan off below minimum RAM", () => {
   const plan = resolveLlmRunPlan({ preset: "balanced", profile: profile(2) });
   assert.equal(plan.enabled, false);
-  assert.match(plan.reason, /3GB/);
+  assert.match(plan.reason, /3GB|RAM/);
 });
 
-test("resolveLlmRunPlan 7GB picks 2B", () => {
-  const plan = resolveLlmRunPlan({ preset: "balanced", profile: profile(7) });
+test("resolveLlmRunPlan 12GB available picks 2B after reserve", () => {
+  const plan = resolveLlmRunPlan({ preset: "balanced", profile: profile(12, 12, 16) });
   assert.equal(plan.enabled, true);
   assert.equal(plan.size, "2B");
+});
+
+test("llmPhaseReserveMs includes load and infer for 4B", () => {
+  const ms = llmPhaseReserveMs("4B", "balanced");
+  assert.ok(ms >= 100_000, `4B reserve should be >=100s, got ${ms}`);
 });
 
 test("legacy KCA_LLM_MODEL=8b maps to 9B", () => {

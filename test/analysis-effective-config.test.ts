@@ -10,9 +10,9 @@ import type { MachineProfile } from "../src/analysis-capability.js";
 import { emptyReportData } from "../src/report-empty.js";
 
 const richMachine: MachineProfile = {
-  totalMemGb: 32,
-  freeMemGb: 16,
-  availableMemGb: 16,
+  totalMemGb: 48,
+  freeMemGb: 4,
+  availableMemGb: 22,
   cpuCores: 8,
   platform: "darwin",
   arch: "arm64",
@@ -39,12 +39,12 @@ test("buildAnalysisEffectiveConfig reports auto LLM for balanced on rich RAM", (
     );
     assert.equal(config.preset, "balanced");
     assert.equal(config.llm.enabled, true);
-    assert.equal(config.llm.size, "9B");
+    assert.equal(config.llm.size, "4B");
     assert.equal(config.llm.used, false);
     assert.ok(config.llm.skippedReason);
     const summary = formatConfigSummaryKo(config);
     assert.match(summary, /preset: balanced/);
-    assert.match(summary, /LLM: Qwen3.5-9B/);
+    assert.match(summary, /LLM: Qwen3.5-4B/);
   } finally {
     if (prev === undefined) delete process.env.KCA_LLM;
     else process.env.KCA_LLM = prev;
