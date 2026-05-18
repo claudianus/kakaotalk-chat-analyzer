@@ -14,6 +14,8 @@ export {
   llmInferTimeoutMs,
   memoryHeadroomForLlmLoad,
   llmRamReserveGb,
+  canRetryLlmRam,
+  minFreeGbForLlmRetry,
 } from "./llm-resolve.js";
 export { parseQwen35Size } from "./llm-qwen35.js";
 

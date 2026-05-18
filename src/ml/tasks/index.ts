@@ -1,4 +1,5 @@
 import type { BuildReportOptions } from "../../analyze-pool.js";
+import { memoryHeadroomGb, probeMachineProfileSync } from "../../analysis-capability.js";
 import { ensureCoreMlBundles } from "../../ml-bundle-install.js";
 import { ensureToxicityBundle } from "../../ml-bundle-cache.js";
 import { preloadSentimentPipeline } from "./sentiment.js";
@@ -14,7 +15,12 @@ export interface PreloadUtteranceMlTasksOptions {
   messageCount: number;
 }
 
-/** transformers 파이프라인 병렬 워밍업(실패는 stderr 만) */
+function logWarmupSkip(label: string, error: unknown): void {
+  const msg = error instanceof Error ? error.message : String(error);
+  process.stderr.write(`[kca] ${label} 워밍업 건너뜀: ${msg}\n`);
+}
+
+/** transformers 파이프라인 워밍업 — 저RAM(<12GB headroom)은 순차, 아니면 병렬 */
 export async function preloadUtteranceMlTasks(opts: PreloadUtteranceMlTasksOptions): Promise<void> {
   if (opts.sentiment || opts.semantic || opts.toxicity) {
     await ensureCoreMlBundles().catch((error) => {
@@ -29,30 +35,34 @@ export async function preloadUtteranceMlTasks(opts: PreloadUtteranceMlTasksOptio
     });
   }
 
-  const warmups: Promise<unknown>[] = [];
+  const sequential = memoryHeadroomGb(probeMachineProfileSync()) < 12;
+  const runners: Array<() => Promise<unknown>> = [];
+
   if (opts.sentiment) {
-    warmups.push(
+    runners.push(() =>
       preloadSentimentPipeline(opts.buildOptions, opts.messageCount).catch((error) => {
-        const msg = error instanceof Error ? error.message : String(error);
-        process.stderr.write(`[kca] 감정 워밍업 건너뜀: ${msg}\n`);
+        logWarmupSkip("감정", error);
       }),
     );
   }
   if (opts.semantic) {
-    warmups.push(
+    runners.push(() =>
       preloadSemanticPipeline(opts.buildOptions, opts.messageCount).catch((error) => {
-        const msg = error instanceof Error ? error.message : String(error);
-        process.stderr.write(`[kca] 시맨틱 워밍업 건너뜀: ${msg}\n`);
+        logWarmupSkip("시맨틱", error);
       }),
     );
   }
   if (opts.toxicity) {
-    warmups.push(
+    runners.push(() =>
       preloadToxicityPipeline().catch((error) => {
-        const msg = error instanceof Error ? error.message : String(error);
-        process.stderr.write(`[kca] 독성 워밍업 건너뜀: ${msg}\n`);
+        logWarmupSkip("독성", error);
       }),
     );
   }
-  for (const task of warmups) await task;
+
+  if (sequential) {
+    for (const run of runners) await run();
+  } else {
+    await Promise.all(runners.map((run) => run()));
+  }
 }

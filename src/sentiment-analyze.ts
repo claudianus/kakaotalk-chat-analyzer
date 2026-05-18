@@ -156,6 +156,21 @@ export function preloadSentimentPipeline(
   return loadPipeline(buildOptions, messageCount);
 }
 
+/** LLM 직전 ONNX 해제 */
+export async function disposeSentimentPipeline(): Promise<void> {
+  if (!pipelinePromise) return;
+  try {
+    const pipe = await pipelinePromise.catch(() => null);
+    const dispose = (pipe as { dispose?: () => Promise<void> } | null)?.dispose;
+    if (dispose) await dispose.call(pipe);
+  } catch {
+    /* ignore */
+  }
+  pipelinePromise = null;
+  loadedModelId = null;
+  loadKey = null;
+}
+
 function asBatchOutput(
   out: { label: string; score: number } | { label: string; score: number }[],
 ): { label: string; score: number }[] {

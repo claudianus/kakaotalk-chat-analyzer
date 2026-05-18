@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   applyGgmlMetalCompatibilityEnv,
   resolveLlamaGpuMode,
+  resolveLlmSamplingParams,
 } from "../src/llm-runtime.js";
 
 test("resolveLlamaGpuMode parses env", () => {
@@ -39,5 +40,27 @@ test("applyGgmlMetalCompatibilityEnv sets tensor disable on darwin auto", () => 
     else process.env.KCA_LLM_GPU = prevGpu;
     if (prevTensor === undefined) delete process.env.GGML_METAL_TENSOR_DISABLE;
     else process.env.GGML_METAL_TENSOR_DISABLE = prevTensor;
+  }
+});
+
+test("resolveLlmSamplingParams Qwen3.5 instruct defaults", () => {
+  const prevT = process.env.KCA_LLM_TEMPERATURE;
+  const prevP = process.env.KCA_LLM_TOP_P;
+  const prevK = process.env.KCA_LLM_TOP_K;
+  delete process.env.KCA_LLM_TEMPERATURE;
+  delete process.env.KCA_LLM_TOP_P;
+  delete process.env.KCA_LLM_TOP_K;
+  try {
+    const s = resolveLlmSamplingParams();
+    assert.equal(s.temperature, 0.7);
+    assert.equal(s.topP, 0.8);
+    assert.equal(s.topK, 20);
+  } finally {
+    if (prevT === undefined) delete process.env.KCA_LLM_TEMPERATURE;
+    else process.env.KCA_LLM_TEMPERATURE = prevT;
+    if (prevP === undefined) delete process.env.KCA_LLM_TOP_P;
+    else process.env.KCA_LLM_TOP_P = prevP;
+    if (prevK === undefined) delete process.env.KCA_LLM_TOP_K;
+    else process.env.KCA_LLM_TOP_K = prevK;
   }
 });

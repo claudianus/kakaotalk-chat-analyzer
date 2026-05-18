@@ -89,6 +89,22 @@ export async function preloadToxicityPipeline() {
         return;
     await loadPipeline(modelId);
 }
+/** LLM 직전 ONNX 해제 */
+export async function disposeToxicityPipeline() {
+    if (!pipelinePromise)
+        return;
+    try {
+        const pipe = await pipelinePromise.catch(() => null);
+        const dispose = pipe?.dispose;
+        if (dispose)
+            await dispose.call(pipe);
+    }
+    catch {
+        /* ignore */
+    }
+    pipelinePromise = null;
+    loadedModelId = null;
+}
 export async function analyzeToxicityFromSamples(samples, corpusMessages) {
     if (samples.length < MIN_SAMPLES)
         return null;

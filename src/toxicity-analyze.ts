@@ -107,6 +107,20 @@ export async function preloadToxicityPipeline(): Promise<void> {
   await loadPipeline(modelId);
 }
 
+/** LLM 직전 ONNX 해제 */
+export async function disposeToxicityPipeline(): Promise<void> {
+  if (!pipelinePromise) return;
+  try {
+    const pipe = await pipelinePromise.catch(() => null);
+    const dispose = (pipe as { dispose?: () => Promise<void> } | null)?.dispose;
+    if (dispose) await dispose.call(pipe);
+  } catch {
+    /* ignore */
+  }
+  pipelinePromise = null;
+  loadedModelId = null;
+}
+
 export async function analyzeToxicityFromSamples(
   samples: SentimentBatchItem[],
   corpusMessages: number,

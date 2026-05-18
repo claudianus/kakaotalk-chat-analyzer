@@ -6,6 +6,8 @@ import {
   llmInferTimeoutMs,
   llmLoadTimeoutMs,
   resolveLlmRunPlan,
+  canRetryLlmRam,
+  minFreeGbForLlmRetry,
   type LlmRunPlan,
 } from "./llm-policy.js";
 import { ensureLlmGgufReady } from "./llm-ensure.js";
@@ -14,7 +16,7 @@ import { probeMachineProfileSync } from "./analysis-capability.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
-import { extractLlmJsonObject, type LlmJsonShape } from "./llm-json.js";
+import { extractLlmJsonObject, parseLlmJsonResponse, type LlmJsonShape } from "./llm-json.js";
 import { mergeTopicProposals, type LlmTopicProposal } from "./topic-merge.js";
 import type { LlmInsights, ReportData, ReportTopic } from "./types.js";
 import type { RoomNarrative } from "./room-narrative.js";
@@ -72,7 +74,8 @@ async function runOllama(
     model,
     prompt: `${LLM_SYSTEM_PROMPT}\n\n---\n\n${prompt}`,
     stream: false,
-    options: { num_predict: 768 },
+    format: "json",
+    options: { num_predict: 768, temperature: 0.7, top_p: 0.8 },
   };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -255,8 +258,8 @@ function buildEnrichmentFromParsed(
   return { used: true, plan, topics, narrative, llmInsights };
 }
 
-function shouldRetryAfterPrimaryFailure(primary: LlmCompletionFail): boolean {
-  return primary.code === "timeout";
+function parseCompletionRaw(raw: string): LlmJsonShape | null {
+  return parseLlmJsonResponse(raw, null);
 }
 
 /** preset·RAM 기준 Qwen3.5 자동 선택 후 서사·주제 보강 */
@@ -272,43 +275,99 @@ export async function applyLlmEnrichment(
     return { used: false, plan, skipReason: plan.reason };
   }
 
-  const primary = await runLlmCompletion(data, plan);
-  if (primary.ok) {
-    const parsed = extractLlmJsonObject(primary.raw);
-    if (parsed) return buildEnrichmentFromParsed(data, parsed, plan);
-    process.stderr.write(
-      `[kca] LLM JSON 파싱 실패 (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms) — 0.8B 축약 재시도\n`,
-    );
-    debugLlmRaw(primary.raw, "parse_fail primary");
-  } else if (!shouldRetryAfterPrimaryFailure(primary)) {
-    return { used: false, plan, skipReason: primary.skipReason };
-  }
+  try {
+    const primary = await runLlmCompletion(data, plan);
+    if (primary.ok) {
+      const parsed = parseCompletionRaw(primary.raw);
+      if (parsed) return buildEnrichmentFromParsed(data, parsed, plan);
+      process.stderr.write(
+        `[kca] LLM JSON 파싱 실패 (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms) — compact 재시도\n`,
+      );
+      debugLlmRaw(primary.raw, "parse_fail primary");
 
-  const retrySize: Qwen35Size = "0.8B";
-  const retryPlan: LlmRunPlan = {
-    ...plan,
-    size: retrySize,
-    reason: `${plan.reason} → 재시도 ${qwen35DisplayLabel(retrySize)} compact`,
-    timeoutMs: qwen35Entry(retrySize).timeoutMs,
-  };
-  const retry = await runLlmCompletion(data, retryPlan, { compact: true, sizeOverride: retrySize });
-  if (!retry.ok) {
-    const skipReason =
-      !primary.ok && primary.code === "timeout"
-        ? `${primary.skipReason}; 재시도: ${retry.skipReason}`
-        : retry.skipReason;
-    return { used: false, plan, skipReason };
-  }
+      const reprobe = probeMachineProfileSync();
+      if (!canRetryLlmRam(reprobe, primary.size)) {
+        const skipReason = `JSON 파싱 실패 (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms); 재시도 건너뜀 (free ${reprobe.freeMemGb}GB < ${minFreeGbForLlmRetry()}GB)`;
+        process.stderr.write(`[kca] LLM ${skipReason} — 규칙 기반 서사 유지\n`);
+        return { used: false, plan, skipReason };
+      }
 
-  const parsedRetry = extractLlmJsonObject(retry.raw);
-  if (!parsedRetry) {
-    const skipReason = `JSON 파싱 실패 (${qwen35DisplayLabel(retrySize)}, ${retry.elapsedMs}ms)`;
-    process.stderr.write(`[kca] LLM ${skipReason} — 규칙 기반 서사 유지\n`);
-    debugLlmRaw(retry.raw, "parse_fail retry");
-    return { used: false, plan, skipReason };
-  }
+      const retry = await runLlmCompletion(data, plan, {
+        compact: true,
+        sizeOverride: primary.size,
+      });
+      if (!retry.ok) {
+        return { used: false, plan, skipReason: retry.skipReason };
+      }
+      const parsedRetry = parseCompletionRaw(retry.raw);
+      if (!parsedRetry) {
+        debugLlmRaw(retry.raw, "parse_fail retry");
+        return {
+          used: false,
+          plan,
+          skipReason: `JSON 파싱 실패 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms)`,
+        };
+      }
+      process.stderr.write(
+        `[kca] LLM compact 재시도 성공 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms)\n`,
+      );
+      return buildEnrichmentFromParsed(data, parsedRetry, plan);
+    }
 
-  return buildEnrichmentFromParsed(data, parsedRetry, plan);
+    if (primary.code !== "timeout") {
+      return { used: false, plan, skipReason: primary.skipReason };
+    }
+
+    if (plan.size === "0.8B") {
+      return { used: false, plan, skipReason: primary.skipReason };
+    }
+
+    const reprobe = probeMachineProfileSync();
+    const retrySize: Qwen35Size = "0.8B";
+    if (!canRetryLlmRam(reprobe, retrySize)) {
+      return {
+        used: false,
+        plan,
+        skipReason: `${primary.skipReason}; 재시도 건너뜀 (free ${reprobe.freeMemGb}GB)`,
+      };
+    }
+
+    const retryPlan: LlmRunPlan = {
+      ...plan,
+      size: retrySize,
+      reason: `${plan.reason} → 재시도 ${qwen35DisplayLabel(retrySize)} compact (timeout)`,
+      timeoutMs: qwen35Entry(retrySize).timeoutMs,
+    };
+    const retry = await runLlmCompletion(data, retryPlan, {
+      compact: true,
+      sizeOverride: retrySize,
+    });
+    if (!retry.ok) {
+      return {
+        used: false,
+        plan,
+        skipReason: `${primary.skipReason}; 재시도: ${retry.skipReason}`,
+      };
+    }
+
+    const parsedRetry = parseCompletionRaw(retry.raw);
+    if (!parsedRetry) {
+      process.stderr.write(
+        `[kca] LLM JSON 파싱 실패 (${qwen35DisplayLabel(retrySize)}, ${retry.elapsedMs}ms) — 규칙 기반 서사 유지\n`,
+      );
+      debugLlmRaw(retry.raw, "parse_fail timeout retry");
+      return {
+        used: false,
+        plan,
+        skipReason: `JSON 파싱 실패 (${qwen35DisplayLabel(retrySize)}, ${retry.elapsedMs}ms)`,
+      };
+    }
+    return buildEnrichmentFromParsed(data, parsedRetry, plan);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`[kca] LLM 건너뜀 — ${msg}\n`);
+    return { used: false, plan, skipReason: `LLM 오류: ${msg}` };
+  }
 }
 
 /** @deprecated use applyLlmEnrichment */

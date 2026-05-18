@@ -2,9 +2,9 @@ import { memoryHeadroomGb } from "./analysis-capability.js";
 import { QWEN35_CATALOG, qwen35DisplayLabel, qwen35Entry, parseQwen35Size, } from "./llm-qwen35.js";
 const DEFAULT_LLM_RAM_RESERVE_GB = 7;
 const DEFAULT_LLM_TIMEOUT_MS = 45_000;
-const MIN_LLM_LOAD_HEADROOM_GB = 3;
 const MAX_RECLAIM_GB = 8;
 const RECLAIM_FRACTION = 0.35;
+const DEFAULT_MIN_FREE_GB_FOR_LLM_RETRY = 1.5;
 /** OS·ONNX·집계 버퍼 — `KCA_LLM_RAM_RESERVE_GB`로 조정 */
 export function llmRamReserveGb(profile) {
     const env = Number(process.env.KCA_LLM_RAM_RESERVE_GB);
@@ -114,6 +114,20 @@ export function resolveLlmRunPlan(input) {
 }
 export function isLlmAutoEnabled() {
     return process.env.KCA_LLM !== "0";
+}
+/** LLM 재시도·reprompt 전 free RAM 하한 — `KCA_LLM_MIN_FREE_GB` */
+export function minFreeGbForLlmRetry() {
+    const env = Number(process.env.KCA_LLM_MIN_FREE_GB);
+    return Number.isFinite(env) && env >= 0 ? env : DEFAULT_MIN_FREE_GB_FOR_LLM_RETRY;
+}
+/** GGUF 재로드/reprompt 허용 여부 (dispose 후 reprobe 기준) */
+export function canRetryLlmRam(profile, retrySize = "0.8B") {
+    const headroom = memoryHeadroomForLlmLoad(profile);
+    if (headroom < qwen35Entry(retrySize).minHeadroomGb)
+        return false;
+    if (profile.freeMemGb < minFreeGbForLlmRetry())
+        return false;
+    return true;
 }
 /** GGUF 첫 로드 상한(ms) */
 export function llmLoadTimeoutMs(size) {

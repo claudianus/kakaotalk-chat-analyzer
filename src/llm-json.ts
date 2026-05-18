@@ -80,3 +80,18 @@ export function extractLlmJsonObject(text: string): LlmJsonShape | null {
   if (end <= start) return null;
   return tryParseObject(cleaned.slice(start, end + 1));
 }
+
+/** grammar.parse 1차, heuristic 2차 */
+export function parseLlmJsonResponse(
+  raw: string,
+  grammar: { parse: (json: string) => unknown } | null | undefined,
+): LlmJsonShape | null {
+  if (grammar) {
+    try {
+      return grammar.parse(raw) as LlmJsonShape;
+    } catch {
+      /* fallback */
+    }
+  }
+  return extractLlmJsonObject(raw);
+}

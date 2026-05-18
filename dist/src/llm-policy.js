@@ -1,6 +1,6 @@
 import { qwen35Entry, parseQwen35Size } from "./llm-qwen35.js";
 import { resolveLlmRunPlan } from "./llm-resolve.js";
-export { resolveLlmRunPlan, pickLargestQwen35ForRam, isLlmAutoEnabled, llmPhaseReserveMs, llmLoadTimeoutMs, llmInferTimeoutMs, memoryHeadroomForLlmLoad, llmRamReserveGb, } from "./llm-resolve.js";
+export { resolveLlmRunPlan, pickLargestQwen35ForRam, isLlmAutoEnabled, llmPhaseReserveMs, llmLoadTimeoutMs, llmInferTimeoutMs, memoryHeadroomForLlmLoad, llmRamReserveGb, canRetryLlmRam, minFreeGbForLlmRetry, } from "./llm-resolve.js";
 export { parseQwen35Size } from "./llm-qwen35.js";
 const LLM_TIMEOUT_MS = 45_000;
 export function resolveLlmRunPlanForPreset(preset, profile, messageCount) {
