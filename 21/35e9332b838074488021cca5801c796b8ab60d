@@ -1,0 +1,23 @@
+dist/src/toxicity-analyze.js.map
+  ai_agent 1
+dist/src/toxicity-analyze.js
+  ai_agent 51-70
+src/toxicity-analyze.ts
+  s_534094c40d80e9::t_0ba7d2edc9a74b 65-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "2135e9332b838074488021cca5801c796b8ab60d",
+  "prompts": {},
+  "sessions": {
+    "s_534094c40d80e9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a2cf7980-54a3-4189-8aaa-7e09603b2e1e",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
