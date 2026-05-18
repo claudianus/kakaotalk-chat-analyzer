@@ -1,0 +1,55 @@
+src/analysis-capability.ts
+  s_4f3b28b212a103::t_f084bf950dc0be 50,53,64
+dist/src/llm-resolve.d.ts
+  s_4f3b28b212a103::t_a27e2bfa81d9e9 32-35
+dist/src/analysis-capability.js
+  s_4f3b28b212a103::t_a27e2bfa81d9e9 28-29,40
+dist/src/llm-resolve.js
+  s_4f3b28b212a103::t_a27e2bfa81d9e9 136-139,143-146,148,151,154
+dist/src/analysis-budget.js.map
+  ai_agent 1
+dist/src/analysis-budget.js
+  s_4f3b28b212a103::t_a27e2bfa81d9e9 64-70
+dist/src/analysis-capability.d.ts
+  s_4f3b28b212a103::t_a27e2bfa81d9e9 16-17
+dist/src/llm-resolve.js.map
+  ai_agent 1
+src/version.ts
+  ai_agent 1
+dist/src/analysis-capability.js.map
+  ai_agent 1
+kcachat/package.json
+  s_4f3b28b212a103::t_99e134a95bf945 15
+  s_4f3b28b212a103::t_15fa126fbee6f2 3
+dist/src/version.js
+  s_4f3b28b212a103::t_533b11782c3b34 1
+package.json
+  s_4f3b28b212a103::t_f2aed6ea10426a 3
+src/llm-resolve.ts
+  s_4f3b28b212a103::t_6cd07c8919ab88 169-172,175-178,180,183-184
+dist/src/version.d.ts
+  s_4f3b28b212a103::t_533b11782c3b34 1-2
+src/analysis-budget.ts
+  s_4f3b28b212a103::t_af924e45cf809f 77-86
+test/analysis-budget.test.ts
+  s_4f3b28b212a103::t_d1f781fec97308 16-25
+  s_4f3b28b212a103::t_4b0574594e9547 48-54
+test/llm-resolve.test.ts
+  s_4f3b28b212a103::t_5c609882d79fd9 68-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "fb87cfbdca9b92efdb519062ab8dceca4c25ebea",
+  "prompts": {},
+  "sessions": {
+    "s_4f3b28b212a103": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "eb03d681-229b-4988-8de2-3f93f45940e9",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
