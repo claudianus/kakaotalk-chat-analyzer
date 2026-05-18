@@ -50,6 +50,7 @@ test("default with no csv picks latest from KCA_CSV_DIR", async () => {
 
   const { code, stderr } = await runCli(["--local", "--dry-run", "--no-progress", "--no-semantic-keywords"], {
     KCA_CSV_DIR: dir,
+    KCA_LLM: "0",
   });
   assert.equal(code, 0);
   assert.match(stderr, /KakaoTalk_Chat_auto\.csv/);
