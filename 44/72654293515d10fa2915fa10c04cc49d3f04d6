@@ -1,0 +1,35 @@
+test/llm-json.test.ts
+  s_f6bfdda01347e8::t_3b4e9519d0d6b7 33-38
+dist/src/llm-runtime.js.map
+  ai_agent 1
+dist/src/llm-runtime.js
+  s_f6bfdda01347e8::t_bdbb8090df402e 75-76,78-82,87-88
+dist/src/llm-json.js.map
+  ai_agent 1
+src/llm-runtime.ts
+  s_f6bfdda01347e8::t_3792864fe3a129 104-105,107-119,127-128
+dist/src/llm-json.d.ts
+  s_f6bfdda01347e8::t_bdbb8090df402e 16-17
+dist/src/llm-json.js
+  s_f6bfdda01347e8::t_bdbb8090df402e 27-60,65-68
+src/llm-json.ts
+  s_f6bfdda01347e8::t_04b9d51c9d14ff 41-73,78-80
+dist/src/llm-summarize.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "4472654293515d10fa2915fa10c04cc49d3f04d6",
+  "prompts": {},
+  "sessions": {
+    "s_f6bfdda01347e8": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "31315490-f151-42da-9244-fedad19c670b",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
