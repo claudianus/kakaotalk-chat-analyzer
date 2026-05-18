@@ -1,0 +1,127 @@
+dist/src/analysis.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 20,191-215,360-364,366-370,446-450,452-456
+dist/src/llm-runtime.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 57-69,71,75-76,81
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/llm-resolve.d.ts
+  s_f6bfdda01347e8::t_b68a3e9196ff30 4-9,28-32
+dist/src/llm-apply.js.map
+  ai_agent 1
+dist/src/llm-summarize.js.map
+  ai_agent 1
+src/types.ts
+  s_f6bfdda01347e8::t_fcf14430ccdadb 464-465
+src/analysis.ts
+  s_f6bfdda01347e8::t_210a22ed5da9c2 258-294
+  s_f6bfdda01347e8::t_4fbf6f0f2f1844 20-22
+  s_f6bfdda01347e8::t_5725126d3e8e60 471-475,477-479
+  s_f6bfdda01347e8::t_b90132ae406877 563-567,569-571
+dist/src/llm-input.d.ts
+  s_f6bfdda01347e8::t_b68a3e9196ff30 2-4,6
+src/llm-policy.ts
+  s_f6bfdda01347e8::t_59cecb90ae280e 13-16
+dist/src/types.d.ts
+  s_f6bfdda01347e8::t_b68a3e9196ff30 447-448
+dist/src/llm-json.d.ts
+  s_f6bfdda01347e8::t_b68a3e9196ff30 1-17
+dist/src/llm-json.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 1-36
+src/llm-runtime.ts
+  s_f6bfdda01347e8::t_04057ea48a7a61 79-82,85-97,99,103-113,119-123
+test/analysis-effective-config.test.ts
+  s_f6bfdda01347e8::t_c57bcde0d477e5 13-15
+  s_f6bfdda01347e8::t_f3e8637637cc7f 42,47
+src/analysis-budget.ts
+  s_f6bfdda01347e8::t_03c3187f1247f2 49,54-56
+dist/src/llm-runtime.d.ts
+  s_f6bfdda01347e8::t_b68a3e9196ff30 29-32,34
+package.json
+  s_f6bfdda01347e8::t_3fd4b28f917bfc 3
+dist/src/llm-apply.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 8-12,20-24
+dist/src/analysis-budget.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 47-50
+dist/src/llm-summarize.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 2,5,7,10,13-17,48,56-62,83-113,115,117-120,122-123,125-127,130-138,177-234
+dist/src/analysis-effective-config.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 32-34,128,131-132,196
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+src/llm-apply.ts
+  s_f6bfdda01347e8::t_14abf04e38fd62 14-18,26-30
+dist/src/version.d.ts
+  s_f6bfdda01347e8::t_522af9c662a925 1-2
+dist/src/llm-summarize.d.ts
+  s_f6bfdda01347e8::t_b68a3e9196ff30 2,7,14,16-33,38
+dist/src/llm-input.js.map
+  ai_agent 1
+dist/src/analysis-budget.js.map
+  ai_agent 1
+src/llm-summarize.ts
+  s_f6bfdda01347e8::t_99ca791a72c552 258
+  s_f6bfdda01347e8::t_843c3ec223e7d2 2,5-10,12,17,23-29,36,39-43,46-51,54-59,62-67,94-98,109-115,138-144,148-172,175,177-181,183-185,187-196,242-244,246-254,256-257,262-277,279-282,284,293-304,308-318
+  s_f6bfdda01347e8::t_8b795c5cb6d1a7 241,245,255,259-261,278,285-292,305-307,319
+  s_f6bfdda01347e8::t_bfc888e4d50b30 283
+kcachat/package.json
+  s_f6bfdda01347e8::t_7b35a6ff4a7e56 15
+  s_f6bfdda01347e8::t_3a5460ae13fea2 3
+src/llm-resolve.ts
+  s_f6bfdda01347e8::t_b0a55ff24049a0 156-160,164-165
+  s_f6bfdda01347e8::t_397294f9393b79 11
+  s_f6bfdda01347e8::t_4b45179b953695 34,40
+  s_f6bfdda01347e8::t_b7af38e26b1632 10,12-33,36-39,41-44,70-77,82,150-155,161-163,166-169,172-182
+test/llm-json.test.ts
+  s_f6bfdda01347e8::t_93e9f0ec61cbb9 24
+  s_f6bfdda01347e8::t_d451ce6f00f1a9 1-23,25-32
+dist/src/llm-input.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 2-3,7-12,15-18,21,24,30-38
+dist/src/llm-resolve.js
+  s_f6bfdda01347e8::t_6bb5ffcf12fd5e 29,34
+  s_f6bfdda01347e8::t_b68a3e9196ff30 2-24,28,30-33,36,46-52,57,118-136,140-152
+dist/src/llm-json.js.map
+  ai_agent 1
+dist/src/llm-runtime.js.map
+  ai_agent 1
+test/llm-resolve.test.ts
+  s_f6bfdda01347e8::t_5cf3c56da6485f 5,13,15,25-29,32-33,35-36,66-68
+  s_f6bfdda01347e8::t_cc3bb5687a7354 57,60-61
+dist/src/llm-policy.js.map
+  ai_agent 1
+dist/src/llm-resolve.js.map
+  ai_agent 1
+dist/src/llm-policy.js
+  s_f6bfdda01347e8::t_b68a3e9196ff30 3
+dist/src/analysis-budget.d.ts
+  s_f6bfdda01347e8::t_b68a3e9196ff30 11,15-16
+src/llm-json.ts
+  s_f6bfdda01347e8::t_096017e9f68659 1-48
+dist/src/llm-policy.d.ts
+  s_f6bfdda01347e8::t_b68a3e9196ff30 7
+src/llm-input.ts
+  s_f6bfdda01347e8::t_63aeaa0a4105fd 3-6,8-9,13-18,20-21,24-27,30,33,40-46,48-53
+dist/src/version.js
+  s_f6bfdda01347e8::t_522af9c662a925 1
+src/analysis-effective-config.ts
+  s_f6bfdda01347e8::t_16f783d779171e 275
+  s_f6bfdda01347e8::t_2f50c192c0bdbe 105-107
+  s_f6bfdda01347e8::t_6f4da75018f1e7 203,206
+src/version.ts
+  s_f6bfdda01347e8::t_522af9c662a925 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "09a9899ae891823384c5f9b019551bdcb054bf92",
+  "prompts": {},
+  "sessions": {
+    "s_f6bfdda01347e8": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "31315490-f151-42da-9244-fedad19c670b",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
