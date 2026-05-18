@@ -1,0 +1,29 @@
+test/llm-retry-gate.test.ts
+  s_12bf7f4a19d597::t_ebc940a365440d 47,50,54
+dist/src/llm-schema.js.map
+  ai_agent 1
+dist/src/llm-grammar.js
+  ai_agent 11-14
+src/llm-grammar.ts
+  s_12bf7f4a19d597::t_61359e09b65802 18-21
+dist/src/llm-grammar.js.map
+  ai_agent 1
+test/llm-runtime.test.ts
+  s_12bf7f4a19d597::t_2a081a9981efed 49,52,63-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "60d81842282e6f1c749a97e9ecb2a8094e1b14e9",
+  "prompts": {},
+  "sessions": {
+    "s_12bf7f4a19d597": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f66433db-8c63-4742-81bd-6acb364b1bdd",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
