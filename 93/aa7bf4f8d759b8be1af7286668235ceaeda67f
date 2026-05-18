@@ -1,0 +1,63 @@
+dist/src/ml-bundled-models.js
+  s_534094c40d80e9::t_ffad64953e984e 1,8,10-15
+package.json
+  s_534094c40d80e9::t_dac05f914d2333 21-23
+src/ml-bundle-cache.ts
+  s_534094c40d80e9::t_fc1b4d6a38472e 117-119
+src/ml-bundle-install.ts
+  s_534094c40d80e9::t_10a3548e566335 15-19
+  s_534094c40d80e9::t_eb910cecf8c7ff 5
+dist/src/sentiment-analyze.js.map
+  ai_agent 1
+dist/src/ml-bundled-models.d.ts
+  s_534094c40d80e9::t_ffad64953e984e 2
+src/ml-bundled-models.ts
+  s_534094c40d80e9::t_2a64ac1e5eb5b8 31,33-37
+  s_534094c40d80e9::t_09a82b56648cd9 1
+.github/workflows/npm-publish.yml
+  s_534094c40d80e9::t_97105f20ccda46 49
+dist/src/ml/tasks/index.js
+  s_534094c40d80e9::t_ffad64953e984e 6,15
+dist/src/ml-bundle-cache.js.map
+  ai_agent 1
+.github/workflows/publish-ml-models.yml
+  s_534094c40d80e9::t_e9bbafba80a54d 90-91
+  s_534094c40d80e9::t_64e8e397b0bc87 41
+scripts/sync-ml-models.mjs
+  s_534094c40d80e9::t_5c9f8c912f8a47 172
+kakaotalk-chat-analyzer-models/README.md
+  s_534094c40d80e9::t_86f1648612fc9d 11-12
+src/ml/tasks/index.ts
+  s_534094c40d80e9::t_1d761e961d4d8d 7
+  s_534094c40d80e9::t_c68de592c1c7f4 25
+dist/src/ml/tasks/index.js.map
+  ai_agent 1
+dist/src/ml-bundle-install.js.map
+  ai_agent 1
+dist/src/ml-bundled-models.js.map
+  ai_agent 1
+dist/src/ml-bundle-install.js
+  s_534094c40d80e9::t_ffad64953e984e 5,14-19
+dist/src/sentiment-analyze.js
+  s_534094c40d80e9::t_ffad64953e984e 73
+src/sentiment-analyze.ts
+  s_534094c40d80e9::t_ce4f46243a06df 104
+dist/src/ml-bundle-cache.js
+  s_534094c40d80e9::t_ffad64953e984e 99-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "93aa7bf4f8d759b8be1af7286668235ceaeda67f",
+  "prompts": {},
+  "sessions": {
+    "s_534094c40d80e9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a2cf7980-54a3-4189-8aaa-7e09603b2e1e",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
