@@ -1,0 +1,209 @@
+dist/src/semantic-policy.js
+  s_534094c40d80e9::t_015da94377f031 4,42-45,51,54-55,57,60-61,73
+dist/src/ml-bundle-ids.d.ts
+  s_534094c40d80e9::t_d61bbaaeed673f 1-6
+src/sentiment-policy.ts
+  s_534094c40d80e9::t_95640025388186 4
+  s_534094c40d80e9::t_1e0930a98c598a 10,23,25,29-33,44-46,50-51,54,61-62
+dist/src/sentiment-analyze.js
+  s_534094c40d80e9::t_34fd6bd891b747 9,82
+src/semantic-policy.ts
+  s_534094c40d80e9::t_55d15bc1a218a7 6,46-47,49-50,59-61,64,67,77
+scripts/ensure-ml-bundles.mjs
+  s_534094c40d80e9::t_3d0ab5d0bd4708 3-4,13,22-31,47
+  s_534094c40d80e9::t_e81925e3e7fc19 1-2,5-12,14-21,32-46,48-52
+dist/src/ml/tasks/index.js
+  s_534094c40d80e9::t_34fd6bd891b747 1-2,8-19
+dist/src/ml/model-ids.js
+  s_534094c40d80e9::t_015da94377f031 1-28
+src/ml/registry.ts
+  s_534094c40d80e9::t_3b260f62672d39 11-15,30,36,42,60-62
+  s_534094c40d80e9::t_06622c0377078e 68-69
+dist/src/ml-bundle-cache.d.ts
+  s_534094c40d80e9::t_d61bbaaeed673f 1-14
+src/toxicity-analyze.ts
+  s_534094c40d80e9::t_e362fd5c213878 2-8
+  s_534094c40d80e9::t_b3dfe38b9aa08b 69-78
+  s_534094c40d80e9::t_cdc22d776888d2 116
+scripts/ml-bundle-lib.mjs
+  s_534094c40d80e9::t_d0ba3b19c38447 1-65
+scripts/ml-bundle-install.mjs
+  s_534094c40d80e9::t_47f6f780463039 6
+  s_534094c40d80e9::t_d8f5f07bf15982 32-35
+  s_534094c40d80e9::t_c14e4431a4e086 1-5,7-31,36-62
+data/ml-models/manifest.json
+  s_534094c40d80e9::t_6d7e993f37d85d 3-4
+  s_534094c40d80e9::t_0eed2b39f6ed7e 1-2,5-25
+dist/src/ml-bundled-models.js
+  s_534094c40d80e9::t_015da94377f031 26,50
+  s_534094c40d80e9::t_d61bbaaeed673f 1,3-7,9-19,22-23,32,35,38
+src/ml/tasks/index.ts
+  s_534094c40d80e9::t_28b011e58c9014 18-30
+  s_534094c40d80e9::t_19f1e8531b46b9 2-3
+dist/src/ml/tasks/index.js.map
+  ai_agent 1
+dist/src/sentiment-policy.js.map
+  ai_agent 1
+dist/src/semantic-policy.d.ts
+  s_534094c40d80e9::t_015da94377f031 9-12,14
+dist/src/ml-bundle-install.js.map
+  ai_agent 1
+kcachat/package.json
+  s_534094c40d80e9::t_474f4f34f63ec2 15
+  s_534094c40d80e9::t_394186783dd1c4 3
+scripts/bench-semantic.mjs
+  s_534094c40d80e9::t_c93b774097005f 7
+test/ml-hub-access.test.ts
+  s_534094c40d80e9::t_c6283783255dd1 8
+  s_534094c40d80e9::t_d284f9edf9085b 39,41
+scripts/bench-sentiment.mjs
+  s_534094c40d80e9::t_5fc8283f02cee0 7
+README.md
+  s_534094c40d80e9::t_f271a9b6c531f7 208-210
+  s_534094c40d80e9::t_dca4cf80567195 254-255
+dist/src/ml-bundle-ids.js.map
+  ai_agent 1
+dist/src/toxicity-policy.js
+  s_534094c40d80e9::t_d61bbaaeed673f 23
+dist/src/ml-bundle-cache.js
+  s_534094c40d80e9::t_d61bbaaeed673f 1-164
+scripts/convert-embedding-onnx.mjs
+  s_534094c40d80e9::t_058fb301eea8ab 3,6,13-16,18-19,21,23,25
+dist/src/ml/model-ids.d.ts
+  s_534094c40d80e9::t_015da94377f031 1-15
+dist/src/ml/registry.js
+  s_534094c40d80e9::t_015da94377f031 2,7,13,19,37,40-41
+  s_534094c40d80e9::t_d61bbaaeed673f 47-49
+dist/src/sentiment-hub-registry.d.ts
+  s_534094c40d80e9::t_015da94377f031 1-2
+dist/src/sentiment-policy.d.ts
+  s_534094c40d80e9::t_015da94377f031 3,5,9-10
+scripts/sync-ml-models.mjs
+  s_534094c40d80e9::t_7e18663e590190 10
+  s_534094c40d80e9::t_cc8c641b6ada9d 98
+  s_534094c40d80e9::t_94d4c0f0ab8213 41-43
+  s_534094c40d80e9::t_98bf997393bec4 53-54,56,61
+  s_534094c40d80e9::t_bcc670d424ebe1 168
+  s_534094c40d80e9::t_611a859c4fb19b 102,104-114,126,129,136-154,156-157
+  s_534094c40d80e9::t_2f4ce3600186ba 118-125,128
+  s_534094c40d80e9::t_cd6235c96d48f3 3,6-8,18-21,44-52,55,57-60,62-65,73,79-80,84-89,93,97,99,127,130-135,155,161-162,165-167,174-175,177
+  s_534094c40d80e9::t_d1386b0afb354a 170-173
+  s_534094c40d80e9::t_a6ff22f50859ff 15
+dist/src/version.js
+  s_534094c40d80e9::t_783e18f532a613 1
+src/ml-bundled-models.ts
+  s_534094c40d80e9::t_8865e39befbea5 16-23
+  s_534094c40d80e9::t_252462e55acbe8 1
+  s_534094c40d80e9::t_f8b613eb212acf 50,82
+  s_534094c40d80e9::t_e29c75b60b3bd9 3-15,24-30,32-39,45-46,58,62,66
+  s_534094c40d80e9::t_9556d8635b096f 40-41
+test/sentiment-hub-registry.test.ts
+  s_534094c40d80e9::t_b48ebd9d7a93ad 3,6,12-13,15,18,20
+dist/src/sentiment-hub-registry.js.map
+  ai_agent 1
+dist/src/ml-bundle-install.d.ts
+  s_534094c40d80e9::t_34fd6bd891b747 1-2
+src/toxicity-policy.ts
+  s_534094c40d80e9::t_92df27f8455dcc 29
+test/sentiment-analyze.test.ts
+  s_534094c40d80e9::t_9c40812787055c 40-41
+src/ml-bundle-install.ts
+  s_534094c40d80e9::t_ef94bfff211ecd 21-27
+  s_534094c40d80e9::t_42c545abd4eb03 1-20,28-58
+scripts/convert-sentiment-onnx.mjs
+  s_534094c40d80e9::t_9b138080a0c9f9 3,7,15,17,20,22,30,33,66
+dist/src/ml-bundle-install.js
+  s_534094c40d80e9::t_34fd6bd891b747 1-18,22-51
+  s_534094c40d80e9::t_783e18f532a613 19-21
+dist/src/ml/model-ids.js.map
+  ai_agent 1
+test/semantic-policy.test.ts
+  s_534094c40d80e9::t_4e81c306708304 4-5,19,23-27,34,38-41,48-57,77-78
+dist/src/semantic-keywords.js
+  s_534094c40d80e9::t_34fd6bd891b747 11,17
+  s_534094c40d80e9::t_015da94377f031 50-51,54-56
+kakaotalk-chat-analyzer-models/package.json
+  s_534094c40d80e9::t_6fcba2290a2742 3-4
+package.json
+  s_534094c40d80e9::t_359a0a1459b985 55,62
+  s_534094c40d80e9::t_bea1df785c632c 3
+  s_534094c40d80e9::t_0e7e8697446d3a 48-49
+package-lock.json
+  ai_agent 3,9-10,13,33,311,317,323,329,345,351,357,363,369,566,788,859,1022,1272,1307,1313,1372,1431,1480,1496,1502,1612,1723,1818,1850,1868,2017,2128,2401,2508,2852,2966
+src/ml-bundle-cache.ts
+  s_534094c40d80e9::t_a8ac86b62ce46c 10,12-20,22-70,75-92,100-136,141-147,151-179
+  s_534094c40d80e9::t_b3e1cf1c4ef30b 1-9,11,21,71-74,93-99,137-140,148-150
+src/version.ts
+  s_534094c40d80e9::t_d9e3a21f322af5 1
+dist/src/sentiment-policy.js
+  s_534094c40d80e9::t_015da94377f031 2,4,7,11-13,21,25,27,29,32,34
+src/sentiment-hub-registry.ts
+  s_534094c40d80e9::t_98971b38ed6b2f 1-2,4-5
+.github/workflows/publish-ml-models.yml
+  s_534094c40d80e9::t_b7cdcf7e51ab36 1-98
+kakaotalk-chat-analyzer-models/data/ml-models/manifest.json
+  s_534094c40d80e9::t_6d7e993f37d85d 3-4,9-10,15-16
+.github/workflows/npm-publish.yml
+  s_534094c40d80e9::t_777a539fbea6b0 46,50-59,64,68
+  s_534094c40d80e9::t_2dc8a37e19365a 12-14,47-49,60-63,65-67
+dist/src/ml-bundled-models.d.ts
+  s_534094c40d80e9::t_d61bbaaeed673f 1-2
+.gitignore
+  s_534094c40d80e9::t_6b1586ac73788f 11
+  s_534094c40d80e9::t_3bc3984c9b5b73 2
+dist/src/ml-bundle-cache.js.map
+  ai_agent 1
+dist/src/sentiment-hub-registry.js
+  s_534094c40d80e9::t_015da94377f031 1-4
+src/sentiment-analyze.ts
+  s_534094c40d80e9::t_a62af18fb00a4b 114
+  s_534094c40d80e9::t_1deaf768b339b1 18
+src/ml-bundle-ids.ts
+  s_534094c40d80e9::t_6c3b00140863c6 1-8
+test/sentiment-policy.test.ts
+  s_534094c40d80e9::t_5dd2a9dc7b8cd4 5,17,21-25,32,35,38,40-41,43,49-50
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+src/semantic-keywords.ts
+  s_534094c40d80e9::t_806c1324610663 33
+  s_534094c40d80e9::t_5fa5152e8a888e 19
+  s_534094c40d80e9::t_797a7dd3cf797b 73,75-77
+  s_534094c40d80e9::t_99d1bc768595d0 72
+dist/src/semantic-policy.js.map
+  ai_agent 1
+dist/src/ml-bundle-ids.js
+  s_534094c40d80e9::t_d61bbaaeed673f 1-7
+dist/src/sentiment-analyze.js.map
+  ai_agent 1
+src/ml/model-ids.ts
+  s_534094c40d80e9::t_b6aa1497d9d152 1-33
+dist/src/toxicity-analyze.js.map
+  ai_agent 1
+dist/src/toxicity-analyze.js
+  s_534094c40d80e9::t_015da94377f031 96
+  s_534094c40d80e9::t_d61bbaaeed673f 1-3,50-61
+dist/src/ml-bundled-models.js.map
+  ai_agent 1
+dist/src/version.d.ts
+  s_534094c40d80e9::t_783e18f532a613 1-2
+dist/src/ml/registry.js.map
+  ai_agent 1
+dist/src/toxicity-policy.js.map
+  ai_agent 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "9d814ab75bd2badb45204c175434d09fd87c8e7e",
+  "prompts": {},
+  "sessions": {
+    "s_534094c40d80e9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a2cf7980-54a3-4189-8aaa-7e09603b2e1e",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
