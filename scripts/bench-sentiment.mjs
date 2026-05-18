@@ -4,7 +4,7 @@
  *
  * Usage:
  *   npm run bench:sentiment
- *   KCA_SENTIMENT_MODEL=Xenova/bert-base-multilingual-uncased-sentiment npm run bench:sentiment
+ *   KCA_SENTIMENT_MODEL=daekeun-ml/koelectra-small-v3-nsmc npm run bench:sentiment
  */
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";

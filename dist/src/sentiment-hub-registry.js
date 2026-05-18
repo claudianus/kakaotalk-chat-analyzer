@@ -1,12 +1,7 @@
-import { DEFAULT_SENTIMENT_MODEL, KLUE_SENTIMENT_MODEL, LEGACY_DISTILBERT_SENTIMENT_MODEL } from "./sentiment-policy.js";
-/** 익명 Hub `config.json` HEAD 가 401 인 Xenova 감정 모델 (2026-05 검증) */
-export const SENTIMENT_HUB_ANONYMOUS_BLOCKLIST = [
-    KLUE_SENTIMENT_MODEL,
-    LEGACY_DISTILBERT_SENTIMENT_MODEL,
-    "Xenova/klue-roberta-base",
-    "Xenova/twitter-xlm-roberta-base-sentiment",
-    "smilegate-ai/kor_unified_sentiment",
-];
+import { DEFAULT_SENTIMENT_MODEL } from "./sentiment-policy.js";
+import { DEPRECATED_SENTIMENT_HUB_IDS } from "./ml/model-ids.js";
+/** 익명 Hub `config.json` HEAD 가 401 인 구 감정 모델 */
+export const SENTIMENT_HUB_ANONYMOUS_BLOCKLIST = DEPRECATED_SENTIMENT_HUB_IDS;
 export function isSentimentHubBlocklisted(modelId) {
     return SENTIMENT_HUB_ANONYMOUS_BLOCKLIST.includes(modelId);
 }

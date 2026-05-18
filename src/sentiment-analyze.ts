@@ -15,6 +15,7 @@ import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js
 import { isTransformersFetchError } from "./ml-transformers-env.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveSentimentBatchSize } from "./ml-batch-size.js";
+import { ensureCoreMlBundles } from "./ml-bundle-install.js";
 
 const MIN_SAMPLES = 48;
 
@@ -110,6 +111,7 @@ async function loadPipeline(
   loadKey = key;
 
   pipelinePromise = withQuietMlStderr(async () => {
+    await ensureCoreMlBundles();
     const mod = await importTransformers();
     const gpu = await configureTransformersEnv(mod);
     const quantized = preferQuantizedModels(gpu);

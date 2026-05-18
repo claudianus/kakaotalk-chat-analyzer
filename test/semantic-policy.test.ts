@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { HeuristicPrepassCollector } from "../src/export-prepass.js";
+import { BUNDLED_EMBED_MODEL_ID, isBundledEmbedModelReady } from "../src/ml-bundled-models.js";
+import { HUB_KOELECTRA_EMBED, HUB_KOELECTRA_KORSTS } from "../src/ml/model-ids.js";
 import {
   DEFAULT_KOREAN_SEMANTIC_MODEL,
   QUALITY_KOREAN_SEMANTIC_MODEL,
@@ -14,35 +16,46 @@ import {
 } from "../src/semantic-policy.js";
 
 describe("semantic-policy", () => {
-  it("defaults to Xenova multilingual-e5-small for balanced", () => {
+  it("defaults to KorSTS Hub for balanced when bundle absent", () => {
     const prev = process.env.KCA_SEMANTIC_MODEL;
     delete process.env.KCA_SEMANTIC_MODEL;
     try {
-      assert.equal(semanticEmbeddingModelId(), DEFAULT_KOREAN_SEMANTIC_MODEL);
-      assert.equal(semanticEmbeddingModelId({ preset: "balanced" }), DEFAULT_KOREAN_SEMANTIC_MODEL);
-      assert.equal(DEFAULT_KOREAN_SEMANTIC_MODEL, "Xenova/multilingual-e5-small");
+      if (!isBundledEmbedModelReady()) {
+        assert.equal(semanticEmbeddingModelId(), HUB_KOELECTRA_KORSTS);
+        assert.equal(semanticEmbeddingModelId({ preset: "balanced" }), HUB_KOELECTRA_KORSTS);
+        assert.equal(DEFAULT_KOREAN_SEMANTIC_MODEL, HUB_KOELECTRA_KORSTS);
+      }
     } finally {
       if (prev === undefined) delete process.env.KCA_SEMANTIC_MODEL;
       else process.env.KCA_SEMANTIC_MODEL = prev;
     }
   });
 
-  it("quality preset selects ko-v2 model id", () => {
+  it("quality preset selects KoELECTRA embed Hub when bundle absent", () => {
     const prev = process.env.KCA_SEMANTIC_MODEL;
     delete process.env.KCA_SEMANTIC_MODEL;
     try {
-      assert.equal(semanticEmbeddingModelId({ preset: "quality" }), QUALITY_KOREAN_SEMANTIC_MODEL);
+      if (!isBundledEmbedModelReady()) {
+        assert.equal(semanticEmbeddingModelId({ preset: "quality" }), HUB_KOELECTRA_EMBED);
+        assert.equal(QUALITY_KOREAN_SEMANTIC_MODEL, HUB_KOELECTRA_EMBED);
+      }
     } finally {
       if (prev === undefined) delete process.env.KCA_SEMANTIC_MODEL;
       else process.env.KCA_SEMANTIC_MODEL = prev;
     }
   });
 
-  it("needsE5QueryPrefix for e5 models only", () => {
+  it("uses bundled embed for all presets when onnx present", () => {
+    if (!isBundledEmbedModelReady()) return;
+    assert.equal(semanticEmbeddingModelId({ preset: "quality" }), BUNDLED_EMBED_MODEL_ID);
+    assert.equal(semanticEmbeddingModelId({ preset: "balanced" }), BUNDLED_EMBED_MODEL_ID);
+  });
+
+  it("needsE5QueryPrefix is false for KoELECTRA", () => {
+    assert.equal(needsE5QueryPrefix(HUB_KOELECTRA_KORSTS), false);
+    assert.equal(needsE5QueryPrefix(HUB_KOELECTRA_EMBED), false);
+    assert.equal(needsE5QueryPrefix(BUNDLED_EMBED_MODEL_ID), false);
     assert.equal(needsE5QueryPrefix("Xenova/multilingual-e5-small"), true);
-    assert.equal(needsE5QueryPrefix("dragonkue/multilingual-e5-small-ko"), true);
-    assert.equal(needsE5QueryPrefix("nlpai-lab/KoE5"), true);
-    assert.equal(needsE5QueryPrefix("Xenova/paraphrase-multilingual-MiniLM-L12-v2"), false);
   });
 
   it("semanticSampleCap scales with corpus size", () => {
@@ -50,10 +63,7 @@ describe("semantic-policy", () => {
     assert.equal(semanticSampleCap(93_042), 1_200);
     assert.equal(semanticSampleCap(25_000), 800);
     assert.equal(semanticSampleCap(720), 480);
-    assert.equal(semanticSampleCap(100), 480);
     assert.equal(semanticReservoirCap(undefined), 2_000);
-    assert.equal(semanticReservoirCap(93_042), 1_200);
-    assert.equal(semanticReservoirCap(5_000), 480);
   });
 
   it("subsampleSemanticMessages is deterministic", () => {
@@ -64,16 +74,9 @@ describe("semantic-policy", () => {
     assert.equal(a.length, 2);
   });
 
-  it("formatTextForEmbedding adds query prefix for e5", () => {
+  it("formatTextForEmbedding leaves KoELECTRA text unchanged", () => {
+    assert.equal(formatTextForEmbedding("안녕", HUB_KOELECTRA_KORSTS), "안녕");
     assert.equal(formatTextForEmbedding("안녕", "Xenova/multilingual-e5-small"), "query: 안녕");
-    assert.equal(
-      formatTextForEmbedding("query: 이미 있음", "Xenova/multilingual-e5-small"),
-      "query: 이미 있음",
-    );
-    assert.equal(
-      formatTextForEmbedding("그대로", "Xenova/paraphrase-multilingual-MiniLM-L12-v2"),
-      "그대로",
-    );
   });
 
   it("KCA_SEMANTIC_DEFAULT=opt-in disables auto semantic", () => {

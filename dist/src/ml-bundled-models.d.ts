@@ -1,12 +1,5 @@
-/** NSMC KoELECTRA-Small (quality sentiment) */
-export declare const BUNDLED_SENTIMENT_MODEL_ID = "kca-koelectra-small-v3-nsmc";
-/** 이전 번들 디렉터리(호환) */
-export declare const LEGACY_BUNDLED_SENTIMENT_MODEL_ID = "kca-koelectra-korean-sentiment";
-/** KorSTS / semantic quality embedding */
-export declare const BUNDLED_EMBED_MODEL_ID = "kca-koelectra-small-v3-embed";
-/** KcELECTRA-base toxicity (optional, large) */
-export declare const BUNDLED_TOXICITY_MODEL_ID = "kca-kcelectra-base-toxicity";
-/** `data/ml-models/` — optional npm models 패키지 우선 */
+export { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
+/** transformers `env.localModelPath` — 해당 모델이 있는 첫 루트 */
 export declare function bundledMlModelsDir(): string;
 export declare function bundledModelDir(modelId: string): string;
 export declare function bundledSentimentModelDir(): string;

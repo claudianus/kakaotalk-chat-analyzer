@@ -1,5 +1,4 @@
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
-import { isBundledToxicityModelReady } from "./ml-bundled-models.js";
 const MIN_TOXICITY_MESSAGES = 48;
 export function shouldCollectToxicitySamples(messageCount) {
     return messageCount >= MIN_TOXICITY_MESSAGES && process.env.KCA_NO_TOXICITY !== "1";
@@ -21,7 +20,7 @@ export function resolveToxicityMl(options, prepass, sampleMessages) {
     if (options?.toxicityMl === true)
         return true;
     const preset = resolvePresetNameWithAuto(options, prepass.messageCount);
-    if (preset === "quality" && isBundledToxicityModelReady())
+    if (preset === "quality")
         return true;
     return false;
 }

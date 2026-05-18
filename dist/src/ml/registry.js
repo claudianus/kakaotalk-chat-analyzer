@@ -1,23 +1,22 @@
 import { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, isBundledEmbedModelReady, isBundledSentimentModelReady, isBundledToxicityModelReady, resolveBundledSentimentModelId, } from "../ml-bundled-models.js";
-import { DEFAULT_SENTIMENT_MODEL } from "../sentiment-policy.js";
-import { DEFAULT_KOREAN_SEMANTIC_MODEL, QUALITY_KOREAN_SEMANTIC_MODEL, } from "../semantic-policy.js";
+import { HUB_KCELECTRA_TOXICITY, HUB_KOELECTRA_EMBED, HUB_KOELECTRA_KORSTS, HUB_KOELECTRA_NSMC, } from "./model-ids.js";
 export const ML_MODEL_REGISTRY = {
     sentiment: {
         task: "sentiment",
         bundledId: BUNDLED_SENTIMENT_MODEL_ID,
-        hubFallback: DEFAULT_SENTIMENT_MODEL,
+        hubFallback: HUB_KOELECTRA_NSMC,
         hubTask: "text-classification",
     },
     embedding: {
         task: "embedding",
         bundledId: BUNDLED_EMBED_MODEL_ID,
-        hubFallback: QUALITY_KOREAN_SEMANTIC_MODEL,
+        hubFallback: HUB_KOELECTRA_EMBED,
         hubTask: "feature-extraction",
     },
     toxicity: {
         task: "toxicity",
         bundledId: BUNDLED_TOXICITY_MODEL_ID,
-        hubFallback: "",
+        hubFallback: HUB_KCELECTRA_TOXICITY,
         hubTask: "text-classification",
     },
 };
@@ -28,27 +27,25 @@ export function isBundledModelReady(task) {
         return isBundledEmbedModelReady();
     return isBundledToxicityModelReady();
 }
-/** quality preset sentiment: 번들 id (레거시 디렉터리 포함) */
 export function resolveSentimentBundledId() {
     return resolveBundledSentimentModelId();
 }
-/** quality preset embedding: 번들 KoELECTRA 또는 E5 Hub */
 export function resolveEmbeddingModelId(preset) {
     const env = process.env.KCA_SEMANTIC_MODEL?.trim();
     if (env)
         return env;
-    if (preset === "quality" && isBundledEmbedModelReady())
+    if (isBundledEmbedModelReady())
         return BUNDLED_EMBED_MODEL_ID;
     if (preset === "quality")
-        return QUALITY_KOREAN_SEMANTIC_MODEL;
-    return DEFAULT_KOREAN_SEMANTIC_MODEL;
+        return HUB_KOELECTRA_EMBED;
+    return HUB_KOELECTRA_KORSTS;
 }
 export function resolveToxicityModelId() {
     const env = process.env.KCA_TOXICITY_MODEL?.trim();
     if (env)
         return env;
-    if (isBundledToxicityModelReady())
-        return BUNDLED_TOXICITY_MODEL_ID;
-    return "";
+    if (process.env.KCA_TOXICITY_HUB_ONLY === "1")
+        return HUB_KCELECTRA_TOXICITY;
+    return BUNDLED_TOXICITY_MODEL_ID;
 }
 //# sourceMappingURL=registry.js.map
