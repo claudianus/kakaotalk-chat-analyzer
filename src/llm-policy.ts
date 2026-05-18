@@ -10,6 +10,10 @@ export {
   pickLargestQwen35ForRam,
   isLlmAutoEnabled,
   llmPhaseReserveMs,
+  llmLoadTimeoutMs,
+  llmInferTimeoutMs,
+  memoryHeadroomForLlmLoad,
+  llmRamReserveGb,
 } from "./llm-resolve.js";
 export { parseQwen35Size } from "./llm-qwen35.js";
 

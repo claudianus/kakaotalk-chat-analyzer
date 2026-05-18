@@ -461,6 +461,8 @@ export interface ReportData {
     usedToxicityAnalysis?: boolean;
     /** 로컬 LLM(Qwen GGUF) 서사·주제 보강 사용 여부 */
     usedLlmAnalysis?: boolean;
+    /** LLM 미사용 시 구체적 사유 (추론·파싱·타임아웃 등) */
+    llmSkippedReason?: string;
   };
   insights: ReportInsights;
   participants: ParticipantStat[];

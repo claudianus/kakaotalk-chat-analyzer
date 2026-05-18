@@ -17,7 +17,7 @@ import { enrichReportWithLlm } from "./llm-apply.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolveLlmRunPlan } from "./llm-policy.js";
-import { AnalysisBudgetTracker } from "./analysis-budget.js";
+import { AnalysisBudgetTracker, phaseReserveMs } from "./analysis-budget.js";
 import { createMessageSpoolPath, iterateSpoolRecords, removeSpool, } from "./analysis-spool.js";
 import { createWriteStream } from "node:fs";
 import { stat } from "node:fs/promises";
@@ -188,6 +188,31 @@ async function runKeywordPass(filePath, agg, streamOpts) {
         }
     }
 }
+function reportWithLlmSkipped(report, reason) {
+    return {
+        ...report,
+        summary: {
+            ...report.summary,
+            usedLlmAnalysis: false,
+            llmSkippedReason: reason,
+        },
+    };
+}
+async function runLlmPhaseIfAllowed(report, options, preset, budget, llmPlanHint) {
+    const profile = probeMachineProfileSync();
+    const llmPlan = llmPlanHint ??
+        resolveLlmRunPlan({ preset, profile, messageCount: report.summary.totalMessages });
+    budget.updateLlmSize(llmPlan.size);
+    if (!llmPlan.enabled) {
+        return reportWithLlmSkipped(report, llmPlan.reason);
+    }
+    if (budget.shouldSkip("llm")) {
+        const remainSec = Math.round(budget.remainingMs() / 1000);
+        const needSec = Math.round(phaseReserveMs("llm", preset, profile, llmPlan.size) / 1000);
+        return reportWithLlmSkipped(report, `예산 부족 (남은 ~${remainSec}s, LLM 필요 ~${needSec}s)`);
+    }
+    return enrichReportWithLlm(report, options);
+}
 export async function buildReportFromExportSync(filePath, options) {
     const showProgress = options?.progress !== false;
     if (showProgress)
@@ -332,15 +357,17 @@ export async function buildReportFromExportSync(filePath, options) {
                 usedToxicityAnalysis: usedToxicityOverlap,
                 koreanPrimary: prepass.isPrimarilyKorean(),
             }, prepass.messageCount));
-            llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount: prepass.messageCount });
+            llmPlan = resolveLlmRunPlan({
+                preset,
+                profile: probeMachineProfileSync(),
+                messageCount: prepass.messageCount,
+            });
             phaseProfiler.start("llm");
-            if (llmPlan.enabled && !budget.shouldSkip("llm")) {
-                if (showProgress)
-                    logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
-                report = await enrichReportWithLlm(report, options);
-                if (showProgress)
-                    logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
-            }
+            if (showProgress)
+                logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
+            report = await runLlmPhaseIfAllowed(report, options, preset, budget, llmPlan);
+            if (showProgress)
+                logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
             phaseProfiler.end("llm");
             if (showProgress) {
                 logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });
@@ -416,14 +443,17 @@ export async function buildReportFromExportSync(filePath, options) {
             usedToxicityAnalysis: usedToxicity,
             koreanPrimary: prepass.isPrimarilyKorean(),
         }, prepass.messageCount));
+        llmPlan = resolveLlmRunPlan({
+            preset,
+            profile: probeMachineProfileSync(),
+            messageCount: prepass.messageCount,
+        });
         phaseProfiler.start("llm");
-        if (llmPlan.enabled && !budget.shouldSkip("llm")) {
-            if (showProgress)
-                logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
-            report = await enrichReportWithLlm(report, options);
-            if (showProgress)
-                logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
-        }
+        if (showProgress)
+            logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
+        report = await runLlmPhaseIfAllowed(report, options, preset, budget, llmPlan);
+        if (showProgress)
+            logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
         phaseProfiler.end("llm");
         if (showProgress) {
             logReportProgress({ phase: "리포트 마무리", current: 1, total: 1 });

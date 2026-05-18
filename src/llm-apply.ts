@@ -11,7 +11,11 @@ export async function enrichReportWithLlm(
   if (!result.used) {
     return {
       ...report,
-      summary: { ...report.summary, usedLlmAnalysis: false },
+      summary: {
+        ...report.summary,
+        usedLlmAnalysis: false,
+        ...(result.skipReason ? { llmSkippedReason: result.skipReason } : {}),
+      },
     };
   }
   return {
@@ -19,6 +23,10 @@ export async function enrichReportWithLlm(
     topics: result.topics ?? report.topics,
     narrative: result.narrative ?? report.narrative,
     llmInsights: result.llmInsights ?? report.llmInsights,
-    summary: { ...report.summary, usedLlmAnalysis: true },
+    summary: {
+      ...report.summary,
+      usedLlmAnalysis: true,
+      llmSkippedReason: undefined,
+    },
   };
 }

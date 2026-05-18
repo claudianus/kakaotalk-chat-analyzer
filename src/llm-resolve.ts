@@ -1,16 +1,4 @@
 import { memoryHeadroomGb, type MachineProfile } from "./analysis-capability.js";
-
-const LLM_LOAD_RAM_GAP_GB = 4;
-
-/** GGUF 로드 시점 — macOS 등에서 available ≫ free 이면 free 기준으로 다운그레이드 */
-export function memoryHeadroomForLlmLoad(profile: MachineProfile): number {
-  const available = memoryHeadroomGb(profile);
-  const free = profile.freeMemGb;
-  if (available - free > LLM_LOAD_RAM_GAP_GB) {
-    return Math.min(available, Math.max(free, 3));
-  }
-  return available;
-}
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import {
   QWEN35_CATALOG,
@@ -19,6 +7,41 @@ import {
   parseQwen35Size,
   type Qwen35Size,
 } from "./llm-qwen35.js";
+const DEFAULT_LLM_RAM_RESERVE_GB = 7;
+const DEFAULT_LLM_TIMEOUT_MS = 45_000;
+const MIN_LLM_LOAD_HEADROOM_GB = 3;
+const MAX_RECLAIM_GB = 8;
+const RECLAIM_FRACTION = 0.35;
+
+/** OS·ONNX·집계 버퍼 — `KCA_LLM_RAM_RESERVE_GB`로 조정 */
+export function llmRamReserveGb(profile: MachineProfile): number {
+  const env = Number(process.env.KCA_LLM_RAM_RESERVE_GB);
+  if (Number.isFinite(env) && env >= 3) return env;
+  const total = profile.totalMemGb;
+  if (total >= 48) return 8;
+  if (total >= 32) return 7;
+  if (total >= 16) return 6;
+  return DEFAULT_LLM_RAM_RESERVE_GB;
+}
+
+/**
+ * GGUF 로드 시점 가용 RAM — available−예약 우선, free+회수 가능분으로 OOM만 완화.
+ */
+export function memoryHeadroomForLlmLoad(profile: MachineProfile): number {
+  const available = memoryHeadroomGb(profile);
+  const free = profile.freeMemGb;
+  const reserve = llmRamReserveGb(profile);
+  let headroom = available - reserve;
+
+  const reclaimable = Math.max(0, available - free);
+  const reclaimGb = Math.min(MAX_RECLAIM_GB, reclaimable * RECLAIM_FRACTION);
+  const freeCeiling = free + reclaimGb;
+  if (freeCeiling < headroom) {
+    headroom = freeCeiling;
+  }
+
+  return Math.round(headroom * 10) / 10;
+}
 
 export interface LlmRunPlan {
   enabled: boolean;
@@ -44,14 +67,19 @@ export function pickLargestQwen35ForRam(headroomGb: number): Qwen35Size | undefi
   return undefined;
 }
 
+function formatRamNote(profile: MachineProfile, loadHeadroom: number, available: number): string {
+  const reserve = llmRamReserveGb(profile);
+  if (loadHeadroom < available - reserve + 0.5) {
+    return `RAM 로드 ${loadHeadroom}GB (가용 ${available}GB−예약 ${reserve}GB·free ${profile.freeMemGb}GB)`;
+  }
+  return `RAM ${loadHeadroom}GB (가용 ${available}GB−예약 ${reserve}GB)`;
+}
+
 export function resolveLlmRunPlan(input: ResolveLlmRunPlanInput): LlmRunPlan {
   const { preset, profile } = input;
   const available = memoryHeadroomGb(profile);
   const loadHeadroom = memoryHeadroomForLlmLoad(profile);
-  const ramNote =
-    loadHeadroom < available - 0.5
-      ? `RAM 로드 ${loadHeadroom}GB (가용 ${available}GB·free ${profile.freeMemGb}GB)`
-      : `RAM ${loadHeadroom}GB`;
+  const ramNote = formatRamNote(profile, loadHeadroom, available);
 
   if (process.env.KCA_LLM === "0") {
     return { enabled: false, reason: "KCA_LLM=0" };
@@ -119,12 +147,37 @@ export function isLlmAutoEnabled(): boolean {
   return process.env.KCA_LLM !== "0";
 }
 
-/** 분석 예산용 LLM 단계 예약(ms) */
+/** GGUF 첫 로드 상한(ms) */
+export function llmLoadTimeoutMs(size: Qwen35Size): number {
+  const entry = qwen35Entry(size);
+  return Math.max(90_000, entry.timeoutMs);
+}
+
+function envLlmTimeoutMs(): number {
+  const env = Number(process.env.KCA_LLM_TIMEOUT_MS);
+  return Number.isFinite(env) && env > 0 ? env : DEFAULT_LLM_TIMEOUT_MS;
+}
+
+/** 추론 단계 상한(ms) */
+export function llmInferTimeoutMs(size: Qwen35Size, plan?: LlmRunPlan): number {
+  if (plan?.timeoutMs && plan.timeoutMs > 0) return plan.timeoutMs;
+  const env = envLlmTimeoutMs();
+  if (env !== DEFAULT_LLM_TIMEOUT_MS) return env;
+  return qwen35Entry(size).timeoutMs;
+}
+
+/** 분석 예산용 LLM 단계 예약(ms) — 로드+추론 */
 export function llmPhaseReserveMs(size: Qwen35Size | undefined, preset: AnalysisPresetName): number {
   if (!size) return 50_000;
-  const entry = qwen35Entry(size);
-  if (size === "9B" && preset === "quality") return Math.max(entry.timeoutMs - 15_000, 55_000);
-  if (size === "9B") return 75_000;
-  if (size === "4B") return 55_000;
-  return 45_000;
+  const load = llmLoadTimeoutMs(size);
+  const infer = llmInferTimeoutMs(size);
+  let reserve = load + infer + 5_000;
+  if (size === "9B" && preset === "quality") {
+    reserve = Math.max(reserve, 150_000);
+  } else if (size === "9B") {
+    reserve = Math.max(reserve, 130_000);
+  } else if (size === "4B") {
+    reserve = Math.max(reserve, 100_000);
+  }
+  return reserve;
 }

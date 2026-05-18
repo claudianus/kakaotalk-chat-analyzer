@@ -76,35 +76,55 @@ export interface RunLlamaPromptOptions {
   modelPath: string;
   prompt: string;
   maxTokens?: number;
-  timeoutMs: number;
+  /** 추론 단계 상한(ms) */
+  inferTimeoutMs: number;
+  /** GGUF 로드+컨텍스트 생성 상한(ms) */
+  loadTimeoutMs: number;
 }
 
-/** GGUF 로드 → 채팅 1회 → 리소스 해제 */
+function raceTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => {
+      timeoutHandle = setTimeout(() => reject(new Error(label)), timeoutMs);
+    }),
+  ]).finally(() => {
+    if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
+  });
+}
+
+/** GGUF 로드 → 채팅 1회 → 리소스 해제 (로드·추론 타임아웃 분리) */
 export async function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<string> {
-  const { modelPath, prompt, maxTokens = 768, timeoutMs } = options;
+  const { modelPath, prompt, maxTokens = 768, inferTimeoutMs, loadTimeoutMs } = options;
   const mod = "node-llama-cpp";
   const { LlamaChatSession } = await import(mod);
   const llama = await getLlamaForKca();
-  const model = await llama.loadModel({ modelPath });
-  const context = await model.createContext({ contextSize: 4096 });
-  const session = new LlamaChatSession({
-    contextSequence: context.getSequence(),
-  });
 
-  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  let model: LlamaModelLike | undefined;
+  let context: LlamaContextLike | undefined;
   try {
-    const run = session.prompt(prompt, { maxTokens });
-    const timed = Promise.race([
-      run,
-      new Promise<never>((_, reject) => {
-        timeoutHandle = setTimeout(() => reject(new Error("LLM timeout")), timeoutMs);
-      }),
-    ]);
-    const reply = await timed;
+    model = await raceTimeout(
+      llama.loadModel({ modelPath }),
+      loadTimeoutMs,
+      "LLM load timeout",
+    );
+    context = await raceTimeout(
+      model.createContext({ contextSize: 4096 }),
+      Math.min(loadTimeoutMs, 30_000),
+      "LLM context timeout",
+    );
+    const session = new LlamaChatSession({
+      contextSequence: context.getSequence(),
+    });
+    const reply = await raceTimeout(
+      session.prompt(prompt, { maxTokens }),
+      inferTimeoutMs,
+      "LLM timeout",
+    );
     return typeof reply === "string" ? reply : String(reply);
   } finally {
-    if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
-    await context.dispose?.();
-    await model.dispose?.();
+    await context?.dispose?.();
+    await model?.dispose?.();
   }
 }

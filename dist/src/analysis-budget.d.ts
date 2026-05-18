@@ -8,10 +8,12 @@ export declare function phaseReserveMs(phase: BudgetSkippablePhase, preset: Anal
 export declare class AnalysisBudgetTracker {
     private readonly preset;
     private readonly profile;
-    private readonly llmSize?;
+    private llmSize?;
     private readonly budgetMs;
     private readonly started;
     constructor(preset: AnalysisPresetName, messageCount: number, profile: MachineProfile, llmSize?: Qwen35Size | undefined);
+    /** LLM 직전 RAM 재프로브 후 예약 시간 갱신 */
+    updateLlmSize(size: Qwen35Size | undefined): void;
     remainingMs(): number;
     shouldSkip(phase: BudgetSkippablePhase): boolean;
 }

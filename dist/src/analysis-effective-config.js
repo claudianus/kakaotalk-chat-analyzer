@@ -29,6 +29,9 @@ function collectEnvOverrides() {
         "KCA_LLM_MOCK",
         "KCA_LLM_BACKEND",
         "KCA_LLM_GPU",
+        "KCA_LLM_TIMEOUT_MS",
+        "KCA_LLM_RAM_RESERVE_GB",
+        "KCA_DEBUG_LLM",
         "KCA_EMBEDDING_TOPICS",
         "KCA_INVOKER",
         "KCA_MEMORY_PROBE",
@@ -122,9 +125,11 @@ function inferSentimentSkipReason(options, preset, used, messageCount) {
     }
     return "실행 중 오류 또는 샘플 부족";
 }
-function inferLlmSkipReason(used, plan) {
+function inferLlmSkipReason(used, plan, summarySkippedReason) {
     if (used)
         return undefined;
+    if (summarySkippedReason?.trim())
+        return summarySkippedReason.trim();
     if (!plan.enabled)
         return plan.reason;
     return "GGUF 없음·예산 부족·추론 실패 또는 JSON 파싱 실패";
@@ -188,7 +193,7 @@ export function buildAnalysisEffectiveConfig(data, cli, machine) {
             reason: llmPlan.reason,
             used: llmUsed,
             modelId: qwenModelIdForPlan(llmPlan),
-            skippedReason: inferLlmSkipReason(llmUsed, llmPlan),
+            skippedReason: inferLlmSkipReason(llmUsed, llmPlan, data.summary.llmSkippedReason),
         },
         topicModel: resolveTopicModel(data),
         embeddingTopics: profileSettings.useEmbeddingTopics,

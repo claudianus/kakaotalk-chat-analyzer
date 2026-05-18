@@ -26,8 +26,11 @@ export interface RunLlamaPromptOptions {
     modelPath: string;
     prompt: string;
     maxTokens?: number;
-    timeoutMs: number;
+    /** 추론 단계 상한(ms) */
+    inferTimeoutMs: number;
+    /** GGUF 로드+컨텍스트 생성 상한(ms) */
+    loadTimeoutMs: number;
 }
-/** GGUF 로드 → 채팅 1회 → 리소스 해제 */
+/** GGUF 로드 → 채팅 1회 → 리소스 해제 (로드·추론 타임아웃 분리) */
 export declare function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<string>;
 export {};

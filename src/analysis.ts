@@ -17,8 +17,9 @@ import { runKeywordPassFromSpoolPooled } from "./kiwi-keyword-pool.js";
 import { enrichReportWithLlm } from "./llm-apply.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
-import { resolveLlmRunPlan } from "./llm-policy.js";
-import { AnalysisBudgetTracker } from "./analysis-budget.js";
+import { resolveLlmRunPlan, type LlmRunPlan } from "./llm-policy.js";
+import { AnalysisBudgetTracker, phaseReserveMs } from "./analysis-budget.js";
+import type { AnalysisPresetName } from "./analysis-preset.js";
 import type { StreamParseOptions } from "./stream-options.js";
 import {
   createMessageSpoolPath,
@@ -254,6 +255,43 @@ async function runKeywordPass(
   }
 }
 
+function reportWithLlmSkipped(report: ReportData, reason: string): ReportData {
+  return {
+    ...report,
+    summary: {
+      ...report.summary,
+      usedLlmAnalysis: false,
+      llmSkippedReason: reason,
+    },
+  };
+}
+
+async function runLlmPhaseIfAllowed(
+  report: ReportData,
+  options: BuildReportOptions | undefined,
+  preset: AnalysisPresetName,
+  budget: AnalysisBudgetTracker,
+  llmPlanHint?: LlmRunPlan,
+): Promise<ReportData> {
+  const profile = probeMachineProfileSync();
+  const llmPlan =
+    llmPlanHint ??
+    resolveLlmRunPlan({ preset, profile, messageCount: report.summary.totalMessages });
+  budget.updateLlmSize(llmPlan.size);
+
+  if (!llmPlan.enabled) {
+    return reportWithLlmSkipped(report, llmPlan.reason);
+  }
+  if (budget.shouldSkip("llm")) {
+    const remainSec = Math.round(budget.remainingMs() / 1000);
+    const needSec = Math.round(
+      phaseReserveMs("llm", preset, profile, llmPlan.size) / 1000,
+    );
+    return reportWithLlmSkipped(report, `예산 부족 (남은 ~${remainSec}s, LLM 필요 ~${needSec}s)`);
+  }
+  return enrichReportWithLlm(report, options);
+}
+
 export async function buildReportFromExportSync(
   filePath: string,
   options?: BuildReportOptions,
@@ -430,13 +468,15 @@ export async function buildReportFromExportSync(
       ),
     );
 
-    llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount: prepass.messageCount });
+    llmPlan = resolveLlmRunPlan({
+      preset,
+      profile: probeMachineProfileSync(),
+      messageCount: prepass.messageCount,
+    });
     phaseProfiler.start("llm");
-    if (llmPlan.enabled && !budget.shouldSkip("llm")) {
-      if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
-      report = await enrichReportWithLlm(report, options);
-      if (showProgress) logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
-    }
+    if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
+    report = await runLlmPhaseIfAllowed(report, options, preset, budget, llmPlan);
+    if (showProgress) logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
     phaseProfiler.end("llm");
 
     if (showProgress) {
@@ -520,12 +560,15 @@ export async function buildReportFromExportSync(
     ),
   );
 
+  llmPlan = resolveLlmRunPlan({
+    preset,
+    profile: probeMachineProfileSync(),
+    messageCount: prepass.messageCount,
+  });
   phaseProfiler.start("llm");
-  if (llmPlan.enabled && !budget.shouldSkip("llm")) {
-    if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
-    report = await enrichReportWithLlm(report, options);
-    if (showProgress) logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
-  }
+  if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
+  report = await runLlmPhaseIfAllowed(report, options, preset, budget, llmPlan);
+  if (showProgress) logReportProgress({ phase: "LLM 서사", current: 1, total: 1 });
   phaseProfiler.end("llm");
 
   if (showProgress) {
