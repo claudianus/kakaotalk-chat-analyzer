@@ -1,0 +1,170 @@
+src/llm-input.ts
+  s_12bf7f4a19d597::t_6675612dbc3c5b 60-63
+dist/src/llm-grammar.d.ts
+  s_12bf7f4a19d597::t_8bec41b55f5c5d 1-3,9,12
+  s_12bf7f4a19d597::t_8d67c669fed762 4-6
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 7-8,10-11
+dist/src/llm-schema.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 1
+  s_12bf7f4a19d597::t_8bec41b55f5c5d 2-79
+dist/src/llm-policy.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 7
+dist/src/llm-resolve.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 7,118-130
+dist/src/toxicity-analyze.js.map
+  ai_agent 1
+test/llm-runtime.test.ts
+  s_12bf7f4a19d597::t_4a5c39f4c15180 45-62
+  s_12bf7f4a19d597::t_2ade48f695f5cc 6
+src/ml-dispose.ts
+  s_12bf7f4a19d597::t_24f34ee117e359 1-12
+dist/src/ml-dispose.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 1-12
+dist/src/llm-runtime.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 6,10-14,26,36-41
+kcachat/package.json
+  s_12bf7f4a19d597::t_67c29bc403b37a 15
+  s_12bf7f4a19d597::t_cf1dd5e084f72d 3
+dist/src/llm-schema.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 1-8,17-20,38-56
+  s_12bf7f4a19d597::t_8bec41b55f5c5d 9-16,21-37
+dist/src/llm-runtime.js.map
+  ai_agent 1
+dist/src/toxicity-analyze.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 4-5
+dist/src/sentiment-analyze.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 121-137
+dist/src/llm-resolve.js.map
+  ai_agent 1
+dist/src/analysis-effective-config.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 249-252
+dist/src/ml/tasks/index.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 1,8-12,26-27,29-30,34-35,39-40,43-48
+dist/src/llm-resolve.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 28-31
+dist/src/llm-policy.js.map
+  ai_agent 1
+README.md
+  s_12bf7f4a19d597::t_a812244dc7ab5b 208
+  s_12bf7f4a19d597::t_462c44f1a3804b 218-220
+src/sentiment-analyze.ts
+  s_12bf7f4a19d597::t_36fce9276d8e1e 159-173
+dist/src/llm-policy.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 3
+src/analysis.ts
+  s_12bf7f4a19d597::t_e4bd5d6c45cfa6 18
+  s_12bf7f4a19d597::t_a2062fa179a88d 293-300
+src/analysis-effective-config.ts
+  s_12bf7f4a19d597::t_3162f448ef3b38 342-346
+dist/src/llm-grammar.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 1-19
+dist/src/ml-dispose.js.map
+  ai_agent 1
+dist/src/analysis.js.map
+  ai_agent 1
+src/llm-json.ts
+  s_12bf7f4a19d597::t_03b68a8ad42a35 83-97
+package.json
+  s_12bf7f4a19d597::t_b982380f613e48 3
+dist/src/ml/tasks/index.js.map
+  ai_agent 1
+dist/src/llm-summarize.js.map
+  ai_agent 1
+src/llm-resolve.ts
+  s_12bf7f4a19d597::t_b4aa2ac5eff2bd 150-163
+  s_12bf7f4a19d597::t_1a50c6dd8a1bb9 14
+dist/src/version.js
+  s_12bf7f4a19d597::t_9f7fa7d369868e 1
+src/llm-runtime.ts
+  s_12bf7f4a19d597::t_2ef8cf7433630f 127-129
+  s_12bf7f4a19d597::t_9ec0269bc5d041 2,41,43-50,63,93-108,130,149-156
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+dist/src/analysis.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 17,215-223
+dist/src/semantic-keywords.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 12-13
+dist/src/llm-schema.js.map
+  ai_agent 1
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/llm-json.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 20-23
+dist/src/sentiment-analyze.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 17-18
+dist/src/llm-json.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 72-83
+test/llm-retry-gate.test.ts
+  s_12bf7f4a19d597::t_56862e75f973db 48
+  s_12bf7f4a19d597::t_d878b0c77cbe05 49-52
+  s_12bf7f4a19d597::t_ddc025965b24ab 1-47,53-79
+dist/src/toxicity-analyze.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 92-107
+dist/src/llm-summarize.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 5,10,28-29,185-186,196-271,273-276
+src/ml/tasks/index.ts
+  s_12bf7f4a19d597::t_4cb4878e85645d 2,18-23,38-40,42,44,49,51,56,58,62-66
+dist/src/llm-grammar.js.map
+  ai_agent 1
+dist/src/ml-dispose.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 1-2
+dist/src/llm-input.js.map
+  ai_agent 1
+dist/src/llm-runtime.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 2,58-68,87-88,97-104
+src/llm-policy.ts
+  s_12bf7f4a19d597::t_8c3d8fbfea5f1e 17-18
+src/llm-summarize.ts
+  s_12bf7f4a19d597::t_203091258d0be0 290-292
+  s_12bf7f4a19d597::t_5ed7efb58ad372 261-262,278-286,288-289,293,295-315,317-370
+  s_12bf7f4a19d597::t_1105b35ac05804 19
+  s_12bf7f4a19d597::t_917389f436d731 9-10
+  s_12bf7f4a19d597::t_88265f0bfaf142 77-78
+dist/src/sentiment-analyze.js.map
+  ai_agent 1
+dist/src/version.d.ts
+  s_12bf7f4a19d597::t_9f7fa7d369868e 1-2
+src/llm-grammar.ts
+  s_12bf7f4a19d597::t_2cc2d024aaf57e 1-2,7,10-14,16-17,19-26
+  s_12bf7f4a19d597::t_ed2749dca3e716 4-6
+  s_12bf7f4a19d597::t_6fec8d34612d04 18
+  s_12bf7f4a19d597::t_07e077e6329a67 3,8-9
+  s_12bf7f4a19d597::t_86c0d616e8df49 15
+dist/src/ml/tasks/index.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 9
+dist/src/llm-json.js.map
+  ai_agent 1
+dist/src/semantic-keywords.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 65-80
+src/llm-schema.ts
+  s_12bf7f4a19d597::t_55fcd32bec419b 1,3-8,17-20,38-53,55
+  s_12bf7f4a19d597::t_9233dfe7db2c35 2,9-16,21-37,54
+package-lock.json
+  ai_agent 3,9
+dist/src/llm-input.js
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 43-46
+src/toxicity-analyze.ts
+  s_12bf7f4a19d597::t_d81da20384ce31 110-123
+dist/src/llm-input.d.ts
+  s_12bf7f4a19d597::t_1f1a3b3d8add14 7
+src/version.ts
+  s_12bf7f4a19d597::t_98fd23bb89a5e0 1
+src/semantic-keywords.ts
+  s_12bf7f4a19d597::t_09cac024a60da0 91-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "54f46e7edb506871b4f9029f4561598f2babeaf7",
+  "prompts": {},
+  "sessions": {
+    "s_12bf7f4a19d597": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f66433db-8c63-4742-81bd-6acb364b1bdd",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
