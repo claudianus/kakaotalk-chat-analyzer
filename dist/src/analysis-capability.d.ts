@@ -13,8 +13,8 @@ export interface MachineProfile {
 export declare function memoryHeadroomGb(profile: MachineProfile): number;
 export declare function probeMachineProfileSync(): MachineProfile;
 export declare function probeMachineProfile(): Promise<MachineProfile>;
-/** preset·코퍼스·RAM 기준 분석 예산(ms) — 5분 SLA 휴리스틱 */
-export declare function analysisBudgetMs(preset: string, messageCount: number, profile: MachineProfile): number;
+/** preset·RAM 기준 분석 SLA 상한(ms). 코퍼스 추정 시간과 무관하게 고정 — 단계 skip은 경과 시간으로 판단 */
+export declare function analysisBudgetMs(preset: string, _messageCount: number, profile: MachineProfile): number;
 /** 90k 메시지 기준 대략 예상(초) — preset·RAM 휴리스틱 */
 export declare function estimateAnalysisSeconds(preset: string, messageCount: number, profile: MachineProfile): number;
 export declare function formatCapabilitiesReport(profile: MachineProfile, opts?: {

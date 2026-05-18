@@ -8,6 +8,16 @@ import { buildReportProvenance } from "../src/report-provenance.js";
 
 const FIXTURE = join(process.cwd(), "test/fixtures/keyword-golden.csv");
 
+let prevLlm: string | undefined;
+test.before(() => {
+  prevLlm = process.env.KCA_LLM;
+  process.env.KCA_LLM = "0";
+});
+test.after(() => {
+  if (prevLlm === undefined) delete process.env.KCA_LLM;
+  else process.env.KCA_LLM = prevLlm;
+});
+
 test("buildReportFromExport records kiwiAvailableAtAnalysis on aggregating thread", async () => {
   if (process.env.KCA_NO_KIWI === "1") return;
 

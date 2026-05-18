@@ -29,5 +29,8 @@ export declare function isLlmAutoEnabled(): boolean;
 export declare function llmLoadTimeoutMs(size: Qwen35Size): number;
 /** 추론 단계 상한(ms) */
 export declare function llmInferTimeoutMs(size: Qwen35Size, plan?: LlmRunPlan): number;
-/** 분석 예산용 LLM 단계 예약(ms) — 로드+추론 */
+/**
+ * 분석 예산용 LLM 단계 예약(ms) — 로드+추론.
+ * 실제 타임아웃(`llmLoadTimeoutMs`)보다 짧게 잡아, 빠른 파이프라인 뒤에도 LLM 여유를 남긴다.
+ */
 export declare function llmPhaseReserveMs(size: Qwen35Size | undefined, preset: AnalysisPresetName): number;

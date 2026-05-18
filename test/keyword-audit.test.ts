@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, it } from "node:test";
+import { after, before, describe, it } from "node:test";
 import { buildReportFromExportSync } from "../src/analysis.js";
 
 const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures", "keyword-golden.csv");
@@ -15,6 +15,18 @@ const VIBE_FIXTURE = join(
 );
 
 describe("keyword audit golden", () => {
+  let prevLlm: string | undefined;
+
+  before(() => {
+    prevLlm = process.env.KCA_LLM;
+    process.env.KCA_LLM = "0";
+  });
+
+  after(() => {
+    if (prevLlm === undefined) delete process.env.KCA_LLM;
+    else process.env.KCA_LLM = prevLlm;
+  });
+
   it("surfaces claude and codex in top keywords for AI-tool chat fixture", async () => {
     const report = await buildReportFromExportSync(FIXTURE, {
       progress: false,

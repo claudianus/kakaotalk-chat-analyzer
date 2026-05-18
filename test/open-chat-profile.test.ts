@@ -6,6 +6,16 @@ import { inferOpenChatProfile } from "../src/open-chat-profile.js";
 
 const OPEN_CHAT_FIXTURE = join(process.cwd(), "test/fixtures/open-chat-room.csv");
 
+let prevLlm: string | undefined;
+test.before(() => {
+  prevLlm = process.env.KCA_LLM;
+  process.env.KCA_LLM = "0";
+});
+test.after(() => {
+  if (prevLlm === undefined) delete process.env.KCA_LLM;
+  else process.env.KCA_LLM = prevLlm;
+});
+
 test("inferOpenChatProfile flags high join/leave traffic", () => {
   const profile = inferOpenChatProfile(
     {

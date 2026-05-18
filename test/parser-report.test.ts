@@ -15,6 +15,16 @@ import { buildReportProvenance } from "../src/report-provenance.js";
 import { renderReportHtml } from "../src/report.js";
 import { VERSION } from "../src/version.js";
 
+let prevLlm: string | undefined;
+test.before(() => {
+  prevLlm = process.env.KCA_LLM;
+  process.env.KCA_LLM = "0";
+});
+test.after(() => {
+  if (prevLlm === undefined) delete process.env.KCA_LLM;
+  else process.env.KCA_LLM = prevLlm;
+});
+
 test("parseChatRoomNameFromExportPath strips KakaoTalk export filename parts", () => {
   assert.equal(
     parseChatRoomNameFromExportPath(
