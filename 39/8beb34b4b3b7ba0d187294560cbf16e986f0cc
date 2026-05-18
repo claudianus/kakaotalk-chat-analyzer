@@ -1,0 +1,19 @@
+scripts/check-sentiment-hub-access.mjs
+  s_534094c40d80e9::t_27bba0f2a2be7d 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "398beb34b4b3b7ba0d187294560cbf16e986f0cc",
+  "prompts": {},
+  "sessions": {
+    "s_534094c40d80e9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a2cf7980-54a3-4189-8aaa-7e09603b2e1e",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
