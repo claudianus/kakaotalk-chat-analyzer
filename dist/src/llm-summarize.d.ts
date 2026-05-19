@@ -32,8 +32,12 @@ export declare function runLlmCompletion(data: ReportData, plan: LlmRunPlan, opt
     compact?: boolean;
     sizeOverride?: Qwen35Size;
 }): Promise<LlmCompletionResult>;
+export interface LlmEnrichmentRunContext {
+    budget?: AnalysisBudgetTracker;
+    llmPlan?: LlmRunPlan;
+}
 /** preset·RAM 기준 Qwen3.5 자동 선택 후 서사·주제 보강 */
-export declare function applyLlmEnrichment(data: ReportData, options?: BuildReportOptions, messageCount?: number, budget?: AnalysisBudgetTracker): Promise<LlmEnrichmentResult>;
+export declare function applyLlmEnrichment(data: ReportData, options?: BuildReportOptions, messageCount?: number, ctx?: LlmEnrichmentRunContext): Promise<LlmEnrichmentResult>;
 /** @deprecated use applyLlmEnrichment */
 export declare function summarizeTopicsWithLlm(preset: AnalysisPresetName, topics: string[], sampleLines: string[]): Promise<null>;
 export {};

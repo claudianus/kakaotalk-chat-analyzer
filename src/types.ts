@@ -461,6 +461,14 @@ export interface ReportProvenance {
     budgetMs?: number;
     envOverrides?: string[];
     gpu?: string;
+    llmMemoryTimeline?: Array<{
+      phase: string;
+      availableGb: number;
+      freeGb: number;
+      totalGb: number;
+      note?: string;
+      chosenLlmSize?: string;
+    }>;
   };
   output?: {
     htmlBytes: number;
@@ -476,6 +484,15 @@ export interface ReportData {
   buildTiming?: ReportBuildTiming;
   /** 생성 도구·런타임·분석 옵션 (CLI) */
   provenance?: ReportProvenance;
+  /** ML dispose·LLM plan 시점 RAM 스냅샷 */
+  memoryTimeline?: Array<{
+    phase: string;
+    availableGb: number;
+    freeGb: number;
+    totalGb: number;
+    note?: string;
+    chosenLlmSize?: string;
+  }>;
   /** 집계가 끝난 스레드(메인·Worker)에서 Kiwi가 준비됐는지 */
   kiwiAvailableAtAnalysis?: boolean;
   privacy: PrivacyMode;

@@ -106,6 +106,15 @@ export function parseQwen35Size(raw: string): Qwen35Size | undefined {
   return undefined;
 }
 
+const SIZE_LADDER_DESC: readonly Qwen35Size[] = ["9B", "4B", "2B", "0.8B"];
+
+/** 9B→4B→2B→0.8B — 없으면 undefined */
+export function downgradeQwen35Size(size: Qwen35Size): Qwen35Size | undefined {
+  const i = SIZE_LADDER_DESC.indexOf(size);
+  if (i < 0 || i >= SIZE_LADDER_DESC.length - 1) return undefined;
+  return SIZE_LADDER_DESC[i + 1];
+}
+
 export const MIN_GGUF_BYTES: Record<Qwen35Size, number> = {
   "0.8B": 400_000_000,
   "2B": 1_200_000_000,

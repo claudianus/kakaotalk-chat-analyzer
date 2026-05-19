@@ -19,6 +19,11 @@ import { disposeUtteranceMlPipelines } from "./ml-dispose.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolveLlmRunPlan, type LlmRunPlan } from "./llm-policy.js";
+import {
+  getMemoryTimeline,
+  pushMemoryTimeline,
+  resetMemoryTimeline,
+} from "./memory-plan.js";
 import { AnalysisBudgetTracker, phaseReserveMs } from "./analysis-budget.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import type { StreamParseOptions } from "./stream-options.js";
@@ -274,10 +279,11 @@ async function runLlmPhaseIfAllowed(
   budget: AnalysisBudgetTracker,
   llmPlanHint?: LlmRunPlan,
 ): Promise<ReportData> {
-  const profile = probeMachineProfileSync();
-  const llmPlan =
+  const messageCount = report.summary.totalMessages;
+  const estimateProfile = probeMachineProfileSync();
+  let llmPlan =
     llmPlanHint ??
-    resolveLlmRunPlan({ preset, profile, messageCount: report.summary.totalMessages });
+    resolveLlmRunPlan({ preset, profile: estimateProfile, messageCount, postMl: false });
   budget.updateLlmSize(llmPlan.size);
 
   if (!llmPlan.enabled) {
@@ -286,13 +292,24 @@ async function runLlmPhaseIfAllowed(
   if (budget.shouldSkip("llm")) {
     const remainSec = Math.round(budget.remainingMs() / 1000);
     const needSec = Math.round(
-      phaseReserveMs("llm", preset, profile, llmPlan.size) / 1000,
+      phaseReserveMs("llm", preset, estimateProfile, llmPlan.size) / 1000,
     );
     return reportWithLlmSkipped(report, `예산 부족 (남은 ~${remainSec}s, LLM 필요 ~${needSec}s)`);
   }
   try {
     await disposeUtteranceMlPipelines();
-    return await enrichReportWithLlm(report, options, { budget });
+    const postProfile = probeMachineProfileSync();
+    pushMemoryTimeline("post_ml_dispose", postProfile, { note: "ONNX dispose 완료" });
+    llmPlan = resolveLlmRunPlan({ preset, profile: postProfile, messageCount, postMl: true });
+    pushMemoryTimeline("llm_plan", postProfile, {
+      chosenLlmSize: llmPlan.size,
+      note: llmPlan.reason.slice(0, 120),
+    });
+    budget.updateLlmSize(llmPlan.size);
+    if (!llmPlan.enabled) {
+      return reportWithLlmSkipped(report, llmPlan.reason);
+    }
+    return await enrichReportWithLlm(report, options, { budget, llmPlan });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     process.stderr.write(`[kca] LLM 건너뜀 — ${msg}\n`);
@@ -306,6 +323,7 @@ export async function buildReportFromExportSync(
 ): Promise<ReportData> {
   const showProgress = options?.progress !== false;
   if (showProgress) resetReportProgress();
+  resetMemoryTimeline();
 
   const privacy = options?.privacy ?? "public-masked";
   const top = options?.top ?? DEFAULT_TOP;
@@ -350,7 +368,13 @@ export async function buildReportFromExportSync(
   const phaseProfiler = new PhaseProfiler();
   let preset = resolvePresetNameWithAuto(options, messageEstimate);
   const profileMachine = probeMachineProfileSync();
-  let llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount: messageEstimate });
+  pushMemoryTimeline("analysis_start", profileMachine);
+  let llmPlan = resolveLlmRunPlan({
+    preset,
+    profile: profileMachine,
+    messageCount: messageEstimate,
+    postMl: false,
+  });
   let budget = new AnalysisBudgetTracker(
     preset,
     messageEstimate ?? 0,
@@ -476,11 +500,6 @@ export async function buildReportFromExportSync(
       ),
     );
 
-    llmPlan = resolveLlmRunPlan({
-      preset,
-      profile: probeMachineProfileSync(),
-      messageCount: prepass.messageCount,
-    });
     phaseProfiler.start("llm");
     if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
     report = await runLlmPhaseIfAllowed(report, options, preset, budget, llmPlan);
@@ -499,7 +518,7 @@ export async function buildReportFromExportSync(
     }
 
     phaseProfiler.logSummary(prepass.messageCount);
-    return { ...report, kiwiAvailableAtAnalysis };
+    return { ...report, kiwiAvailableAtAnalysis, memoryTimeline: [...getMemoryTimeline()] };
   } else {
     if (showProgress) logReportProgress({ phase: "대화 분석", current: 0 });
     await initKiwiRuntime([]);
@@ -568,11 +587,6 @@ export async function buildReportFromExportSync(
     ),
   );
 
-  llmPlan = resolveLlmRunPlan({
-    preset,
-    profile: probeMachineProfileSync(),
-    messageCount: prepass.messageCount,
-  });
   phaseProfiler.start("llm");
   if (showProgress) logReportProgress({ phase: "LLM 서사", current: 0, total: 1 });
   report = await runLlmPhaseIfAllowed(report, options, preset, budget, llmPlan);
@@ -591,7 +605,7 @@ export async function buildReportFromExportSync(
   }
 
   phaseProfiler.logSummary(prepass.messageCount);
-  return { ...report, kiwiAvailableAtAnalysis };
+  return { ...report, kiwiAvailableAtAnalysis, memoryTimeline: [...getMemoryTimeline()] };
   } finally {
     await removeSpool(spoolPath);
   }

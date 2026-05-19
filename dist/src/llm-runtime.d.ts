@@ -1,44 +1,7 @@
-export type LlamaGpuMode = "none" | "metal" | "auto";
-/** `KCA_LLM_GPU`: none | metal | auto (기본 auto) */
-export declare function resolveLlamaGpuMode(): LlamaGpuMode;
-/** macOS 26+ Metal tensor 프로브 실패 시 stderr·비활성 완화 */
-export declare function applyGgmlMetalCompatibilityEnv(): void;
-type LlamaBinding = {
-    loadModel: (opts: {
-        modelPath: string;
-    }) => Promise<LlamaModelLike>;
-    createGrammarForJsonSchema: (schema: unknown) => Promise<LlamaGrammarLike>;
-};
-interface LlamaGrammarLike {
-    parse: (json: string) => unknown;
-}
-interface LlamaModelLike {
-    createContext: (opts: {
-        contextSize: number;
-    }) => Promise<LlamaContextLike>;
-    dispose?: () => Promise<void>;
-}
-interface LlamaContextLike {
-    getSequence: () => unknown;
-    dispose?: () => Promise<void>;
-}
-/** node-llama-cpp `getLlama` — auto 시 Metal 실패하면 CPU 1회 재시도 */
-export declare function getLlamaForKca(): Promise<LlamaBinding>;
-export interface RunLlamaPromptOptions {
-    modelPath: string;
-    prompt: string;
-    maxTokens?: number;
-    /** 추론 단계 상한(ms) */
-    inferTimeoutMs: number;
-    /** GGUF 로드+컨텍스트 생성 상한(ms) */
-    loadTimeoutMs: number;
-}
-/** Qwen3.5 instruct(non-thinking) 기본 — env로 override */
-export declare function resolveLlmSamplingParams(): {
-    temperature: number;
-    topP: number;
-    topK: number;
-};
-/** GGUF 로드 → 채팅 1회 → 리소스 해제 (로드·추론 타임아웃 분리) */
+import { applyGgmlMetalCompatibilityEnv, resolveLlamaGpuMode, resolveLlmSamplingParams, type LlamaGpuMode, type RunLlamaPromptOptions } from "./llm-llama-core.js";
+import { LlmInferProcessError, type LlmInferFailureKind } from "./llm-subprocess.js";
+export { applyGgmlMetalCompatibilityEnv, resolveLlamaGpuMode, resolveLlmSamplingParams, type LlamaGpuMode, type RunLlamaPromptOptions, };
+export { LlmInferProcessError };
+export type { LlmInferFailureKind };
+/** GGUF 추론 — 기본 child 격리 (`KCA_LLM_IN_PROCESS=1` 시 in-process) */
 export declare function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<string>;
-export {};
