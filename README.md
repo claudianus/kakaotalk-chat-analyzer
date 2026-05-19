@@ -19,13 +19,14 @@ npx kcachat@latest
 
 <table>
   <tr>
-    <td align="center" width="33%"><strong>Wrapped</strong><br><img src="docs/assets/demo/wrapped.png" alt="Wrapped 요약" width="100%" /></td>
-    <td align="center" width="33%"><strong>차트</strong><br><img src="docs/assets/demo/charts-viz.png" alt="차트" width="100%" /></td>
-    <td align="center" width="33%"><strong>키워드</strong><br><img src="docs/assets/demo/keywords.png" alt="키워드" width="100%" /></td>
+    <td align="center" width="25%"><strong>Wrapped</strong><br><img src="docs/assets/demo/wrapped.png" alt="Wrapped 요약" width="100%" /></td>
+    <td align="center" width="25%"><strong>Story Deck</strong><br><img src="docs/assets/demo/archetype.png" alt="방 아키타입" width="100%" /></td>
+    <td align="center" width="25%"><strong>① 핵심 숫자</strong><br><img src="docs/assets/demo/facts.png" alt="핵심 지표" width="100%" /></td>
+    <td align="center" width="25%"><strong>차트</strong><br><img src="docs/assets/demo/charts-viz.png" alt="차트" width="100%" /></td>
   </tr>
 </table>
 
-<p><sub><a href="https://claudianus.github.io/kakaotalk-chat-analyzer/#demo">리포트 미리보기 전체</a> (12장 · 탭하면 크게 보기)</sub></p>
+<p><sub><a href="https://claudianus.github.io/kakaotalk-chat-analyzer/#demo">리포트 미리보기 전체</a> (13장 · 탭하면 크게 보기)</sub></p>
 
 </div>
 
@@ -105,15 +106,20 @@ npx kcachat@latest "C:\경로\KakaoTalk_Chat_....csv"
 
 ## 리포트에서 볼 수 있는 것
 
-브라우저만 있으면 되는 **단일 HTML**입니다. **대화 원문은 파일에 넣지 않습니다.**
+브라우저만 있으면 되는 **단일 HTML**입니다. **대화 원문은 파일에 넣지 않습니다.** 상단 **섹션 메뉴**로 ⓪~⑥ 구역을 바로 이동할 수 있습니다.
 
 | 구역 | 내용 |
 |------|------|
-| **Wrapped** | 한 장면 요약, 활동 달력, 페르소나·하이라이트 |
-| **차트** | 워드클라우드, 요일·시간대, 주제 맵 |
-| **키워드** | 상위 단어 순위 (한국어 형태소 + 통계) |
-| **참여자** | 말풍선·랭킹 (이름은 **일부만** 보이게 마스킹) |
-| **테마** | 라이트 / 다크 / 시스템 |
+| **⓪ Wrapped** | 한 장면 요약, 챕터·활동 그리드 |
+| **LLM Story Deck** | 방 아키타입, 시즌 에피소드, 캐릭터 카드, 올해의 순간·관계 드라마·방 밈 등 (통계·키워드만 로컬 LLM에 전달, **원문 미전송**) |
+| **① 핵심 숫자** | 총 메시지·참여자 히어로 + 핵심 8칸 지표 (`더 많은 지표` 접기) |
+| **② 방 이야기** | 규칙/LLM 서사, 인사이트·샵검색·상호작용·주제 제안 |
+| **③ 분위기·리듬** | 지니·화자 전환·말풍선 맵 등 패턴 지표 |
+| **④ 인터랙티브 차트** | 워드클라우드, 요일·시간대, **주제 맵**(graph·키워드·임베딩 3레인) |
+| **⑤ 표·막대** | 키워드 순위(빈도/특이어), 참여자 랭킹 (이름 **마스킹**) |
+| **⑥ 용어** | 지표 설명 · 테마 라이트 / 다크 / 시스템 |
+
+LLM이 RAM 부족 등으로 스킵되어도 **규칙 기반 서사**로 리포트는 완성됩니다. 사이드 카드·`#kca-provenance`에서 **LLM 사용 여부**를 확인할 수 있습니다.
 
 공유 링크(BrewPage 등)로 열어도 되고, `--local`로 만든 `index.html`을 더블클릭해도 됩니다.
 
@@ -253,7 +259,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
-| **0.19.12** | LLM Story Deck·리포트 고밀도 재설계(슬림 팩트·중복 차트 제거) |
+| **0.19.12** | **LLM Story Deck**(아키타입·에피소드·캐릭터·올해의 순간·관계 드라마·방 밈·공유 문구)·**슬림 ① 핵심 숫자**·중복 차트·규칙 페르소나 제거·섹션 ⓪~⑥ 내비 |
 | **0.19.11** | `llm_retry` 예산을 실제 재시도 모델 크기에 맞춤 |
 | **0.19.10** | LLM 재시도 RAM gate·JSON 벤치·테스트 보강 |
 | **0.19.9** | JSON Schema grammar·OOM 방어 — LLM 실패해도 리포트 완성 |
