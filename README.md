@@ -215,7 +215,7 @@ KCA_LLM_BACKEND=ollama kca ./chat.csv --preset custom
 
 환경 변수: `KCA_PRESET`, `KCA_SEMANTIC_MODEL`(Hub id 오버라이드), `KCA_PREFER_BUNDLED_SEMANTIC`(기본 on), `KCA_NO_KURE_DOWNLOAD`(quality/ultra KURE zip lazy 끔), `KCA_SENTIMENT_MODEL`, `KCA_LLM`(기본 on, `0`만 끔), `KCA_LLM_MODEL`(0.8B|2B|4B|9B), `KCA_LLM_BACKEND`, `KCA_LLM_GPU`(`auto`|`metal`|`none`, macOS Metal 호환), `KCA_LLM_GRAMMAR`(기본 on, `0`=prompt-only), `KCA_LLM_MIN_FREE_GB`(LLM 재시도 free RAM 하한, 기본 1.5), `KCA_OLLAMA_MODEL`, `KCA_LLM_MOCK`, `KCA_ONNX_GPU`, `KCA_EMBED_BATCH`, `KCA_SENTIMENT_BATCH`, `KCA_KIWI_WORKERS`, `KCA_NO_KIWI_WORKERS`, `KCA_PROFILE_PHASES`, `KCA_BENCH_CSV`, `KCA_KEYWORD_SUMMARY_TOP`, `KCA_SHOP_SEARCH_TOP`, `KCA_NO_ML_AUTO_INSTALL`, `KCA_SKIP_ML_POSTINSTALL`. (macOS 26 Metal tensor 이슈 시 `GGML_METAL_TENSOR_DISABLE=1` — `auto`에서 기본 설정)
 
-**ML ONNX:** `npm install`·첫 분석 시 `kakaotalk-chat-analyzer-models`(감정 NSMC·KoELECTRA 임베딩) 자동 설치. **quality/ultra**는 가용 RAM≥14GB일 때 **KURE-v1** 로컬 ONNX(~2.1GB)를 GitHub Release zip으로 lazy 받음(`npm run sync:ml-models`로 export·`kca-kure-v1-onnx.zip` 업로드). 없으면 KoELECTRA embed로 폴백. 독성 ONNX도 Release zip lazy(`KCA_NO_TOXICITY_DOWNLOAD=1`, `KCA_NO_KURE_DOWNLOAD=1`).
+**ML ONNX:** `npm install`·첫 분석 시 `kakaotalk-chat-analyzer-models`(감정 NSMC·KoELECTRA 임베딩) 자동 설치. **quality/ultra**·RAM≥14GB면 **KURE-v1**(~2.1GB)·독성 ONNX도 첫 필요 시 GitHub Release에서 **자동 다운로드**(`~/.cache/kakaotalk-chat-analyzer/ml-models`). 수동 export 불필요. 끄기: `KCA_NO_KURE_DOWNLOAD=1`, `KCA_NO_TOXICITY_DOWNLOAD=1`. zip 미배포 시 KURE는 KoELECTRA embed로 폴백.
 
 **속도(품질 유지):** 대용량 CSV는 Kiwi worker pool(`KCA_KIWI_WORKERS`, RAM≥8GB 기본 2–4)·시맨틱/감정을 키워드 패스와 겹쳐 실행. `KCA_PROFILE_PHASES=1`로 단계별 ms. quality에서 GPU 가속: `onnxruntime-node` 설치 후 `KCA_ONNX_GPU=metal`(macOS)·`cuda`(Linux)·`dml`(Windows).
 
@@ -261,6 +261,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.21.1** | **KURE·독성 ONNX** 첫 사용 시 Release **자동 다운로드**(CI 업로드)·GitHub API 폴백 URL |
 | **0.21.0** | **`ultra` preset**·quality/ultra **KURE-v1** 로컬 ONNX lazy(Release zip)·KoELECTRA embed 폴백·preset별 시맨틱·독성 ML on(ultra) |
 | **0.20.0** | **LLM child 프로세스 격리** — Metal/GGUF SIGSEGV도 리포트 완료·CPU·소형 모델 자동 재시도·post-ML free RAM GPU 정책 |
 | **0.19.12** | **LLM Story Deck**(아키타입·에피소드·캐릭터·올해의 순간·관계 드라마·방 밈·공유 문구)·**슬림 ① 핵심 숫자**·중복 차트·규칙 페르소나 제거·섹션 ⓪~⑥ 내비 |

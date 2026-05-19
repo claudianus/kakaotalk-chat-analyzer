@@ -26,21 +26,58 @@ export function readModelsPackageVersion() {
         return process.env.KCA_ML_MODELS_VERSION?.trim() || "0.2.0";
     }
 }
-export function toxicityReleaseTag() {
+export function mlModelsReleaseTag() {
     const env = process.env.KCA_ML_MODELS_RELEASE?.trim();
     if (env)
         return env;
     return `ml-models-v${readModelsPackageVersion()}`;
 }
-export function toxicityReleaseAssetUrl() {
+/** @deprecated */ export const toxicityReleaseTag = mlModelsReleaseTag;
+function pinnedReleaseAssetUrl(assetName) {
     const repo = process.env.KCA_ML_MODELS_REPO?.trim() || DEFAULT_REPO;
-    const tag = toxicityReleaseTag();
-    return `https://github.com/${repo}/releases/download/${tag}/${TOXICITY_ONNX_ASSET}`;
+    return `https://github.com/${repo}/releases/download/${mlModelsReleaseTag()}/${assetName}`;
+}
+export function toxicityReleaseAssetUrl() {
+    return pinnedReleaseAssetUrl(TOXICITY_ONNX_ASSET);
 }
 export function kureReleaseAssetUrl() {
+    return pinnedReleaseAssetUrl(KURE_ONNX_ASSET);
+}
+/** pinned tag → GitHub Releases API(최신 ml-models-v* asset) 순 */
+export async function listReleaseAssetUrls(assetName) {
+    const urls = [pinnedReleaseAssetUrl(assetName)];
     const repo = process.env.KCA_ML_MODELS_REPO?.trim() || DEFAULT_REPO;
-    const tag = toxicityReleaseTag();
-    return `https://github.com/${repo}/releases/download/${tag}/${KURE_ONNX_ASSET}`;
+    const slash = repo.indexOf("/");
+    if (slash <= 0)
+        return urls;
+    const owner = repo.slice(0, slash);
+    const name = repo.slice(slash + 1);
+    try {
+        const api = `https://api.github.com/repos/${owner}/${name}/releases?per_page=30`;
+        const res = await fetch(api, {
+            redirect: "follow",
+            headers: {
+                Accept: "application/vnd.github+json",
+                "User-Agent": "kakaotalk-chat-analyzer",
+            },
+        });
+        if (!res.ok)
+            return urls;
+        const releases = (await res.json());
+        for (const rel of releases) {
+            const tag = rel.tag_name?.trim();
+            if (!tag?.startsWith("ml-models-v"))
+                continue;
+            const asset = rel.assets?.find((a) => a.name === assetName);
+            const href = asset?.browser_download_url?.trim();
+            if (href)
+                urls.push(href);
+        }
+    }
+    catch {
+        /* API 실패 시 pinned URL만 */
+    }
+    return [...new Set(urls)];
 }
 function modelOnnxReady(root, modelId) {
     return (existsSync(join(root, modelId, "config.json")) &&
@@ -118,52 +155,19 @@ export async function ensureToxicityBundle() {
     return toxicityDownloadPromise;
 }
 async function downloadToxicityBundle() {
-    const url = toxicityReleaseAssetUrl();
-    const cache = mlBundleCacheDir();
-    const dlDir = join(cache, "..", "downloads");
-    mkdirSync(dlDir, { recursive: true });
-    const zipPath = join(dlDir, TOXICITY_ONNX_ASSET);
-    const tmpExtract = join(dlDir, "_toxicity_extract");
-    try {
-        process.stderr.write(`[kca] 독성 ML 번들 다운로드 중… ${url}\n`);
-        const res = await fetch(url, { redirect: "follow" });
-        if (!res.ok || !res.body) {
-            process.stderr.write(`[kca] 독성 번들 다운로드 실패 (${res.status}): ${url}\n`);
-            return false;
-        }
-        await pipeline(Readable.fromWeb(res.body), createWriteStream(zipPath));
-        if (existsSync(tmpExtract))
-            rmSync(tmpExtract, { recursive: true, force: true });
-        mkdirSync(tmpExtract, { recursive: true });
-        if (!extractZip(zipPath, tmpExtract)) {
-            process.stderr.write("[kca] 독성 번들 압축 해제 실패 (tar/unzip 필요)\n");
-            return false;
-        }
-        const nested = join(tmpExtract, BUNDLED_TOXICITY_MODEL_ID);
-        const src = existsSync(join(nested, "config.json"))
-            ? nested
-            : findModelDir(tmpExtract, BUNDLED_TOXICITY_MODEL_ID);
-        if (!src) {
-            process.stderr.write("[kca] 독성 번들 zip 구조가 예상과 다릅니다\n");
-            return false;
-        }
-        const dest = join(cache, BUNDLED_TOXICITY_MODEL_ID);
-        mkdirSync(cache, { recursive: true });
-        if (existsSync(dest))
-            rmSync(dest, { recursive: true, force: true });
-        cpSync(src, dest, { recursive: true });
-        process.stderr.write(`[kca] 독성 ML 번들 설치됨: ${dest}\n`);
-        return isToxicityBundleReady();
-    }
-    catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        process.stderr.write(`[kca] 독성 번들 다운로드 오류: ${msg}\n`);
-        return false;
-    }
-    finally {
-        if (existsSync(tmpExtract))
-            rmSync(tmpExtract, { recursive: true, force: true });
-    }
+    return installLazyOnnxZip({
+        label: "독성 ML",
+        assetName: TOXICITY_ONNX_ASSET,
+        extractDirName: "_toxicity_extract",
+        resolveSrc: (tmpExtract) => {
+            const nested = join(tmpExtract, BUNDLED_TOXICITY_MODEL_ID);
+            if (existsSync(join(nested, "config.json")))
+                return nested;
+            return findModelDir(tmpExtract, BUNDLED_TOXICITY_MODEL_ID);
+        },
+        destModelId: BUNDLED_TOXICITY_MODEL_ID,
+        isReady: isToxicityBundleReady,
+    });
 }
 /** GitHub Release 에서 KURE ONNX zip 다운로드 → cache */
 export async function ensureKureBundle() {
@@ -180,43 +184,63 @@ export async function ensureKureBundle() {
     return kureDownloadPromise;
 }
 async function downloadKureBundle() {
-    const url = kureReleaseAssetUrl();
+    return installLazyOnnxZip({
+        label: "KURE 임베딩",
+        assetName: KURE_ONNX_ASSET,
+        extractDirName: "_kure_extract",
+        resolveSrc: resolveKureExtractSrc,
+        destModelId: BUNDLED_KURE_MODEL_ID,
+        isReady: isKureBundleReady,
+    });
+}
+async function installLazyOnnxZip(opts) {
+    const urls = await listReleaseAssetUrls(opts.assetName);
     const cache = mlBundleCacheDir();
     const dlDir = join(cache, "..", "downloads");
     mkdirSync(dlDir, { recursive: true });
-    const zipPath = join(dlDir, KURE_ONNX_ASSET);
-    const tmpExtract = join(dlDir, "_kure_extract");
+    const zipPath = join(dlDir, opts.assetName);
+    const tmpExtract = join(dlDir, opts.extractDirName);
     try {
-        process.stderr.write(`[kca] KURE 임베딩 번들 다운로드 중… ${url}\n`);
-        const res = await fetch(url, { redirect: "follow" });
-        if (!res.ok || !res.body) {
-            process.stderr.write(`[kca] KURE 번들 다운로드 실패 (${res.status}): ${url}\n`);
+        let fetched = false;
+        for (const url of urls) {
+            process.stderr.write(`[kca] ${opts.label} 번들 다운로드 중… ${url}\n`);
+            const res = await fetch(url, { redirect: "follow" });
+            if (!res.ok || !res.body) {
+                process.stderr.write(`[kca] ${opts.label} 다운로드 실패 (${res.status})\n`);
+                continue;
+            }
+            await pipeline(Readable.fromWeb(res.body), createWriteStream(zipPath));
+            fetched = true;
+            break;
+        }
+        if (!fetched) {
+            process.stderr.write(`[kca] ${opts.label} Release zip(${opts.assetName})을 찾지 못했습니다. ` +
+                `잠시 후 재시도하거나 CI publish-ml-models 완료를 확인하세요.\n`);
             return false;
         }
-        await pipeline(Readable.fromWeb(res.body), createWriteStream(zipPath));
         if (existsSync(tmpExtract))
             rmSync(tmpExtract, { recursive: true, force: true });
         mkdirSync(tmpExtract, { recursive: true });
         if (!extractZip(zipPath, tmpExtract)) {
-            process.stderr.write("[kca] KURE 번들 압축 해제 실패 (tar/unzip 필요)\n");
+            process.stderr.write(`[kca] ${opts.label} 압축 해제 실패 (tar/unzip 필요)\n`);
             return false;
         }
-        const src = resolveKureExtractSrc(tmpExtract);
+        const src = opts.resolveSrc(tmpExtract);
         if (!src) {
-            process.stderr.write("[kca] KURE 번들 zip 구조가 예상과 다릅니다\n");
+            process.stderr.write(`[kca] ${opts.label} zip 구조가 예상과 다릅니다\n`);
             return false;
         }
-        const dest = join(cache, BUNDLED_KURE_MODEL_ID);
+        const dest = join(cache, opts.destModelId);
         mkdirSync(cache, { recursive: true });
         if (existsSync(dest))
             rmSync(dest, { recursive: true, force: true });
         cpSync(src, dest, { recursive: true });
-        process.stderr.write(`[kca] KURE 임베딩 번들 설치됨: ${dest}\n`);
-        return isKureBundleReady();
+        process.stderr.write(`[kca] ${opts.label} 번들 설치됨: ${dest}\n`);
+        return opts.isReady();
     }
     catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        process.stderr.write(`[kca] KURE 번들 다운로드 오류: ${msg}\n`);
+        process.stderr.write(`[kca] ${opts.label} 다운로드 오류: ${msg}\n`);
         return false;
     }
     finally {

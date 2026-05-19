@@ -60,6 +60,12 @@ jobs:
             echo "toxicity must not ship in npm models package"
             exit 1
           }
+          test ! -f "$ROOT/kca-kure-v1/onnx/model.onnx" || {
+            echo "KURE must not ship in npm models package"
+            exit 1
+          }
+          test -f "data/ml-models/kca-kure-v1/onnx/model.onnx"
+          test -f "data/ml-models/kca-kure-v1/onnx/model.onnx_data"
 
       - name: Publish kakaotalk-chat-analyzer-models if version is new
         env:
@@ -80,17 +86,19 @@ jobs:
             npm publish --access public
           fi
 
-      - name: Upload toxicity ONNX release asset
+      - name: Upload lazy ONNX release assets (toxicity + KURE)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          ZIP="kca-kcelectra-base-toxicity-onnx.zip"
-          if [ ! -f "$ZIP" ]; then
-            echo "No toxicity zip generated; failing to prevent broken lazy-download URL."
-            exit 1
-          fi
           VER="$(node -p "require('./kakaotalk-chat-analyzer-models/package.json').version")"
           TAG="ml-models-v${VER}"
-          gh release view "$TAG" 2>/dev/null || gh release create "$TAG" --title "ML models v${VER}" --notes "Bundled ONNX: NSMC+embed via npm; toxicity zip for lazy install."
-          gh release upload "$TAG" "$ZIP" --clobber
+          NOTES="Bundled ONNX: NSMC+embed via npm. Lazy zips: toxicity + KURE (quality/ultra semantic)."
+          gh release view "$TAG" 2>/dev/null || gh release create "$TAG" --title "ML models v${VER}" --notes "$NOTES"
+          for ZIP in kca-kcelectra-base-toxicity-onnx.zip kca-kure-v1-onnx.zip; do
+            if [ ! -f "$ZIP" ]; then
+              echo "Missing $ZIP — sync:ml-models must export before upload."
+              exit 1
+            fi
+            gh release upload "$TAG" "$ZIP" --clobber
+          done

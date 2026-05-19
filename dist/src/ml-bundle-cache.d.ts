@@ -2,9 +2,12 @@ export declare const TOXICITY_ONNX_ASSET = "kca-kcelectra-base-toxicity-onnx.zip
 export declare const KURE_ONNX_ASSET = "kca-kure-v1-onnx.zip";
 export declare function mlBundleCacheDir(): string;
 export declare function readModelsPackageVersion(): string;
-export declare function toxicityReleaseTag(): string;
+export declare function mlModelsReleaseTag(): string;
+/** @deprecated */ export declare const toxicityReleaseTag: typeof mlModelsReleaseTag;
 export declare function toxicityReleaseAssetUrl(): string;
 export declare function kureReleaseAssetUrl(): string;
+/** pinned tag → GitHub Releases API(최신 ml-models-v* asset) 순 */
+export declare function listReleaseAssetUrls(assetName: string): Promise<string[]>;
 export declare function isSentimentBundleReady(): boolean;
 export declare function isEmbedBundleReady(): boolean;
 export declare function isToxicityBundleReady(): boolean;
