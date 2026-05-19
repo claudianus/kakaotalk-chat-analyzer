@@ -1,5 +1,10 @@
 import { memoryHeadroomGb, probeMachineProfileSync } from "./analysis-capability.js";
+import { semanticEmbeddingModelId } from "./semantic-policy.js";
 import { probeOnnxGpu } from "./ml-runtime.js";
+function isHeavySemanticModel(modelId) {
+    const id = modelId.toLowerCase();
+    return id.includes("bge-m3") || id.includes("kure");
+}
 function envInt(name) {
     const raw = process.env[name]?.trim();
     if (!raw)
@@ -18,6 +23,9 @@ export function resolveEmbedBatchSize() {
     const gpu = process.env.KCA_ONNX_GPU?.trim().toLowerCase();
     if (gpu && gpu !== "none" && gpu !== "cpu")
         batch = Math.min(64, batch * 2);
+    if (isHeavySemanticModel(semanticEmbeddingModelId())) {
+        batch = Math.min(batch, headroom >= 24 ? 12 : 8);
+    }
     return batch;
 }
 export function resolveSentimentBatchSize() {
@@ -43,6 +51,9 @@ export async function resolveEmbedBatchSizeAsync() {
     let batch = headroom >= 20 ? 32 : headroom >= 12 ? 24 : headroom >= 8 ? 16 : 12;
     if (gpu !== "none")
         batch = Math.min(64, batch * 2);
+    if (isHeavySemanticModel(semanticEmbeddingModelId())) {
+        batch = Math.min(batch, headroom >= 24 ? 12 : 8);
+    }
     return batch;
 }
 //# sourceMappingURL=ml-batch-size.js.map

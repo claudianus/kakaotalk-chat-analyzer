@@ -15,7 +15,8 @@ import { PhaseProfiler } from "./analysis-phase-profile.js";
 import { runKeywordPassFromSpoolPooled } from "./kiwi-keyword-pool.js";
 import { enrichReportWithLlm } from "./llm-apply.js";
 import { disposeUtteranceMlPipelines } from "./ml-dispose.js";
-import { resolvePresetNameWithAuto } from "./analysis-preset.js";
+import { getPresetEffectiveFlags, resolvePresetNameWithAuto } from "./analysis-preset.js";
+import { embeddingThemeMax } from "./report-config.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolveLlmRunPlan } from "./llm-policy.js";
 import { getMemoryTimeline, pushMemoryTimeline, resetMemoryTimeline, } from "./memory-plan.js";
@@ -28,10 +29,12 @@ import { recordOnOrAfter } from "./report-date-filter.js";
 const DEFAULT_TOP = 30;
 function finalizeProfileOpts(options, extra, messageCount) {
     const settings = getAnalysisProfileSettings(options, messageCount);
+    const preset = getPresetEffectiveFlags(options, messageCount).preset;
     return {
         ...extra,
         useEmbeddingTopics: settings.useEmbeddingTopics,
         semanticSupplementRrfWeight: settings.semanticSupplementRrfWeight,
+        embeddingThemeCap: embeddingThemeMax(preset),
     };
 }
 function withKiwiAnalysisFlag(report) {

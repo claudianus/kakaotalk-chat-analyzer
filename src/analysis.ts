@@ -16,7 +16,8 @@ import { PhaseProfiler } from "./analysis-phase-profile.js";
 import { runKeywordPassFromSpoolPooled } from "./kiwi-keyword-pool.js";
 import { enrichReportWithLlm } from "./llm-apply.js";
 import { disposeUtteranceMlPipelines } from "./ml-dispose.js";
-import { resolvePresetNameWithAuto } from "./analysis-preset.js";
+import { getPresetEffectiveFlags, resolvePresetNameWithAuto } from "./analysis-preset.js";
+import { embeddingThemeMax } from "./report-config.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolveLlmRunPlan, type LlmRunPlan } from "./llm-policy.js";
 import {
@@ -49,10 +50,12 @@ function finalizeProfileOpts(
   messageCount?: number,
 ): FinalizeOptions {
   const settings = getAnalysisProfileSettings(options, messageCount);
+  const preset = getPresetEffectiveFlags(options, messageCount).preset;
   return {
     ...extra,
     useEmbeddingTopics: settings.useEmbeddingTopics,
     semanticSupplementRrfWeight: settings.semanticSupplementRrfWeight,
+    embeddingThemeCap: embeddingThemeMax(preset),
   };
 }
 

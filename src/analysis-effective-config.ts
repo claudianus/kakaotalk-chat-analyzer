@@ -95,6 +95,7 @@ function collectEnvOverrides(): string[] {
     "KCA_SENTIMENT_DEFAULT",
     "KCA_SENTIMENT_MODEL",
     "KCA_NO_TOXICITY",
+    "KCA_NO_KURE_DOWNLOAD",
     "KCA_TOXICITY",
     "KCA_TOXICITY_MODEL",
     "KCA_LLM",
@@ -125,7 +126,9 @@ export function resolvePresetSource(
 ): PresetSource {
   if (cliPreset) return "cli";
   const env = process.env.KCA_PRESET?.trim().toLowerCase();
-  if (env === "speed" || env === "balanced" || env === "quality" || env === "custom") return "env";
+  if (env === "speed" || env === "balanced" || env === "quality" || env === "ultra" || env === "custom") {
+    return "env";
+  }
   if (worker === true || process.env.KCA_PROFILE === "fast") return "legacy-fast";
   const auto = autoPresetFromMachine(machine, messageCount);
   const ramOnly = autoPresetFromMachine(machine, 0);
@@ -314,8 +317,8 @@ export function estimatePresetBeforeParse(
     };
   }
   const env = process.env.KCA_PRESET?.trim().toLowerCase();
-  if (env === "speed" || env === "balanced" || env === "quality" || env === "custom") {
-    return { preset: env, source: "env" };
+  if (env === "speed" || env === "balanced" || env === "quality" || env === "ultra" || env === "custom") {
+    return { preset: env as AnalysisPresetName, source: "env" };
   }
   if (cli.worker === true || process.env.KCA_PROFILE === "fast") {
     return {

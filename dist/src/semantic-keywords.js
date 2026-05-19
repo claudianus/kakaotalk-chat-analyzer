@@ -2,19 +2,23 @@ import { kMeansAssignments, labelClustersFromTokens, normalizeVector } from "./e
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
-import { DEFAULT_KOREAN_SEMANTIC_MODEL, formatTextForEmbedding, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
+import { formatTextForEmbedding, semanticEmbeddingFallbackIds, semanticEmbeddingModelId, semanticSampleCap, subsampleSemanticMessages, } from "./semantic-policy.js";
 import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveEmbedBatchSize } from "./ml-batch-size.js";
-import { bundledMlModelsDir, isLocalBundledEmbedModel } from "./ml-bundled-models.js";
+import { isLocalBundledEmbedModel, isLocalBundledKureModel, withBundledOnnxSessionCwd, } from "./ml-bundled-models.js";
+import { resolveMlModelRootFor } from "./ml-bundle-cache.js";
 import { ensureCoreMlBundles } from "./ml-bundle-install.js";
+import { ensureSemanticEmbeddingBundle } from "./semantic-policy.js";
+import { BUNDLED_KURE_MODEL_ID } from "./ml-bundled-models.js";
 const MIN_SAMPLES = 48;
 let pipelinePromise = null;
 let loadedModelId = null;
 async function loadPipelineForModel(modelId) {
     return withQuietMlStderr(async () => {
         await ensureCoreMlBundles();
+        await ensureSemanticEmbeddingBundle();
         let mod;
         try {
             mod = await import("@xenova/transformers");
@@ -26,14 +30,25 @@ async function loadPipelineForModel(modelId) {
         const { pipeline } = mod;
         const gpu = await configureTransformersEnv(mod);
         const quantized = preferQuantizedModels(gpu);
-        if (isLocalBundledEmbedModel(modelId)) {
-            mod.env.localModelPath = bundledMlModelsDir();
+        if (isLocalBundledEmbedModel(modelId) || isLocalBundledKureModel(modelId)) {
+            const root = resolveMlModelRootFor(modelId);
+            if (root)
+                mod.env.localModelPath = root;
         }
         process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
         const load = () => pipeline("feature-extraction", modelId, {
             quantized,
         });
-        return isLocalBundledEmbedModel(modelId) ? load() : runWithHubMirrors(mod, load);
+        if (isLocalBundledEmbedModel(modelId))
+            return load();
+        if (isLocalBundledKureModel(modelId)) {
+            return withBundledOnnxSessionCwd(modelId, load);
+        }
+        if (modelId === BUNDLED_KURE_MODEL_ID) {
+            throw new Error("[kca] KURE 임베딩 번들이 없습니다. GitHub Release zip을 받거나 sync:ml-models로 export 하세요. " +
+                "끄려면 KCA_NO_KURE_DOWNLOAD=1");
+        }
+        return runWithHubMirrors(mod, load);
     });
 }
 async function loadPipeline(buildOptions, messageCount) {
@@ -43,18 +58,23 @@ async function loadPipeline(buildOptions, messageCount) {
     pipelinePromise = null;
     loadedModelId = modelId;
     pipelinePromise = (async () => {
-        try {
-            return await loadPipelineForModel(modelId);
+        const fallbacks = semanticEmbeddingFallbackIds(modelId);
+        let lastError;
+        for (let i = 0; i < fallbacks.length; i += 1) {
+            const candidate = fallbacks[i];
+            try {
+                if (i > 0) {
+                    const msg = lastError instanceof Error ? lastError.message : String(lastError);
+                    process.stderr.write(`[kca] 시맨틱 모델 ${fallbacks[i - 1]} 로드 실패 → ${candidate}: ${msg}\n`);
+                }
+                loadedModelId = candidate;
+                return await loadPipelineForModel(candidate);
+            }
+            catch (error) {
+                lastError = error;
+            }
         }
-        catch (error) {
-            const fallback = modelId === DEFAULT_KOREAN_SEMANTIC_MODEL ? null : DEFAULT_KOREAN_SEMANTIC_MODEL;
-            if (!fallback)
-                throw error;
-            const msg = error instanceof Error ? error.message : String(error);
-            process.stderr.write(`[kca] 시맨틱 모델 ${modelId} 로드 실패 → ${fallback}: ${msg}\n`);
-            loadedModelId = fallback;
-            return loadPipelineForModel(fallback);
-        }
+        throw lastError instanceof Error ? lastError : new Error(String(lastError));
     })();
     return pipelinePromise;
 }

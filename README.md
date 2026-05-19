@@ -198,22 +198,24 @@ kca --help
 | preset | 용도 | 90k 메시지 목표 | 시맨틱 | 감정 | LLM |
 |--------|------|-----------------|--------|------|-----|
 | `speed` | RAM·시간 최소 | ~3분 | 끔 | 끔 | 자동( RAM 허용 시 최대 Qwen3.5 ) |
-| `balanced` | 기본 권장 | ~5분 | KorSTS KoELECTRA | NSMC | 자동( RAM 허용 시 최대 Qwen3.5 ) |
-| `quality` | 한국어·서사 최대 | ~6분 | KoELECTRA embed | NSMC | 자동( RAM 허용 시 최대 Qwen3.5 ) |
+| `balanced` | 기본 권장 | ~5분 | KorSTS / RAM≥16GB·번들 없으면 embed | NSMC | 자동( RAM 허용 시 최대 Qwen3.5 ) |
+| `quality` | 한국어·서사 | ~6분 | KoELECTRA embed (번들 ONNX) | NSMC | 자동( 최소 2B, RAM 허용 시 최대 ) |
+| `ultra` | 품질 최대(32GB+) | ~9분 | embed + 임베딩 1500~1800건 | NSMC + 독성 ML | 자동( 최소 4B ) |
 | `custom` | 기능 직접 지정 | — | env/플래그 | env | 자동( `KCA_LLM=0` 만 끔 ) |
 
 ```bash
 kca capabilities                    # RAM·추천 preset
 kca ./chat.csv --preset balanced
 kca ./chat.csv --preset quality --local
+kca ./chat.csv --preset ultra --local
 kca llm pull                        # RAM 기준 자동 최대 Qwen3.5 GGUF
 kca llm pull 4B                     # 수동 size (없으면 분석 시 자동 다운로드)
 KCA_LLM_BACKEND=ollama kca ./chat.csv --preset custom
 ```
 
-환경 변수: `KCA_PRESET`, `KCA_SEMANTIC_MODEL`, `KCA_SENTIMENT_MODEL`, `KCA_LLM`(기본 on, `0`만 끔), `KCA_LLM_MODEL`(0.8B|2B|4B|9B), `KCA_LLM_BACKEND`, `KCA_LLM_GPU`(`auto`|`metal`|`none`, macOS Metal 호환), `KCA_LLM_GRAMMAR`(기본 on, `0`=prompt-only), `KCA_LLM_MIN_FREE_GB`(LLM 재시도 free RAM 하한, 기본 1.5), `KCA_OLLAMA_MODEL`, `KCA_LLM_MOCK`, `KCA_ONNX_GPU`, `KCA_EMBED_BATCH`, `KCA_SENTIMENT_BATCH`, `KCA_KIWI_WORKERS`, `KCA_NO_KIWI_WORKERS`, `KCA_PROFILE_PHASES`, `KCA_BENCH_CSV`, `KCA_KEYWORD_SUMMARY_TOP`, `KCA_SHOP_SEARCH_TOP`, `KCA_NO_ML_AUTO_INSTALL`, `KCA_SKIP_ML_POSTINSTALL`. (macOS 26 Metal tensor 이슈 시 `GGML_METAL_TENSOR_DISABLE=1` — `auto`에서 기본 설정)
+환경 변수: `KCA_PRESET`, `KCA_SEMANTIC_MODEL`(Hub id 오버라이드), `KCA_PREFER_BUNDLED_SEMANTIC`(기본 on), `KCA_NO_KURE_DOWNLOAD`(quality/ultra KURE zip lazy 끔), `KCA_SENTIMENT_MODEL`, `KCA_LLM`(기본 on, `0`만 끔), `KCA_LLM_MODEL`(0.8B|2B|4B|9B), `KCA_LLM_BACKEND`, `KCA_LLM_GPU`(`auto`|`metal`|`none`, macOS Metal 호환), `KCA_LLM_GRAMMAR`(기본 on, `0`=prompt-only), `KCA_LLM_MIN_FREE_GB`(LLM 재시도 free RAM 하한, 기본 1.5), `KCA_OLLAMA_MODEL`, `KCA_LLM_MOCK`, `KCA_ONNX_GPU`, `KCA_EMBED_BATCH`, `KCA_SENTIMENT_BATCH`, `KCA_KIWI_WORKERS`, `KCA_NO_KIWI_WORKERS`, `KCA_PROFILE_PHASES`, `KCA_BENCH_CSV`, `KCA_KEYWORD_SUMMARY_TOP`, `KCA_SHOP_SEARCH_TOP`, `KCA_NO_ML_AUTO_INSTALL`, `KCA_SKIP_ML_POSTINSTALL`. (macOS 26 Metal tensor 이슈 시 `GGML_METAL_TENSOR_DISABLE=1` — `auto`에서 기본 설정)
 
-**ML ONNX:** `npm install`·첫 분석 시 `kakaotalk-chat-analyzer-models`(감정 NSMC·임베딩) 자동 설치 시도. 없으면 Hub `daekeun-ml/koelectra-small-v3-nsmc` 등으로 폴백. 독성 ONNX는 필요 시 GitHub Release zip lazy(`KCA_NO_TOXICITY_DOWNLOAD=1`로 끔).
+**ML ONNX:** `npm install`·첫 분석 시 `kakaotalk-chat-analyzer-models`(감정 NSMC·KoELECTRA 임베딩) 자동 설치. **quality/ultra**는 가용 RAM≥14GB일 때 **KURE-v1** 로컬 ONNX(~2.1GB)를 GitHub Release zip으로 lazy 받음(`npm run sync:ml-models`로 export·`kca-kure-v1-onnx.zip` 업로드). 없으면 KoELECTRA embed로 폴백. 독성 ONNX도 Release zip lazy(`KCA_NO_TOXICITY_DOWNLOAD=1`, `KCA_NO_KURE_DOWNLOAD=1`).
 
 **속도(품질 유지):** 대용량 CSV는 Kiwi worker pool(`KCA_KIWI_WORKERS`, RAM≥8GB 기본 2–4)·시맨틱/감정을 키워드 패스와 겹쳐 실행. `KCA_PROFILE_PHASES=1`로 단계별 ms. quality에서 GPU 가속: `onnxruntime-node` 설치 후 `KCA_ONNX_GPU=metal`(macOS)·`cuda`(Linux)·`dml`(Windows).
 

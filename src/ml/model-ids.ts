@@ -12,6 +12,21 @@ export const HUB_KOELECTRA_EMBED = "monologg/koelectra-small-v3-discriminator";
 /** KorSTS 유사도 — balanced 시맨틱 */
 export const HUB_KOELECTRA_KORSTS = "daekeun-ml/koelectra-small-v3-korsts";
 
+/** 한국어 IR·임베딩 (ko-embedding-leaderboard 상위권) */
+export const HUB_KOREAN_KURE_V1 = "nlpai-lab/KURE-v1";
+
+/** 다국어·한국어 검색 임베딩 — ultra·고RAM */
+export const HUB_BGE_M3 = "BAAI/bge-m3";
+
+/** 가용 RAM(GB) 이상이면 Hub KURE-v1 (번들 대신) */
+export const SEMANTIC_HEADROOM_KURE_GB = 14;
+
+/** 가용 RAM(GB) 이상이면 Hub BGE-M3 (ultra) */
+export const SEMANTIC_HEADROOM_BGE_GB = 20;
+
+/** balanced에서 KURE Hub — 번들 유지 하한 */
+export const SEMANTIC_HEADROOM_KURE_BALANCED_GB = 16;
+
 /** 독성·공격 톤 (base) */
 export const HUB_KCELECTRA_TOXICITY = "monologg/koelectra-base-v3-discriminator";
 

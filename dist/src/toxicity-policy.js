@@ -20,7 +20,7 @@ export function resolveToxicityMl(options, prepass, sampleMessages) {
     if (options?.toxicityMl === true)
         return true;
     const preset = resolvePresetNameWithAuto(options, prepass.messageCount);
-    if (preset === "quality")
+    if (preset === "quality" || preset === "ultra")
         return true;
     return false;
 }

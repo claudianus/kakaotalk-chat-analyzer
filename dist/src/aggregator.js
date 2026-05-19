@@ -558,7 +558,9 @@ export class ReportAggregator {
         const graphTopics = this.topicMap.buildTopics(total, buildTopicStopwords());
         const keywordTopics = buildKeywordSeedTopics(keywords, keywordsDistinctive, total, this.topicMap);
         const semanticTopics = finalizeOpts?.useEmbeddingTopics && this.semanticThemeCandidates.length > 0
-            ? semanticItemsToTopics(this.semanticThemeCandidates, total)
+            ? semanticItemsToTopics(this.semanticThemeCandidates, total, {
+                max: finalizeOpts?.embeddingThemeCap,
+            })
             : [];
         let topics = mergeTopicLanes({ graph: graphTopics, keyword: keywordTopics, semantic: semanticTopics }, total);
         const burstDetectionMethod = resolveBurstDetectionMethod();

@@ -7,6 +7,12 @@ import {
   isBundledToxicityModelReady,
   resolveBundledSentimentModelId,
 } from "../ml-bundled-models.js";
+import { memoryHeadroomGb, probeMachineProfileSync } from "../analysis-capability.js";
+import type { AnalysisPresetName } from "../analysis-preset.js";
+import {
+  resolveDefaultSemanticHubId,
+  shouldPreferBundledSemantic,
+} from "../semantic-model-resolve.js";
 import {
   HUB_KCELECTRA_TOXICITY,
   HUB_KOELECTRA_EMBED,
@@ -54,12 +60,13 @@ export function resolveSentimentBundledId(): string {
   return resolveBundledSentimentModelId();
 }
 
-export function resolveEmbeddingModelId(preset: string | undefined): string {
+export function resolveEmbeddingModelId(preset?: string): string {
   const env = process.env.KCA_SEMANTIC_MODEL?.trim();
   if (env) return env;
-  if (isBundledEmbedModelReady()) return BUNDLED_EMBED_MODEL_ID;
-  if (preset === "quality") return HUB_KOELECTRA_EMBED;
-  return HUB_KOELECTRA_KORSTS;
+  const name = (preset ?? "balanced") as AnalysisPresetName;
+  const headroom = memoryHeadroomGb(probeMachineProfileSync());
+  if (shouldPreferBundledSemantic(name, headroom)) return BUNDLED_EMBED_MODEL_ID;
+  return resolveDefaultSemanticHubId(name, headroom);
 }
 
 export function resolveToxicityModelId(): string {

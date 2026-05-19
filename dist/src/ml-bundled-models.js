@@ -1,10 +1,10 @@
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
-import { isEmbedBundleReady, isSentimentBundleReady, isToxicityBundleReady, listMlModelRoots, resolveMlModelRootFor, } from "./ml-bundle-cache.js";
+import { BUNDLED_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
+import { isEmbedBundleReady, isKureBundleReady, isSentimentBundleReady, isToxicityBundleReady, listMlModelRoots, resolveMlModelRootFor, } from "./ml-bundle-cache.js";
 const PKG_DATA_ML = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data", "ml-models");
-export { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
+export { BUNDLED_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
 /** transformers `env.localModelPath` — 코어 번들(NSMC+embed)이 함께 있는 루트 우선 */
 export function bundledMlModelsDir() {
     for (const root of listMlModelRoots()) {
@@ -44,6 +44,26 @@ export function isBundledEmbedModelReady() {
 export function isBundledToxicityModelReady() {
     return isToxicityBundleReady();
 }
+export function isBundledKureModelReady() {
+    return isKureBundleReady();
+}
+/** ONNX 외부 가중치(model.onnx_data) — 세션 cwd를 onnx/ 로 맞춤 */
+export function hasBundledOnnxExternalData(modelId) {
+    return existsSync(join(bundledModelDir(modelId), "onnx", "model.onnx_data"));
+}
+export async function withBundledOnnxSessionCwd(modelId, fn) {
+    if (!hasBundledOnnxExternalData(modelId))
+        return fn();
+    const onnxDir = join(bundledModelDir(modelId), "onnx");
+    const prev = process.cwd();
+    process.chdir(onnxDir);
+    try {
+        return await fn();
+    }
+    finally {
+        process.chdir(prev);
+    }
+}
 /** 번들 ONNX가 있으면 transformers `env.localModelPath` 로 쓸 루트 */
 export function bundledMlModelsRoot() {
     if (isBundledSentimentModelReady() ||
@@ -61,5 +81,8 @@ export function isLocalBundledEmbedModel(modelId) {
 }
 export function isLocalBundledToxicityModel(modelId) {
     return modelId === BUNDLED_TOXICITY_MODEL_ID && isBundledToxicityModelReady();
+}
+export function isLocalBundledKureModel(modelId) {
+    return modelId === BUNDLED_KURE_MODEL_ID && isBundledKureModelReady();
 }
 //# sourceMappingURL=ml-bundled-models.js.map

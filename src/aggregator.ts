@@ -107,6 +107,7 @@ export interface FinalizeOptions {
   koreanPrimary?: boolean;
   useEmbeddingTopics?: boolean;
   semanticSupplementRrfWeight?: number;
+  embeddingThemeCap?: number;
 }
 
 /** 시맨틱 supplement messageHits 상한 — RRF 독점 방지 */
@@ -678,7 +679,9 @@ export class ReportAggregator {
     );
     const semanticTopics =
       finalizeOpts?.useEmbeddingTopics && this.semanticThemeCandidates.length > 0
-        ? semanticItemsToTopics(this.semanticThemeCandidates, total)
+        ? semanticItemsToTopics(this.semanticThemeCandidates, total, {
+            max: finalizeOpts?.embeddingThemeCap,
+          })
         : [];
     let topics = mergeTopicLanes(
       { graph: graphTopics, keyword: keywordTopics, semantic: semanticTopics },

@@ -1,5 +1,7 @@
 import { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, isBundledEmbedModelReady, isBundledSentimentModelReady, isBundledToxicityModelReady, resolveBundledSentimentModelId, } from "../ml-bundled-models.js";
-import { HUB_KCELECTRA_TOXICITY, HUB_KOELECTRA_EMBED, HUB_KOELECTRA_KORSTS, HUB_KOELECTRA_NSMC, } from "./model-ids.js";
+import { memoryHeadroomGb, probeMachineProfileSync } from "../analysis-capability.js";
+import { resolveDefaultSemanticHubId, shouldPreferBundledSemantic, } from "../semantic-model-resolve.js";
+import { HUB_KCELECTRA_TOXICITY, HUB_KOELECTRA_EMBED, HUB_KOELECTRA_NSMC, } from "./model-ids.js";
 export const ML_MODEL_REGISTRY = {
     sentiment: {
         task: "sentiment",
@@ -34,11 +36,11 @@ export function resolveEmbeddingModelId(preset) {
     const env = process.env.KCA_SEMANTIC_MODEL?.trim();
     if (env)
         return env;
-    if (isBundledEmbedModelReady())
+    const name = (preset ?? "balanced");
+    const headroom = memoryHeadroomGb(probeMachineProfileSync());
+    if (shouldPreferBundledSemantic(name, headroom))
         return BUNDLED_EMBED_MODEL_ID;
-    if (preset === "quality")
-        return HUB_KOELECTRA_EMBED;
-    return HUB_KOELECTRA_KORSTS;
+    return resolveDefaultSemanticHubId(name, headroom);
 }
 export function resolveToxicityModelId() {
     const env = process.env.KCA_TOXICITY_MODEL?.trim();

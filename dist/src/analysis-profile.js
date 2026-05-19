@@ -8,6 +8,15 @@ export function resolveAnalysisProfile(options, messageCount) {
     return "quality";
 }
 export function getAnalysisProfileSettings(options, messageCount) {
+    const preset = getPresetEffectiveFlags(options, messageCount).preset;
+    if (preset === "ultra") {
+        return {
+            profile: "quality",
+            useEmbeddingTopics: process.env.KCA_EMBEDDING_TOPICS !== "0",
+            semanticSupplementRrfWeight: 0.62,
+            semanticClusterMinCoherence: 0.36,
+        };
+    }
     const profile = resolveAnalysisProfile(options, messageCount);
     if (profile === "fast") {
         return {

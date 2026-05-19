@@ -24,8 +24,11 @@ export function topicMinThemesLargeCorpus(): number {
   return 4;
 }
 
-export function embeddingThemeMax(): number {
+export function embeddingThemeMax(preset?: string): number {
   const n = Number(process.env.KCA_EMBEDDING_TOPIC_MAX);
   if (Number.isFinite(n) && n >= 1) return Math.min(Math.floor(n), 12);
-  return 10;
+  if (preset === "ultra") return 12;
+  if (preset === "quality") return 10;
+  if (preset === "balanced") return 8;
+  return 8;
 }

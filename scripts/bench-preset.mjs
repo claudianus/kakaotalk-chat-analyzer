@@ -21,6 +21,7 @@ const SLA_MS = {
   speed: 180_000,
   balanced: 300_000,
   quality: 360_000,
+  ultra: 540_000,
 };
 
 function resolveFixture() {
@@ -57,7 +58,7 @@ async function main() {
       preset,
       progress: false,
       semanticKeywords: preset !== "speed",
-      sentiment: preset === "quality",
+      sentiment: preset === "quality" || preset === "ultra",
     });
   } finally {
     if (prevSemantic === undefined) delete process.env.KCA_NO_SEMANTIC;

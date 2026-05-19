@@ -13,6 +13,7 @@ export interface FinalizeOptions {
     koreanPrimary?: boolean;
     useEmbeddingTopics?: boolean;
     semanticSupplementRrfWeight?: number;
+    embeddingThemeCap?: number;
 }
 /** 시맨틱 supplement messageHits 상한 — RRF 독점 방지 */
 export declare function semanticSupplementHitCap(corpusMessages: number): number;

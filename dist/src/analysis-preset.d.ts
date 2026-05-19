@@ -1,7 +1,7 @@
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { type MachineProfile } from "./analysis-capability.js";
 import type { AnalysisProfile } from "./analysis-profile.js";
-export type AnalysisPresetName = "speed" | "balanced" | "quality" | "custom";
+export type AnalysisPresetName = "speed" | "balanced" | "quality" | "ultra" | "custom";
 export interface PresetEffectiveFlags {
     preset: AnalysisPresetName;
     profile: AnalysisProfile;

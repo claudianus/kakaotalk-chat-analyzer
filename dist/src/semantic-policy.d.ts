@@ -11,6 +11,9 @@ export declare const DEFAULT_KOREAN_SEMANTIC_MODEL = "daekeun-ml/koelectra-small
 /** quality — discriminator feature-extraction Hub */
 export declare const QUALITY_KOREAN_SEMANTIC_MODEL = "monologg/koelectra-small-v3-discriminator";
 export declare function semanticEmbeddingModelId(options?: BuildReportOptions, messageCount?: number): string;
+/** quality·ultra — KURE zip lazy 다운로드 시도 (실패 시 KoELECTRA embed 폴백) */
+export declare function ensureSemanticEmbeddingBundle(options?: BuildReportOptions, messageCount?: number): Promise<void>;
+export { semanticEmbeddingFallbackIds } from "./semantic-model-resolve.js";
 /** KoELECTRA는 E5 query 접두사 불필요 */
 export declare function needsE5QueryPrefix(modelId: string): boolean;
 export declare function formatTextForEmbedding(text: string, modelId?: string): string;
@@ -21,5 +24,5 @@ export declare function shouldCollectSemanticSamples(messageCount: number): bool
  * - `KCA_NO_SEMANTIC=1` / `--no-semantic-keywords` 로 끔
  */
 export declare function resolveSemanticKeywords(options: BuildReportOptions | undefined, prepass: HeuristicPrepassCollector, sampleMessages: string[]): boolean;
-/** preset·환경에 따른 임베딩 상한 (balanced 600 / quality 1200) */
+/** preset·환경에 따른 임베딩 상한 (balanced 600~900 / quality 1200 / ultra 1800) */
 export declare function effectiveSemanticSampleCap(messageCount: number, options?: BuildReportOptions): number;

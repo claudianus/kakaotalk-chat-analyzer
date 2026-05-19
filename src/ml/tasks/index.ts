@@ -1,7 +1,9 @@
 import type { BuildReportOptions } from "../../analyze-pool.js";
 import { memoryHeadroomGb, probeMachineProfileSync } from "../../analysis-capability.js";
 import { ensureCoreMlBundles } from "../../ml-bundle-install.js";
-import { ensureToxicityBundle } from "../../ml-bundle-cache.js";
+import { ensureKureBundle, ensureToxicityBundle } from "../../ml-bundle-cache.js";
+import { BUNDLED_KURE_MODEL_ID } from "../../ml-bundle-ids.js";
+import { semanticEmbeddingModelId } from "../../semantic-policy.js";
 import { preloadSentimentPipeline } from "./sentiment.js";
 import { preloadSemanticPipeline } from "./embedding.js";
 import { preloadToxicityPipeline } from "../../toxicity-analyze.js";
@@ -33,6 +35,15 @@ export async function preloadUtteranceMlTasks(opts: PreloadUtteranceMlTasksOptio
       const msg = error instanceof Error ? error.message : String(error);
       process.stderr.write(`[kca] 독성 번들 준비 건너뜀: ${msg}\n`);
     });
+  }
+  if (opts.semantic) {
+    const semanticModel = semanticEmbeddingModelId(opts.buildOptions, opts.messageCount);
+    if (semanticModel === BUNDLED_KURE_MODEL_ID) {
+      await ensureKureBundle().catch((error) => {
+        const msg = error instanceof Error ? error.message : String(error);
+        process.stderr.write(`[kca] KURE 번들 준비 건너뜀: ${msg}\n`);
+      });
+    }
   }
 
   const sequential = memoryHeadroomGb(probeMachineProfileSync()) < 12;
