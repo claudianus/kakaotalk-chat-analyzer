@@ -1,5 +1,11 @@
 import { memoryHeadroomGb, probeMachineProfileSync } from "./analysis-capability.js";
+import { semanticEmbeddingModelId } from "./semantic-policy.js";
 import { probeOnnxGpu } from "./ml-runtime.js";
+
+function isHeavySemanticModel(modelId: string): boolean {
+  const id = modelId.toLowerCase();
+  return id.includes("bge-m3") || id.includes("kure");
+}
 
 function envInt(name: string): number | undefined {
   const raw = process.env[name]?.trim();
@@ -9,7 +15,7 @@ function envInt(name: string): number | undefined {
 }
 
 /** 임베딩·감정 ONNX 배치 — RAM·GPU·env override */
-export function resolveEmbedBatchSize(): number {
+export function resolveEmbedBatchSize(semanticModelId?: string): number {
   const forced = envInt("KCA_EMBED_BATCH");
   if (forced) return Math.min(128, forced);
 
@@ -18,6 +24,10 @@ export function resolveEmbedBatchSize(): number {
   let batch = headroom >= 20 ? 32 : headroom >= 12 ? 24 : headroom >= 8 ? 16 : 12;
   const gpu = process.env.KCA_ONNX_GPU?.trim().toLowerCase();
   if (gpu && gpu !== "none" && gpu !== "cpu") batch = Math.min(64, batch * 2);
+  const embedModel = semanticModelId ?? semanticEmbeddingModelId();
+  if (isHeavySemanticModel(embedModel)) {
+    batch = Math.min(batch, headroom >= 24 ? 12 : 8);
+  }
   return batch;
 }
 
@@ -34,7 +44,7 @@ export function resolveSentimentBatchSize(): number {
 }
 
 /** 프로파일·GPU 반영 배치 (비동기 GPU 프로브) */
-export async function resolveEmbedBatchSizeAsync(): Promise<number> {
+export async function resolveEmbedBatchSizeAsync(semanticModelId?: string): Promise<number> {
   const forced = envInt("KCA_EMBED_BATCH");
   if (forced) return Math.min(128, forced);
 
@@ -43,5 +53,9 @@ export async function resolveEmbedBatchSizeAsync(): Promise<number> {
   const gpu = await probeOnnxGpu();
   let batch = headroom >= 20 ? 32 : headroom >= 12 ? 24 : headroom >= 8 ? 16 : 12;
   if (gpu !== "none") batch = Math.min(64, batch * 2);
+  const embedModel = semanticModelId ?? semanticEmbeddingModelId();
+  if (isHeavySemanticModel(embedModel)) {
+    batch = Math.min(batch, headroom >= 24 ? 12 : 8);
+  }
   return batch;
 }

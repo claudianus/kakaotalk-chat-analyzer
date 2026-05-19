@@ -53,7 +53,7 @@ function registerPipelineOptions(cmd) {
         .option("--worker", "3MB 이상 CSV를 Worker 스레드로 집계합니다(빠름). 기본은 품질 우선(메인 스레드).", false)
         .option("--no-worker", "Worker를 쓰지 않고 메인 스레드에서 집계합니다(기본과 동일).", false)
         .option("--fast", "속도 우선(deprecated). --preset speed 와 동일.", false)
-        .option("--preset <name>", "분석 preset: speed | balanced | quality | custom (미지정 시 RAM·코퍼스 자동)")
+        .option("--preset <name>", "분석 preset: speed | balanced | quality | ultra | custom (미지정 시 RAM·코퍼스 자동)")
         .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
         .option("--no-semantic-keywords", "한국어 방 기본 시맨틱 키워드(KoELECTRA 임베딩)를 끕니다.", false)
         .option("--semantic-keywords", "한국어 비중과 관계없이 시맨틱 키워드를 강제합니다(e5-small, 최초 다운로드).", false)
@@ -287,10 +287,11 @@ function parsePresetOption(preset, fast) {
     if (fast)
         return "speed";
     const p = preset?.trim().toLowerCase();
-    if (p === "speed" || p === "balanced" || p === "quality" || p === "custom")
+    if (p === "speed" || p === "balanced" || p === "quality" || p === "ultra" || p === "custom")
         return p;
-    if (preset?.trim())
-        throw new Error(`지원하지 않는 preset: "${preset}". speed|balanced|quality|custom`);
+    if (preset?.trim()) {
+        throw new Error(`지원하지 않는 preset: "${preset}". speed|balanced|quality|ultra|custom`);
+    }
     return undefined;
 }
 function buildPipelineOptions(options) {

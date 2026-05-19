@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { HeuristicPrepassCollector } from "../src/export-prepass.js";
 import { BUNDLED_EMBED_MODEL_ID, isBundledEmbedModelReady } from "../src/ml-bundled-models.js";
-import { HUB_KOELECTRA_EMBED, HUB_KOELECTRA_KORSTS } from "../src/ml/model-ids.js";
+import { HUB_KOELECTRA_EMBED, HUB_KOELECTRA_KORSTS, HUB_KOREAN_KURE_V1 } from "../src/ml/model-ids.js";
+import { resolveDefaultSemanticHubId, shouldPreferBundledSemantic } from "../src/semantic-model-resolve.js";
 import {
   DEFAULT_KOREAN_SEMANTIC_MODEL,
   QUALITY_KOREAN_SEMANTIC_MODEL,
@@ -31,24 +32,27 @@ describe("semantic-policy", () => {
     }
   });
 
-  it("quality preset selects KoELECTRA embed Hub when bundle absent", () => {
-    const prev = process.env.KCA_SEMANTIC_MODEL;
+  it("quality and ultra presets select KoELECTRA embed Hub when bundle absent", () => {
+    const prevModel = process.env.KCA_SEMANTIC_MODEL;
     delete process.env.KCA_SEMANTIC_MODEL;
     try {
       if (!isBundledEmbedModelReady()) {
-        assert.equal(semanticEmbeddingModelId({ preset: "quality" }), HUB_KOELECTRA_EMBED);
+        assert.equal(resolveDefaultSemanticHubId("quality", 14), HUB_KOELECTRA_EMBED);
+        assert.equal(resolveDefaultSemanticHubId("ultra", 20), HUB_KOELECTRA_EMBED);
         assert.equal(QUALITY_KOREAN_SEMANTIC_MODEL, HUB_KOELECTRA_EMBED);
       }
     } finally {
-      if (prev === undefined) delete process.env.KCA_SEMANTIC_MODEL;
-      else process.env.KCA_SEMANTIC_MODEL = prev;
+      if (prevModel === undefined) delete process.env.KCA_SEMANTIC_MODEL;
+      else process.env.KCA_SEMANTIC_MODEL = prevModel;
     }
   });
 
-  it("uses bundled embed for all presets when onnx present", () => {
+  it("prefers bundled embed when RAM below hub tier", () => {
     if (!isBundledEmbedModelReady()) return;
-    assert.equal(semanticEmbeddingModelId({ preset: "quality" }), BUNDLED_EMBED_MODEL_ID);
-    assert.equal(semanticEmbeddingModelId({ preset: "balanced" }), BUNDLED_EMBED_MODEL_ID);
+    assert.equal(shouldPreferBundledSemantic("balanced", 12), true);
+    assert.equal(shouldPreferBundledSemantic("quality", 12), true);
+    assert.equal(shouldPreferBundledSemantic("ultra", 12), true);
+    assert.equal(shouldPreferBundledSemantic("quality", 16), true);
   });
 
   it("needsE5QueryPrefix is false for KoELECTRA", () => {
@@ -56,6 +60,8 @@ describe("semantic-policy", () => {
     assert.equal(needsE5QueryPrefix(HUB_KOELECTRA_EMBED), false);
     assert.equal(needsE5QueryPrefix(BUNDLED_EMBED_MODEL_ID), false);
     assert.equal(needsE5QueryPrefix("Xenova/multilingual-e5-small"), true);
+    assert.equal(needsE5QueryPrefix("nlpai-lab/KURE-v1"), true);
+    assert.equal(needsE5QueryPrefix("BAAI/bge-m3"), true);
   });
 
   it("semanticSampleCap scales with corpus size", () => {

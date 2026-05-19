@@ -47,6 +47,22 @@ test("autoPresetFromMachine picks quality on 16GB and small corpus", () => {
   assert.equal(autoPresetFromMachine(richMachine, 10_000), "quality");
 });
 
+const ultraMachine: MachineProfile = {
+  totalMemGb: 48,
+  freeMemGb: 12,
+  availableMemGb: 20,
+  cpuCores: 10,
+  platform: "darwin",
+  arch: "arm64",
+  gpu: "none",
+};
+
+test("autoPresetFromMachine picks ultra when RAM headroom >= 18GB", () => {
+  assert.equal(autoPresetFromMachine(ultraMachine, 50_000), "ultra");
+  assert.equal(autoPresetFromMachine(ultraMachine, 95_000), "quality");
+  assert.equal(autoPresetFromMachine(ultraMachine, 135_000), "balanced");
+});
+
 test("autoPresetFromMachine picks quality on 32GB until very large corpus", () => {
   assert.equal(autoPresetFromMachine(richMachine, 90_000), "quality");
   assert.equal(autoPresetFromMachine(richMachine, 125_000), "balanced");
@@ -54,8 +70,9 @@ test("autoPresetFromMachine picks quality on 32GB until very large corpus", () =
 
 test("autoPresetFromMachine uses available not free on macOS cache", () => {
   assert.equal(autoPresetFromMachine(macCachedMemory, 90_000), "quality");
-  assert.equal(autoPresetFromMachine(macCachedMemory, 10_000), "quality");
-  assert.equal(autoPresetFromMachine(macCachedMemory, 125_000), "balanced");
+  assert.equal(autoPresetFromMachine(macCachedMemory, 10_000), "ultra");
+  assert.equal(autoPresetFromMachine(macCachedMemory, 125_000), "quality");
+  assert.equal(autoPresetFromMachine(macCachedMemory, 140_000), "balanced");
 });
 
 test("getPresetEffectiveFlags maps balanced semantic cap and auto LLM", () => {
@@ -71,9 +88,16 @@ test("getPresetEffectiveFlags maps balanced semantic cap and auto LLM", () => {
   }
 });
 
-test("presetForcesSentimentOff blocks speed; quality is never forced off", () => {
+test("getPresetEffectiveFlags ultra semantic cap scales with RAM", () => {
+  const flags = getPresetEffectiveFlags({ preset: "ultra" });
+  assert.equal(flags.preset, "ultra");
+  assert.ok(flags.semanticCap === 1500 || flags.semanticCap === 1800);
+});
+
+test("presetForcesSentimentOff blocks speed; quality and ultra are never forced off", () => {
   assert.equal(presetForcesSentimentOff({ preset: "speed" }), true);
   assert.equal(presetForcesSentimentOff({ preset: "quality" }), false);
+  assert.equal(presetForcesSentimentOff({ preset: "ultra" }), false);
 });
 
 test("resolvePresetName maps --fast legacy to speed via worker", () => {

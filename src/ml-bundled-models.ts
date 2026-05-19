@@ -3,11 +3,13 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   BUNDLED_EMBED_MODEL_ID,
+  BUNDLED_KURE_MODEL_ID,
   BUNDLED_SENTIMENT_MODEL_ID,
   BUNDLED_TOXICITY_MODEL_ID,
 } from "./ml-bundle-ids.js";
 import {
   isEmbedBundleReady,
+  isKureBundleReady,
   isSentimentBundleReady,
   isToxicityBundleReady,
   listMlModelRoots,
@@ -24,6 +26,7 @@ const PKG_DATA_ML = join(
 
 export {
   BUNDLED_EMBED_MODEL_ID,
+  BUNDLED_KURE_MODEL_ID,
   BUNDLED_SENTIMENT_MODEL_ID,
   BUNDLED_TOXICITY_MODEL_ID,
 } from "./ml-bundle-ids.js";
@@ -72,6 +75,40 @@ export function isBundledToxicityModelReady(): boolean {
   return isToxicityBundleReady();
 }
 
+export function isBundledKureModelReady(): boolean {
+  return isKureBundleReady();
+}
+
+/** ONNX 외부 가중치(model.onnx_data) — 세션 cwd를 onnx/ 로 맞춤 */
+export function hasBundledOnnxExternalData(modelId: string): boolean {
+  return existsSync(join(bundledModelDir(modelId), "onnx", "model.onnx_data"));
+}
+
+let onnxSessionCwdChain: Promise<unknown> = Promise.resolve();
+
+/** ORT external data는 model.onnx 기준 상대 경로 — 직렬화된 chdir */
+export async function withBundledOnnxSessionCwd<T>(
+  modelId: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  if (!hasBundledOnnxExternalData(modelId)) return fn();
+  const run = onnxSessionCwdChain.then(async () => {
+    const onnxDir = join(bundledModelDir(modelId), "onnx");
+    const prev = process.cwd();
+    process.chdir(onnxDir);
+    try {
+      return await fn();
+    } finally {
+      process.chdir(prev);
+    }
+  });
+  onnxSessionCwdChain = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run as Promise<T>;
+}
+
 /** 번들 ONNX가 있으면 transformers `env.localModelPath` 로 쓸 루트 */
 export function bundledMlModelsRoot(): string | undefined {
   if (
@@ -94,4 +131,8 @@ export function isLocalBundledEmbedModel(modelId: string): boolean {
 
 export function isLocalBundledToxicityModel(modelId: string): boolean {
   return modelId === BUNDLED_TOXICITY_MODEL_ID && isBundledToxicityModelReady();
+}
+
+export function isLocalBundledKureModel(modelId: string): boolean {
+  return modelId === BUNDLED_KURE_MODEL_ID && isBundledKureModelReady();
 }

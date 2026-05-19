@@ -27,6 +27,8 @@ export interface ResolveLlmRunPlanInput {
 }
 /** RAM 에 맞는 최대 Qwen3.5 (9B→4B→2B→0.8B) */
 export declare function pickLargestQwen35ForRam(headroomGb: number): Qwen35Size | undefined;
+/** preset 최소 티어 — RAM 부족 시 가능한 최대만 */
+export declare function pickQwen35ForPreset(preset: AnalysisPresetName, headroomGb: number): Qwen35Size | undefined;
 export declare function resolveLlmRunPlan(input: ResolveLlmRunPlanInput): LlmRunPlan;
 export declare function isLlmAutoEnabled(): boolean;
 /** LLM 재시도·reprompt 전 free RAM 하한 — `KCA_LLM_MIN_FREE_GB` */

@@ -55,9 +55,18 @@ export function analysisBudgetMs(
 ): number {
   const headroom = memoryHeadroomGb(profile);
   let cap =
-    preset === "speed" ? 180_000 : preset === "balanced" ? 300_000 : preset === "quality" ? 360_000 : 300_000;
+    preset === "speed"
+      ? 180_000
+      : preset === "balanced"
+        ? 300_000
+        : preset === "quality"
+          ? 360_000
+          : preset === "ultra"
+            ? 480_000
+            : 300_000;
   if (headroom >= 16) {
-    if (preset === "quality") cap = 420_000;
+    if (preset === "ultra") cap = 540_000;
+    else if (preset === "quality") cap = 420_000;
     else if (preset === "balanced") cap = 360_000;
     else if (preset === "speed") cap = 210_000;
   }
@@ -75,7 +84,15 @@ export function estimateAnalysisSeconds(
   const headroom = memoryHeadroomGb(profile);
   const memFactor = headroom < 6 ? 1.4 : headroom < 12 ? 1.1 : 1;
   const presetFactor =
-    preset === "speed" ? 0.55 : preset === "balanced" ? 1 : preset === "quality" ? 1.45 : 1.1;
+    preset === "speed"
+      ? 0.55
+      : preset === "balanced"
+        ? 1
+        : preset === "quality"
+          ? 1.45
+          : preset === "ultra"
+            ? 1.85
+            : 1.1;
   return Math.max(1, Math.round(base * memFactor * presetFactor));
 }
 
@@ -91,7 +108,7 @@ export function formatCapabilitiesReport(
   if (opts?.preset) {
     lines.push(`Preset: ${opts.preset}`);
     const llmPlan = resolveLlmRunPlan({
-      preset: opts.preset as "speed" | "balanced" | "quality" | "custom",
+      preset: opts.preset as "speed" | "balanced" | "quality" | "ultra" | "custom",
       profile,
       messageCount: opts.messageCount,
     });

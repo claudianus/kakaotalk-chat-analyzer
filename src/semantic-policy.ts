@@ -2,8 +2,15 @@ import type { HeuristicPrepassCollector } from "./export-prepass.js";
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { getPresetEffectiveFlags, presetForcesSemanticOff } from "./analysis-preset.js";
-import { BUNDLED_EMBED_MODEL_ID, isBundledEmbedModelReady } from "./ml-bundled-models.js";
+import { memoryHeadroomGb, probeMachineProfileSync } from "./analysis-capability.js";
 import { HUB_KOELECTRA_EMBED, HUB_KOELECTRA_KORSTS } from "./ml/model-ids.js";
+import {
+  resolveBundledSemanticModelId,
+  resolveDefaultSemanticHubId,
+  shouldPreferBundledKure,
+  shouldPreferBundledSemantic,
+} from "./semantic-model-resolve.js";
+import { ensureKureBundle } from "./ml-bundle-cache.js";
 
 const MIN_SEMANTIC_MESSAGES = 48;
 
@@ -56,17 +63,32 @@ export function semanticEmbeddingModelId(
   const env = process.env.KCA_SEMANTIC_MODEL?.trim();
   if (env) return env;
   const preset = getPresetEffectiveFlags(options, messageCount).preset;
-  if (isBundledEmbedModelReady()) return BUNDLED_EMBED_MODEL_ID;
-  if (preset === "quality") return HUB_KOELECTRA_EMBED;
-  return HUB_KOELECTRA_KORSTS;
+  const headroom = memoryHeadroomGb(probeMachineProfileSync());
+  if (shouldPreferBundledSemantic(preset, headroom)) {
+    return resolveBundledSemanticModelId(preset, headroom);
+  }
+  return resolveDefaultSemanticHubId(preset, headroom);
 }
+
+/** quality·ultra — KURE zip lazy 다운로드 시도 (실패 시 KoELECTRA embed 폴백) */
+export async function ensureSemanticEmbeddingBundle(
+  options?: BuildReportOptions,
+  messageCount?: number,
+): Promise<void> {
+  const preset = getPresetEffectiveFlags(options, messageCount).preset;
+  const headroom = memoryHeadroomGb(probeMachineProfileSync());
+  if (!shouldPreferBundledKure(preset, headroom)) return;
+  await ensureKureBundle();
+}
+
+export { semanticEmbeddingFallbackIds } from "./semantic-model-resolve.js";
 
 /** KoELECTRA는 E5 query 접두사 불필요 */
 export function needsE5QueryPrefix(modelId: string): boolean {
   const id = modelId.toLowerCase();
   if (id.includes("koelectra") || id.startsWith("kca-koelectra")) return false;
   if (id.includes("minilm") || id.includes("paraphrase-multilingual")) return false;
-  return id.includes("e5") || id.includes("koe5");
+  return id.includes("e5") || id.includes("koe5") || id.includes("bge") || id.includes("kure");
 }
 
 export function formatTextForEmbedding(text: string, modelId?: string): string {
@@ -102,7 +124,7 @@ export function resolveSemanticKeywords(
   return isPrimarilyKoreanMessages(sampleMessages);
 }
 
-/** preset·환경에 따른 임베딩 상한 (balanced 600 / quality 1200) */
+/** preset·환경에 따른 임베딩 상한 (balanced 600~900 / quality 1200 / ultra 1800) */
 export function effectiveSemanticSampleCap(
   messageCount: number,
   options?: BuildReportOptions,

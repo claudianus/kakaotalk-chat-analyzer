@@ -15,7 +15,7 @@ export interface BuildReportOptions {
     toxicityMl?: boolean;
     /** YYYY-MM-DD — 이 날짜(포함) 이후 메시지만 집계 */
     since?: string;
-    /** speed | balanced | quality | custom — 미지정 시 RAM·코퍼스 기반 자동 */
+    /** speed | balanced | quality | ultra | custom — 미지정 시 RAM·코퍼스 기반 자동 */
     preset?: AnalysisPresetName;
 }
 export declare function shouldUseAnalyzeWorker(filePath: string, options?: BuildReportOptions): Promise<boolean>;

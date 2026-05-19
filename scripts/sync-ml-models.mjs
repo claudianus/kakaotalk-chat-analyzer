@@ -13,6 +13,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const TOXICITY_ONNX_ASSET = "kca-kcelectra-base-toxicity-onnx.zip";
+const KURE_ONNX_ASSET = "kca-kure-v1-onnx.zip";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MODEL_ROOTS = [
@@ -36,10 +37,17 @@ const EXPORTS = [
     source: "monologg/koelectra-base-v3-discriminator",
     task: "text-classification",
   },
+  {
+    id: "kca-kure-v1",
+    source: "nlpai-lab/KURE-v1",
+    task: "feature-extraction",
+  },
 ];
 
-/** npm `kakaotalk-chat-analyzer-models` tarball (~110MB) */
-const NPM_EXPORTS = EXPORTS.filter((e) => e.id !== "kca-kcelectra-base-toxicity");
+/** npm `kakaotalk-chat-analyzer-models` tarball (~110MB) — toxicity·KURE는 Release zip만 */
+const NPM_EXPORTS = EXPORTS.filter(
+  (e) => e.id !== "kca-kcelectra-base-toxicity" && e.id !== "kca-kure-v1",
+);
 
 function optimumCli() {
   const venv = join(root, ".venv-ml", "bin", "optimum-cli");
@@ -47,18 +55,20 @@ function optimumCli() {
   return "optimum-cli";
 }
 
-/** @xenova/transformers 는 onnx/model.onnx 경로를 기대 */
+/** @xenova/transformers 는 onnx/model.onnx (+ 외부 가중치 model.onnx_data) 경로를 기대 */
 function fixOnnxLayout(modelDir) {
-  const flat = join(modelDir, "model.onnx");
   const nestedDir = join(modelDir, "onnx");
-  const nested = join(nestedDir, "model.onnx");
-  if (!existsSync(flat)) return;
   mkdirSync(nestedDir, { recursive: true });
-  cpSync(flat, nested);
-  try {
-    unlinkSync(flat);
-  } catch {
-    /* ignore */
+  for (const name of ["model.onnx", "model.onnx_data"]) {
+    const flat = join(modelDir, name);
+    const nested = join(nestedDir, name);
+    if (!existsSync(flat) || existsSync(nested)) continue;
+    cpSync(flat, nested);
+    try {
+      unlinkSync(flat);
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -116,10 +126,11 @@ function syncManifest(modelsRoot, entries, version = "0.2.0") {
 }
 
 function pruneModelsPackage(modelsRoot) {
-  const toxic = join(modelsRoot, "kca-kcelectra-base-toxicity");
-  if (existsSync(toxic)) {
-    rmSync(toxic, { recursive: true, force: true });
-    console.log(`[sync:ml-models] removed toxicity from npm package tree: ${modelsRoot}`);
+  for (const id of ["kca-kcelectra-base-toxicity", "kca-kure-v1"]) {
+    const dir = join(modelsRoot, id);
+    if (!existsSync(dir)) continue;
+    rmSync(dir, { recursive: true, force: true });
+    console.log(`[sync:ml-models] removed ${id} from npm package tree: ${modelsRoot}`);
   }
 }
 
@@ -134,6 +145,29 @@ function copyNpmModelsToPackage(primaryRoot, secondaryRoot) {
     cpSync(src, dest, { recursive: true });
     console.log(`[sync:ml-models] copied ${entry.id} → ${secondaryRoot}`);
   }
+}
+
+function createKureReleaseZip(primaryRoot) {
+  const kureId = "kca-kure-v1";
+  const kureDir = join(primaryRoot, kureId);
+  const onnx = join(kureDir, "onnx", "model.onnx");
+  const onnxData = join(kureDir, "onnx", "model.onnx_data");
+  if (!existsSync(onnx) || !existsSync(onnxData)) {
+    console.warn("[sync:ml-models] KURE ONNX missing; skip release zip");
+    return null;
+  }
+  const zipPath = join(root, KURE_ONNX_ASSET);
+  if (existsSync(zipPath)) rmSync(zipPath, { force: true });
+  const run = spawnSync("zip", ["-r", zipPath, kureId], {
+    cwd: primaryRoot,
+    encoding: "utf8",
+  });
+  if (run.status !== 0) {
+    console.error("[sync:ml-models] KURE zip failed:", run.stderr || run.stdout);
+    return null;
+  }
+  console.log(`[sync:ml-models] release asset: ${zipPath}`);
+  return zipPath;
 }
 
 function createToxicityReleaseZip(primaryRoot) {
@@ -171,6 +205,7 @@ function main() {
   copyNpmModelsToPackage(primaryRoot, MODEL_ROOTS[1]);
   syncManifest(MODEL_ROOTS[1], NPM_EXPORTS);
   createToxicityReleaseZip(primaryRoot);
+  createKureReleaseZip(primaryRoot);
   const totalMb = spawnSync("du", ["-sh", primaryRoot], { encoding: "utf8" });
   console.log(`[sync:ml-models] root=${primaryRoot} exported=${exported}/${EXPORTS.length} size=${(totalMb.stdout || "").trim()}`);
   if (exported < EXPORTS.length) {

@@ -5,6 +5,7 @@ import {
   llmPhaseReserveMs,
   memoryHeadroomForLlmLoad,
   pickLargestQwen35ForRam,
+  pickQwen35ForPreset,
   resolveLlmRunPlan,
 } from "../src/llm-resolve.js";
 import { parseQwen35Size } from "../src/llm-qwen35.js";
@@ -80,6 +81,13 @@ test("legacy KCA_LLM_MODEL=8b maps to 9B", () => {
     if (prev === undefined) delete process.env.KCA_LLM_MODEL;
     else process.env.KCA_LLM_MODEL = prev;
   }
+});
+
+test("pickQwen35ForPreset enforces minimum 4B on ultra when RAM allows", () => {
+  assert.equal(pickQwen35ForPreset("ultra", 9), "4B");
+  assert.equal(pickQwen35ForPreset("ultra", 15), "9B");
+  assert.equal(pickQwen35ForPreset("quality", 9), "4B");
+  assert.equal(pickQwen35ForPreset("balanced", 9), "4B");
 });
 
 test("speed and balanced presets enable LLM when RAM allows", () => {

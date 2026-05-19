@@ -4,8 +4,8 @@ import type { KeywordRankItem } from "./keyword-rank.js";
 import { canonicalKeywordToken } from "./keyword-canonical.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
 import {
-  DEFAULT_KOREAN_SEMANTIC_MODEL,
   formatTextForEmbedding,
+  semanticEmbeddingFallbackIds,
   semanticEmbeddingModelId,
   semanticSampleCap,
   subsampleSemanticMessages,
@@ -15,8 +15,15 @@ import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveEmbedBatchSize } from "./ml-batch-size.js";
-import { bundledMlModelsDir, isLocalBundledEmbedModel } from "./ml-bundled-models.js";
+import {
+  isLocalBundledEmbedModel,
+  isLocalBundledKureModel,
+  withBundledOnnxSessionCwd,
+} from "./ml-bundled-models.js";
+import { resolveMlModelRootFor } from "./ml-bundle-cache.js";
 import { ensureCoreMlBundles } from "./ml-bundle-install.js";
+import { ensureSemanticEmbeddingBundle } from "./semantic-policy.js";
+import { BUNDLED_KURE_MODEL_ID } from "./ml-bundled-models.js";
 
 const MIN_SAMPLES = 48;
 
@@ -28,9 +35,14 @@ type FeaturePipeline = (
 let pipelinePromise: Promise<FeaturePipeline> | null = null;
 let loadedModelId: string | null = null;
 
-async function loadPipelineForModel(modelId: string): Promise<FeaturePipeline> {
+async function loadPipelineForModel(
+  modelId: string,
+  buildOptions?: BuildReportOptions,
+  messageCount?: number,
+): Promise<FeaturePipeline> {
   return withQuietMlStderr(async () => {
     await ensureCoreMlBundles();
+    await ensureSemanticEmbeddingBundle(buildOptions, messageCount);
     let mod: typeof import("@xenova/transformers");
     try {
       mod = await import("@xenova/transformers");
@@ -43,8 +55,9 @@ async function loadPipelineForModel(modelId: string): Promise<FeaturePipeline> {
     const { pipeline } = mod;
     const gpu = await configureTransformersEnv(mod);
     const quantized = preferQuantizedModels(gpu);
-    if (isLocalBundledEmbedModel(modelId)) {
-      mod.env.localModelPath = bundledMlModelsDir();
+    if (isLocalBundledEmbedModel(modelId) || isLocalBundledKureModel(modelId)) {
+      const root = resolveMlModelRootFor(modelId);
+      if (root) mod.env.localModelPath = root;
     }
     process.stderr.write(
       `[kca] 시맨틱 임베딩 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`,
@@ -53,7 +66,17 @@ async function loadPipelineForModel(modelId: string): Promise<FeaturePipeline> {
       pipeline("feature-extraction", modelId, {
         quantized,
       }) as Promise<FeaturePipeline>;
-    return isLocalBundledEmbedModel(modelId) ? load() : runWithHubMirrors(mod, load);
+    if (isLocalBundledEmbedModel(modelId)) return load();
+    if (isLocalBundledKureModel(modelId)) {
+      return withBundledOnnxSessionCwd(modelId, load);
+    }
+    if (modelId === BUNDLED_KURE_MODEL_ID) {
+      throw new Error(
+        "[kca] KURE 임베딩 번들이 없습니다. GitHub Release zip을 받거나 sync:ml-models로 export 하세요. " +
+          "끄려면 KCA_NO_KURE_DOWNLOAD=1",
+      );
+    }
+    return runWithHubMirrors(mod, load);
   });
 }
 
@@ -66,16 +89,22 @@ async function loadPipeline(
   pipelinePromise = null;
   loadedModelId = modelId;
   pipelinePromise = (async () => {
-    try {
-      return await loadPipelineForModel(modelId);
-    } catch (error) {
-      const fallback = modelId === DEFAULT_KOREAN_SEMANTIC_MODEL ? null : DEFAULT_KOREAN_SEMANTIC_MODEL;
-      if (!fallback) throw error;
-      const msg = error instanceof Error ? error.message : String(error);
-      process.stderr.write(`[kca] 시맨틱 모델 ${modelId} 로드 실패 → ${fallback}: ${msg}\n`);
-      loadedModelId = fallback;
-      return loadPipelineForModel(fallback);
+    const fallbacks = semanticEmbeddingFallbackIds(modelId);
+    let lastError: unknown;
+    for (let i = 0; i < fallbacks.length; i += 1) {
+      const candidate = fallbacks[i]!;
+      try {
+        if (i > 0) {
+          const msg = lastError instanceof Error ? lastError.message : String(lastError);
+          process.stderr.write(`[kca] 시맨틱 모델 ${fallbacks[i - 1]} 로드 실패 → ${candidate}: ${msg}\n`);
+        }
+        loadedModelId = candidate;
+        return await loadPipelineForModel(candidate, buildOptions, messageCount);
+      } catch (error) {
+        lastError = error;
+      }
     }
+    throw lastError instanceof Error ? lastError : new Error(String(lastError));
   })();
   return pipelinePromise;
 }
@@ -130,7 +159,7 @@ async function embedMessages(
   const subsampled = subsampleSemanticMessages(messages, maxSamples);
   const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
   const vectors: number[][] = [];
-  const embedBatch = resolveEmbedBatchSize();
+  const embedBatch = resolveEmbedBatchSize(modelId);
   for (let i = 0; i < clipped.length; i += embedBatch) {
     const batch = clipped.slice(i, i + embedBatch);
     const tensor = await pipe(batch, { pooling: "mean", normalize: true });

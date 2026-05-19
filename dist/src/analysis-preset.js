@@ -1,8 +1,13 @@
 import { memoryHeadroomGb, probeMachineProfileSync, } from "./analysis-capability.js";
 function presetFromEnv() {
     const raw = process.env.KCA_PRESET?.trim().toLowerCase();
-    if (raw === "speed" || raw === "balanced" || raw === "quality" || raw === "custom")
+    if (raw === "speed" ||
+        raw === "balanced" ||
+        raw === "quality" ||
+        raw === "ultra" ||
+        raw === "custom") {
         return raw;
+    }
     return undefined;
 }
 export function resolvePresetName(options) {
@@ -22,6 +27,13 @@ export function autoPresetFromMachine(profile, messageCount) {
     const n = messageCount ?? 0;
     if (headroom < 4 || (headroom < 6 && total < 16))
         return "speed";
+    if (total >= 32 && headroom >= 18) {
+        if (n >= 130_000)
+            return "balanced";
+        if (n >= 90_000)
+            return "quality";
+        return "ultra";
+    }
     if (total >= 32 && headroom >= 16) {
         return n >= 120_000 ? "balanced" : "quality";
     }
@@ -69,6 +81,16 @@ export function getPresetEffectiveFlags(options, messageCount) {
             preset,
             profile: "quality",
             semanticCap: 1200,
+            llmEnabled,
+            preferWorker: false,
+        };
+    }
+    if (preset === "ultra") {
+        const headroom = memoryHeadroomGb(probeMachineProfileSync());
+        return {
+            preset,
+            profile: "quality",
+            semanticCap: headroom >= 20 ? 1800 : 1500,
             llmEnabled,
             preferWorker: false,
         };

@@ -82,7 +82,7 @@ function registerPipelineOptions(cmd: Command): void {
     .option("--fast", "속도 우선(deprecated). --preset speed 와 동일.", false)
     .option(
       "--preset <name>",
-      "분석 preset: speed | balanced | quality | custom (미지정 시 RAM·코퍼스 자동)",
+      "분석 preset: speed | balanced | quality | ultra | custom (미지정 시 RAM·코퍼스 자동)",
     )
     .option("--no-progress", "분석·집계 진행률(%) 표시를 끕니다.", false)
     .option(
@@ -370,8 +370,10 @@ function parsePresetOption(
 ): AnalysisPresetName | undefined {
   if (fast) return "speed";
   const p = preset?.trim().toLowerCase();
-  if (p === "speed" || p === "balanced" || p === "quality" || p === "custom") return p;
-  if (preset?.trim()) throw new Error(`지원하지 않는 preset: "${preset}". speed|balanced|quality|custom`);
+  if (p === "speed" || p === "balanced" || p === "quality" || p === "ultra" || p === "custom") return p;
+  if (preset?.trim()) {
+    throw new Error(`지원하지 않는 preset: "${preset}". speed|balanced|quality|ultra|custom`);
+  }
   return undefined;
 }
 

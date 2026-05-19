@@ -8,6 +8,10 @@ const BASE_RESERVE_MS = {
 export function phaseReserveMs(phase, preset, profile, llmSize) {
     const headroom = memoryHeadroomGb(profile);
     if (phase === "semantic") {
+        if (preset === "ultra" && headroom >= 20)
+            return 100_000;
+        if (preset === "ultra" && headroom >= 14)
+            return 110_000;
         if (preset === "quality" && headroom >= 16)
             return 70_000;
         if (preset === "quality" && headroom >= 12)
@@ -57,7 +61,7 @@ export class AnalysisBudgetTracker {
         const remain = this.remainingMs();
         let need = phaseReserveMs(phase, this.preset, this.profile, this.llmSize);
         if (phase === "semantic" &&
-            this.preset === "quality" &&
+            (this.preset === "quality" || this.preset === "ultra") &&
             memoryHeadroomGb(this.profile) >= 14 &&
             remain >= 55_000 &&
             remain < need) {

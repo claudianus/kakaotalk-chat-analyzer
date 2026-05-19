@@ -92,6 +92,25 @@ export function pickLargestQwen35ForRam(headroomGb: number): Qwen35Size | undefi
   return undefined;
 }
 
+const QWEN35_SIZE_ORDER: readonly Qwen35Size[] = ["9B", "4B", "2B", "0.8B"];
+
+/** preset 최소 티어 — RAM 부족 시 가능한 최대만 */
+export function pickQwen35ForPreset(
+  preset: AnalysisPresetName,
+  headroomGb: number,
+): Qwen35Size | undefined {
+  const largest = pickLargestQwen35ForRam(headroomGb);
+  if (!largest) return undefined;
+  const minSize: Qwen35Size | undefined =
+    preset === "ultra" ? "4B" : preset === "quality" ? "2B" : undefined;
+  if (!minSize) return largest;
+  const largestIdx = QWEN35_SIZE_ORDER.indexOf(largest);
+  const minIdx = QWEN35_SIZE_ORDER.indexOf(minSize);
+  if (largestIdx <= minIdx) return largest;
+  if (headroomGb >= qwen35Entry(minSize).minHeadroomGb) return minSize;
+  return largest;
+}
+
 function formatRamNote(
   profile: MachineProfile,
   loadHeadroom: number,
@@ -160,7 +179,7 @@ export function resolveLlmRunPlan(input: ResolveLlmRunPlanInput): LlmRunPlan {
     };
   }
 
-  const size = pickLargestQwen35ForRam(loadHeadroom);
+  const size = pickQwen35ForPreset(preset, loadHeadroom);
   if (!size) {
     return {
       enabled: false,
@@ -226,7 +245,7 @@ export function llmPhaseReserveMs(size: Qwen35Size | undefined, preset: Analysis
   const loadPlan = entry.timeoutMs;
   const inferPlan = llmInferTimeoutMs(size);
   let reserve = loadPlan + inferPlan + 5_000;
-  if (size === "9B" && preset === "quality") {
+  if (size === "9B" && (preset === "quality" || preset === "ultra")) {
     reserve = Math.max(reserve, 120_000);
   } else if (size === "9B") {
     reserve = Math.max(reserve, 100_000);
