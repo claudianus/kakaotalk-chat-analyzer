@@ -1,0 +1,21 @@
+.cursor/skills/nodejs-backend-patterns/SKILL.md
+  s_6183e8d3b1ed5e::t_66658361b25e27 29-33
+.cursor/skills/visual-qa-testing/SKILL.md
+  s_6183e8d3b1ed5e::t_c63668463bdb10 18,20,22,25,28,30,32-33,36,38,41-42,45,47,49,51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "1236e33701ff5ebe7c9718f8c1ff8c1b0f8584d2",
+  "prompts": {},
+  "sessions": {
+    "s_6183e8d3b1ed5e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "3e6dd9c0-8fa1-47ac-84c6-6ef2729feeaf",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
