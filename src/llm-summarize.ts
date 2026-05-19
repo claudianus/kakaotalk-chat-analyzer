@@ -16,6 +16,7 @@ import { probeMachineProfileSync } from "./analysis-capability.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
+import type { AnalysisBudgetTracker } from "./analysis-budget.js";
 import { extractLlmJsonObject, parseLlmJsonResponse, type LlmJsonShape } from "./llm-json.js";
 import { mergeTopicProposals, type LlmTopicProposal } from "./topic-merge.js";
 import type { LlmInsights, ReportData, ReportTopic } from "./types.js";
@@ -119,6 +120,9 @@ async function runNodeLlama(
 }
 
 async function runMockLlm(): Promise<string> {
+  if (process.env.KCA_LLM_MOCK === "invalid") {
+    return "서사만 한국어로 씁니다. JSON 아님.";
+  }
   return JSON.stringify({
     topicTitles: [{ i: 0, title: "모의 LLM 주제" }],
     topicProposals: [
@@ -176,7 +180,7 @@ export async function runLlmCompletion(
 
   try {
     let raw: string;
-    if (process.env.KCA_LLM_MOCK === "1") {
+    if (process.env.KCA_LLM_MOCK === "1" || process.env.KCA_LLM_MOCK === "invalid") {
       raw = await runMockLlm();
     } else if (process.env.KCA_LLM_BACKEND?.trim().toLowerCase() === "ollama") {
       raw = await runOllama(prompt, plan, size, inferMs + llmLoadTimeoutMs(size));
@@ -262,11 +266,18 @@ function parseCompletionRaw(raw: string): LlmJsonShape | null {
   return parseLlmJsonResponse(raw, null);
 }
 
+function llmRetryBudgetSkipReason(budget?: AnalysisBudgetTracker): string | undefined {
+  if (!budget?.shouldSkip("llm_retry")) return undefined;
+  const remainSec = Math.round(budget.remainingMs() / 1000);
+  return `예산 부족 (LLM 재시도, 남은 ~${remainSec}s)`;
+}
+
 /** preset·RAM 기준 Qwen3.5 자동 선택 후 서사·주제 보강 */
 export async function applyLlmEnrichment(
   data: ReportData,
   options?: BuildReportOptions,
   messageCount?: number,
+  budget?: AnalysisBudgetTracker,
 ): Promise<LlmEnrichmentResult> {
   const preset = resolvePresetNameWithAuto(options, messageCount ?? data.summary.totalMessages);
   const profile = probeMachineProfileSync();
@@ -290,6 +301,11 @@ export async function applyLlmEnrichment(
         const skipReason = `JSON 파싱 실패 (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms); 재시도 건너뜀 (free ${reprobe.freeMemGb}GB < ${minFreeGbForLlmRetry()}GB)`;
         process.stderr.write(`[kca] LLM ${skipReason} — 규칙 기반 서사 유지\n`);
         return { used: false, plan, skipReason };
+      }
+      const budgetSkip = llmRetryBudgetSkipReason(budget);
+      if (budgetSkip) {
+        process.stderr.write(`[kca] LLM ${budgetSkip} — 규칙 기반 서사 유지\n`);
+        return { used: false, plan, skipReason: budgetSkip };
       }
 
       const retry = await runLlmCompletion(data, plan, {
@@ -330,6 +346,10 @@ export async function applyLlmEnrichment(
         plan,
         skipReason: `${primary.skipReason}; 재시도 건너뜀 (free ${reprobe.freeMemGb}GB)`,
       };
+    }
+    const budgetSkip = llmRetryBudgetSkipReason(budget);
+    if (budgetSkip) {
+      return { used: false, plan, skipReason: `${primary.skipReason}; ${budgetSkip}` };
     }
 
     const retryPlan: LlmRunPlan = {

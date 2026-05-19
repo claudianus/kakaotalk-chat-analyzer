@@ -57,3 +57,14 @@ test("AnalysisBudgetTracker allows semantic at 101s remain on quality+ample RAM"
   tracker.remainingMs = () => 101_000;
   assert.equal(tracker.shouldSkip("semantic"), false);
 });
+
+test("AnalysisBudgetTracker skips llm_retry when budget exhausted", () => {
+  const tracker = new AnalysisBudgetTracker("balanced", 20_000, profile);
+  tracker.remainingMs = () => 30_000;
+  assert.equal(tracker.shouldSkip("llm_retry"), true);
+});
+
+test("phaseReserveMs llm_retry uses 0.8B reserve", () => {
+  const ms = phaseReserveMs("llm_retry", "quality", profile);
+  assert.ok(ms >= 40_000, `llm_retry reserve should be >=40s, got ${ms}`);
+});

@@ -3,7 +3,6 @@ import { llmPhaseReserveMs } from "./llm-resolve.js";
 const BASE_RESERVE_MS = {
     semantic: 120_000,
     sentiment: 90_000,
-    llm: 50_000,
 };
 /** preset·가용 RAM에 따른 단계 예약 시간 */
 export function phaseReserveMs(phase, preset, profile, llmSize) {
@@ -28,6 +27,9 @@ export function phaseReserveMs(phase, preset, profile, llmSize) {
     }
     if (phase === "llm") {
         return llmPhaseReserveMs(llmSize, preset);
+    }
+    if (phase === "llm_retry") {
+        return llmPhaseReserveMs("0.8B", preset);
     }
     return BASE_RESERVE_MS[phase];
 }
