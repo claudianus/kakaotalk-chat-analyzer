@@ -1,0 +1,9 @@
+package-lock.json
+  ai_agent 3,9,33,1680-1682
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "64e1bfb599c32f51009e57dddf08ac4dd20115c0",
+  "prompts": {}
+}
