@@ -73,6 +73,9 @@ export function buildReportProvenance(data, options) {
             ...(options.budgetMs !== undefined ? { budgetMs: options.budgetMs } : {}),
             ...(options.envOverrides?.length ? { envOverrides: options.envOverrides } : {}),
             ...(options.gpu ? { gpu: options.gpu } : {}),
+            ...(options.llmMemoryTimeline?.length
+                ? { llmMemoryTimeline: options.llmMemoryTimeline }
+                : {}),
         },
         reportSchema: REPORT_SCHEMA,
     };

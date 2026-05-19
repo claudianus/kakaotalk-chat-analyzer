@@ -21,4 +21,6 @@ export declare function qwen35Entry(size: Qwen35Size): Qwen35ModelEntry;
 export declare function qwen35DisplayLabel(size: Qwen35Size): string;
 /** CLI·env 파싱 (`0.8b`, `qwen3.5-4b`, legacy `8b`→9B) */
 export declare function parseQwen35Size(raw: string): Qwen35Size | undefined;
+/** 9B→4B→2B→0.8B — 없으면 undefined */
+export declare function downgradeQwen35Size(size: Qwen35Size): Qwen35Size | undefined;
 export declare const MIN_GGUF_BYTES: Record<Qwen35Size, number>;

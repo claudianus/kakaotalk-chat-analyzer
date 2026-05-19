@@ -223,7 +223,7 @@ KCA_LLM_BACKEND=ollama kca ./chat.csv --preset custom
 
 **LLM (자동, `KCA_LLM=0` 제외):** RAM이 허용하는 최대 Qwen3.5(0.8B→9B)로 주제 제목·서사 + Story Deck(방 아키타입·올해의 순간·에피소드·관계 드라마·밈·공유 문구 등, 원문 미전송). node-llama-cpp **JSON Schema grammar**로 출력 형식을 강제(기본 on). LLM 실패 시에도 리포트는 규칙 기반 서사로 완성.
 
-**LLM 문제 해결:** free RAM이 매우 낮으면(`KCA_LLM_MIN_FREE_GB` 미만) 재시도 없이 skip — `KCA_LLM=0 npx kcachat --local` 또는 메모리 확보 후 재실행. JSON만 끄려면 `KCA_LLM_GRAMMAR=0`.
+**LLM 문제 해결:** 0.20+ 부터 GGUF 추론은 **자식 프로세스**에서 실행되어 Metal/GGUF 네이티브 크래시(SIGSEGV)가 나도 리포트는 규칙 서사로 **끝까지 완료**됩니다. 크래시 시 CPU·소형 모델로 자동 재시도합니다. free RAM이 매우 낮으면(`KCA_LLM_MIN_FREE_GB` 미만) JSON 재시도만 skip. LLM을 끄려면 `KCA_LLM=0 npx kcachat --local`. 고급: `KCA_LLM_GPU=none`(CPU 고정), `KCA_LLM_MODEL=0.8B`, `KCA_LLM_IN_PROCESS=1`(디버그·비권장). JSON만 끄려면 `KCA_LLM_GRAMMAR=0`.
 
 </details>
 
@@ -244,7 +244,7 @@ KCA_BENCH_COMPARE=1 npm run bench:semantic
 
 </details>
 
-**버전 고정:** `npx kakaotalk-chat-analyzer@0.19.12` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
+**버전 고정:** `npx kakaotalk-chat-analyzer@0.20.0` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
 
 **로컬 개발:**
 
@@ -259,6 +259,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.20.0** | **LLM child 프로세스 격리** — Metal/GGUF SIGSEGV도 리포트 완료·CPU·소형 모델 자동 재시도·post-ML free RAM GPU 정책 |
 | **0.19.12** | **LLM Story Deck**(아키타입·에피소드·캐릭터·올해의 순간·관계 드라마·방 밈·공유 문구)·**슬림 ① 핵심 숫자**·중복 차트·규칙 페르소나 제거·섹션 ⓪~⑥ 내비 |
 | **0.19.11** | `llm_retry` 예산을 실제 재시도 모델 크기에 맞춤 |
 | **0.19.10** | LLM 재시도 RAM gate·JSON 벤치·테스트 보강 |

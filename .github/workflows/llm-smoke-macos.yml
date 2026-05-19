@@ -1,0 +1,25 @@
+name: LLM smoke (macOS)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  llm-smoke:
+    runs-on: macos-14
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: LLM mock enrichment
+        run: KCA_LLM_MOCK=1 npm run build && node -e "
+          import { applyLlmEnrichment } from './dist/src/llm-summarize.js';
+          import { emptyReportData } from './dist/src/report-empty.js';
+          const r = await applyLlmEnrichment(emptyReportData(), { preset: 'quality' }, 1000);
+          if (!r.used) throw new Error('mock LLM should succeed');
+          console.log('ok');
+        "

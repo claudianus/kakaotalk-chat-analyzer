@@ -83,6 +83,14 @@ export function parseQwen35Size(raw) {
     }
     return undefined;
 }
+const SIZE_LADDER_DESC = ["9B", "4B", "2B", "0.8B"];
+/** 9B→4B→2B→0.8B — 없으면 undefined */
+export function downgradeQwen35Size(size) {
+    const i = SIZE_LADDER_DESC.indexOf(size);
+    if (i < 0 || i >= SIZE_LADDER_DESC.length - 1)
+        return undefined;
+    return SIZE_LADDER_DESC[i + 1];
+}
 export const MIN_GGUF_BYTES = {
     "0.8B": 400_000_000,
     "2B": 1_200_000_000,

@@ -1,10 +1,12 @@
 import type { ReportData } from "./types.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import type { AnalysisBudgetTracker } from "./analysis-budget.js";
+import type { LlmRunPlan } from "./llm-policy.js";
 import { applyLlmEnrichment } from "./llm-summarize.js";
 
 export interface LlmEnrichmentContext {
   budget?: AnalysisBudgetTracker;
+  llmPlan?: LlmRunPlan;
 }
 
 /** finalize 이후 리포트에 LLM 보강 반영 */
@@ -17,7 +19,7 @@ export async function enrichReportWithLlm(
     report,
     options,
     report.summary.totalMessages,
-    ctx?.budget,
+    { budget: ctx?.budget, llmPlan: ctx?.llmPlan },
   );
   if (!result.used) {
     return {

@@ -43,6 +43,29 @@ export function memoryHeadroomForLlmLoad(profile: MachineProfile): number {
   return Math.round(headroom * 10) / 10;
 }
 
+const POST_ML_OS_SLACK_GB = 2;
+
+/** ML dispose 직후 GGUF 로드용 headroom — free RAM을 더 보수적으로 반영 */
+export function effectiveLlmHeadroomGb(profile: MachineProfile): number {
+  const loadHeadroom = memoryHeadroomForLlmLoad(profile);
+  const free = profile.freeMemGb;
+  const minFree = minFreeGbForLlmRetry();
+
+  let effective = loadHeadroom;
+  const freeCap = Math.max(0, free - POST_ML_OS_SLACK_GB);
+  if (freeCap < effective) effective = freeCap;
+
+  if (free < minFree) {
+    effective = Math.min(effective, qwen35Entry("0.8B").minHeadroomGb);
+  } else if (free < 4) {
+    effective = Math.min(effective, qwen35Entry("2B").minHeadroomGb);
+  } else if (free < 6) {
+    effective = Math.min(effective, qwen35Entry("4B").minHeadroomGb - 0.1);
+  }
+
+  return Math.round(Math.max(0, effective) * 10) / 10;
+}
+
 export interface LlmRunPlan {
   enabled: boolean;
   size?: Qwen35Size;
@@ -57,6 +80,8 @@ export interface ResolveLlmRunPlanInput {
   preset: AnalysisPresetName;
   profile: MachineProfile;
   messageCount?: number;
+  /** true = ONNX dispose 직후 — free RAM 기준 보수적 headroom */
+  postMl?: boolean;
 }
 
 /** RAM 에 맞는 최대 Qwen3.5 (9B→4B→2B→0.8B) */
@@ -67,19 +92,30 @@ export function pickLargestQwen35ForRam(headroomGb: number): Qwen35Size | undefi
   return undefined;
 }
 
-function formatRamNote(profile: MachineProfile, loadHeadroom: number, available: number): string {
+function formatRamNote(
+  profile: MachineProfile,
+  loadHeadroom: number,
+  available: number,
+  phase?: string,
+): string {
   const reserve = llmRamReserveGb(profile);
+  const phaseTag = phase ? `, ${phase}` : "";
   if (loadHeadroom < available - reserve + 0.5) {
-    return `RAM 로드 ${loadHeadroom}GB (가용 ${available}GB−예약 ${reserve}GB·free ${profile.freeMemGb}GB)`;
+    return `RAM 로드 ${loadHeadroom}GB (가용 ${available}GB−예약 ${reserve}GB·free ${profile.freeMemGb}GB${phaseTag})`;
   }
-  return `RAM ${loadHeadroom}GB (가용 ${available}GB−예약 ${reserve}GB)`;
+  return `RAM ${loadHeadroom}GB (가용 ${available}GB−예약 ${reserve}GB${phaseTag})`;
 }
 
 export function resolveLlmRunPlan(input: ResolveLlmRunPlanInput): LlmRunPlan {
-  const { preset, profile } = input;
+  const { preset, profile, postMl } = input;
   const available = memoryHeadroomGb(profile);
-  const loadHeadroom = memoryHeadroomForLlmLoad(profile);
-  const ramNote = formatRamNote(profile, loadHeadroom, available);
+  const loadHeadroom = postMl ? effectiveLlmHeadroomGb(profile) : memoryHeadroomForLlmLoad(profile);
+  const ramNote = formatRamNote(
+    profile,
+    loadHeadroom,
+    available,
+    postMl ? "post-ML" : undefined,
+  );
 
   if (process.env.KCA_LLM === "0") {
     return { enabled: false, reason: "KCA_LLM=0" };

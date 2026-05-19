@@ -156,7 +156,12 @@ export function buildAnalysisEffectiveConfig(data, cli, machine) {
     const semanticModel = semanticEmbeddingModelId(buildOpts, messageCount);
     const sentimentModel = sentimentModelId(preset);
     const semanticCap = effectiveSemanticSampleCap(messageCount, buildOpts);
-    const llmPlan = resolveLlmRunPlan({ preset, profile: profileMachine, messageCount });
+    const llmPlan = resolveLlmRunPlan({
+        preset,
+        profile: profileMachine,
+        messageCount,
+        postMl: true,
+    });
     const semanticUsed = data.summary.usedSemanticKeywords === true;
     const sentimentUsed = data.summary.usedSentimentAnalysis === true;
     const llmUsed = data.summary.usedLlmAnalysis === true;
@@ -324,6 +329,16 @@ export function toProvenanceOptions(config, data, extras) {
         budgetMs: config.budgetMs,
         envOverrides: config.envOverrides.length > 0 ? config.envOverrides : undefined,
         embeddingTopics: config.embeddingTopics,
+        llmMemoryTimeline: data.memoryTimeline?.length
+            ? data.memoryTimeline.map((e) => ({
+                phase: e.phase,
+                availableGb: e.availableGb,
+                freeGb: e.freeGb,
+                totalGb: e.totalGb,
+                ...(e.note ? { note: e.note } : {}),
+                ...(e.chosenLlmSize ? { chosenLlmSize: e.chosenLlmSize } : {}),
+            }))
+            : undefined,
         buildTiming: extras.buildTiming,
         htmlBytes: extras.htmlBytes,
     };

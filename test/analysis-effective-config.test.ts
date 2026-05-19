@@ -11,8 +11,8 @@ import { emptyReportData } from "../src/report-empty.js";
 
 const richMachine: MachineProfile = {
   totalMemGb: 48,
-  freeMemGb: 4,
-  availableMemGb: 22,
+  freeMemGb: 12,
+  availableMemGb: 24,
   cpuCores: 8,
   platform: "darwin",
   arch: "arm64",

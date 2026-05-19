@@ -27,6 +27,7 @@ export interface BuildReportProvenanceOptions {
     budgetMs?: number;
     envOverrides?: string[];
     gpu?: GpuKind;
+    llmMemoryTimeline?: ReportProvenance["analysis"]["llmMemoryTimeline"];
     buildTiming?: ReportBuildTiming;
     htmlBytes?: number;
 }

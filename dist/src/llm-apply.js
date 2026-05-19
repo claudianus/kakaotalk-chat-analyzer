@@ -1,7 +1,7 @@
 import { applyLlmEnrichment } from "./llm-summarize.js";
 /** finalize 이후 리포트에 LLM 보강 반영 */
 export async function enrichReportWithLlm(report, options, ctx) {
-    const result = await applyLlmEnrichment(report, options, report.summary.totalMessages, ctx?.budget);
+    const result = await applyLlmEnrichment(report, options, report.summary.totalMessages, { budget: ctx?.budget, llmPlan: ctx?.llmPlan });
     if (!result.used) {
         return {
             ...report,

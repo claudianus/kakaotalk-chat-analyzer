@@ -11,7 +11,12 @@ import {
   type LlmRunPlan,
 } from "./llm-policy.js";
 import { ensureLlmGgufReady } from "./llm-ensure.js";
-import { qwen35DisplayLabel, qwen35Entry, type Qwen35Size } from "./llm-qwen35.js";
+import {
+  downgradeQwen35Size,
+  qwen35DisplayLabel,
+  qwen35Entry,
+  type Qwen35Size,
+} from "./llm-qwen35.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
@@ -22,7 +27,8 @@ import { mergeTopicProposals, type LlmTopicProposal } from "./topic-merge.js";
 import { sanitizeLlmDeck } from "./llm-deck-validate.js";
 import type { LlmInsights, ReportData, ReportTopic } from "./types.js";
 import type { RoomNarrative } from "./room-narrative.js";
-import { runLlamaPrompt } from "./llm-runtime.js";
+import { resolveLlmGpuForInfer } from "./llm-gpu-policy.js";
+import { runLlamaPrompt, LlmInferProcessError } from "./llm-runtime.js";
 
 export type LlmSkipReasonCode =
   | "disabled"
@@ -96,10 +102,32 @@ async function runOllama(
   }
 }
 
-async function runNodeLlama(
+interface LlamaInferAttempt {
+  size: Qwen35Size;
+  gpu: "none" | "metal" | "auto";
+  label: string;
+}
+
+function buildLlamaInferAttempts(size: Qwen35Size): LlamaInferAttempt[] {
+  const profile = probeMachineProfileSync();
+  const primaryGpu = resolveLlmGpuForInfer(profile, size);
+  const attempts: LlamaInferAttempt[] = [{ size, gpu: primaryGpu, label: "primary" }];
+  if (primaryGpu !== "none") {
+    attempts.push({ size, gpu: "none", label: "cpu-fallback" });
+  }
+  let next = downgradeQwen35Size(size);
+  while (next) {
+    attempts.push({ size: next, gpu: "none", label: `downgrade-${next}` });
+    next = downgradeQwen35Size(next);
+  }
+  return attempts;
+}
+
+async function runNodeLlamaOnce(
   prompt: string,
   size: Qwen35Size,
   plan: LlmRunPlan,
+  gpu: LlamaInferAttempt["gpu"],
 ): Promise<string> {
   const ready = await ensureLlmGgufReady(size);
   const modelPath = ggufPathForSize(size);
@@ -117,7 +145,48 @@ async function runNodeLlama(
     maxTokens: 768,
     loadTimeoutMs: llmLoadTimeoutMs(size),
     inferTimeoutMs: llmInferTimeoutMs(size, plan),
+    gpu,
   });
+}
+
+async function runNodeLlama(
+  prompt: string,
+  size: Qwen35Size,
+  plan: LlmRunPlan,
+): Promise<string> {
+  const attempts = buildLlamaInferAttempts(size);
+  let lastError = "LLM 추론 실패";
+
+  for (let i = 0; i < attempts.length; i += 1) {
+    const att = attempts[i]!;
+    try {
+      const text = await runNodeLlamaOnce(prompt, att.size, plan, att.gpu);
+      if (att.label !== "primary") {
+        const gpuNote = att.gpu === "none" ? "CPU" : att.gpu;
+        process.stderr.write(
+          `[kca] LLM 재시도 성공 (${qwen35DisplayLabel(att.size)}, ${gpuNote}, ${att.label})\n`,
+        );
+      }
+      return text;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      lastError = msg;
+      const isLast = i === attempts.length - 1;
+      if (isLast) break;
+
+      if (error instanceof LlmInferProcessError && error.kind === "segfault") {
+        process.stderr.write(
+          `[kca] LLM 네이티브 크래시 (${qwen35DisplayLabel(att.size)}) → ${attempts[i + 1]?.label ?? "skip"}\n`,
+        );
+      } else {
+        process.stderr.write(
+          `[kca] LLM 실패 (${qwen35DisplayLabel(att.size)}, ${att.label}): ${msg.slice(0, 120)} → 재시도\n`,
+        );
+      }
+    }
+  }
+
+  throw new Error(lastError);
 }
 
 async function runMockLlm(): Promise<string> {
@@ -303,16 +372,24 @@ function llmRetryBudgetSkipReason(budget?: AnalysisBudgetTracker): string | unde
   return `예산 부족 (LLM 재시도, 남은 ~${remainSec}s)`;
 }
 
+export interface LlmEnrichmentRunContext {
+  budget?: AnalysisBudgetTracker;
+  llmPlan?: LlmRunPlan;
+}
+
 /** preset·RAM 기준 Qwen3.5 자동 선택 후 서사·주제 보강 */
 export async function applyLlmEnrichment(
   data: ReportData,
   options?: BuildReportOptions,
   messageCount?: number,
-  budget?: AnalysisBudgetTracker,
+  ctx?: LlmEnrichmentRunContext,
 ): Promise<LlmEnrichmentResult> {
   const preset = resolvePresetNameWithAuto(options, messageCount ?? data.summary.totalMessages);
   const profile = probeMachineProfileSync();
-  const plan = resolveLlmRunPlan({ preset, profile, messageCount });
+  const plan =
+    ctx?.llmPlan ??
+    resolveLlmRunPlan({ preset, profile, messageCount, postMl: true });
+  const budget = ctx?.budget;
   if (!plan.enabled || !plan.size) {
     return { used: false, plan, skipReason: plan.reason };
   }

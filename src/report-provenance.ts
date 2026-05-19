@@ -37,6 +37,7 @@ export interface BuildReportProvenanceOptions {
   budgetMs?: number;
   envOverrides?: string[];
   gpu?: GpuKind;
+  llmMemoryTimeline?: ReportProvenance["analysis"]["llmMemoryTimeline"];
   buildTiming?: ReportBuildTiming;
   htmlBytes?: number;
 }
@@ -118,6 +119,9 @@ export function buildReportProvenance(
       ...(options.budgetMs !== undefined ? { budgetMs: options.budgetMs } : {}),
       ...(options.envOverrides?.length ? { envOverrides: options.envOverrides } : {}),
       ...(options.gpu ? { gpu: options.gpu } : {}),
+      ...(options.llmMemoryTimeline?.length
+        ? { llmMemoryTimeline: options.llmMemoryTimeline }
+        : {}),
     },
     reportSchema: REPORT_SCHEMA,
   };
