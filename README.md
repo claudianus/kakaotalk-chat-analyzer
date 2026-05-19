@@ -238,7 +238,7 @@ KCA_BENCH_COMPARE=1 npm run bench:semantic
 
 </details>
 
-**버전 고정:** `npx kakaotalk-chat-analyzer@0.18.2` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
+**버전 고정:** `npx kakaotalk-chat-analyzer@0.19.11` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
 
 **로컬 개발:**
 
@@ -253,6 +253,12 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.19.11** | `llm_retry` 예산을 실제 재시도 모델 크기에 맞춤 |
+| **0.19.10** | LLM 재시도 RAM gate·JSON 벤치·테스트 보강 |
+| **0.19.9** | JSON Schema grammar·OOM 방어 — LLM 실패해도 리포트 완성 |
+| **0.19.8** | SLA cap 기준 LLM 예산 skip 완화 |
+| **0.19.7** | 가용 RAM 모델 선택·타임아웃 분리·JSON 재시도 |
+| **0.19.6** | macOS Metal 폴백·로드 시점 RAM 기준 Qwen 선택 |
 | **0.19.5** | KoELECTRA NSMC·embed ONNX npm 번들 자동 설치·독성 lazy zip·Hub 폴백 정리 |
 | **0.19.4** | Qwen3.5 RAM greedy 자동 선택·모든 preset LLM on |
 | **0.18.2** | 주제 맵 3레인(graph·키워드·임베딩) 병합·테마 6~12·LLM `topicProposals` |

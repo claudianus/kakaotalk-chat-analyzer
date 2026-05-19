@@ -140,6 +140,14 @@
     }
     .copy-btn:hover { filter: brightness(1.06); }
     .copy-btn[data-done="1"] { background: rgba(62, 232, 197, 0.2); color: var(--accent); border-color: rgba(62, 232, 197, 0.45); }
+    .hero-highlights {
+      margin: 0 0 16px;
+      padding-left: 1.2em;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .hero-highlights li { margin-bottom: 4px; }
     .hero-note {
       margin: 0;
       font-size: 13px;
@@ -444,7 +452,7 @@
         대화 <strong style="color:var(--text)">원문은 리포트에 넣지 않습니다.</strong>
       </p>
       <div class="pill-row">
-        <span class="pill">v0.16.1</span>
+        <span class="pill">v0.19.11</span>
         <span class="pill">Node.js 22+</span>
         <span class="pill">설치 없이 npx</span>
       </div>
@@ -462,6 +470,11 @@
           <button type="button" class="copy-btn" data-copy-target="cmd-local" aria-label="명령 복사">복사</button>
         </div>
       </div>
+      <ul class="hero-highlights" aria-label="최근 버전 하이라이트">
+        <li>LLM JSON Schema grammar·OOM 방어로 실패해도 리포트 완성</li>
+        <li>RAM 기준 Qwen3.5 자동 선택·macOS Metal 폴백</li>
+        <li><a href="https://github.com/claudianus/kakaotalk-chat-analyzer#최근-업데이트">0.19.x 변경 이력 (README)</a></li>
+      </ul>
       <p class="hero-note">
         터미널에 나온 <strong style="color:var(--text)">공유 URL</strong>을 브라우저에서 열면 됩니다.
         최초 1회는 한국어 분석 모델 다운로드로 1~3분 걸릴 수 있습니다.
@@ -543,6 +556,10 @@
         <article class="tip">
           <h4>공유 전에 확인</h4>
           <p>이름은 마스킹되지만 통계·키워드는 방 분위기가 드러날 수 있습니다. 링크를 보내기 전에 한 번 훑어 보세요.</p>
+        </article>
+        <article class="tip">
+          <h4>LLM이 스킵되면</h4>
+          <p>free RAM이 부족하면 LLM 서사를 건너뜁니다. <code>KCA_LLM=0 npx kcachat@latest --local</code>로 끄거나 메모리를 확보한 뒤 재실행하세요. JSON만 끄려면 <code>KCA_LLM_GRAMMAR=0</code>.</p>
         </article>
       </div>
     </section>

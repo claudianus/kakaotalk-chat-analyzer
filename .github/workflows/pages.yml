@@ -24,6 +24,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Docs version drift check
+        run: npm run check:docs-version
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
