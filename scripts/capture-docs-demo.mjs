@@ -21,13 +21,34 @@ const shots = [
   {
     file: "wrapped.png",
     title: "Wrapped",
-    caption: "한 장면 요약·활동 카드",
+    caption: "⓪ 한 장면 요약·활동 카드",
     selectors: ["#s-wrapped"],
   },
   {
+    file: "archetype.png",
+    title: "방 아키타입",
+    caption: "LLM Story Deck · 이 방의 얼굴",
+    selectors: ["#s-archetype"],
+    optional: true,
+  },
+  {
+    file: "episodes.png",
+    title: "시즌 에피소드",
+    caption: "기간별 하이라이트 카드",
+    selectors: ["#s-episodes"],
+    optional: true,
+  },
+  {
+    file: "characters.png",
+    title: "캐릭터 카드",
+    caption: "참여자 별칭·태그라인",
+    selectors: ["#s-characters"],
+    optional: true,
+  },
+  {
     file: "facts.png",
-    title: "핵심 지표",
-    caption: "총 메시지·참여자 히어로·지표 그리드",
+    title: "① 핵심 숫자",
+    caption: "총 메시지·참여자 히어로·8칸 지표",
     selectors: ["#s-facts"],
   },
   {
@@ -87,8 +108,8 @@ const shots = [
   },
   {
     file: "narrative.png",
-    title: "방 프로필",
-    caption: "자동 서사 요약",
+    title: "② 방 이야기",
+    caption: "서사·올해의 순간·인사이트",
     selectors: ["#s-narrative"],
     optional: true,
   },
@@ -313,7 +334,13 @@ async function main() {
     await run(
       "node",
       ["dist/src/cli.js", fixture, "--local", "-o", join(".qa-reports", slug)],
-      { env: { ...process.env, KCA_NO_SEMANTIC: "1" } },
+      {
+        env: {
+          ...process.env,
+          KCA_NO_SEMANTIC: "1",
+          KCA_LLM_MOCK: process.env.KCA_LLM_MOCK ?? "1",
+        },
+      },
     );
   } else {
     console.log("capture-only: skip build/generate (.qa-reports/docs-demo must exist)");
