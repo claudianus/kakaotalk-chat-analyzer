@@ -5,6 +5,8 @@ export declare function resolveDefaultSemanticHubId(preset: AnalysisPresetName, 
 export declare function shouldPreferBundledKure(preset: AnalysisPresetName, headroomGb: number): boolean;
 /** 번들 시맨틱 id — ultra/quality는 KURE 시도(없으면 로드 폴백), 그 외 embed */
 export declare function resolveBundledSemanticModelId(preset: AnalysisPresetName, headroomGb: number): string;
+/** 번들 ONNX가 있을 때 preset·RAM 기준 시맨틱 번들 사용 여부 (순수 정책) */
+export declare function shouldPreferBundledSemanticPolicy(preset: AnalysisPresetName, headroomGb: number): boolean;
 /** 오프라인 번들 우선 — `KCA_PREFER_BUNDLED_SEMANTIC=0` 이면 Hub KoELECTRA */
 export declare function shouldPreferBundledSemantic(preset: AnalysisPresetName, headroomGb: number): boolean;
 /** 로드 실패 시 순차 폴백 — Hub KURE/BGE는 env 지정 시만, 번들 KURE 실패 시 embed */
