@@ -26,16 +26,16 @@ Comprehensive guidance for building scalable, maintainable, and production-ready
 - The task is unrelated to node.js backend patterns
 - You need a different domain or tool outside this scope
 
+## kakaotalk-chat-analyzer
+
+- Node **≥22**, **ESM** (`src/`, `scripts/`, workers). 스트리밍 CSV·ML 워커·LLM child 프로세스 패턴 참고.
+- 검증: `npm test`. 배포: `AGENTS.md` §1-B.
+
 ## Instructions
 
 - Clarify goals, constraints, and required inputs.
 - Apply relevant best practices and validate outcomes.
 - Provide actionable steps and verification.
-- If detailed examples are required, open `resources/implementation-playbook.md`.
-
-## Resources
-
-- `resources/implementation-playbook.md` for detailed patterns and examples.
 
 ## Limitations
 - Use this skill only when the task clearly matches the scope described above.

@@ -15,58 +15,40 @@ Use this skill after making UI changes to visually verify the result, catch cons
 
 ## How It Works
 
-Cursor has a built-in browser (`cursor-ide-browser` MCP) that can navigate to URLs, take screenshots, read console messages, inspect network requests, and interact with page elements. This skill uses those tools to do a quick visual QA pass.
+Cursor has a built-in browser (`cursor-ide-browser` MCP) that can navigate to URLs, take screenshots, read console messages, inspect network requests, and interact with page elements.
 
-## Steps
+## Steps (kca 리포트)
 
-1. **Ensure the dev server is running** — check if there's already a terminal running the dev server. If not, start one in the background:
+1. **리포트 생성** — `npm test` 통과 후:
 
    ```bash
-   npm run dev
+   npm run report:qa
    ```
 
-   Wait for the server to be ready (watch for the "ready" or localhost URL in the output).
+   `.qa-reports/manifest.json`에서 검수할 `httpUrl` 확인.
 
-2. **Navigate to the page** — use `browser_navigate` to open the relevant page:
+2. **QA 서버 기동** — 별도 터미널(백그라운드):
+
+   ```bash
+   npm run report:qa:serve
+   ```
+
+   기본 포트 `18765`. 이미 떠 있으면 재사용.
+
+3. **브라우저로 열기** — `browser_navigate`로 manifest의 `httpUrl` 사용 (`file://` 불가):
 
    ```
    Tool: browser_navigate
-   Arguments: { "url": "http://localhost:3000", "take_screenshot_afterwards": true }
+   Arguments: { "url": "http://127.0.0.1:18765/<slug>/", "take_screenshot_afterwards": true }
    ```
 
-   If the change is on a specific route, navigate directly to it (e.g., `/settings`, `/dashboard`).
+4. **스크린샷·스냅샷** — Wrapped, ECharts, 키워드, 참여자, provenance(`kca x.y.z`) 확인.
 
-3. **Take a screenshot** — capture the current state:
+5. **콘솔·네트워크** — `browser_console_messages`, `browser_network_requests`로 치명적 에러·4xx/5xx 확인.
 
-   ```
-   Tool: browser_take_screenshot
-   Arguments: { "fullPage": true }
-   ```
+6. **테마·반응형** — 라이트/다크/시스템, ~390px 폭에서 겹침·가로 스크롤 확인.
 
-   Review the screenshot for visual issues: layout breaks, missing content, wrong colors, misaligned elements.
-
-4. **Check console for errors** — look for JavaScript errors or warnings:
-
-   ```
-   Tool: browser_console_messages
-   ```
-
-   Report any errors, especially `TypeError`, `ReferenceError`, failed imports, or React hydration mismatches.
-
-5. **Audit network requests** — check for failed API calls or unexpected requests:
-
-   ```
-   Tool: browser_network_requests
-   ```
-
-   Look for: 4xx/5xx status codes, CORS errors, excessively large responses, unnecessary duplicate requests.
-
-6. **Interact if needed** — if the change involves interactive elements (buttons, forms, modals), use `browser_click`, `browser_fill`, or `browser_hover` to test the interaction, then take another screenshot to verify.
-
-7. **Report findings** — summarize:
-   - Screenshot shows the UI looks correct (or what's wrong)
-   - Console is clean (or list errors found)
-   - Network requests are healthy (or list failures)
+7. **보고** — 실행 명령, 검수 URL, npm·provenance 버전, 발견 이슈·수정 여부.
 
 ## Notes
 
