@@ -1,0 +1,40 @@
+.cursor/skills/visual-qa-testing/SKILL.md
+  s_fd2bff488fb845::t_898a53a0a63ac6 10-15
+  s_fd2bff488fb845::t_a2ee725df01027 1-9,16-75
+.cursor/skills/writing-commit-messages/SKILL.md
+  s_fd2bff488fb845::t_a2ee725df01027 1-102
+.cursor/skills/systematic-debugging/SKILL.md
+  s_fd2bff488fb845::t_a2ee725df01027 1-97
+.cursor/skills/verification-before-completion/SKILL.md
+  s_fd2bff488fb845::t_a2ee725df01027 1
+.cursor/skills/nodejs-backend-patterns/SKILL.md
+  s_fd2bff488fb845::t_a2ee725df01027 1-43
+.cursor/skills/kca-report-ux/SKILL.md
+  s_fd2bff488fb845::t_fc7a8f7374f636 1-42
+.cursor/skills/github/SKILL.md
+  s_fd2bff488fb845::t_a2ee725df01027 1-80
+.cursor/skills/updating-npm-package/SKILL.md
+  s_fd2bff488fb845::t_5d9a56f235af80 10-13
+  s_fd2bff488fb845::t_a2ee725df01027 1-9,14-117
+.cursor/skills/ai-native-cli/SKILL.md
+  s_fd2bff488fb845::t_a2ee725df01027 1-13,18-319
+  s_fd2bff488fb845::t_ccadf2f233d14c 14-17
+.agent-context-credits.md
+  s_fd2bff488fb845::t_674d29d0bf49dd 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "1ef23fc5274c62d78f99e8f64dfc4d823f1b0f08",
+  "prompts": {},
+  "sessions": {
+    "s_fd2bff488fb845": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9b8b255c-720b-4323-83e4-1d78bc7cee3e",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
