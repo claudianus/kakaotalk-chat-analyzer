@@ -1,0 +1,183 @@
+src/llm-summarize.ts
+  s_072618edd60656::t_caa10d5befc0f0 148
+  s_072618edd60656::t_2579d243e2a965 288-292
+  s_072618edd60656::t_4bc33e44dedd44 22
+  s_072618edd60656::t_9ab0392e5ae254 243,257-272
+  s_072618edd60656::t_53cf3fb9af5de3 143-147,149-155
+dist/src/llm-schema.js
+  s_072618edd60656::t_a8615ebf230351 3-4,15,25,38,43-153
+dist/src/report-story.js
+  s_072618edd60656::t_4661fb864f8a5d 145-150
+dist/src/llm-input.d.ts
+  s_072618edd60656::t_a8615ebf230351 7
+dist/src/report.js
+  s_072618edd60656::t_39d6cce055ebc8 287-288,290
+  s_072618edd60656::t_4661fb864f8a5d 5,11,13,64,66-67,71,81,84,87,96,239,251-253,255,270,306,310-316,324,327-329,335,338-340,343-359,400,402
+  s_072618edd60656::t_91d3643beec879 274,330
+dist/src/report-ux.d.ts
+  s_072618edd60656::t_91d3643beec879 4
+scripts/bundle-report-css.mjs
+  s_072618edd60656::t_8d358967a53bb3 23
+src/report-charts.ts
+  s_072618edd60656::t_a683b0aec5106c 121-122
+  s_072618edd60656::t_1e892f4632652f 147-149,153-155,160-162,164-166
+  s_072618edd60656::t_9e0864566abd85 186
+  s_072618edd60656::t_42d808feafd069 180
+  s_072618edd60656::t_d798c551dfb0ee 2
+dist/src/llm-deck-validate.js.map
+  ai_agent 1
+dist/src/llm-deck-validate.d.ts
+  s_072618edd60656::t_a8615ebf230351 1-4
+dist/src/report-llm-deck.js.map
+  ai_agent 1
+README.md
+  s_072618edd60656::t_a3689f63766922 256
+  s_072618edd60656::t_3e2aa1fcb70e2d 218
+  s_072618edd60656::t_817a0f9697dcaf 241
+src/llm-input.ts
+  s_072618edd60656::t_5b1a9e409afb1b 54-71,73-80,88-94,96
+  s_072618edd60656::t_d161e6ba5d523e 72
+dist/src/report-section-visibility.js
+  s_072618edd60656::t_39d6cce055ebc8 2-5
+  s_072618edd60656::t_4661fb864f8a5d 17-27
+src/report-innovation.ts
+  s_072618edd60656::t_7608eef9a27073 3-9,16,116
+  s_072618edd60656::t_2b44e4dc380438 59
+  s_072618edd60656::t_14db82b719a284 85
+docs/report-redesign-persona-checklist.md
+  s_072618edd60656::t_71f0c086cab3b3 1-12
+src/version.ts
+  s_072618edd60656::t_4661fb864f8a5d 1
+dist/src/report-story.js.map
+  ai_agent 1
+dist/src/report-charts.js
+  s_072618edd60656::t_4661fb864f8a5d 2,83-84,107-108,112-113,118-119,121-122,136,142
+dist/src/llm-input.js.map
+  ai_agent 1
+src/report-section-visibility.ts
+  s_072618edd60656::t_8ec1110b4c4d50 25-37
+  s_072618edd60656::t_d46faaa2a2a824 4-9
+dist/src/llm-schema.d.ts
+  s_072618edd60656::t_a8615ebf230351 15-16,28-29,47-48,55-56,60-61,64-231,233-254
+dist/src/report-styles.js
+  s_072618edd60656::t_91d3643beec879 484-490,1811,1813,1815-1820,1879-1881,2842-2846,2848,2887-2898,2902,2904,2910,2912-2922,2925,2928,2932,2957,2961-2965,2971,3001-3003,3006,3014-3016,3029-3038
+  s_072618edd60656::t_4661fb864f8a5d 2839-2841,2847,2849-2886,2899-2901,2903,2905-2909,2911,2923-2924,2926-2927,2929-2931,2933-2956,2958-2960,2966-2970,2972-3000,3004-3005,3007-3013,3017-3028,3039-3095
+dist/src/llm-json.js.map
+  ai_agent 1
+src/report/css/09-kca-llm-deck.css
+  s_072618edd60656::t_7a793904166bcd 161-163,166,174-176
+  s_072618edd60656::t_346eaa14ed0537 47-48,50-59,62,64,70,72-82,85,88,92
+  s_072618edd60656::t_56fa947adb17dd 189-198
+  s_072618edd60656::t_70eea76f1e4af6 1,7,9-46,49,60-61,63,65-69,71,83-84,86-87,89-91,93-116,118-120,126-130,132-160,164-165,167-173,177-188,199-254
+  s_072618edd60656::t_9afb48c65dbf4e 2-6,8
+  s_072618edd60656::t_7849b2aba3bee5 117,121-125,131
+dist/src/report-charts.js.map
+  ai_agent 1
+dist/src/report-innovation.js.map
+  ai_agent 1
+package.json
+  s_072618edd60656::t_8f38c3f211e73e 3
+dist/src/types.d.ts
+  s_072618edd60656::t_a8615ebf230351 295-332,341-352
+dist/src/report-innovation.js
+  s_072618edd60656::t_4661fb864f8a5d 2-4,10,50,71,99
+dist/src/llm-input.js
+  s_072618edd60656::t_a8615ebf230351 39-50,52-59,65-71,73
+  s_072618edd60656::t_4661fb864f8a5d 51
+dist/src/report-styles.d.ts
+  s_072618edd60656::t_91d3643beec879 2
+test/llm-enrichment.test.ts
+  s_072618edd60656::t_07123d88be8c3a 19
+dist/src/llm-deck-validate.js
+  s_072618edd60656::t_a8615ebf230351 1-146
+src/report/css/05-kca-ux.css
+  s_072618edd60656::t_71538f17d9f426 185,187,189-194
+dist/src/report-llm-deck.js
+  s_072618edd60656::t_4661fb864f8a5d 1-54,56-109,111-117,119-127,129-164
+  s_072618edd60656::t_91d3643beec879 55,110,118,128
+src/report-ux.ts
+  s_072618edd60656::t_06b51e95ff323b 73-75
+dist/src/llm-summarize.js
+  s_072618edd60656::t_a8615ebf230351 12,86-90,92-98,179,190-203,205,211
+  s_072618edd60656::t_4661fb864f8a5d 91
+src/report-styles.ts
+  s_072618edd60656::t_91d3643beec879 484-490,1811,1813,1815-1820,1879-1881,2842-2846,2848,2887-2898,2902,2904,2910,2912-2922,2925,2928,2932,2957,2961-2965,2971,3001-3003,3006,3014-3016,3029-3038
+  s_072618edd60656::t_4661fb864f8a5d 2839-2841,2847,2849-2886,2899-2901,2903,2905-2909,2911,2923-2924,2926-2927,2929-2931,2933-2956,2958-2960,2966-2970,2972-3000,3004-3005,3007-3013,3017-3028,3039-3095
+src/report/css/02-kca-components.css
+  s_072618edd60656::t_9dc1070795c00c 53-59
+dist/src/version.js
+  s_072618edd60656::t_4661fb864f8a5d 1
+dist/src/llm-summarize.js.map
+  ai_agent 1
+dist/src/story.js.map
+  ai_agent 1
+src/llm-json.ts
+  s_072618edd60656::t_fc60c8520e0b8d 12-22
+src/report-story.ts
+  s_072618edd60656::t_eca1504e0af4d0 167-172
+dist/src/report-ux.js
+  s_072618edd60656::t_91d3643beec879 70-72
+scripts/report-visual-qa.mjs
+  s_072618edd60656::t_6bb19976417724 86
+dist/src/version.d.ts
+  s_072618edd60656::t_4661fb864f8a5d 1-2
+src/report-llm-deck.ts
+  s_072618edd60656::t_9f7e41019a247c 135
+  s_072618edd60656::t_5ef2916b2200b8 148
+  s_072618edd60656::t_8f994af52b6478 31-47,49-74,77-125,127-134,136-147,149-189
+  s_072618edd60656::t_4f14e6287ccd46 28
+  s_072618edd60656::t_087c53fc0ce761 48,75-76
+  s_072618edd60656::t_c59989567697d8 1-27,29-30
+  s_072618edd60656::t_e5ff240a6b1572 126
+dist/src/llm-schema.js.map
+  ai_agent 1
+dist/src/report-section-visibility.js.map
+  ai_agent 1
+src/llm-deck-validate.ts
+  s_072618edd60656::t_824e89ce0df641 1-149
+test/llm-deck-validate.test.ts
+  s_072618edd60656::t_85e947790c8623 1-52
+src/report/css/06-kca-responsive.css
+  s_072618edd60656::t_f2e78d1c28a569 49-51
+dist/src/report-section-visibility.d.ts
+  s_072618edd60656::t_4661fb864f8a5d 7-8
+dist/src/report.js.map
+  ai_agent 1
+src/types.ts
+  s_072618edd60656::t_605a489010f344 317-362,368-378
+src/report.ts
+  s_072618edd60656::t_56a2e6725c37fa 39-45,56-57,111,113-114,118,129,132,136,288
+  s_072618edd60656::t_c7179235877c78 325
+  s_072618edd60656::t_5a51be57623a9b 339-340,342
+  s_072618edd60656::t_9e33cf20025249 145
+  s_072618edd60656::t_f8fe33aebe6720 383
+  s_072618edd60656::t_3119ff6667899b 302-304,306
+  s_072618edd60656::t_2dd776853e36a6 359,363-369,377-378,380-381,388,391-393,397-413,455,457
+  s_072618edd60656::t_773b9d9a338ae7 321
+dist/src/llm-json.d.ts
+  s_072618edd60656::t_a8615ebf230351 15-57
+dist/src/report-llm-deck.d.ts
+  s_072618edd60656::t_4661fb864f8a5d 1-11
+dist/src/report-styles.js.map
+  ai_agent 1
+dist/src/report-ux.js.map
+  ai_agent 1
+src/llm-schema.ts
+  s_072618edd60656::t_56649d32153f0f 3-4,15,25,38,43-153
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "ea6c19cf74adb5ea63d5a26ec682cb8685fa1048",
+  "prompts": {},
+  "sessions": {
+    "s_072618edd60656": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "b8df16f6-0b6c-46d2-8e1f-9cac674aaddc",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
