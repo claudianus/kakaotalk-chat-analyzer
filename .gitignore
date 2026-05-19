@@ -18,6 +18,3 @@ dist/test/
 # 로컬 벤치·프로파일 (제품 CLI에 노출하지 않음)
 scripts/deep-profile.mjs
 scripts/explore-export.mjs
-
-# AI agent context (agent-rules-auto-setup — 레지스트리 스킬만; rules는 Git 추적)
-.cursor/skills/
