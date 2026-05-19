@@ -1,0 +1,19 @@
+.cursor/skills/verification-before-completion/SKILL.md
+  s_6183e8d3b1ed5e::t_f2e745b08b4691 1-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "3562431fffbded7e3252b5abe5ed74e40dd635ee",
+  "prompts": {},
+  "sessions": {
+    "s_6183e8d3b1ed5e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "3e6dd9c0-8fa1-47ac-84c6-6ef2729feeaf",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
