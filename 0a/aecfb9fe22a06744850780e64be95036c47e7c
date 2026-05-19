@@ -1,0 +1,25 @@
+docs/index.html
+  s_072618edd60656::t_8e1479d5b5d2fa 455
+scripts/capture-docs-demo.mjs
+  s_072618edd60656::t_211b677d8113fa 309-320
+  s_072618edd60656::t_b291b5d7a87be6 30
+  s_072618edd60656::t_9ed5af71185dbe 64-66
+docs/assets/demo/manifest.json
+  s_072618edd60656::t_53a0b25f27ec6a 2,12,32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "0aaecfb9fe22a06744850780e64be95036c47e7c",
+  "prompts": {},
+  "sessions": {
+    "s_072618edd60656": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "b8df16f6-0b6c-46d2-8e1f-9cac674aaddc",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
