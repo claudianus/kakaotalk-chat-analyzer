@@ -1,0 +1,32 @@
+---
+description: Kiwi·키워드·임베딩·ML 번들 관례
+globs: src/kiwi*.ts,src/semantic*.ts,src/keyword*.ts,src/ml/**,src/topic*.ts,src/ctfidf.ts,src/streaming-tfidf-keywords.ts,data/ml-models/**,scripts/*ml*,scripts/keyword-*.mjs,scripts/sync-ml-models.mjs
+alwaysApply: false
+---
+
+# 한국어 NLP·키워드
+
+## 원칙
+
+- **kiwi-nlp**: 형태소·키워드 풀 (`kiwi-keyword-pool`, `kiwi-tokenize-worker`)
+- **@xenova/transformers** + ONNX: 임베딩·감성 (optional `kakaotalk-chat-analyzer-models`, `onnxruntime-node`)
+- 키워드 파이프: TF-IDF/CT-FIDF → canonical·merge·rank·quality (`keyword-*.ts`, `streaming-tfidf-keywords.ts`)
+- 주제: `topic-map`, `topic-merge`, `topic-normalize`, `embedding-topics`
+
+## ML 번들
+
+- `postinstall`: `scripts/ensure-ml-bundles.mjs`
+- 모델 동기: `npm run sync:ml-models`
+- `data/ml-models/manifest.json` · `ml-bundled-models.ts` · `ml-bundle-*` 일관 유지
+- 대용량 ONNX는 gitignore — CI·optional 패키지로 보급
+
+## 테스트·벤치
+
+- 키워드 회귀: `npm run keyword:audit`, `keyword:diff`
+- 시맨틱: `bench:semantic`, `KCA_NO_SEMANTIC=1`로 QA 가속 가능
+- 새 stopword·lexicon은 `test/`에 코퍼스 기반 케이스 추가
+
+## 주의
+
+- Open Chat / 시스템 알림은 `open-chat-profile`, `system-notices`와 분리 처리
+- 키워드 품질 변경 시 `report:qa`로 리포트 상위어 확인

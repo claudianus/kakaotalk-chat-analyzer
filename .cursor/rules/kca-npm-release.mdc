@@ -1,0 +1,45 @@
+---
+description: npm 버전·배포·NPM_TOKEN·머지 후 publish
+globs: package.json,kcachat/**,.github/workflows/npm-publish.yml,.github/workflows/publish-ml-models.yml
+alwaysApply: false
+---
+
+# npm 배포·버전
+
+## NPM_TOKEN 최초 세팅
+
+1. npmjs.com → **Automation** 또는 Granular **Publish packages** 토큰
+2. `bash scripts/sync-npm-token-to-gh.sh` (또는 `NPM_TOKEN=…` / `.secrets/npm-token` + `NPM_TOKEN_FILE=…`)
+3. Actions **Publish npm packages**를 `workflow_dispatch`로 1회 확인
+
+## PR·머지 후 (강제)
+
+“머지만 하고 끝” 금지.
+
+### GitHub Actions (기본)
+
+- Secrets에 **`NPM_TOKEN`** 필요
+- `npm-publish.yml` paths 히트 + 레지스트리보다 `version`이 클 때만 publish
+- 에이전트: 푸시 후 Actions 성공 확인
+
+### 로컬 publish
+
+1. `npm whoami` · 2FA 또는 publish granular 토큰
+2. 루트: `npm test` → `npm publish --access public`
+3. `cd kcachat && npm install && npm publish --access public` (**본체 먼저**)
+
+같은 `version`이면 CI 스킵.
+
+## 버전 규율
+
+- 새 tarball: 해당 패키지 `version` bump 커밋 필수
+- 본체만: 루트 `package.json` patch/minor
+- `kcachat`만: `kcachat/package.json` (README만이면 생략 가능)
+- 본체 동작 변경: 래퍼 `dependencies["kakaotalk-chat-analyzer"]` 범위 + 래퍼 version
+- **문서만** (README·`docs/`·`AGENTS.md`): npm bump 불필요 → GitHub Pages deploy 확인
+
+`npm run build`: `sync-version.mjs` → CSS 번들 → `tsc`
+
+## 포크
+
+`npm-publish.yml`은 `github.repository == 'claudianus/kakaotalk-chat-analyzer'`일 때만 publish. 포크는 조건·`NPM_TOKEN` 자체 설정.

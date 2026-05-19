@@ -1,0 +1,12 @@
+---
+description: 스택·아키텍처 대변 시 에이전트 컨텍스트 규칙 재검토 제안
+alwaysApply: true
+---
+
+# 컨텍스트 유지보수
+
+기술 스택·디렉터리 구조·배포 경로가 **크게** 바뀌거나 대규모 리팩터링 직후에는, 사용자에게 `.cursor/rules/`·`AGENTS.md` 재검토를 **먼저 제안**한다.
+
+- obsolete glob·중복 alwaysApply 규칙 정리
+- 새 서브시스템(예: 새 ML 런타임, 리포트 렌더러 교체)에 맞는 glob 규칙 추가
+- 상세는 `.cursor/rules/`에, `AGENTS.md`는 인덱스만 유지

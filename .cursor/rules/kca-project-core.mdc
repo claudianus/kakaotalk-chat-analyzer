@@ -1,0 +1,50 @@
+---
+description: kca 도메인·스택·검증·브랜치 핵심 (항상 적용)
+alwaysApply: true
+---
+
+# KakaoTalk Chat Analyzer — 핵심
+
+## 도메인
+
+카카오톡 **CSV 보내기** → 로컬 분석 → **단일 HTML 리포트**. 대화 **원문은 리포트·LLM 입력에 넣지 않음**. 프라이버시 우선.
+
+## 패키지
+
+| 패키지 | 역할 |
+|--------|------|
+| `kakaotalk-chat-analyzer` | 본체 CLI (`kca`, `dist/src/cli.js`) |
+| `kcachat` | `npx kcachat` 래퍼 (본체 의존) |
+
+## 스택
+
+- Node **≥22**, ESM, TypeScript → `npm run build` (`sync-version` → CSS 번들 → `tsc`)
+- CLI: `commander` · CSV: `csv-parse` · 인코딩: `iconv-lite`
+- 한국어 NLP: `kiwi-nlp`, `@xenova/transformers`, ONNX (`onnxruntime-node`, optional)
+- LLM(optional): `node-llama-cpp` — 통계·키워드만 전달
+- 리포트: vanilla TS (`src/report*.ts`, `src/report/css/`), ECharts, `open-props`
+- 테스트: `node --test dist/test/*.test.js` (`npm test` = build + test)
+- 시각 QA: Playwright (`report:qa`, `report-viewport-check`)
+
+## 디렉터리
+
+- `src/` — 파서·분석·키워드·LLM·리포트 생성
+- `test/` — `.test.ts` (빌드 후 `dist/test/` 실행)
+- `scripts/` — QA·벤치·ML·docs 유틸
+- `kcachat/` — npm 래퍼
+- `docs/` — GitHub Pages 랜딩
+
+## 작업 규칙
+
+- 배포 가치 변경: `feat/…` 또는 `fix/…` 브랜치, **`main` 직접 푸시 금지**
+- 커밋 전: **`npm test`** (리포트/UI 변경 시 `.cursor/rules/kca-report-visual-qa.mdc` 추가)
+- PR·cubic·머지: `.cursor/rules/cubic-pr-workflow.mdc`
+- npm·버전·배포: `.cursor/rules/kca-npm-release.mdc`
+- 리포트 파일 편집 시: `kca-report-visual-qa.mdc`, UX 변경 시 `kca-report-ux.mdc`
+- Kiwi·키워드·ML: `kca-korean-nlp.mdc` · LLM·Story Deck: `kca-llm-deck.mdc`
+
+## 코딩 관례
+
+- 기존 `src/` 패턴·네이밍 따름. 불필요한 추상화·과잉 에러 처리 금지.
+- `dist/src`는 제품 산출물로 **커밋** (`dist/test/`만 gitignore).
+- 범위 밖 리팩터·문서·버전 bump는 요청 없이 하지 않음.

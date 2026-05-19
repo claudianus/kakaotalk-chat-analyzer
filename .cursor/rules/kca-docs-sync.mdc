@@ -1,0 +1,18 @@
+---
+description: README·docs·GitHub Pages 사용자 문서 동기화
+globs: README.md,docs/**,kcachat/README.md,scripts/sync-docs-version.mjs,scripts/check-docs-version.mjs
+alwaysApply: false
+---
+
+# 사용자 문서 동기화
+
+배포 가치 있는 UI/CLI 변경 후 체크:
+
+1. [README.md](README.md) **최근 업데이트** 표 + 리포트 UX (동작 변경 시)
+2. [docs/index.html](docs/index.html) pill·히어로 — `npm run sync-docs-version` → `npm run check:docs-version`
+3. 리포트 UI 변경: `npm run docs:capture-demo` 로 `docs/assets/demo/` 갱신
+4. [kcachat/README.md](kcachat/README.md) — 래퍼 env·동작 변경 시만
+5. `docs/` 푸시 후 **Deploy GitHub Pages** Actions 성공 확인
+6. BrewPage 등 공유 URL: 재업로드 후 브라우저로 provenance·차트 확인
+
+문서만 변경 → npm `version` bump **불필요**.

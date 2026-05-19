@@ -1,0 +1,31 @@
+---
+description: LLM Story Deck — 원문 미전송·로컬 추론·JSON 스키마
+globs: src/llm*.ts,src/report-llm-deck.ts,src/room-narrative.ts,src/story.ts,test/llm*.test.ts
+alwaysApply: false
+---
+
+# LLM·Story Deck
+
+## 프라이버시 (강제)
+
+- **대화 원문·개별 메시지**를 LLM·클라우드 API에 보내지 않음
+- 입력: **집계 통계·키워드·메타** (`llm-input.ts`, `report-enrichment.ts`)
+- 로컬: `node-llama-cpp` (`llm-llama-core`, `llm-subprocess`) — optional dependency
+
+## 파이프
+
+- 정책: `llm-policy`, `llm-gpu-policy`, `semantic-policy`
+- JSON: `llm-json`, `llm-schema`, `llm-deck-validate` — 스키마 위반 시 graceful degrade
+- 캐시: `llm-cache` · pull: `llm-pull`, `llm-ensure`
+- UI: `report-llm-deck.ts`, `report/css/09-kca-llm-deck.css`
+
+## 작업 시
+
+- 스키마·프롬프트 변경 → `test/llm-*.test.ts` + deck validate 테스트
+- GPU/메모리: `llm-gpu-policy`, `memory-plan` 참고
+- LLM off 환경에서도 리포트 전체가 깨지지 않게 (`report-section-visibility`, empty states)
+
+## 금지
+
+- 디버그용 원문 dump를 LLM 프롬프트에 추가
+- 클라우드 provider(`providers/cloudflare`)에 채팅 원문 전송 (현재 설계상 미사용 유지)
