@@ -1,0 +1,23 @@
+README.md
+  s_bc0928a92ecc36::t_e66d5e752a5234 264
+docs/assets/demo/manifest.json
+  s_bc0928a92ecc36::t_f3fd7e4d453a1f 2
+docs/index.html
+  s_bc0928a92ecc36::t_a64349f3d44bd7 491
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "3a34b9b47d8d8e97f5db4a35cb1bccf8f2fa6347",
+  "prompts": {},
+  "sessions": {
+    "s_bc0928a92ecc36": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5921ae32-b589-4ad8-9cc4-defcb552eba7",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
