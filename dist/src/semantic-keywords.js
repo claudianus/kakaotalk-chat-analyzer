@@ -15,10 +15,10 @@ import { BUNDLED_KURE_MODEL_ID } from "./ml-bundled-models.js";
 const MIN_SAMPLES = 48;
 let pipelinePromise = null;
 let loadedModelId = null;
-async function loadPipelineForModel(modelId) {
+async function loadPipelineForModel(modelId, buildOptions, messageCount) {
     return withQuietMlStderr(async () => {
         await ensureCoreMlBundles();
-        await ensureSemanticEmbeddingBundle();
+        await ensureSemanticEmbeddingBundle(buildOptions, messageCount);
         let mod;
         try {
             mod = await import("@xenova/transformers");
@@ -68,7 +68,7 @@ async function loadPipeline(buildOptions, messageCount) {
                     process.stderr.write(`[kca] 시맨틱 모델 ${fallbacks[i - 1]} 로드 실패 → ${candidate}: ${msg}\n`);
                 }
                 loadedModelId = candidate;
-                return await loadPipelineForModel(candidate);
+                return await loadPipelineForModel(candidate, buildOptions, messageCount);
             }
             catch (error) {
                 lastError = error;
@@ -120,7 +120,7 @@ async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampl
     const subsampled = subsampleSemanticMessages(messages, maxSamples);
     const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
     const vectors = [];
-    const embedBatch = resolveEmbedBatchSize();
+    const embedBatch = resolveEmbedBatchSize(modelId);
     for (let i = 0; i < clipped.length; i += embedBatch) {
         const batch = clipped.slice(i, i + embedBatch);
         const tensor = await pipe(batch, { pooling: "mean", normalize: true });

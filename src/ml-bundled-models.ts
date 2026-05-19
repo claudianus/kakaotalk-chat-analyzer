@@ -84,19 +84,29 @@ export function hasBundledOnnxExternalData(modelId: string): boolean {
   return existsSync(join(bundledModelDir(modelId), "onnx", "model.onnx_data"));
 }
 
+let onnxSessionCwdChain: Promise<unknown> = Promise.resolve();
+
+/** ORT external data는 model.onnx 기준 상대 경로 — 직렬화된 chdir */
 export async function withBundledOnnxSessionCwd<T>(
   modelId: string,
   fn: () => Promise<T>,
 ): Promise<T> {
   if (!hasBundledOnnxExternalData(modelId)) return fn();
-  const onnxDir = join(bundledModelDir(modelId), "onnx");
-  const prev = process.cwd();
-  process.chdir(onnxDir);
-  try {
-    return await fn();
-  } finally {
-    process.chdir(prev);
-  }
+  const run = onnxSessionCwdChain.then(async () => {
+    const onnxDir = join(bundledModelDir(modelId), "onnx");
+    const prev = process.cwd();
+    process.chdir(onnxDir);
+    try {
+      return await fn();
+    } finally {
+      process.chdir(prev);
+    }
+  });
+  onnxSessionCwdChain = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run as Promise<T>;
 }
 
 /** 번들 ONNX가 있으면 transformers `env.localModelPath` 로 쓸 루트 */

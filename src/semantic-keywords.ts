@@ -35,10 +35,14 @@ type FeaturePipeline = (
 let pipelinePromise: Promise<FeaturePipeline> | null = null;
 let loadedModelId: string | null = null;
 
-async function loadPipelineForModel(modelId: string): Promise<FeaturePipeline> {
+async function loadPipelineForModel(
+  modelId: string,
+  buildOptions?: BuildReportOptions,
+  messageCount?: number,
+): Promise<FeaturePipeline> {
   return withQuietMlStderr(async () => {
     await ensureCoreMlBundles();
-    await ensureSemanticEmbeddingBundle();
+    await ensureSemanticEmbeddingBundle(buildOptions, messageCount);
     let mod: typeof import("@xenova/transformers");
     try {
       mod = await import("@xenova/transformers");
@@ -95,7 +99,7 @@ async function loadPipeline(
           process.stderr.write(`[kca] 시맨틱 모델 ${fallbacks[i - 1]} 로드 실패 → ${candidate}: ${msg}\n`);
         }
         loadedModelId = candidate;
-        return await loadPipelineForModel(candidate);
+        return await loadPipelineForModel(candidate, buildOptions, messageCount);
       } catch (error) {
         lastError = error;
       }
@@ -155,7 +159,7 @@ async function embedMessages(
   const subsampled = subsampleSemanticMessages(messages, maxSamples);
   const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
   const vectors: number[][] = [];
-  const embedBatch = resolveEmbedBatchSize();
+  const embedBatch = resolveEmbedBatchSize(modelId);
   for (let i = 0; i < clipped.length; i += embedBatch) {
     const batch = clipped.slice(i, i + embedBatch);
     const tensor = await pipe(batch, { pooling: "mean", normalize: true });

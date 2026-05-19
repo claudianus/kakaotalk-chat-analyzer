@@ -44,8 +44,10 @@ const EXPORTS = [
   },
 ];
 
-/** npm `kakaotalk-chat-analyzer-models` tarball (~110MB) */
-const NPM_EXPORTS = EXPORTS.filter((e) => e.id !== "kca-kcelectra-base-toxicity");
+/** npm `kakaotalk-chat-analyzer-models` tarball (~110MB) — toxicity·KURE는 Release zip만 */
+const NPM_EXPORTS = EXPORTS.filter(
+  (e) => e.id !== "kca-kcelectra-base-toxicity" && e.id !== "kca-kure-v1",
+);
 
 function optimumCli() {
   const venv = join(root, ".venv-ml", "bin", "optimum-cli");

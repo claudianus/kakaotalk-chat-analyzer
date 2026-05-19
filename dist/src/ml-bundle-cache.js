@@ -201,10 +201,7 @@ async function downloadKureBundle() {
             process.stderr.write("[kca] KURE 번들 압축 해제 실패 (tar/unzip 필요)\n");
             return false;
         }
-        const nested = join(tmpExtract, BUNDLED_KURE_MODEL_ID);
-        const src = existsSync(join(nested, "config.json"))
-            ? nested
-            : findModelDir(tmpExtract, BUNDLED_KURE_MODEL_ID);
+        const src = resolveKureExtractSrc(tmpExtract);
         if (!src) {
             process.stderr.write("[kca] KURE 번들 zip 구조가 예상과 다릅니다\n");
             return false;
@@ -226,6 +223,17 @@ async function downloadKureBundle() {
         if (existsSync(tmpExtract))
             rmSync(tmpExtract, { recursive: true, force: true });
     }
+}
+function resolveKureExtractSrc(tmpExtract) {
+    const nested = join(tmpExtract, BUNDLED_KURE_MODEL_ID);
+    if (kureOnnxReady(tmpExtract))
+        return nested;
+    if (existsSync(join(tmpExtract, "config.json")) &&
+        existsSync(join(tmpExtract, "onnx", "model.onnx")) &&
+        existsSync(join(tmpExtract, "onnx", "model.onnx_data"))) {
+        return tmpExtract;
+    }
+    return undefined;
 }
 function findModelDir(root, modelId) {
     const direct = join(root, modelId);

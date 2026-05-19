@@ -13,7 +13,7 @@ function envInt(name) {
     return Number.isFinite(n) && n > 0 ? n : undefined;
 }
 /** 임베딩·감정 ONNX 배치 — RAM·GPU·env override */
-export function resolveEmbedBatchSize() {
+export function resolveEmbedBatchSize(semanticModelId) {
     const forced = envInt("KCA_EMBED_BATCH");
     if (forced)
         return Math.min(128, forced);
@@ -23,7 +23,8 @@ export function resolveEmbedBatchSize() {
     const gpu = process.env.KCA_ONNX_GPU?.trim().toLowerCase();
     if (gpu && gpu !== "none" && gpu !== "cpu")
         batch = Math.min(64, batch * 2);
-    if (isHeavySemanticModel(semanticEmbeddingModelId())) {
+    const embedModel = semanticModelId ?? semanticEmbeddingModelId();
+    if (isHeavySemanticModel(embedModel)) {
         batch = Math.min(batch, headroom >= 24 ? 12 : 8);
     }
     return batch;
@@ -41,7 +42,7 @@ export function resolveSentimentBatchSize() {
     return batch;
 }
 /** 프로파일·GPU 반영 배치 (비동기 GPU 프로브) */
-export async function resolveEmbedBatchSizeAsync() {
+export async function resolveEmbedBatchSizeAsync(semanticModelId) {
     const forced = envInt("KCA_EMBED_BATCH");
     if (forced)
         return Math.min(128, forced);
@@ -51,7 +52,8 @@ export async function resolveEmbedBatchSizeAsync() {
     let batch = headroom >= 20 ? 32 : headroom >= 12 ? 24 : headroom >= 8 ? 16 : 12;
     if (gpu !== "none")
         batch = Math.min(64, batch * 2);
-    if (isHeavySemanticModel(semanticEmbeddingModelId())) {
+    const embedModel = semanticModelId ?? semanticEmbeddingModelId();
+    if (isHeavySemanticModel(embedModel)) {
         batch = Math.min(batch, headroom >= 24 ? 12 : 8);
     }
     return batch;

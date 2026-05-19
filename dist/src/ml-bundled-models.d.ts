@@ -10,6 +10,7 @@ export declare function isBundledToxicityModelReady(): boolean;
 export declare function isBundledKureModelReady(): boolean;
 /** ONNX 외부 가중치(model.onnx_data) — 세션 cwd를 onnx/ 로 맞춤 */
 export declare function hasBundledOnnxExternalData(modelId: string): boolean;
+/** ORT external data는 model.onnx 기준 상대 경로 — 직렬화된 chdir */
 export declare function withBundledOnnxSessionCwd<T>(modelId: string, fn: () => Promise<T>): Promise<T>;
 /** 번들 ONNX가 있으면 transformers `env.localModelPath` 로 쓸 루트 */
 export declare function bundledMlModelsRoot(): string | undefined;
