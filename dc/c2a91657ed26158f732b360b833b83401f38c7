@@ -1,0 +1,53 @@
+dist/src/llm-deck-validate.js.map
+  ai_agent 1
+dist/src/llm-input.js.map
+  ai_agent 1
+dist/src/report-charts.js.map
+  ai_agent 1
+src/report/css/09-kca-llm-deck.css
+  s_072618edd60656::t_327e16e4485bbf 91,130,173
+src/llm-input.ts
+  s_072618edd60656::t_47923a0aec6183 72
+dist/src/report-llm-deck.js.map
+  ai_agent 1
+dist/src/llm-deck-validate.js
+  s_072618edd60656::t_ffec0529bd9678 24-25
+  s_072618edd60656::t_35a2afa2f38739 42-44
+dist/src/report-charts.d.ts
+  s_072618edd60656::t_35a2afa2f38739 77
+test/llm-deck-validate.test.ts
+  s_072618edd60656::t_8e389edd2f0b64 38-52
+dist/src/report-styles.js
+  s_072618edd60656::t_35a2afa2f38739 2931,2970,3013
+src/llm-deck-validate.ts
+  s_072618edd60656::t_5e8c9714f5dd69 43-45
+  s_072618edd60656::t_1ff8b647ad318f 27
+dist/src/report-styles.d.ts
+  s_072618edd60656::t_35a2afa2f38739 2
+dist/src/report-llm-deck.js
+  s_072618edd60656::t_35a2afa2f38739 150
+dist/src/llm-input.js
+  s_072618edd60656::t_35a2afa2f38739 51
+.github/workflows/report-visual-qa.yml
+  s_072618edd60656::t_448cea403811ae 46
+src/report-styles.ts
+  s_072618edd60656::t_35a2afa2f38739 2931,2970,3013
+src/report-llm-deck.ts
+  s_072618edd60656::t_116c2fdf86f1ce 177
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "dcc2a91657ed26158f732b360b833b83401f38c7",
+  "prompts": {},
+  "sessions": {
+    "s_072618edd60656": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "b8df16f6-0b6c-46d2-8e1f-9cac674aaddc",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
