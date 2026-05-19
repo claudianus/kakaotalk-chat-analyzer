@@ -8,6 +8,7 @@ node_modules/
 .kca/
 data/ml-models/**/*.onnx
 data/ml-models/**/onnx/
+data/ml-models/kca-kure-v1/
 kca-kcelectra-base-toxicity-onnx.zip
 .qa-reports/
 .maru/
