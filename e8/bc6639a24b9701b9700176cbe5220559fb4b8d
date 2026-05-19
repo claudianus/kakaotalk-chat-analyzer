@@ -1,0 +1,34 @@
+dist/src/version.d.ts
+  s_12bf7f4a19d597::t_3024dacabd2476 1-2
+package.json
+  s_12bf7f4a19d597::t_0660c8968ef3b1 3
+src/version.ts
+  s_12bf7f4a19d597::t_3024dacabd2476 1
+dist/src/analysis-budget.js.map
+  ai_agent 1
+dist/src/analysis-budget.js
+  s_12bf7f4a19d597::t_3024dacabd2476 32
+src/analysis-budget.ts
+  s_12bf7f4a19d597::t_13547d631e1dd2 37
+kcachat/package.json
+  s_12bf7f4a19d597::t_126541ecd0a645 3
+  s_12bf7f4a19d597::t_e5b213fb9f9b5c 15
+dist/src/version.js
+  s_12bf7f4a19d597::t_3024dacabd2476 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e8bc6639a24b9701b9700176cbe5220559fb4b8d",
+  "prompts": {},
+  "sessions": {
+    "s_12bf7f4a19d597": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f66433db-8c63-4742-81bd-6acb364b1bdd",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
