@@ -1,0 +1,35 @@
+docs/assets/demo/manifest.json
+  s_8d6f0f144e6741::t_d28072b73d637c 7-17,21-22,56-57
+README.md
+  s_8d6f0f144e6741::t_5bc551b1a97162 109,113-122
+  s_8d6f0f144e6741::t_c7855bb6df04f8 29
+  s_8d6f0f144e6741::t_c1a83253e297d2 262
+  s_8d6f0f144e6741::t_09c9657d497b2e 22-25
+docs/index.html
+  s_8d6f0f144e6741::t_b79939d3eb71fc 157-191
+  s_8d6f0f144e6741::t_02a022441ac0a8 486-487
+  s_8d6f0f144e6741::t_fdfce7f36743c5 541
+  s_8d6f0f144e6741::t_0af2088d5b36bc 616-618,621
+  s_8d6f0f144e6741::t_2240765f68bfc8 510-512
+  s_8d6f0f144e6741::t_acacbe9c259206 521-538
+scripts/capture-docs-demo.mjs
+  s_8d6f0f144e6741::t_4e4650596f8d18 111-112
+  s_8d6f0f144e6741::t_1db8e75c8b6200 24,27-47,50-51
+  s_8d6f0f144e6741::t_23c9dc942adfc0 337-343
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "2ed534abaab9aaed435c86c0743da9a6be763b65",
+  "prompts": {},
+  "sessions": {
+    "s_8d6f0f144e6741": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "81e720e9-d3ec-45f5-9d20-26843d45069a",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
