@@ -1,0 +1,63 @@
+dist/src/ml-batch-size.js
+  s_bc0928a92ecc36::t_327bb0ee3946e3 16,26-27,45,55-56
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+src/ml-batch-size.ts
+  s_bc0928a92ecc36::t_8297765a3e8c85 18
+  s_bc0928a92ecc36::t_11348479feb6a9 47
+  s_bc0928a92ecc36::t_7096c9a1cf1362 56-57
+  s_bc0928a92ecc36::t_604855c34458f6 27-28
+dist/src/ml-bundled-models.js
+  s_bc0928a92ecc36::t_327bb0ee3946e3 54-55,59-71
+src/ml-bundled-models.ts
+  s_bc0928a92ecc36::t_491c86151712e8 87-89,95-109
+dist/src/ml-batch-size.d.ts
+  s_bc0928a92ecc36::t_327bb0ee3946e3 2,5
+test/keyword-canonical.test.ts
+  s_bc0928a92ecc36::t_8dbcd3fe07ae0b 24-27
+dist/src/semantic-keywords.js
+  s_bc0928a92ecc36::t_327bb0ee3946e3 18,21,71,123
+data/ml-models/kca-kure-v1/tokenizer_config.json
+  s_bc0928a92ecc36::t_f459772d897793 1-63
+src/ml-bundle-cache.ts
+  s_bc0928a92ecc36::t_fb3c2cd4850d8d 249-261
+  s_bc0928a92ecc36::t_b2fbd5cfaf3a6a 229
+data/ml-models/kca-kure-v1/special_tokens_map.json
+  s_bc0928a92ecc36::t_f459772d897793 1-51
+scripts/sync-ml-models.mjs
+  s_bc0928a92ecc36::t_bcfdd90d2347c7 47-50
+dist/src/ml-batch-size.js.map
+  ai_agent 1
+dist/src/ml-bundled-models.js.map
+  ai_agent 1
+dist/src/ml-bundle-cache.js.map
+  ai_agent 1
+src/semantic-keywords.ts
+  s_bc0928a92ecc36::t_3f5f0e52e285b0 102
+  s_bc0928a92ecc36::t_8fef1e6c21f040 38-42,45
+  s_bc0928a92ecc36::t_a45f80d7a953de 162
+dist/src/ml-bundled-models.d.ts
+  s_bc0928a92ecc36::t_327bb0ee3946e3 13
+data/ml-models/kca-kure-v1/config.json
+  s_bc0928a92ecc36::t_f459772d897793 1-28
+data/ml-models/kca-kure-v1/tokenizer.json
+  s_bc0928a92ecc36::t_f459772d897793 1-1000188
+dist/src/ml-bundle-cache.js
+  s_bc0928a92ecc36::t_327bb0ee3946e3 204,227-236
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "b38cdf7ae31f3d1a27a909fdb8f32c0988e3d45b",
+  "prompts": {},
+  "sessions": {
+    "s_bc0928a92ecc36": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5921ae32-b589-4ad8-9cc4-defcb552eba7",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
