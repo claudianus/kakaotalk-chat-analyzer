@@ -1,0 +1,50 @@
+docs/index.html
+  s_bc0928a92ecc36::t_730e4e447dbd9f 491
+README.md
+  s_bc0928a92ecc36::t_cc73a76d0f1271 264
+  s_bc0928a92ecc36::t_85822a4d014a5b 218
+dist/src/version.js
+  s_bc0928a92ecc36::t_58b2f70ed1f68a 1
+dist/src/ml-bundle-cache.js.map
+  ai_agent 1
+dist/src/ml-bundle-cache.js
+  s_bc0928a92ecc36::t_58b2f70ed1f68a 29,35-36,38-41,44-48,50-80,158-170,187-197,201-202,204-218,225,228,230,233,238-239,243
+kakaotalk-chat-analyzer-models/package.json
+  s_bc0928a92ecc36::t_5cd79279bc67d7 3
+src/ml-bundle-cache.ts
+  s_bc0928a92ecc36::t_f3becf32531c91 44,50-52,54-58,62-67,69-97
+  s_bc0928a92ecc36::t_389d2b26ffece6 210-230,234-235,238-257,263,266,268,271,275-276,279
+  s_bc0928a92ecc36::t_cc31099ebe9586 183-194
+.github/workflows/publish-ml-models.yml
+  s_bc0928a92ecc36::t_5bf8c2d5ddce73 63-68
+  s_bc0928a92ecc36::t_6f75590f4ca8ca 89,96-104
+src/version.ts
+  s_bc0928a92ecc36::t_58b2f70ed1f68a 1
+test/ml-bundle-cache.test.ts
+  s_bc0928a92ecc36::t_e4c01df8db1c6b 1-23
+dist/src/ml-bundle-cache.d.ts
+  s_bc0928a92ecc36::t_58b2f70ed1f68a 5-6,9-10
+docs/assets/demo/manifest.json
+  s_bc0928a92ecc36::t_8b58513d20036d 2
+package.json
+  s_bc0928a92ecc36::t_c0e60488d8fed9 3
+  s_bc0928a92ecc36::t_06459c20e0aff8 67
+dist/src/version.d.ts
+  s_bc0928a92ecc36::t_58b2f70ed1f68a 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "3f3ab924523ef7112740af70cf391f72cfc95ec4",
+  "prompts": {},
+  "sessions": {
+    "s_bc0928a92ecc36": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5921ae32-b589-4ad8-9cc4-defcb552eba7",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
