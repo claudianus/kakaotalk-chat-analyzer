@@ -53,25 +53,31 @@ export async function listReleaseAssetUrls(assetName) {
     const owner = repo.slice(0, slash);
     const name = repo.slice(slash + 1);
     try {
-        const api = `https://api.github.com/repos/${owner}/${name}/releases?per_page=30`;
-        const res = await fetch(api, {
-            redirect: "follow",
-            headers: {
-                Accept: "application/vnd.github+json",
-                "User-Agent": "kakaotalk-chat-analyzer",
-            },
-        });
-        if (!res.ok)
-            return urls;
-        const releases = (await res.json());
-        for (const rel of releases) {
-            const tag = rel.tag_name?.trim();
-            if (!tag?.startsWith("ml-models-v"))
-                continue;
-            const asset = rel.assets?.find((a) => a.name === assetName);
-            const href = asset?.browser_download_url?.trim();
-            if (href)
-                urls.push(href);
+        for (let page = 1; page <= 5; page += 1) {
+            const api = `https://api.github.com/repos/${owner}/${name}/releases?per_page=100&page=${page}`;
+            const res = await fetch(api, {
+                redirect: "follow",
+                headers: {
+                    Accept: "application/vnd.github+json",
+                    "User-Agent": "kakaotalk-chat-analyzer",
+                },
+            });
+            if (!res.ok)
+                break;
+            const releases = (await res.json());
+            if (releases.length === 0)
+                break;
+            for (const rel of releases) {
+                const tag = rel.tag_name?.trim();
+                if (!tag?.startsWith("ml-models-v"))
+                    continue;
+                const asset = rel.assets?.find((a) => a.name === assetName);
+                const href = asset?.browser_download_url?.trim();
+                if (href)
+                    urls.push(href);
+            }
+            if (releases.length < 100)
+                break;
         }
     }
     catch {
