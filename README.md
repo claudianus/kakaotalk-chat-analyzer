@@ -261,6 +261,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.21.0** | **`ultra` preset**·quality/ultra **KURE-v1** 로컬 ONNX lazy(Release zip)·KoELECTRA embed 폴백·preset별 시맨틱·독성 ML on(ultra) |
 | **0.20.0** | **LLM child 프로세스 격리** — Metal/GGUF SIGSEGV도 리포트 완료·CPU·소형 모델 자동 재시도·post-ML free RAM GPU 정책 |
 | **0.19.12** | **LLM Story Deck**(아키타입·에피소드·캐릭터·올해의 순간·관계 드라마·방 밈·공유 문구)·**슬림 ① 핵심 숫자**·중복 차트·규칙 페르소나 제거·섹션 ⓪~⑥ 내비 |
 | **0.19.11** | `llm_retry` 예산을 실제 재시도 모델 크기에 맞춤 |
