@@ -1,0 +1,9 @@
+docs/assets/demo/manifest.json
+  ai_agent 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "e56e2ef9c0ae089cb7d1be1c5aab28051033f143",
+  "prompts": {}
+}
