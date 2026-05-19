@@ -29,7 +29,7 @@ export function phaseReserveMs(phase, preset, profile, llmSize) {
         return llmPhaseReserveMs(llmSize, preset);
     }
     if (phase === "llm_retry") {
-        return llmPhaseReserveMs("0.8B", preset);
+        return llmPhaseReserveMs(llmSize ?? "0.8B", preset);
     }
     return BASE_RESERVE_MS[phase];
 }

@@ -34,7 +34,7 @@ export function phaseReserveMs(
     return llmPhaseReserveMs(llmSize, preset);
   }
   if (phase === "llm_retry") {
-    return llmPhaseReserveMs("0.8B", preset);
+    return llmPhaseReserveMs(llmSize ?? "0.8B", preset);
   }
   return BASE_RESERVE_MS[phase as Exclude<BudgetSkippablePhase, "llm" | "llm_retry">];
 }
