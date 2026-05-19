@@ -1,0 +1,187 @@
+kcachat/package.json
+  s_162e0bd753a749::t_ef6c9b2580ef0d 3
+  s_162e0bd753a749::t_bfd0c03cce2993 15
+src/memory-plan.ts
+  s_162e0bd753a749::t_e19eb0af5531d9 3,6,41
+  s_162e0bd753a749::t_695315a8844e56 1-2,4-5,7-40,42-46
+dist/src/types.d.ts
+  s_162e0bd753a749::t_dd8e6e101273b2 442-449,464-472
+dist/src/llm-gpu-policy.js
+  s_162e0bd753a749::t_42503c05f2a95f 1-16
+src/llm-infer-internal.ts
+  s_162e0bd753a749::t_090cfe09fe707d 1,3-4,8,10-67
+  s_162e0bd753a749::t_62c306e6bc6f5a 2,5-7,9
+dist/src/llm-gpu-policy.d.ts
+  s_162e0bd753a749::t_42503c05f2a95f 1-5
+dist/src/llm-subprocess.d.ts
+  s_162e0bd753a749::t_42503c05f2a95f 1-34
+src/analysis-effective-config.ts
+  s_162e0bd753a749::t_19663549fe42b5 237-242
+  s_162e0bd753a749::t_f3b5c3242fa958 445-454
+dist/src/report-provenance.js
+  s_162e0bd753a749::t_dd8e6e101273b2 76-78
+src/llm-runtime.ts
+  s_162e0bd753a749::t_4661ba52d13a80 23-24
+  s_162e0bd753a749::t_54cd0d204265dc 1-20,26-29,32-39,42-43
+test/llm-subprocess.test.ts
+  s_162e0bd753a749::t_de2640c7230cfc 1-80
+README.md
+  s_162e0bd753a749::t_596fc7515b014a 226
+  s_162e0bd753a749::t_ee032d323d5d11 247
+  s_162e0bd753a749::t_951cf6c76f132f 262
+dist/src/version.d.ts
+  s_162e0bd753a749::t_632feaa92baca4 1-2
+dist/src/llm-infer-cli.js
+  s_162e0bd753a749::t_42503c05f2a95f 1-53
+src/llm-gpu-policy.ts
+  s_162e0bd753a749::t_11983fd63c9e69 1-2,4-15
+  s_162e0bd753a749::t_b156f5328188ca 3
+dist/src/llm-infer-cli.d.ts
+  s_162e0bd753a749::t_42503c05f2a95f 1-2
+dist/src/llm-qwen35.d.ts
+  s_162e0bd753a749::t_42503c05f2a95f 24-25
+dist/src/llm-summarize.js
+  s_162e0bd753a749::t_dd8e6e101273b2 269,272-274
+  s_162e0bd753a749::t_42503c05f2a95f 7,13-14,51-65,79,82-109
+src/llm-apply.ts
+  s_162e0bd753a749::t_2b688f4317aecb 4,9
+  s_162e0bd753a749::t_46f8d63ef7c090 22
+dist/src/version.js.map
+  ai_agent 1
+src/version.ts
+  s_162e0bd753a749::t_dd8e6e101273b2 1
+dist/src/llm-infer-internal.d.ts
+  s_162e0bd753a749::t_42503c05f2a95f 1-3
+dist/src/llm-llama-core.js.map
+  ai_agent 1
+dist/src/llm-qwen35.js.map
+  ai_agent 1
+src/analysis.ts
+  s_162e0bd753a749::t_ab938ab88935ce 521
+  s_162e0bd753a749::t_b66be8c121eb99 608
+  s_162e0bd753a749::t_49878ea18ed0b8 326
+  s_162e0bd753a749::t_1e3c440bc5eec1 22-26
+  s_162e0bd753a749::t_b216394cd57d0a 371-377
+  s_162e0bd753a749::t_e78474c2070e2e 282-284,286,295,301-312
+dist/src/llm-llama-core.js
+  s_162e0bd753a749::t_42503c05f2a95f 1-70
+dist/src/memory-plan.js.map
+  ai_agent 1
+dist/src/llm-gpu-policy.js.map
+  ai_agent 1
+dist/src/llm-summarize.js.map
+  ai_agent 1
+dist/src/llm-runtime.js.map
+  ai_agent 1
+src/report-provenance.ts
+  s_162e0bd753a749::t_18d34ffb2a1cf8 122-124
+  s_162e0bd753a749::t_dbd40f36782215 40
+dist/src/memory-plan.d.ts
+  s_162e0bd753a749::t_dd8e6e101273b2 1-20
+test/analysis-effective-config.test.ts
+  s_162e0bd753a749::t_0b801aa79ec8f0 14-15
+.github/workflows/llm-smoke-macos.yml
+  s_162e0bd753a749::t_fa679ee9e868c9 1-25
+dist/src/llm-apply.d.ts
+  s_162e0bd753a749::t_dd8e6e101273b2 4,7
+dist/src/llm-resolve.d.ts
+  s_162e0bd753a749::t_dd8e6e101273b2 10-11,25-26
+dist/src/analysis-effective-config.js
+  s_162e0bd753a749::t_dd8e6e101273b2 159-164,332-341
+dist/src/llm-infer-cli.js.map
+  ai_agent 1
+dist/src/llm-resolve.js
+  s_162e0bd753a749::t_dd8e6e101273b2 38-58,67,69,71,73,76,78-79
+dist/src/llm-infer-internal.js.map
+  ai_agent 1
+dist/src/llm-runtime.js
+  s_162e0bd753a749::t_42503c05f2a95f 1-6,8-9,11-22
+dist/src/report-provenance.js.map
+  ai_agent 1
+dist/src/version.js
+  s_162e0bd753a749::t_632feaa92baca4 1
+dist/src/llm-infer-internal.js
+  s_162e0bd753a749::t_42503c05f2a95f 1-45
+dist/src/analysis.js
+  s_162e0bd753a749::t_dd8e6e101273b2 21,204-207,214,219-230,242,279-285,405,486
+src/llm-resolve.ts
+  s_162e0bd753a749::t_332152f861639a 83-84
+  s_162e0bd753a749::t_5ff38cf417bd19 46-68
+  s_162e0bd753a749::t_d928aee842cb09 95-100,102,104,106
+  s_162e0bd753a749::t_7b7566d6f4e0da 110,112-118
+dist/src/report-provenance.d.ts
+  s_162e0bd753a749::t_dd8e6e101273b2 30
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+dist/src/llm-llama-core.d.ts
+  s_162e0bd753a749::t_42503c05f2a95f 1-45
+dist/src/llm-apply.js.map
+  ai_agent 1
+dist/src/llm-subprocess.js.map
+  ai_agent 1
+src/llm-summarize.ts
+  s_162e0bd753a749::t_29f2d0ab5a802f 14-19
+  s_162e0bd753a749::t_021496d385a7e1 375-379,385,389-392
+  s_162e0bd753a749::t_44bb2f7a46f2a0 105-126,130,148,152-189
+  s_162e0bd753a749::t_7662230a2735cb 30-31
+src/llm-subprocess.ts
+  s_162e0bd753a749::t_5ac6917a58aa9a 1-3,5-191
+  s_162e0bd753a749::t_489e03ee5985b6 4
+dist/src/analysis.js.map
+  ai_agent 1
+dist/src/llm-resolve.js.map
+  ai_agent 1
+test/llm-qwen35-downgrade.test.ts
+  s_162e0bd753a749::t_6952d2be36cbea 1-10
+dist/src/llm-subprocess.js
+  s_162e0bd753a749::t_42503c05f2a95f 1-152
+package.json
+  s_162e0bd753a749::t_dfc12df01db3c5 3
+test/memory-plan.test.ts
+  s_162e0bd753a749::t_ff873574b85e6c 1-29,36-43,46-47,50-60
+  s_162e0bd753a749::t_8c31f8da62ec17 30-35,44-45
+  s_162e0bd753a749::t_adc5968e8c6fc4 48-49
+src/llm-llama-core.ts
+  s_162e0bd753a749::t_1a6f34e468edca 1-111
+src/types.ts
+  s_162e0bd753a749::t_3173684938de4a 464-471
+  s_162e0bd753a749::t_64e28c5b4c9c12 487-495
+src/llm-qwen35.ts
+  s_162e0bd753a749::t_a7b6962eb501b6 109-117
+src/llm-infer-cli.ts
+  s_162e0bd753a749::t_6d1860fb3038ec 1-53
+test/llm-gpu-policy.test.ts
+  s_162e0bd753a749::t_9d3c425620da64 10-13
+  s_162e0bd753a749::t_c54eecc212abe8 1-9,14-36
+dist/src/llm-qwen35.js
+  s_162e0bd753a749::t_42503c05f2a95f 86-93
+dist/src/llm-apply.js
+  s_162e0bd753a749::t_dd8e6e101273b2 4
+docs/superpowers/specs/2026-05-19-llm-runtime-resilience-design.md
+  s_162e0bd753a749::t_c4edafa11bd275 3
+  s_162e0bd753a749::t_5ac0b20e6fa0ce 1-2,4-277
+dist/src/memory-plan.js
+  s_162e0bd753a749::t_dd8e6e101273b2 1-23
+dist/src/llm-runtime.d.ts
+  s_162e0bd753a749::t_42503c05f2a95f 1-6
+docs/superpowers/plans/2026-05-19-llm-runtime-resilience.md
+  s_162e0bd753a749::t_134b239bd48baa 1-167
+dist/src/llm-summarize.d.ts
+  s_162e0bd753a749::t_dd8e6e101273b2 35-38,40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "c7e7681696916739ad3fc1da5d33235ea009f86c",
+  "prompts": {},
+  "sessions": {
+    "s_162e0bd753a749": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a766fe3c-ec95-4481-be2e-73dac6c54fda",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
