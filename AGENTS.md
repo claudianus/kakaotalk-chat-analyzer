@@ -124,7 +124,7 @@ PR·커밋·배포 완료 메시지에 반드시 포함:
 `main` 푸시 전·후 에이전트 체크리스트:
 
 1. [README.md](README.md) **최근** 표 + **리포트 UX** (동작이 바뀐 경우)
-2. [docs/index.html](docs/index.html) pill·히어로 — `node scripts/sync-docs-version.mjs` 로 pill을 `package.json`과 맞춤. 리포트 UI가 바뀌면 `npm run docs:capture-demo` 로 `docs/assets/demo/` 스크린샷 갱신
+2. [docs/index.html](docs/index.html) pill·히어로 — `npm run sync-docs-version` 후 `npm run check:docs-version` (pill·manifest·README 최상단 행). 리포트 UI가 바뀌면 `npm run docs:capture-demo` 로 `docs/assets/demo/` 스크린샷 갱신
 3. [kcachat/README.md](kcachat/README.md) — 래퍼 env·동작 변경 시만
 4. `docs/` 변경 시 **Deploy GitHub Pages** Actions 성공 확인
 5. 공유 URL(BrewPage)은 **재생성·재업로드** 후 브라우저로 provenance·차트 확인

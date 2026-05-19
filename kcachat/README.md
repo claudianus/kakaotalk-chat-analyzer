@@ -36,6 +36,8 @@ npx kcachat@latest "C:\경로\KakaoTalk_Chat_....csv"
 | `KCA_PRESET` | `speed` · `balanced` · `quality` · `custom` |
 | `KCA_SEMANTIC_MODEL` | 임베딩 HF/Xenova id |
 | `KCA_LLM` | `0`이면 LLM 서사 끔 (기본 on) |
+| `KCA_LLM_GRAMMAR` | `0`이면 JSON Schema grammar 끔 (기본 on) |
+| `KCA_LLM_MIN_FREE_GB` | LLM 재시도 free RAM 하한 (기본 1.5) |
 | `KCA_LLM_GPU` | `auto` · `metal` · `none` (macOS Metal 호환) |
 | `KCA_NO_SEMANTIC` | `1`이면 시맨틱 끔 |
 
