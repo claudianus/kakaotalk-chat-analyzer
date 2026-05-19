@@ -1,0 +1,77 @@
+dist/src/llm-summarize.js.map
+  ai_agent 1
+test/analysis-budget.test.ts
+  s_12bf7f4a19d597::t_2bf40adbaa567b 60-70
+src/analysis-budget.ts
+  s_12bf7f4a19d597::t_15d89d039771a8 8
+  s_12bf7f4a19d597::t_4affd93caae205 36-38
+  s_12bf7f4a19d597::t_f69828571199e3 39
+  s_12bf7f4a19d597::t_57132a6300a274 6
+src/llm-summarize.ts
+  s_12bf7f4a19d597::t_03d64b83ea146c 305-309
+  s_12bf7f4a19d597::t_6c0fba0bf65d53 350-353
+  s_12bf7f4a19d597::t_eebc6a96695894 123-125
+  s_12bf7f4a19d597::t_c2b987b3c0a651 19
+  s_12bf7f4a19d597::t_abf74cc7985a84 183
+  s_12bf7f4a19d597::t_c70d50488f71ba 269-274,280
+scripts/bench-llm-json.mjs
+  s_12bf7f4a19d597::t_c133ef931b9368 1-86
+dist/src/llm-summarize.js
+  s_12bf7f4a19d597::t_cd4c2ca53ad3dd 66-68,120,191-196,198,219-223,258-260
+dist/src/llm-apply.js.map
+  ai_agent 1
+dist/src/version.js.map
+  ai_agent 1
+test/llm-enrichment.test.ts
+  s_12bf7f4a19d597::t_eedc958b94f092 41-58
+dist/src/llm-summarize.d.ts
+  s_12bf7f4a19d597::t_cd4c2ca53ad3dd 5,36
+dist/src/analysis.js
+  s_12bf7f4a19d597::t_cd4c2ca53ad3dd 217
+test/ml-dispose.test.ts
+  s_12bf7f4a19d597::t_fe4ecbc659e50f 1-16
+kcachat/package.json
+  s_12bf7f4a19d597::t_885d811ac63ae7 3
+  s_12bf7f4a19d597::t_869290af99a448 15
+dist/src/analysis-budget.d.ts
+  s_12bf7f4a19d597::t_cd4c2ca53ad3dd 4
+package.json
+  s_12bf7f4a19d597::t_2ec95d714c00c0 3
+  s_12bf7f4a19d597::t_3cae010b606513 40
+dist/src/analysis-budget.js
+  s_12bf7f4a19d597::t_cd4c2ca53ad3dd 31-33
+src/analysis.ts
+  s_12bf7f4a19d597::t_772e7645e9731e 295
+dist/src/version.js
+  s_12bf7f4a19d597::t_bf42176d0370be 1
+dist/src/analysis.js.map
+  ai_agent 1
+src/llm-apply.ts
+  s_12bf7f4a19d597::t_03baed61eaf7ed 3,6-9,14,16-21
+dist/src/llm-apply.js
+  s_12bf7f4a19d597::t_cd4c2ca53ad3dd 3-4
+dist/src/version.d.ts
+  s_12bf7f4a19d597::t_bf42176d0370be 1-2
+dist/src/analysis-budget.js.map
+  ai_agent 1
+src/version.ts
+  ai_agent 1
+dist/src/llm-apply.d.ts
+  s_12bf7f4a19d597::t_cd4c2ca53ad3dd 3-6,8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a9416e3e4dfbf3acd5019a5b81d21ae998263a83",
+  "prompts": {},
+  "sessions": {
+    "s_12bf7f4a19d597": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f66433db-8c63-4742-81bd-6acb364b1bdd",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
