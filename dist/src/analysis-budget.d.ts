@@ -1,7 +1,7 @@
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import { type MachineProfile } from "./analysis-capability.js";
 import type { Qwen35Size } from "./llm-qwen35.js";
-export type BudgetSkippablePhase = "semantic" | "sentiment" | "llm";
+export type BudgetSkippablePhase = "semantic" | "sentiment" | "llm" | "llm_retry";
 /** preset·가용 RAM에 따른 단계 예약 시간 */
 export declare function phaseReserveMs(phase: BudgetSkippablePhase, preset: AnalysisPresetName, profile: MachineProfile, llmSize?: Qwen35Size): number;
 /** 집계 시작 시각 + 예산으로 단계 skip 여부 */

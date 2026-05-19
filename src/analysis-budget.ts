@@ -3,12 +3,11 @@ import { analysisBudgetMs, memoryHeadroomGb, type MachineProfile } from "./analy
 import { llmPhaseReserveMs } from "./llm-resolve.js";
 import type { Qwen35Size } from "./llm-qwen35.js";
 
-export type BudgetSkippablePhase = "semantic" | "sentiment" | "llm";
+export type BudgetSkippablePhase = "semantic" | "sentiment" | "llm" | "llm_retry";
 
-const BASE_RESERVE_MS: Record<BudgetSkippablePhase, number> = {
+const BASE_RESERVE_MS: Record<Exclude<BudgetSkippablePhase, "llm" | "llm_retry">, number> = {
   semantic: 120_000,
   sentiment: 90_000,
-  llm: 50_000,
 };
 
 /** preset·가용 RAM에 따른 단계 예약 시간 */
@@ -34,7 +33,10 @@ export function phaseReserveMs(
   if (phase === "llm") {
     return llmPhaseReserveMs(llmSize, preset);
   }
-  return BASE_RESERVE_MS[phase];
+  if (phase === "llm_retry") {
+    return llmPhaseReserveMs("0.8B", preset);
+  }
+  return BASE_RESERVE_MS[phase as Exclude<BudgetSkippablePhase, "llm" | "llm_retry">];
 }
 
 /** 집계 시작 시각 + 예산으로 단계 skip 여부 */

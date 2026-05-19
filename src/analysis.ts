@@ -292,7 +292,7 @@ async function runLlmPhaseIfAllowed(
   }
   try {
     await disposeUtteranceMlPipelines();
-    return await enrichReportWithLlm(report, options);
+    return await enrichReportWithLlm(report, options, { budget });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     process.stderr.write(`[kca] LLM 건너뜀 — ${msg}\n`);

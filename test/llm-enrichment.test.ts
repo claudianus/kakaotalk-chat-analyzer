@@ -38,3 +38,21 @@ test("applyLlmEnrichment off when KCA_LLM=0 (any preset)", async () => {
     else process.env.KCA_LLM = prev;
   }
 });
+
+test("applyLlmEnrichment skips gracefully on invalid mock JSON without throw", async () => {
+  const prevMock = process.env.KCA_LLM_MOCK;
+  const prevLlm = process.env.KCA_LLM;
+  process.env.KCA_LLM_MOCK = "invalid";
+  process.env.KCA_LLM = "1";
+  try {
+    const data = emptyReportData();
+    const result = await applyLlmEnrichment(data, { preset: "custom" }, 10_000);
+    assert.equal(result.used, false);
+    assert.ok(result.skipReason?.includes("JSON 파싱 실패"));
+  } finally {
+    if (prevMock === undefined) delete process.env.KCA_LLM_MOCK;
+    else process.env.KCA_LLM_MOCK = prevMock;
+    if (prevLlm === undefined) delete process.env.KCA_LLM;
+    else process.env.KCA_LLM = prevLlm;
+  }
+});

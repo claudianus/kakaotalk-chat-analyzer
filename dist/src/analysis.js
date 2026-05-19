@@ -214,7 +214,7 @@ async function runLlmPhaseIfAllowed(report, options, preset, budget, llmPlanHint
     }
     try {
         await disposeUtteranceMlPipelines();
-        return await enrichReportWithLlm(report, options);
+        return await enrichReportWithLlm(report, options, { budget });
     }
     catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
