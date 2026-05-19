@@ -37,7 +37,7 @@ export function readModelsPackageVersion(): string {
     const pkg = req.resolve("kakaotalk-chat-analyzer-models/package.json");
     return JSON.parse(readFileSync(pkg, "utf8")).version as string;
   } catch {
-    return process.env.KCA_ML_MODELS_VERSION?.trim() || "0.2.0";
+    return process.env.KCA_ML_MODELS_VERSION?.trim() || "0.2.1";
   }
 }
 
@@ -62,43 +62,45 @@ export function kureReleaseAssetUrl(): string {
   return pinnedReleaseAssetUrl(KURE_ONNX_ASSET);
 }
 
-/** pinned tag → GitHub Releases API(최신 ml-models-v* asset) 순 */
+/** GitHub API(최신 ml-models-v* asset) → pinned tag — v0.2.0에는 KURE zip 없음 */
 export async function listReleaseAssetUrls(assetName: string): Promise<string[]> {
-  const urls: string[] = [pinnedReleaseAssetUrl(assetName)];
+  const pinned = pinnedReleaseAssetUrl(assetName);
+  const fromApi: string[] = [];
   const repo = process.env.KCA_ML_MODELS_REPO?.trim() || DEFAULT_REPO;
   const slash = repo.indexOf("/");
-  if (slash <= 0) return urls;
-  const owner = repo.slice(0, slash);
-  const name = repo.slice(slash + 1);
-  try {
-    for (let page = 1; page <= 5; page += 1) {
-      const api = `https://api.github.com/repos/${owner}/${name}/releases?per_page=100&page=${page}`;
-      const res = await fetch(api, {
-        redirect: "follow",
-        headers: {
-          Accept: "application/vnd.github+json",
-          "User-Agent": "kakaotalk-chat-analyzer",
-        },
-      });
-      if (!res.ok) break;
-      const releases = (await res.json()) as Array<{
-        tag_name?: string;
-        assets?: Array<{ name?: string; browser_download_url?: string }>;
-      }>;
-      if (releases.length === 0) break;
-      for (const rel of releases) {
-        const tag = rel.tag_name?.trim();
-        if (!tag?.startsWith("ml-models-v")) continue;
-        const asset = rel.assets?.find((a) => a.name === assetName);
-        const href = asset?.browser_download_url?.trim();
-        if (href) urls.push(href);
+  if (slash > 0) {
+    const owner = repo.slice(0, slash);
+    const name = repo.slice(slash + 1);
+    try {
+      for (let page = 1; page <= 5; page += 1) {
+        const api = `https://api.github.com/repos/${owner}/${name}/releases?per_page=100&page=${page}`;
+        const res = await fetch(api, {
+          redirect: "follow",
+          headers: {
+            Accept: "application/vnd.github+json",
+            "User-Agent": "kakaotalk-chat-analyzer",
+          },
+        });
+        if (!res.ok) break;
+        const releases = (await res.json()) as Array<{
+          tag_name?: string;
+          assets?: Array<{ name?: string; browser_download_url?: string }>;
+        }>;
+        if (releases.length === 0) break;
+        for (const rel of releases) {
+          const tag = rel.tag_name?.trim();
+          if (!tag?.startsWith("ml-models-v")) continue;
+          const asset = rel.assets?.find((a) => a.name === assetName);
+          const href = asset?.browser_download_url?.trim();
+          if (href) fromApi.push(href);
+        }
+        if (releases.length < 100) break;
       }
-      if (releases.length < 100) break;
+    } catch {
+      /* API 실패 시 pinned만 */
     }
-  } catch {
-    /* API 실패 시 pinned URL만 */
   }
-  return [...new Set(urls)];
+  return [...new Set([...fromApi, pinned])];
 }
 
 function modelOnnxReady(root: string, modelId: string): boolean {
