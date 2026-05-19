@@ -1,0 +1,268 @@
+dist/src/ml/registry.js.map
+  ai_agent 1
+dist/src/analysis-capability.js.map
+  ai_agent 1
+dist/src/semantic-model-resolve.js
+  s_bc0928a92ecc36::t_8d4c1c7745eb33 3,5,8,30,36-37,44,49-52,54-56
+  s_bc0928a92ecc36::t_182f301f3ffeac 1-2,12-29,42,45-48
+  s_bc0928a92ecc36::t_9424f294f7a8c8 4,6-7,9-11,31-35,38-41,43,53,57-60
+dist/src/analysis-capability.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 31-39,41-43,58-66
+dist/src/version.d.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 1-2
+src/ml/model-ids.ts
+  s_bc0928a92ecc36::t_af820d654e053d 15-29
+test/semantic-model-resolve.test.ts
+  s_bc0928a92ecc36::t_f634a27fdf88f5 19-34
+  s_bc0928a92ecc36::t_83ce697b2e8dee 1-3,5,7-8,11-13,15,17-18,36-38,40,42-46
+  s_bc0928a92ecc36::t_ceaa5e32fa2826 4,6,9
+  s_bc0928a92ecc36::t_00c7818686eeca 10,14,16,35,39,41
+dist/src/semantic-model-resolve.d.ts
+  s_bc0928a92ecc36::t_182f301f3ffeac 4-7,10
+  s_bc0928a92ecc36::t_9424f294f7a8c8 1,3,9,11
+  s_bc0928a92ecc36::t_8d4c1c7745eb33 2,8
+src/analyze-pool.ts
+  s_bc0928a92ecc36::t_4bab29ab765f75 26
+dist/src/ml/registry.d.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 11
+dist/src/semantic-keywords.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 5,61-75,77
+  s_bc0928a92ecc36::t_e15bbf8a60c774 10-11,34-36
+  s_bc0928a92ecc36::t_182f301f3ffeac 13-14,21,33,42-51
+src/llm-resolve.ts
+  s_bc0928a92ecc36::t_d8274c3e42d383 248
+  s_bc0928a92ecc36::t_af982ef2bd71a7 182
+  s_bc0928a92ecc36::t_7c0bc901206465 95-113
+src/ml-batch-size.ts
+  s_bc0928a92ecc36::t_0ea1e47647a06b 2,5-8
+  s_bc0928a92ecc36::t_0eada445557290 27-29
+  s_bc0928a92ecc36::t_401d9b54ecbf07 55-57
+dist/src/analysis-budget.js.map
+  ai_agent 1
+src/analysis-effective-config.ts
+  s_bc0928a92ecc36::t_6a5187ba7e328d 320-321
+  s_bc0928a92ecc36::t_bd37cc166ba05d 129-131
+  s_bc0928a92ecc36::t_875a2ed613ff6d 98
+dist/src/analysis-preset.d.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 4
+dist/src/ml-bundle-ids.js
+  s_bc0928a92ecc36::t_182f301f3ffeac 7-8
+dist/src/report-config.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 26,30-36
+scripts/sync-ml-models.mjs
+  s_bc0928a92ecc36::t_2239d35b8d3002 16
+  s_bc0928a92ecc36::t_400d07ccb8556c 40-44
+  s_bc0928a92ecc36::t_33122347fee1d3 56,60-69
+  s_bc0928a92ecc36::t_b207299e1b1378 148-170
+  s_bc0928a92ecc36::t_7a708f0ec33a88 206
+  s_bc0928a92ecc36::t_c815cd3e60c5af 127-131
+src/semantic-policy.ts
+  s_bc0928a92ecc36::t_bb53269dfcf8ba 5,7,9,11-12
+  s_bc0928a92ecc36::t_33497c00947e1f 8,10,13
+  s_bc0928a92ecc36::t_f2fea005192c57 127
+  s_bc0928a92ecc36::t_4d06f33395a131 67-69,73-81
+  s_bc0928a92ecc36::t_4d9c10d90e20ab 91
+  s_bc0928a92ecc36::t_678324cd3b4a6e 66,70,83-84
+src/analysis-profile.ts
+  s_bc0928a92ecc36::t_7f209ae1327024 27-35
+dist/src/ml/model-ids.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 11-20
+dist/src/ml-bundle-cache.js
+  s_bc0928a92ecc36::t_182f301f3ffeac 9,11,40-44,49-52,62-64,105,168-222
+dist/src/ml-batch-size.js.map
+  ai_agent 1
+src/ml-bundle-cache.ts
+  s_bc0928a92ecc36::t_735a8b2ec4e0ac 19,25
+  s_bc0928a92ecc36::t_287c8e80137433 69-75
+  s_bc0928a92ecc36::t_6e3fa7dffe22f1 56-61
+  s_bc0928a92ecc36::t_b94fdfdf8518cf 88-91
+  s_bc0928a92ecc36::t_660f5d5a265a92 130
+  s_bc0928a92ecc36::t_f265f59a7f0085 192-251
+src/toxicity-policy.ts
+  s_bc0928a92ecc36::t_5b9ea6d12eafbf 29
+README.md
+  s_bc0928a92ecc36::t_d217a81699b59b 210
+  s_bc0928a92ecc36::t_207a6055453d68 218
+  s_bc0928a92ecc36::t_3e1d7e54323a03 201-203
+  s_bc0928a92ecc36::t_c3fa2cd359766e 216
+dist/src/cli.js.map
+  ai_agent 1
+dist/src/llm-resolve.js.map
+  ai_agent 1
+dist/src/analysis-budget.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 11-14,64
+scripts/bench-preset.mjs
+  s_bc0928a92ecc36::t_da32280980962d 24
+  s_bc0928a92ecc36::t_f48170dd578d90 61
+package.json
+  s_bc0928a92ecc36::t_3305b4f176e619 3
+THIRD_PARTY_NOTICES.md
+  s_bc0928a92ecc36::t_b065eb59c7dd92 16
+dist/src/analysis-effective-config.js.map
+  ai_agent 1
+dist/src/semantic-policy.js.map
+  ai_agent 1
+dist/src/analysis-preset.js.map
+  ai_agent 1
+test/llm-resolve.test.ts
+  s_bc0928a92ecc36::t_b0a41d11852a39 8
+  s_bc0928a92ecc36::t_4e2d83f8705a2d 86-92
+src/ml/tasks/index.ts
+  s_bc0928a92ecc36::t_cd836a08c34216 39-47
+  s_bc0928a92ecc36::t_b493cce5623077 4-6
+dist/src/semantic-keywords.js.map
+  ai_agent 1
+dist/src/cli.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 56,290,292-294
+src/analysis-preset.ts
+  s_bc0928a92ecc36::t_faa4c4da1cf279 52-57
+  s_bc0928a92ecc36::t_60196683320cd5 119-128
+  s_bc0928a92ecc36::t_22814df1ee750e 9
+  s_bc0928a92ecc36::t_47b7be1cade7be 21-29
+dist/src/report-config.js.map
+  ai_agent 1
+dist/src/aggregator.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 561-563
+src/semantic-keywords.ts
+  s_bc0928a92ecc36::t_335e90431ad198 23
+  s_bc0928a92ecc36::t_974de2467d46bb 54
+  s_bc0928a92ecc36::t_c0bba9dc59a1bb 55-56
+  s_bc0928a92ecc36::t_415380b08644bd 41
+  s_bc0928a92ecc36::t_b384e14e351e25 8
+  s_bc0928a92ecc36::t_aa55ba7b5afb0a 18-22,25
+  s_bc0928a92ecc36::t_1644d6e04bee3b 88-101,103
+  s_bc0928a92ecc36::t_e730e3a7d76729 26
+  s_bc0928a92ecc36::t_9c51e925ff900a 65-75
+src/analysis-capability.ts
+  s_bc0928a92ecc36::t_90b6f3f1abc487 58-66,68-69
+  s_bc0928a92ecc36::t_1594c176c517ae 87-95
+  s_bc0928a92ecc36::t_9782087ed9f966 111
+src/semantic-model-resolve.ts
+  s_bc0928a92ecc36::t_0ebc5f963ec9f4 8,10-15
+  s_bc0928a92ecc36::t_2ab0f21fa0a8c2 70
+  s_bc0928a92ecc36::t_6600a8bb59ad3d 17,22,24,53,60,67,73,75-76
+  s_bc0928a92ecc36::t_5aee11f4d3bb5c 1-7,9,16,18-21,23,25-28,54-59,61-64,66,74,77-79
+  s_bc0928a92ecc36::t_30a195c9a1ac67 29-38,40-43,48-52
+  s_bc0928a92ecc36::t_2a8e30248cdeae 39,44-47
+  s_bc0928a92ecc36::t_b26b499ae7c934 65,68-69,71-72
+dist/src/aggregator.js.map
+  ai_agent 1
+src/cli.ts
+  s_bc0928a92ecc36::t_af8f0dc1c10414 85
+  s_bc0928a92ecc36::t_2079b4c051f86a 373-376
+dist/src/semantic-model-resolve.js.map
+  ai_agent 1
+dist/src/toxicity-policy.js.map
+  ai_agent 1
+dist/src/ml/model-ids.d.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 11-20
+dist/src/ml-batch-size.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 2,4-7,26-28,54-56
+dist/src/ml-bundle-ids.d.ts
+  s_bc0928a92ecc36::t_182f301f3ffeac 7-8
+src/analysis-budget.ts
+  s_bc0928a92ecc36::t_fb9750862a701f 73
+  s_bc0928a92ecc36::t_9dffd55939e07e 22-23
+dist/src/llm-resolve.d.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 30-31
+dist/src/ml-bundle-cache.d.ts
+  s_bc0928a92ecc36::t_182f301f3ffeac 2,7,11,18-19
+dist/src/analyze-pool.d.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 18
+dist/src/ml-bundle-ids.js.map
+  ai_agent 1
+dist/src/ml-bundled-models.js.map
+  ai_agent 1
+dist/src/analysis-preset.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 4-8,10,30-36,88-93
+dist/src/ml/tasks/index.js
+  s_bc0928a92ecc36::t_182f301f3ffeac 3-5,28-35
+dist/src/analysis-profile.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 11-19
+dist/src/semantic-policy.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 3,53,57,67,75,113
+  s_bc0928a92ecc36::t_182f301f3ffeac 5-6,54-56,58-65
+dist/src/aggregator.d.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 16
+dist/src/ml-bundled-models.js
+  s_bc0928a92ecc36::t_182f301f3ffeac 4-5,7,47-66,85-86
+src/aggregator.ts
+  s_bc0928a92ecc36::t_1d0120ffa610ce 110
+  s_bc0928a92ecc36::t_0218e12eafb4af 682-684
+test/semantic-policy.test.ts
+  s_bc0928a92ecc36::t_0f9ee92a6efa86 36,45-46
+  s_bc0928a92ecc36::t_a2d23422e3b911 5
+  s_bc0928a92ecc36::t_28fca044bf7ed8 35,40-41
+  s_bc0928a92ecc36::t_101a8d08d444c0 63-64
+  s_bc0928a92ecc36::t_c7bd3a5471c65f 50,52-54
+  s_bc0928a92ecc36::t_38b043d16449ad 6
+  s_bc0928a92ecc36::t_cc42712bffb952 55
+dist/src/analysis-effective-config.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 52,54,232
+  s_bc0928a92ecc36::t_182f301f3ffeac 25
+dist/src/analysis-profile.js.map
+  ai_agent 1
+dist/src/analysis.js.map
+  ai_agent 1
+src/ml-bundle-ids.ts
+  s_bc0928a92ecc36::t_8f91908d3246c7 9-11
+src/report-config.ts
+  s_bc0928a92ecc36::t_78aff85816733a 27,30-33
+dist/src/report-config.d.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 6
+dist/src/analysis.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 18-19,32,37
+src/version.ts
+  s_bc0928a92ecc36::t_9424f294f7a8c8 1
+dist/src/llm-resolve.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 67-83,137,200
+dist/src/toxicity-policy.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 23
+dist/src/version.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 1
+src/ml/registry.ts
+  s_bc0928a92ecc36::t_7505efc4872f73 63,66-69
+  s_bc0928a92ecc36::t_97a72d3223d06a 10-15
+dist/src/ml-bundled-models.d.ts
+  s_bc0928a92ecc36::t_182f301f3ffeac 1,10-13,19
+dist/src/ml/model-ids.js.map
+  ai_agent 1
+dist/src/ml-bundle-cache.js.map
+  ai_agent 1
+src/analysis.ts
+  s_bc0928a92ecc36::t_b6ecd1f01598d3 19-20
+  s_bc0928a92ecc36::t_b5c2a83e3b3583 53,58
+src/ml-bundled-models.ts
+  s_bc0928a92ecc36::t_2e3a3abf20742a 6,12
+  s_bc0928a92ecc36::t_ab2749678f1292 78-101
+  s_bc0928a92ecc36::t_1765895fed17d7 29
+  s_bc0928a92ecc36::t_04067396e93629 125-128
+dist/src/ml/registry.js
+  s_bc0928a92ecc36::t_9424f294f7a8c8 2-4,39-41,43
+dist/src/ml/tasks/index.js.map
+  ai_agent 1
+dist/src/semantic-policy.d.ts
+  s_bc0928a92ecc36::t_182f301f3ffeac 14-15
+  s_bc0928a92ecc36::t_9424f294f7a8c8 16,27
+test/analysis-preset.test.ts
+  s_bc0928a92ecc36::t_514645ad7f62d1 50-65
+  s_bc0928a92ecc36::t_a920f9fea3c3e9 73
+  s_bc0928a92ecc36::t_ff25b55a40ed34 91-97,100
+  s_bc0928a92ecc36::t_125bd18ee32068 74-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "861c135e02ede28c5b7adb2e29d7a00c62303b84",
+  "prompts": {},
+  "sessions": {
+    "s_bc0928a92ecc36": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5921ae32-b589-4ad8-9cc4-defcb552eba7",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
