@@ -1,0 +1,19 @@
+.gitignore
+  s_bc0928a92ecc36::t_80ccb1f1d7aca6 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "909d8108cb28138402b4f9cfee007e8f5275d45c",
+  "prompts": {},
+  "sessions": {
+    "s_bc0928a92ecc36": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "5921ae32-b589-4ad8-9cc4-defcb552eba7",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
