@@ -1,0 +1,38 @@
+AGENTS.md
+  s_e5f1095800a08b::t_cc254f4e9d0208 1,3,5,7,9,11-21,23,25,27-30,32,34-36,38,40,42,44
+.cursor/rules/kca-project-core.mdc
+  s_e5f1095800a08b::t_de8a9cd4616b9a 1-50
+.cursor/rules/cubic-pr-workflow.mdc
+  s_e5f1095800a08b::t_64c7b6ae6e4640 13
+  s_e5f1095800a08b::t_1ad20836bbf892 21
+.cursor/rules/kca-report-ux.mdc
+  s_e5f1095800a08b::t_5ee887d625997e 1-5,7-9,14-15,21-24,26,28,30,32-33,35,44-45
+.cursor/rules/kca-llm-deck.mdc
+  s_e5f1095800a08b::t_e054764bb960c6 1-31
+.cursor/rules/kca-korean-nlp.mdc
+  s_e5f1095800a08b::t_89ca319ce74f3a 1-32
+.cursor/rules/kca-npm-release.mdc
+  s_e5f1095800a08b::t_36ce20e5560e94 1-45
+.cursor/rules/000-context-maintenance.mdc
+  s_e5f1095800a08b::t_19636404bf647d 1-12
+.cursor/rules/kca-report-visual-qa.mdc
+  s_e5f1095800a08b::t_de4a44579ce82e 1-54
+.cursor/rules/kca-docs-sync.mdc
+  s_e5f1095800a08b::t_b2501a1f161250 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "2edd0e261ef3613d49c967b76edc3ade6300f752",
+  "prompts": {},
+  "sessions": {
+    "s_e5f1095800a08b": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "3b3f241a-740d-49fd-ada1-37b207495d15",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
