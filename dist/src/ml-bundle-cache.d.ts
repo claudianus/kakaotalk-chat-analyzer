@@ -6,7 +6,7 @@ export declare function mlModelsReleaseTag(): string;
 /** @deprecated */ export declare const toxicityReleaseTag: typeof mlModelsReleaseTag;
 export declare function toxicityReleaseAssetUrl(): string;
 export declare function kureReleaseAssetUrl(): string;
-/** pinned tag → GitHub Releases API(최신 ml-models-v* asset) 순 */
+/** GitHub API(최신 ml-models-v* asset) → pinned tag — v0.2.0에는 KURE zip 없음 */
 export declare function listReleaseAssetUrls(assetName: string): Promise<string[]>;
 export declare function isSentimentBundleReady(): boolean;
 export declare function isEmbedBundleReady(): boolean;
