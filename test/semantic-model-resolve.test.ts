@@ -4,7 +4,7 @@ import {
   resolveBundledSemanticModelId,
   resolveDefaultSemanticHubId,
   shouldPreferBundledKure,
-  shouldPreferBundledSemantic,
+  shouldPreferBundledSemanticPolicy,
 } from "../src/semantic-model-resolve.js";
 import { BUNDLED_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID } from "../src/ml-bundle-ids.js";
 import { HUB_KOELECTRA_EMBED, HUB_KOELECTRA_KORSTS } from "../src/ml/model-ids.js";
@@ -32,13 +32,13 @@ test("shouldPreferBundledKure and resolveBundledSemanticModelId for quality/ultr
   }
 });
 
-test("shouldPreferBundledSemantic keeps bundle on ultra and defers hub on ample balanced RAM", () => {
+test("shouldPreferBundledSemanticPolicy keeps bundle on ultra and defers hub on ample balanced RAM", () => {
   const prev = process.env.KCA_PREFER_BUNDLED_SEMANTIC;
   delete process.env.KCA_PREFER_BUNDLED_SEMANTIC;
   try {
-    assert.equal(shouldPreferBundledSemantic("ultra", 20), true);
-    assert.equal(shouldPreferBundledSemantic("balanced", 16), false);
-    assert.equal(shouldPreferBundledSemantic("balanced", 12), true);
+    assert.equal(shouldPreferBundledSemanticPolicy("ultra", 20), true);
+    assert.equal(shouldPreferBundledSemanticPolicy("balanced", 16), false);
+    assert.equal(shouldPreferBundledSemanticPolicy("balanced", 12), true);
   } finally {
     if (prev === undefined) delete process.env.KCA_PREFER_BUNDLED_SEMANTIC;
     else process.env.KCA_PREFER_BUNDLED_SEMANTIC = prev;

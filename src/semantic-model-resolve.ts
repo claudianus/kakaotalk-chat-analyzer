@@ -50,16 +50,24 @@ export function resolveBundledSemanticModelId(
   return BUNDLED_EMBED_MODEL_ID;
 }
 
+/** 번들 ONNX가 있을 때 preset·RAM 기준 시맨틱 번들 사용 여부 (순수 정책) */
+export function shouldPreferBundledSemanticPolicy(
+  preset: AnalysisPresetName,
+  headroomGb: number,
+): boolean {
+  if (process.env.KCA_PREFER_BUNDLED_SEMANTIC === "0") return false;
+  if (preset === "ultra" || preset === "quality") return true;
+  if (preset === "balanced") return headroomGb < SEMANTIC_HEADROOM_KURE_BALANCED_GB;
+  return true;
+}
+
 /** 오프라인 번들 우선 — `KCA_PREFER_BUNDLED_SEMANTIC=0` 이면 Hub KoELECTRA */
 export function shouldPreferBundledSemantic(
   preset: AnalysisPresetName,
   headroomGb: number,
 ): boolean {
-  if (process.env.KCA_PREFER_BUNDLED_SEMANTIC === "0") return false;
   if (!isBundledEmbedModelReady()) return false;
-  if (preset === "ultra" || preset === "quality") return true;
-  if (preset === "balanced") return headroomGb < SEMANTIC_HEADROOM_KURE_BALANCED_GB;
-  return true;
+  return shouldPreferBundledSemanticPolicy(preset, headroomGb);
 }
 
 /** 로드 실패 시 순차 폴백 — Hub KURE/BGE는 env 지정 시만, 번들 KURE 실패 시 embed */
