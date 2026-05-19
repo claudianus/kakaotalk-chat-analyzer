@@ -83,7 +83,7 @@ function assertHtmlStructure(html, label) {
   if (html.length < 8000) {
     throw new Error(`[${label}] HTML suspiciously small (${html.length} bytes)`);
   }
-  const chartIds = ["chart-hours", "chart-kw-cloud", "chart-participants-chars"];
+  const chartIds = ["chart-hours", "chart-kw-cloud"];
   for (const id of chartIds) {
     if (!html.includes(`id="${id}"`)) {
       throw new Error(`[${label}] missing chart container #${id}`);

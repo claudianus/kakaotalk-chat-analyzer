@@ -292,6 +292,44 @@ export interface ReportTimelineEvent {
     metric?: number;
     jumpId?: string;
 }
+export interface LlmRoomArchetype {
+    name: string;
+    description: string;
+    traits: string[];
+}
+export interface LlmMoment {
+    headline: string;
+    statRef: string;
+}
+export interface LlmRelationshipBeat {
+    pair: string;
+    beat: string;
+    role?: string;
+}
+export interface LlmEpisodeCard {
+    period: string;
+    title: string;
+    tagline: string;
+    emoji: string;
+}
+export interface LlmEraLabel {
+    label: string;
+    detail: string;
+}
+export interface LlmInsideJoke {
+    label: string;
+    whyFunny: string;
+    evidenceKeywords: string[];
+}
+export interface LlmCharacterCard {
+    alias: string;
+    tagline: string;
+    statHook: string;
+}
+export interface LlmDayMicroStory {
+    date: string;
+    line: string;
+}
 export interface LlmInsights {
     insightBullets?: string[];
     shopSearchSummary?: string;
@@ -299,6 +337,19 @@ export interface LlmInsights {
     topicProposals?: {
         title: string;
         terms: string[];
+    }[];
+    roomArchetype?: LlmRoomArchetype;
+    moments?: LlmMoment[];
+    relationshipBeats?: LlmRelationshipBeat[];
+    episodeCards?: LlmEpisodeCard[];
+    eraLabels?: LlmEraLabel[];
+    insideJokes?: LlmInsideJoke[];
+    characterCards?: LlmCharacterCard[];
+    dayMicroStories?: LlmDayMicroStory[];
+    shareLine?: string;
+    hashtags?: string[];
+    counterfactuals?: {
+        text: string;
     }[];
 }
 export interface RoomNarrative {

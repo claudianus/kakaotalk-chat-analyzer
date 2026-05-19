@@ -36,6 +36,14 @@ import {
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
 import {
+  renderLlmArchetypeBanner,
+  renderLlmCharacterCards,
+  renderLlmEpisodeStrip,
+  renderLlmInsideJokes,
+  renderLlmMomentsBlock,
+  renderLlmShareFooter,
+} from "./report-llm-deck.js";
+import {
   formatGeneratorLine,
   formatProvenanceDetails,
 } from "./report-provenance.js";
@@ -45,6 +53,8 @@ import {
   hasExplorerSection,
   hasNarrativeSection,
   hasTimelineSection,
+  hasCalendarHeatmap,
+  showMonthlyChart,
 } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
 import { keywordSummaryTop } from "./report-config.js";
@@ -98,17 +108,15 @@ export function renderReportHtml(data: ReportData): string {
         ${renderProvenanceDetailsBlock(data)}
       </div>
     </header>
+    ${renderLlmArchetypeBanner(data)}
     ${renderStorySections(data)}
+    ${renderLlmEpisodeStrip(data)}
+    ${renderLlmCharacterCards(data)}
     ${renderFactMatrix(data)}
     ${renderOpenChatInsightCard(data)}
     ${renderShopSearchPromoted(data)}
+    ${renderLlmMomentsBlock(data)}
     ${renderInnovationDeck(data)}
-
-    ${
-      data.highlights.length > 0
-        ? `<section id="s-hl" class="card anim-enter" style="margin-bottom:16px;--enter-delay:0.05s"><h2>하이라이트</h2><p class="chart-hint" style="margin-top:-4px">대화에서 눈에 띈 <strong>짧은 요약</strong>이에요. 아래 차트와 같이 보면 맥락이 잡힙니다.</p><ul class="highlights">${data.highlights.map((h) => `<li>${renderHighlightLine(h)}</li>`).join("")}</ul></section>`
-        : ""
-    }
 
     ${renderInsightDeck(data)}
 
@@ -118,15 +126,14 @@ export function renderReportHtml(data: ReportData): string {
 
     <div id="s-charts" class="chart-stack anim-enter" style="--enter-delay:0.07s">
     ${
-      data.story.calendarWeeks.length > 0
+      hasCalendarHeatmap(data)
         ? ""
         : `<section class="grid two" style="margin-bottom:14px">
-      ${panel("일별 활동 (CSS)", "Wrapped 잔디와 별도로, 날짜 칸 색으로 본 일별 히트맵이에요.", renderDaily(data.daily, data.burstDays))}
-      ${panel("시간대 리듬 (0~23시)", "청록=오전, 주황=오후. 막대 높이는 해당 시간 메시지 비중이에요.", renderHours(data.hourly))}
+      ${panel("일별 활동 (CSS)", "날짜 칸 색으로 본 일별 히트맵이에요.", renderDaily(data.daily, data.burstDays))}
     </section>`
     }
     <section class="grid two" style="margin-bottom:14px">
-      ${panel(`참여자 랭킹 · 상위 ${formatNumber(Math.min(data.participants.length, 40))} / 전체 ${formatNumber(data.participants.length)}`, "누가 얼마나 보냈는지 비율과 평균 길이를 함께 봐요.", renderParticipants(data.participants))}
+      ${renderParticipantsFold(data)}
       ${panel(`글자 수 랭킹 · 상위 ${formatNumber(Math.min(data.participantsByCharacters.length, 40))}`, "메시지 건수와 별도로, 보낸 글자 수·글자 비율로 봅니다.", renderParticipantsByCharacters(data.participantsByCharacters))}
     </section>
 
@@ -135,8 +142,7 @@ export function renderReportHtml(data: ReportData): string {
       ${renderToneSignalsPanel(data)}
     </section>
 
-    <section class="grid two" style="margin-bottom:14px">
-      ${renderKeywordCssFold(data)}
+    <section style="margin-bottom:14px">
       ${panel("자주 나온 도메인", "공유 링크 호스트 상위", renderCountBars(data.domains.slice(0, 24)))}
     </section>
 
@@ -147,7 +153,6 @@ export function renderReportHtml(data: ReportData): string {
     ${renderShopSearchSection(data, false)}
     </div>
 
-    ${renderSelfServeCallout()}
     ${renderHelpGlossary()}
 
     <script>
@@ -280,6 +285,7 @@ export function renderReportHtml(data: ReportData): string {
     </script>
 
     ${data.provenance ? `<script type="application/json" id="kca-provenance">${JSON.stringify(data.provenance)}</script>` : ""}
+    ${renderLlmShareFooter(data)}
     <footer>${renderProvenanceFooterPrefix(data)}${escapeHtml(data.source.chatRoomName)} · ${escapeHtml(data.source.fileName)} · 경고 ${data.source.warnings}건${data.buildTiming ? ` · 생성 ${escapeHtml(formatBuildTimingShort(data.buildTiming))}` : ""} · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · <span title="HTML 단일 파일">kca 리포트</span></footer>
   </main>
 </body>
@@ -293,10 +299,11 @@ export function renderReportHtml(data: ReportData): string {
 }
 
 function renderSectionNav(data: ReportData): string {
-  const hl =
-    data.highlights.length > 0 ? `<a href="#s-hl" data-kca-jump="s-hl">하이라이트</a>` : "";
+  const archetype = data.llmInsights?.roomArchetype
+    ? `<a href="#s-archetype" data-kca-jump="s-archetype">아키타입</a>`
+    : "";
   const narrative = hasNarrativeSection(data)
-    ? `<a href="#s-narrative" data-kca-jump="s-narrative">방 프로필</a>`
+    ? `<a href="#s-narrative" data-kca-jump="s-narrative">② 방 이야기</a>`
     : "";
   const timeline = hasTimelineSection(data)
     ? `<a href="#s-timeline" data-kca-jump="s-timeline">타임라인</a>`
@@ -311,15 +318,15 @@ function renderSectionNav(data: ReportData): string {
   return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
     <a href="#s-story" data-kca-jump="s-story">개요</a>
+    ${archetype}
     ${storyNavLinks(data)}
     ${narrative}
     ${timeline}
-    <a href="#s-facts" data-kca-jump="s-facts">① 숫자 요약</a>
+    <a href="#s-facts" data-kca-jump="s-facts">① 핵심 숫자</a>
     ${dyad}
     <a href="#s-compare" data-kca-jump="s-compare">기간 비교</a>
     ${explorer}
     ${bench}
-    ${hl}
     ${topicNavLink(data)}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
     <a href="#s-viz" data-kca-jump="s-viz">④ 인터랙티브 차트</a>
@@ -329,7 +336,10 @@ function renderSectionNav(data: ReportData): string {
 }
 
 function renderHelpGlossary(): string {
+  const gh = "https://github.com/claudianus/kakaotalk-chat-analyzer";
+  const site = "https://claudianus.github.io/kakaotalk-chat-analyzer/";
   return `<section id="s-help" class="glossary anim-enter" aria-label="용어 설명" style="--enter-delay:0.08s">
+    <p class="self-serve-footer-links">직접 만들기: <code>npx kcachat@latest "./파일.csv"</code> · ${externalLink(gh, "GitHub")} · ${externalLink(site, "소개")}</p>
     <details>
       <summary>용어가 낯설 때 — 한 번에 펼쳐보기</summary>
       <dl>
@@ -346,69 +356,59 @@ function renderHelpGlossary(): string {
 function renderFactMatrix(data: ReportData): string {
   const s = data.summary;
   const ins = data.insights;
-  const density = ins.densityMessagesPerCalendarDay;
-  const perActive = s.messagesPerActiveDay;
-  const densityDup =
-    density !== null &&
-    perActive > 0 &&
-    Math.abs(density - perActive) / perActive < 0.02;
-  const densityRows: [string, string][] = densityDup
-    ? [["활동일당 메시지", String(perActive)]]
-    : [
-        ["일평균(활동일)", String(perActive)],
-        ["달력 밀도", density === null ? "—" : String(density)],
-      ];
-  const sessionRows: [string, string][] =
-    ins.sessionCount > 1
-      ? [
-          ["대화 세션", formatNumber(ins.sessionCount)],
-          ["세션당 메시지", ins.avgMessagesPerSession === null ? "—" : String(ins.avgMessagesPerSession)],
-          ["세션 길이 중앙", ins.medianSessionMinutes === null ? "—" : `${ins.medianSessionMinutes}분`],
-        ]
-      : [];
-  const cells: [string, string][] = [
+  const core: [string, string][] = [
     ["총 메시지", formatNumber(s.totalMessages)],
     ["참여자", formatNumber(s.participants)],
     ["활동일", formatNumber(s.activeDays)],
-    ...densityRows,
-    ["링크·100", String(ins.linksPer100)],
-    ["첨부·100", String(ins.attachmentsPer100)],
-    ["사진÷첨부%", ins.photoShareOfAllAttachmentMarkers === null ? "—" : `${ins.photoShareOfAllAttachmentMarkers}%`],
-    ["리듬 점수", `${ins.rhythmScore}/100`],
-    ["주말%", `${ins.weekendSharePercent}%`],
-    ["심야%", `${s.nightSharePercent}%`],
-    ["1분내 응답%", ins.burstGapUnder1mPercent === null ? "—" : `${ins.burstGapUnder1mPercent}%`],
-    ["독백 3연속+%", `${ins.monologueMessagesPercent}%`],
-    ["응답 간격 중앙", formatReplyGapMinutes(s.medianReplyGapMinutes)],
-    ["응답 상위10%", ins.replyGapP90Minutes === null ? "—" : formatReplyGapMinutes(ins.replyGapP90Minutes)],
-    ...sessionRows,
-    ["피크 시각", s.peakHour === null ? "—" : `${s.peakHour}시`],
-    ["최장 연속일", String(s.longestActiveStreakDays)],
+    ["일평균(활동일)", String(s.messagesPerActiveDay)],
     ["상위3 점유", `${ins.top3ParticipantSharePercent}%`],
     ["참여 지니", ins.participantGini === null ? "—" : String(ins.participantGini)],
+    ["피크 시각", s.peakHour === null ? "—" : `${s.peakHour}시`],
+    ["최장 연속일", String(s.longestActiveStreakDays)],
+  ];
+  const extra: [string, string][] = [
+    ["주말%", `${ins.weekendSharePercent}%`],
+    ["심야%", `${s.nightSharePercent}%`],
+    ["응답 간격 중앙", formatReplyGapMinutes(s.medianReplyGapMinutes)],
+    ["응답 상위10%", ins.replyGapP90Minutes === null ? "—" : formatReplyGapMinutes(ins.replyGapP90Minutes)],
     ["화자전환·100", String(ins.speakerSwitchRatePer100)],
-    ["질문 느낌·100", String(ins.questionLikeMessagesPer100)],
-    ["이모지", formatNumber(s.emojiMessages)],
     ["평균 길이", String(s.averageMessageLength)],
   ];
-  const inner = cells
-    .map(
-      ([k, v]) =>
-        `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`,
-    )
+  const coreInner = core
+    .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
     .join("");
-  const strip = `<div class="fact-hero-strip" aria-label="핵심 숫자 세 가지">
+  const extraInner = extra
+    .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
+    .join("");
+  const strip = `<div class="fact-hero-strip fact-hero-strip--duo" aria-label="핵심 숫자">
     <div class="fact-hero-cell"><b>총 메시지</b><span>${escapeHtml(formatNumber(s.totalMessages))}</span></div>
     <div class="fact-hero-cell"><b>참여자</b><span>${escapeHtml(formatNumber(s.participants))}</span></div>
-    <div class="fact-hero-cell"><b>리듬 점수</b><span>${escapeHtml(String(ins.rhythmScore))}<small style="font-size:14px;font-weight:800;color:var(--muted)">/100</small></span></div>
   </div>`;
   return `<section id="s-facts" class="card fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
-    <h2>① 숫자 요약 (팩트 매트릭스)</h2>
+    <h2>① 핵심 숫자</h2>
     ${renderSampleBadge(data)}
     ${strip}
-    <p class="fact-hint">외부 AI나 서버 없이, <strong>보낸 CSV 안의 숫자만</strong>으로 만든 표예요. 지니 계수·리듬 점수는 표본(메시지·참여자) 기준 <strong>상대 비교</strong>용이며, 아래 ③에서 분포·쏠림을 함께 보세요.</p>
-    <div class="fact-grid">${inner}</div>
+    <p class="fact-hint"><strong>보낸 CSV 숫자만</strong>으로 만든 요약이에요. 쏠림·리듬은 아래 ③에서 패턴으로 봅니다.</p>
+    <div class="fact-grid fact-grid--core">${coreInner}</div>
+    <details class="fact-more"><summary>더 많은 지표</summary><div class="fact-grid">${extraInner}</div></details>
   </section>`;
+}
+
+function renderParticipantsFold(data: ReportData): string {
+  const n = data.participants.length;
+  if (n === 0) return "";
+  const body = renderParticipants(data.participants);
+  return `<details class="panel-fold" open>
+    <summary>참여자 랭킹 · 상위 ${formatNumber(Math.min(n, 40))} / 전체 ${formatNumber(n)}</summary>
+    <p class="chart-hint">말풍선 맵(③)과 함께 보면 비중·길이가 잡혀요.</p>
+    ${body}
+  </details>`;
+}
+
+function linkEntropyMetric(data: ReportData, ins: ReportData["insights"]): string {
+  const linkMsgs = data.participants.reduce((s, p) => s + p.linkMessages, 0);
+  if (linkMsgs < 5 || ins.linkDomainEntropyBits === null) return "";
+  return insMetric("링크 다양성", `${ins.linkDomainEntropyBits} bit`, "공유 사이트 종류");
 }
 
 function renderInsightDeck(data: ReportData): string {
@@ -451,12 +451,10 @@ function renderInsightDeck(data: ReportData): string {
       ${insMetric("응답 상위10%", p90, "느린 쪽 10% 구간")}
       ${insMetric("최장 공백", silence, "활동일 사이 최대 휴지")}
       ${insMetric("상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
-      ${insMetric("링크 다양성", entropy, "공유 사이트 종류(bit)")}
-      ${insMetric("캘린더 밀도", density, "달력 하루당 평균 메시지")}
-      ${insMetric("질문 느낌", `${ins.questionLikeMessagesPer100}/100`, "물음표 포함 비슷한 톤")}
       ${insMetric("화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
-      ${insMetric("어휘 분산", richness, "서로 다른 키워드 비중")}
+      ${linkEntropyMetric(data, ins)}
     </div>
+    ${renderLlmInsideJokes(data)}
     <div class="insight-split">
       <div>
         <h3 class="insight-sub">하루 시간대 비중</h3>

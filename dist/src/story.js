@@ -193,13 +193,6 @@ function buildWrappedCards(input, tone) {
             sub: `${trimYmd(modPeak.date)} · 가림 ${modPeak.hidden} · 강퇴 ${modPeak.kick}`,
         });
     }
-    cards.push({
-        id: "deep",
-        emoji: "📊",
-        title: "더 깊게",
-        stat: "스크롤",
-        sub: "숫자 요약 · 챕터 · 연간 그리드 · 차트가 이어집니다",
-    });
     return cards.slice(0, 8);
 }
 function trimYmd(ymd) {

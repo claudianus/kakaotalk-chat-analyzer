@@ -4,3 +4,5 @@ export declare function hasTimelineSection(data: ReportData): boolean;
 export declare function hasDyadSection(data: ReportData): boolean;
 export declare function hasExplorerSection(data: ReportData): boolean;
 export declare function hasBenchmarkSection(data: ReportData): boolean;
+export declare function hasCalendarHeatmap(data: ReportData): boolean;
+export declare function showMonthlyChart(data: ReportData): boolean;

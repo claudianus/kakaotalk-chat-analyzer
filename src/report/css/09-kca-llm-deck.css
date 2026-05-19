@@ -1,0 +1,254 @@
+/* LLM Story Deck — archetype, episodes, moments, memes */
+.llm-archetype-banner,
+.llm-episode-strip,
+.llm-char-grid {
+  scroll-margin-top: var(--kca-topbar-offset, 104px);
+}
+.llm-archetype-banner {
+  margin-bottom: var(--kca-section-gap, 16px);
+  padding: 18px 20px;
+  border-radius: var(--radius-lg, 16px);
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 18%, var(--card)) 0%, var(--card) 70%);
+  border: 1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+}
+.llm-archetype-kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.llm-archetype-name {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.llm-archetype-desc {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.llm-trait-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.llm-trait-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bar-bg);
+  color: var(--ink);
+}
+.llm-episode-strip {
+  position: relative;
+  margin-bottom: var(--kca-section-gap, 16px);
+}
+.llm-episode-strip::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(48px, 12vw);
+  height: calc(100% - 36px);
+  pointer-events: none;
+  background: linear-gradient(to left, var(--bg, var(--surface)) 0%, transparent 100%);
+}
+.llm-strip-title {
+  margin: 0 0 10px;
+  font-size: clamp(17px, 2.4vw, 20px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.llm-episode-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 10px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--accent) 45%, transparent) transparent;
+}
+.llm-episode-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.llm-episode-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 40%, var(--line));
+}
+.llm-episode-card {
+  flex: 0 0 min(248px, 82vw);
+  scroll-snap-align: start;
+  padding: 14px 16px;
+  min-height: 132px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow, 0 2px 12px rgba(0, 0, 0, 0.06));
+}
+.llm-episode-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+.llm-episode-period {
+  margin: 6px 0 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.llm-episode-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 800;
+}
+.llm-episode-tagline {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.llm-moments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+@media (max-width: 559px) {
+  .llm-moments-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.llm-moment-card {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bar-bg);
+  border: 1px solid var(--border);
+  min-height: 4.5rem;
+}
+.llm-moment-card h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 750;
+}
+.llm-moment-ref {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.llm-beat-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: grid;
+  gap: 8px;
+}
+.llm-beat-card {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bar-bg);
+  font-size: 13px;
+}
+.llm-beat-card span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+}
+.llm-char-grid {
+  margin-bottom: var(--kca-section-gap, 16px);
+}
+.llm-char-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+  gap: 10px;
+}
+.llm-char-card {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  min-height: 108px;
+  display: flex;
+  flex-direction: column;
+}
+.llm-char-card h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.llm-char-stat {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.llm-meme-row {
+  margin: 14px 0 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px dashed color-mix(in oklab, var(--accent2, var(--accent)) 35%, var(--line));
+  background: color-mix(in oklab, var(--accent2, var(--accent)) 6%, var(--card));
+}
+.llm-meme-row .insight-sub {
+  margin: 0 0 6px;
+}
+.llm-meme-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.llm-meme-chip {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent2) 20%, var(--card));
+  border: 1px solid color-mix(in oklab, var(--accent2) 40%, transparent);
+  cursor: help;
+}
+.llm-era-labels ul,
+.llm-day-stories ul {
+  margin: 8px 0 0;
+  padding-left: 1.1rem;
+  font-size: 13px;
+}
+.llm-share-block {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bar-bg);
+  text-align: center;
+}
+.llm-share-line {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 750;
+}
+.llm-hash-row {
+  margin: 0;
+  font-size: 13px;
+  color: var(--accent);
+}
+.llm-counterfactual {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.fact-more {
+  margin-top: 12px;
+}
+.fact-more summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent);
+}
+.panel-fold summary {
+  cursor: pointer;
+  font-weight: 750;
+  font-size: 14px;
+}

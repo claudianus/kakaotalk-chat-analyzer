@@ -70,7 +70,9 @@ export const REPORT_UX_SCRIPT = `
           { rootMargin: "0px 0px -5% 0px", threshold: 0.05 },
         );
         var ri = 0;
-        document.querySelectorAll(".card, .wrapped-card, .viz-card, .fact-card").forEach(function (el) {
+        document.querySelectorAll(
+          ".card, .wrapped-card, .viz-card, .fact-card, .llm-archetype-banner, .llm-episode-strip, .llm-char-grid, .llm-episode-card, .llm-moment-card, .llm-char-card, .llm-meme-row",
+        ).forEach(function (el) {
           el.classList.add("kca-reveal");
           el.style.setProperty("--reveal-delay", Math.min(ri * 35, 280) + "ms");
           ri += 1;

@@ -50,7 +50,13 @@
       gap: 10px;
       margin: 0 0 14px;
     }
-    @media (max-width: 560px) { .fact-hero-strip { grid-template-columns: 1fr; } }
+    .fact-hero-strip--duo {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 560px) {
+      .fact-hero-strip,
+      .fact-hero-strip--duo { grid-template-columns: 1fr; }
+    }
     .fact-hero-cell {
       padding: 12px 14px;
       border-radius: 12px;

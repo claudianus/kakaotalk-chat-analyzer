@@ -1,4 +1,5 @@
 import { isShortActivitySpan, topicsThemesOnly } from "./report-chart-util.js";
+import { hasCalendarHeatmap, showMonthlyChart } from "./report-section-visibility.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
 /** @deprecated preconnect는 report-head.ts REPORT_HEAD_LINKS 사용 */
 export const CHART_CDN_HEAD = ``;
@@ -79,7 +80,8 @@ export function serializeExplorerPayload(data) {
 export function renderChartDeck(data) {
     const kw = data.keywords.length;
     const themeCount = topicsThemesOnly(data.topics).length;
-    const showLegacyDaily = data.story.calendarWeeks.length === 0 && data.daily.length > 0;
+    const showDailyHeat = !hasCalendarHeatmap(data);
+    const showMonthly = showMonthlyChart(data);
     const topicChart = themeCount > 0
         ? `<article class="viz-card span-12">
       <h3>대화 테마 · c-TF-IDF</h3>
@@ -102,18 +104,22 @@ export function renderChartDeck(data) {
       <p class="viz-hint">0~23시 메시지량</p>
       <div id="chart-hours" class="chart-box compact" role="img" aria-label="시간대 차트"></div>
     </article>
-    <article class="viz-card span-6">
+    ${showDailyHeat
+        ? `<article class="viz-card span-6">
       <h3>일별 활동 히트맵</h3>
       <p class="viz-hint">활동 기간만 표시 · 급증일 강조</p>
       <div id="chart-daily-heat" class="chart-box" role="img" aria-label="일별 히트맵"></div>
-    </article>
+    </article>`
+        : ""}
     <article class="viz-card span-6">
       <h3>요일 분포</h3>
       <p class="viz-hint">요일별 메시지량</p>
       <div id="chart-weekday" class="chart-box compact" role="img" aria-label="요일 차트"></div>
-      <h3 style="margin-top:14px">월별 추이</h3>
+      ${showMonthly
+        ? `<h3 style="margin-top:14px">월별 추이</h3>
       <p class="viz-hint">월 단위 합계</p>
-      <div id="chart-monthly" class="chart-box compact" role="img" aria-label="월별 차트"></div>
+      <div id="chart-monthly" class="chart-box compact" role="img" aria-label="월별 차트"></div>`
+        : ""}
     </article>
     <article class="viz-card span-12">
       <h3>키워드 순위 · 메시지 등장 횟수</h3>
@@ -127,23 +133,13 @@ export function renderChartDeck(data) {
         <div id="kw-ranked-distinct" hidden>${renderKeywordRankedList(data.keywordsDistinctive)}</div>
       </div>
     </article>
-    <article class="viz-card span-6">
-      <h3>참여자 상위</h3>
-      <p class="viz-hint">전체 ${formatNumber(data.participants.length)}명 · 도넛 상위 10명 + 기타</p>
-      <div id="chart-participants" class="chart-box" role="img" aria-label="참여자 차트"></div>
-      ${renderParticipantLegend(data.participants)}
-      <h3 style="margin-top:14px">글자 수 상위</h3>
-      <p class="viz-hint">총 글자 수 기준 상위 10명</p>
-      <div id="chart-participants-chars" class="chart-box compact" role="img" aria-label="글자 수 막대 차트"></div>
-    </article>
-    <article class="viz-card span-6">
+    <article class="viz-card span-12">
       <h3>공유 도메인</h3>
       <p class="viz-hint">링크 호스트 상위</p>
       <div id="chart-domains" class="chart-box" role="img" aria-label="도메인 차트"></div>
     </article>
     ${topicChart}
-  </div>
-  ${showLegacyDaily ? "" : "<!-- legacy daily heatmap omitted when story calendar exists -->"}`;
+  </div>`;
 }
 function renderParticipantLegend(participants) {
     if (participants.length === 0)

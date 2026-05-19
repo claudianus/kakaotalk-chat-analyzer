@@ -1,0 +1,11 @@
+import type { ReportData } from "./types.js";
+export declare function hasLlmStoryDeck(data: ReportData): boolean;
+export declare function renderLlmArchetypeBanner(data: ReportData): string;
+export declare function renderLlmEpisodeStrip(data: ReportData): string;
+export declare function renderLlmMomentsBlock(data: ReportData): string;
+export declare function renderLlmRelationshipBeats(data: ReportData): string;
+export declare function renderLlmCharacterCards(data: ReportData): string;
+export declare function renderLlmInsideJokes(data: ReportData): string;
+export declare function renderLlmEraLabels(data: ReportData): string;
+export declare function renderLlmDayMicroStories(data: ReportData): string;
+export declare function renderLlmShareFooter(data: ReportData): string;

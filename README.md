@@ -215,7 +215,7 @@ KCA_LLM_BACKEND=ollama kca ./chat.csv --preset custom
 
 **주제 맵:** graph(공기 군집)·keyword(상위 키워드 시드)·semantic(임베딩 클러스터) 3레인 RRF 병합 — 대용량 방에서 의미 테마 최대 12장. `KCA_TOPIC_MAX`, `KCA_TOPIC_MIN_THEMES`.
 
-**LLM (자동, `KCA_LLM=0` 제외):** RAM이 허용하는 최대 Qwen3.5(0.8B→9B)로 주제 제목·서사 + `topicProposals` + 인사이트 bullet·샵검색/상호작용 한 줄(원문 미전송). node-llama-cpp **JSON Schema grammar**로 출력 형식을 강제(기본 on). LLM 실패 시에도 리포트는 규칙 기반 서사로 완성.
+**LLM (자동, `KCA_LLM=0` 제외):** RAM이 허용하는 최대 Qwen3.5(0.8B→9B)로 주제 제목·서사 + Story Deck(방 아키타입·올해의 순간·에피소드·관계 드라마·밈·공유 문구 등, 원문 미전송). node-llama-cpp **JSON Schema grammar**로 출력 형식을 강제(기본 on). LLM 실패 시에도 리포트는 규칙 기반 서사로 완성.
 
 **LLM 문제 해결:** free RAM이 매우 낮으면(`KCA_LLM_MIN_FREE_GB` 미만) 재시도 없이 skip — `KCA_LLM=0 npx kcachat --local` 또는 메모리 확보 후 재실행. JSON만 끄려면 `KCA_LLM_GRAMMAR=0`.
 
@@ -238,7 +238,7 @@ KCA_BENCH_COMPARE=1 npm run bench:semantic
 
 </details>
 
-**버전 고정:** `npx kakaotalk-chat-analyzer@0.19.11` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
+**버전 고정:** `npx kakaotalk-chat-analyzer@0.19.12` · 최신은 `kcachat@latest`가 매번 본체를 받습니다. 리포트 사이드 카드·`#kca-provenance`로 실제 생성 버전을 확인할 수 있습니다.
 
 **로컬 개발:**
 
@@ -253,6 +253,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.19.12** | LLM Story Deck·리포트 고밀도 재설계(슬림 팩트·중복 차트 제거) |
 | **0.19.11** | `llm_retry` 예산을 실제 재시도 모델 크기에 맞춤 |
 | **0.19.10** | LLM 재시도 RAM gate·JSON 벤치·테스트 보강 |
 | **0.19.9** | JSON Schema grammar·OOM 방어 — LLM 실패해도 리포트 완성 |
