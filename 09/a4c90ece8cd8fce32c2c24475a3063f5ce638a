@@ -1,0 +1,9 @@
+scripts/report-viewport-check.mjs
+  ai_agent 27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "09a4c90ece8cd8fce32c2c24475a3063f5ce638a",
+  "prompts": {}
+}
