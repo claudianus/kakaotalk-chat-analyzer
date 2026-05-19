@@ -1,0 +1,47 @@
+src/version.ts
+  s_db5e84f20a7062::t_e4b89bee236398 1
+src/ml-bundle-cache.ts
+  s_db5e84f20a7062::t_f514c7e6be7d7e 65,67-68,71-97,99-100,103
+  s_db5e84f20a7062::t_a8d3c75c5fc795 40
+dist/src/ml-bundle-cache.d.ts
+  s_db5e84f20a7062::t_e4b89bee236398 9
+README.md
+  s_db5e84f20a7062::t_00a3f97f575cb6 264
+dist/src/version.js
+  s_db5e84f20a7062::t_e4b89bee236398 1
+dist/src/ml-bundle-cache.js
+  s_db5e84f20a7062::t_e4b89bee236398 26,46,48-49,52-80,82-84,87
+docs/assets/demo/manifest.json
+  s_db5e84f20a7062::t_51adb85775dd93 2
+docs/index.html
+  s_db5e84f20a7062::t_86dc08044f349b 491
+package-lock.json
+  ai_agent 3,9,17,34,1681-1683
+dist/src/version.d.ts
+  s_db5e84f20a7062::t_e4b89bee236398 1-2
+kcachat/package.json
+  s_db5e84f20a7062::t_02021d6311a424 3
+  s_db5e84f20a7062::t_adf9ab81fcc63f 15
+package.json
+  s_db5e84f20a7062::t_03b51570d5c653 3
+dist/src/ml-bundle-cache.js.map
+  ai_agent 1
+test/ml-bundle-cache.test.ts
+  s_db5e84f20a7062::t_065803e52e3941 9-10,14-15,17,21-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "0a6852cd7d5aca7bc514c3e41a97be49255431f3",
+  "prompts": {},
+  "sessions": {
+    "s_db5e84f20a7062": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4ed3e955-647e-467c-9e35-c9cb5bafd1e6",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
