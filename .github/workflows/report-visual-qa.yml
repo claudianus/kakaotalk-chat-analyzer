@@ -43,7 +43,7 @@ jobs:
         run: npm ci && npm run build
 
       - name: Generate smoke report
-        run: KCA_NO_SEMANTIC=1 node dist/src/cli.js test/fixtures/keyword-golden.csv --local -o .qa-reports/ci-smoke
+        run: KCA_NO_SEMANTIC=1 KCA_LLM=0 node dist/src/cli.js test/fixtures/keyword-golden.csv --local -o .qa-reports/ci-smoke
 
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps

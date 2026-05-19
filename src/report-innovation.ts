@@ -1,57 +1,21 @@
 import { timelineActivityRange } from "./event-spine.js";
 import type { ReportData } from "./types.js";
-import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
+import { escapeHtml, formatNumber } from "./report-util.js";
+import { hasBenchmarkSection } from "./report-section-visibility.js";
+import {
+  renderLlmDayMicroStories,
+  renderLlmEraLabels,
+  renderLlmRelationshipBeats,
+} from "./report-llm-deck.js";
 
 export function renderInnovationDeck(data: ReportData): string {
   return [
-    renderNarrativeBlock(data),
     renderTimelineBlock(data),
     renderDyadBlock(data),
     renderPeriodCompareBlock(data),
-    renderBenchmarkBlock(data),
+    hasBenchmarkSection(data) ? renderBenchmarkBlock(data) : "",
     renderExplorerBlock(data),
   ].join("\n");
-}
-
-function renderNarrativeBlock(data: ReportData): string {
-  const n = data.narrative;
-  if (!n.paragraphs.length && !data.llmInsights) return "";
-  const paras = n.paragraphs.map((p) => `<p class="narrative-p">${renderHighlightLine(p)}</p>`).join("");
-  const llm = renderLlmInsightsBlock(data);
-  const hint = data.summary.usedLlmAnalysis
-    ? "통계·키워드만 입력한 <strong>로컬 LLM</strong>이 서사·인사이트를 보강했습니다(원문 미포함)."
-    : "규칙·통계만으로 만든 <strong>재현 가능</strong>한 요약이에요.";
-  return `<section id="s-narrative" class="card narrative-card anim-enter" style="margin-bottom:14px;--enter-delay:0.04s" aria-label="방 프로필 서사">
-    <h2 class="section-glow">② 방 프로필 (자동 서사)</h2>
-    <p class="chart-hint">${hint}</p>
-    <div class="narrative-body">${paras}${llm}</div>
-  </section>`;
-}
-
-function renderLlmInsightsBlock(data: ReportData): string {
-  const ins = data.llmInsights;
-  if (!ins) return "";
-  const bullets = (ins.insightBullets ?? [])
-    .map((b) => `<li>${renderHighlightLine(b)}</li>`)
-    .join("");
-  const proposals = (ins.topicProposals ?? [])
-    .map(
-      (p) =>
-        `<li><strong>${escapeHtml(p.title)}</strong> — ${(Array.isArray(p.terms) ? p.terms : []).map((t) => escapeHtml(String(t))).join(", ")}</li>`,
-    )
-    .join("");
-  const extra = [
-    ins.shopSearchSummary ? `<p class="llm-extra"><strong>샵검색</strong> ${renderHighlightLine(ins.shopSearchSummary)}</p>` : "",
-    ins.dyadInsight ? `<p class="llm-extra"><strong>상호작용</strong> ${renderHighlightLine(ins.dyadInsight)}</p>` : "",
-    proposals
-      ? `<div class="llm-topic-proposals"><h3 class="insight-sub">LLM 주제 제안</h3><ul class="llm-bullets">${proposals}</ul></div>`
-      : "",
-  ].join("");
-  if (!bullets && !extra) return "";
-  return `<div class="llm-insights" style="margin-top:12px">
-    ${bullets ? `<h3 class="insight-sub">LLM 인사이트</h3><ul class="llm-bullets">${bullets}</ul>` : ""}
-    ${extra}
-  </div>`;
 }
 
 function renderTimelineBlock(data: ReportData): string {
@@ -92,6 +56,7 @@ function renderDyadBlock(data: ReportData): string {
   return `<section id="s-dyad" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.048s" aria-label="상호작용">
     <h2 class="section-glow">누가 누구에게 답하는가</h2>
     <p class="chart-hint">연속 메시지에서 화자가 바뀔 때 <strong>직전 화자 → 현재 화자</strong>로 응답 엣지를 셉니다(상위 ${m.aliases.length}명).</p>
+    ${renderLlmRelationshipBeats(data)}
     <ul class="dyad-pairs">${pairs}</ul>
     <div id="chart-dyad" class="chart-box chart-box--dyad is-loading" aria-busy="true" aria-label="상호작용 히트맵">
       <div class="chart-skeleton chart-skeleton--heatmap" aria-hidden="true"></div>
@@ -117,6 +82,7 @@ function renderPeriodCompareBlock(data: ReportData): string {
   return `<section id="s-compare" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.05s" aria-label="기간 비교">
     <h2 class="section-glow">기간 비교</h2>
     <p class="chart-hint">처음 7일·마지막 7일·전체와, 월별 키워드 <strong>전반/후반</strong> 차이입니다.</p>
+    ${renderLlmEraLabels(data)}
     <div class="period-grid">${slices}</div>
     ${shift}
   </section>`;
@@ -147,6 +113,7 @@ function renderExplorerBlock(data: ReportData): string {
       <label>끝 <input type="date" id="kca-range-to" min="${escapeHtml(data.explorer.range.min)}" max="${escapeHtml(data.explorer.range.max)}" value="${escapeHtml(data.explorer.range.max)}"></label>
     </div>
     <div class="explorer-stats" id="kca-explorer-stats" aria-live="polite"></div>
+    ${renderLlmDayMicroStories(data)}
     <div id="chart-explorer-daily" class="chart-box compact" role="img" aria-label="선택 기간 일별"></div>
   </section>`;
 }

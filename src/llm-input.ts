@@ -51,6 +51,33 @@ export function buildLlmPromptPayload(data: ReportData, opts?: BuildLlmPromptOpt
         `키워드전환: 초반[${shift.onlyHead.slice(0, 5).join(",")}] 후반[${shift.onlyTail.slice(0, 5).join(",")}]`,
       );
     }
+
+    if (data.story.chapters.length > 0) {
+      const ch = data.story.chapters
+        .slice(0, 6)
+        .map(
+          (c) =>
+            `${c.label}(${c.fromDate}~${c.toDate},${c.messages}건,주도${c.topAlias ?? "—"})`,
+        );
+      lines.push(`챕터: ${ch.join(" | ")}`);
+    }
+
+    if (data.burstDays.length > 0) {
+      const bursts = data.burstDays
+        .slice(0, 5)
+        .map((b) => `${b.date}(${b.count}건)`);
+      lines.push(`급증일: ${bursts.join(", ")}`);
+    }
+
+    const phrases = data.repeatedPhrases.slice(0, 8).map((p, i) => `패턴${i + 1}(${p.count})`);
+    if (phrases.length) lines.push(`반복문구: ${phrases.join(", ")}`);
+
+    if (data.story.personas.length > 0) {
+      const personas = data.story.personas
+        .slice(0, 6)
+        .map((p) => `${p.alias}:${p.title}`);
+      lines.push(`페르소나힌트: ${personas.join(", ")}`);
+    }
   }
 
   return lines.join("\n");
@@ -58,11 +85,12 @@ export function buildLlmPromptPayload(data: ReportData, opts?: BuildLlmPromptOpt
 
 export const LLM_SYSTEM_PROMPT = `당신은 카카오톡 대화방 통계 리포트 편집자입니다.
 사용자 메시지 원문은 없습니다. 통계만 보고 JSON 객체 하나만 출력하세요. 다른 텍스트·마크다운 fence 금지.
-필수 키: paragraphs (2~3개 문자열). 선택: topicTitles, topicProposals, insightBullets, shopSearchSummary, dyadInsight.
-형식 예:
-{"topicTitles":[{"i":0,"title":"짧은 한국어 제목"}],"topicProposals":[{"title":"AI 코딩","terms":["클로드"],"keywordEvidence":["클로드"]}],"paragraphs":["서사 문단1","서사 문단2"],"insightBullets":["통계 근거 한 줄"]}
-topicTitles는 주제후보 인덱스 i에 맞춰 최대 12개, title 40자 이내.
-topicProposals는 키워드 목록에 있는 단어만 keywordEvidence에 넣어 최대 3개(새 테마 제안).
+필수 키: paragraphs (2~3개 문자열).
+선택 키: topicTitles, topicProposals, insightBullets, shopSearchSummary, dyadInsight,
+roomArchetype{name,description,traits[]}, moments[{headline,statRef}], relationshipBeats[{pair,beat,role}],
+episodeCards[{period,title,tagline,emoji}], eraLabels[{label,detail}], insideJokes[{label,whyFunny,evidenceKeywords[]}(키워드 목록 단어만)],
+characterCards[{alias,tagline,statHook}], dayMicroStories[{date,line}], shareLine, hashtags[], counterfactuals[{text}](가상 유머).
+topicProposals·insideJokes의 evidence는 입력 키워드에 있는 단어만.
+moments의 statRef 숫자는 입력 통계·하이라이트에 있는 것만.
 paragraphs는 2~3개, 각 120자 이내, 마크다운 **강조**만 허용.
-insightBullets는 통계 근거 한 줄 2~4개(숫자는 입력에 있는 것만).
-shopSearchSummary, dyadInsight는 각 120자 이내 한국어(해당 데이터 없으면 생략).`;
+insightBullets 2~4개(숫자는 입력에 있는 것만).`;

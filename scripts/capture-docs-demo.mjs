@@ -27,7 +27,7 @@ const shots = [
   {
     file: "facts.png",
     title: "핵심 지표",
-    caption: "메시지·참여자·리듬 숫자 요약",
+    caption: "총 메시지·참여자 히어로·지표 그리드",
     selectors: ["#s-facts"],
   },
   {
@@ -61,9 +61,9 @@ const shots = [
   {
     file: "charts-rhythm.png",
     title: "리듬·히트맵",
-    caption: "일별·시간대 차트",
-    selectors: ["article.viz-card:has(#chart-daily-heat)", "article.viz-card:has(#chart-hours)"],
-    waitChart: "#chart-daily-heat",
+    caption: "시간대·활동 차트",
+    selectors: ["article.viz-card:has(#chart-hours)", "article.viz-card:has(#chart-daily-heat)"],
+    waitChart: "#chart-hours",
     clipMaxH: 560,
   },
   {
@@ -306,14 +306,18 @@ async function capture() {
 }
 
 async function main() {
-  console.log("build…");
-  await run("npm", ["run", "build"]);
-  console.log("generate report…");
-  await run(
-    "node",
-    ["dist/src/cli.js", fixture, "--local", "-o", join(".qa-reports", slug)],
-    { env: { ...process.env, KCA_NO_SEMANTIC: "1" } },
-  );
+  if (process.env.KCA_DOCS_CAPTURE_ONLY !== "1") {
+    console.log("build…");
+    await run("npm", ["run", "build"]);
+    console.log("generate report…");
+    await run(
+      "node",
+      ["dist/src/cli.js", fixture, "--local", "-o", join(".qa-reports", slug)],
+      { env: { ...process.env, KCA_NO_SEMANTIC: "1" } },
+    );
+  } else {
+    console.log("capture-only: skip build/generate (.qa-reports/docs-demo must exist)");
+  }
   await capture();
 }
 

@@ -1,5 +1,5 @@
 {
-  "version": "0.19.11",
+  "version": "0.19.12",
   "items": [
     {
       "file": "wrapped.png",
@@ -9,12 +9,7 @@
     {
       "file": "facts.png",
       "title": "핵심 지표",
-      "caption": "메시지·참여자·리듬 숫자 요약"
-    },
-    {
-      "file": "personas.png",
-      "title": "페르소나",
-      "caption": "참여자 아키타입 라벨"
+      "caption": "총 메시지·참여자 히어로·지표 그리드"
     },
     {
       "file": "calendar.png",
@@ -34,7 +29,7 @@
     {
       "file": "charts-rhythm.png",
       "title": "리듬·히트맵",
-      "caption": "일별·시간대 차트"
+      "caption": "시간대·활동 차트"
     },
     {
       "file": "keywords.png",

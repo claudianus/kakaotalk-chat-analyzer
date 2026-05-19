@@ -9,6 +9,7 @@ import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { parseLlmJsonResponse } from "./llm-json.js";
 import { mergeTopicProposals } from "./topic-merge.js";
+import { sanitizeLlmDeck } from "./llm-deck-validate.js";
 import { runLlamaPrompt } from "./llm-runtime.js";
 function debugLlmRaw(raw, label) {
     if (process.env.KCA_DEBUG_LLM !== "1")
@@ -82,6 +83,19 @@ async function runMockLlm() {
         insightBullets: ["모의 인사이트: 상위 키워드가 개발·AI 도구에 집중됩니다."],
         shopSearchSummary: "샵검색 태그는 소수이며 환율·계산기 등 실용 주제가 보입니다.",
         dyadInsight: "상위 두 명이 대화 허브 역할을 합니다.",
+        roomArchetype: {
+            name: "야근 크루",
+            description: "밤에 몰아 치는 개발·AI 잡담 방",
+            traits: ["심야", "키워드 집중", "응답 빠름"],
+        },
+        moments: [{ headline: "가장 바빴던 순간", statRef: "10000" }],
+        relationshipBeats: [{ pair: "A→B", beat: "질문을 던지고 답을 받는 허브", role: "질문러" }],
+        episodeCards: [
+            { period: "1막", title: "첫 불꽃", tagline: "키워드가 모이기 시작", emoji: "🔥" },
+        ],
+        eraLabels: [{ label: "1막: 초반 키워드", detail: "후반과 다른 화제" }],
+        shareLine: "우리 방 올해의 대화 리듬을 숫자로 정리했어요",
+        hashtags: ["카톡리포트", "kca", "대화통계"],
     });
 }
 function classifyError(error) {
@@ -162,7 +176,7 @@ function mergeNarrative(data, parsed, base) {
         paragraphs: merged.slice(0, 5),
     };
 }
-function mergeLlmInsights(parsed, proposals) {
+function mergeLlmInsights(data, parsed, proposals) {
     const insightBullets = (parsed.insightBullets ?? []).filter((s) => s.trim().length > 4).slice(0, 5);
     const shopSearchSummary = parsed.shopSearchSummary?.trim().slice(0, 200);
     const dyadInsight = parsed.dyadInsight?.trim().slice(0, 200);
@@ -173,16 +187,28 @@ function mergeLlmInsights(parsed, proposals) {
         title: p.title.trim().slice(0, 48),
         terms: (p.terms ?? p.keywordEvidence ?? []).slice(0, 6),
     }));
-    if (!insightBullets.length && !shopSearchSummary && !dyadInsight && !topicProposals.length) {
+    const deck = sanitizeLlmDeck(parsed, data);
+    const merged = {
+        insightBullets,
+        shopSearchSummary,
+        dyadInsight,
+        topicProposals,
+        ...deck,
+    };
+    const hasContent = insightBullets.length ||
+        shopSearchSummary ||
+        dyadInsight ||
+        topicProposals.length ||
+        Object.keys(deck).length > 0;
+    if (!hasContent)
         return undefined;
-    }
-    return { insightBullets, shopSearchSummary, dyadInsight, topicProposals };
+    return merged;
 }
 function buildEnrichmentFromParsed(data, parsed, plan) {
     let topics = mergeTopics(data, parsed);
     topics = mergeTopicProposals(topics, parsed.topicProposals, data.keywords, data.summary.totalMessages);
     const narrative = mergeNarrative(data, parsed, data.narrative);
-    const llmInsights = mergeLlmInsights(parsed, parsed.topicProposals);
+    const llmInsights = mergeLlmInsights(data, parsed, parsed.topicProposals);
     return { used: true, plan, topics, narrative, llmInsights };
 }
 function parseCompletionRaw(raw) {

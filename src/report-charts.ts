@@ -1,4 +1,5 @@
 import { isShortActivitySpan, topicsThemesOnly } from "./report-chart-util.js";
+import { hasCalendarHeatmap, showMonthlyChart } from "./report-section-visibility.js";
 import type { ReportData } from "./types.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
 
@@ -117,7 +118,8 @@ export function serializeExplorerPayload(data: ReportData): string {
 export function renderChartDeck(data: ReportData): string {
   const kw = data.keywords.length;
   const themeCount = topicsThemesOnly(data.topics).length;
-  const showLegacyDaily = data.story.calendarWeeks.length === 0 && data.daily.length > 0;
+  const showDailyHeat = !hasCalendarHeatmap(data);
+  const showMonthly = showMonthlyChart(data);
   const topicChart =
     themeCount > 0
       ? `<article class="viz-card span-12">
@@ -142,18 +144,26 @@ export function renderChartDeck(data: ReportData): string {
       <p class="viz-hint">0~23시 메시지량</p>
       <div id="chart-hours" class="chart-box compact" role="img" aria-label="시간대 차트"></div>
     </article>
-    <article class="viz-card span-6">
+    ${
+      showDailyHeat
+        ? `<article class="viz-card span-6">
       <h3>일별 활동 히트맵</h3>
       <p class="viz-hint">활동 기간만 표시 · 급증일 강조</p>
       <div id="chart-daily-heat" class="chart-box" role="img" aria-label="일별 히트맵"></div>
-    </article>
+    </article>`
+        : ""
+    }
     <article class="viz-card span-6">
       <h3>요일 분포</h3>
       <p class="viz-hint">요일별 메시지량</p>
       <div id="chart-weekday" class="chart-box compact" role="img" aria-label="요일 차트"></div>
-      <h3 style="margin-top:14px">월별 추이</h3>
+      ${
+        showMonthly
+          ? `<h3 style="margin-top:14px">월별 추이</h3>
       <p class="viz-hint">월 단위 합계</p>
-      <div id="chart-monthly" class="chart-box compact" role="img" aria-label="월별 차트"></div>
+      <div id="chart-monthly" class="chart-box compact" role="img" aria-label="월별 차트"></div>`
+          : ""
+      }
     </article>
     <article class="viz-card span-12">
       <h3>키워드 순위 · 메시지 등장 횟수</h3>
@@ -167,23 +177,13 @@ export function renderChartDeck(data: ReportData): string {
         <div id="kw-ranked-distinct" hidden>${renderKeywordRankedList(data.keywordsDistinctive)}</div>
       </div>
     </article>
-    <article class="viz-card span-6">
-      <h3>참여자 상위</h3>
-      <p class="viz-hint">전체 ${formatNumber(data.participants.length)}명 · 도넛 상위 10명 + 기타</p>
-      <div id="chart-participants" class="chart-box" role="img" aria-label="참여자 차트"></div>
-      ${renderParticipantLegend(data.participants)}
-      <h3 style="margin-top:14px">글자 수 상위</h3>
-      <p class="viz-hint">총 글자 수 기준 상위 10명</p>
-      <div id="chart-participants-chars" class="chart-box compact" role="img" aria-label="글자 수 막대 차트"></div>
-    </article>
-    <article class="viz-card span-6">
+    <article class="viz-card span-12">
       <h3>공유 도메인</h3>
       <p class="viz-hint">링크 호스트 상위</p>
       <div id="chart-domains" class="chart-box" role="img" aria-label="도메인 차트"></div>
     </article>
     ${topicChart}
-  </div>
-  ${showLegacyDaily ? "" : "<!-- legacy daily heatmap omitted when story calendar exists -->"}`;
+  </div>`;
 }
 
 function renderParticipantLegend(
@@ -557,62 +557,6 @@ export const CHARTS_INIT_SCRIPT = `
             data: cloud,
           }],
         });
-      }
-
-      if (data.participants && document.getElementById("chart-participants")) {
-        var pieEl = document.getElementById("chart-participants");
-        var pg = layout(pieEl);
-        var topN = 10;
-        var ranked = data.participants.slice().sort(function (a, b) { return b.messages - a.messages; });
-        var topSlice = ranked.slice(0, topN);
-        var otherSum = ranked.slice(topN).reduce(function (s, x) { return s + x.messages; }, 0);
-        var pieData = topSlice.map(function (x) { return { name: x.alias, value: x.messages }; });
-        if (otherSum > 0) pieData.push({ name: "기타", value: otherSum });
-        var pieR = pg.w < 380 ? ["40%", "68%"] : ["38%", "66%"];
-        init("chart-participants", Object.assign(baseOpt(), {
-          tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
-          legend: { show: false },
-          series: [{
-            type: "pie",
-            radius: pieR,
-            center: ["50%", "48%"],
-            avoidLabelOverlap: true,
-            minShowLabelAngle: 10,
-            data: pieData,
-            label: {
-              show: true,
-              position: "outside",
-              color: text,
-              fontSize: pg.fs,
-              formatter: function (params) {
-                var n = params.name || "";
-                return n.length > 8 ? n.slice(0, 7) + "…" : n;
-              },
-            },
-            labelLine: { show: true, length: 8, length2: 6, lineStyle: { color: muted } },
-            itemStyle: { borderRadius: 4, borderWidth: 0 },
-          }],
-        }));
-      }
-
-      if (data.participantsByCharacters && data.participantsByCharacters.length && document.getElementById("chart-participants-chars")) {
-        var pcEl = document.getElementById("chart-participants-chars");
-        var pcg = layout(pcEl);
-        var pcTop = data.participantsByCharacters.slice(0, 10);
-        init("chart-participants-chars", Object.assign(baseOpt(), {
-          grid: { left: Math.max(pcg.leftCat, pcg.w < 380 ? 72 : 88), right: pcg.right, top: pcg.top, bottom: pcg.bottom },
-          xAxis: { type: "value", axisLabel: { color: muted, fontSize: pcg.fs } },
-          yAxis: {
-            type: "category",
-            data: pcTop.map(function (p) { return p.alias; }).reverse(),
-            axisLabel: { color: text, fontSize: pcg.fs },
-          },
-          series: [{
-            type: "bar",
-            data: pcTop.map(function (p) { return p.characters; }).reverse(),
-            itemStyle: { borderRadius: [0, 6, 6, 0], color: accent2 },
-          }],
-        }));
       }
 
       if (data.sentiment && document.getElementById("chart-sentiment")) {

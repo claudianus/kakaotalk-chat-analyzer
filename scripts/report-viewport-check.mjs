@@ -24,7 +24,7 @@ const viewports = [
   { name: "4k", w: 2560, h: 1440 },
 ];
 
-const chartIds = ["chart-hours", "chart-kw-cloud", "chart-participants-chars"];
+const chartIds = ["chart-hours", "chart-kw-cloud"];
 
 if (!existsSync(htmlPath)) {
   console.error(

@@ -182,9 +182,16 @@
       .deck-nav-shell > summary { display: block; }
       .deck-nav-shell:not([open]) .deck-nav { display: none; }
       .deck-nav-shell .deck-nav {
-        max-height: min(42vh, 280px);
+        max-height: min(38vh, 240px);
         overflow-y: auto;
+        overflow-x: hidden;
         overscroll-behavior: contain;
+        padding-bottom: 8px;
+        gap: 6px 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .deck-nav-shell .deck-nav a {
+        flex: 0 0 auto;
       }
       main { width: min(1200px, calc(100% - 20px)); padding: 20px 0 48px; }
     }

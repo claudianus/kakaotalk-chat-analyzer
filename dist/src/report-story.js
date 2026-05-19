@@ -111,21 +111,6 @@ export function renderStorySections(data) {
         .join("")}
     </div>
   </section>`);
-    if (s.personas.length > 0) {
-        parts.push(`<section id="s-personas" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.04s">
-      <h2>참여자 아키타입</h2>
-      <p class="chart-hint">이름은 마스킹된 표시명이고, <strong>통계만</strong>으로 붙인 재미 라벨이에요.</p>
-      <div class="persona-grid">
-        ${s.personas
-            .map((p) => `<div class="persona-chip">
-          <strong>${escapeHtml(p.alias)}</strong>
-          <em>${escapeHtml(p.title)}</em>
-          <span>${escapeHtml(p.reason)}</span>
-        </div>`)
-            .join("")}
-      </div>
-    </section>`);
-    }
     if (s.chapters.length > 1) {
         parts.push(`<section id="s-chapters" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.045s">
       <h2>대화 챕터</h2>
@@ -157,8 +142,12 @@ export function renderStorySections(data) {
 }
 export function storyNavLinks(data) {
     const links = [`<a href="#s-wrapped" data-kca-jump="s-wrapped">⓪ Wrapped</a>`];
-    if (data.story.personas.length > 0)
-        links.push(`<a href="#s-personas" data-kca-jump="s-personas">페르소나</a>`);
+    if (data.llmInsights?.characterCards?.length) {
+        links.push(`<a href="#s-characters" data-kca-jump="s-characters">캐릭터</a>`);
+    }
+    if (data.llmInsights?.episodeCards?.length) {
+        links.push(`<a href="#s-episodes" data-kca-jump="s-episodes">에피소드</a>`);
+    }
     if (data.story.chapters.length > 1)
         links.push(`<a href="#s-chapters" data-kca-jump="s-chapters">챕터</a>`);
     if (data.story.calendarWeeks.length > 0)

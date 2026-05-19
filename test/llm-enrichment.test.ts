@@ -16,7 +16,7 @@ test("applyLlmEnrichment with KCA_LLM_MOCK updates narrative", async () => {
       result.narrative?.paragraphs.some((p) => p.includes("통계 기반")) ||
         result.topics?.some((t) => t.title.includes("모의")),
     );
-    assert.ok(result.llmInsights?.insightBullets?.length);
+    assert.ok(result.llmInsights?.roomArchetype?.name);
   } finally {
     if (prevMock === undefined) delete process.env.KCA_LLM_MOCK;
     else process.env.KCA_LLM_MOCK = prevMock;
