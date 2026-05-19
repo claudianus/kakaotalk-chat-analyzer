@@ -1,0 +1,35 @@
+AGENTS.md
+  s_fd2bff488fb845::t_66c657c60a22b4 120
+.cursor/rules/000-context-maintenance.mdc
+  s_fd2bff488fb845::t_fc7a8f7374f636 1-14
+.cursor/rules/github-quality.mdc
+  s_fd2bff488fb845::t_fc7a8f7374f636 1-90
+.cursor/rules/playwright-qa.mdc
+  s_fd2bff488fb845::t_fc7a8f7374f636 1-95
+.cursor/rules/nodejs-esm.mdc
+  s_fd2bff488fb845::t_fc7a8f7374f636 1-32
+.cursor/rules/typescript-quality.mdc
+  s_fd2bff488fb845::t_fc7a8f7374f636 1-60
+.agent-context-credits.md
+  s_fd2bff488fb845::t_c9e8f66f08f353 1-3
+.gitignore
+  s_fd2bff488fb845::t_deb17b8dbcdf16 21-23
+skills/kca-report-ux.md
+  s_fd2bff488fb845::t_32db096cffd6f8 1,3,5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "171a4311fd3c8339a2b4a1757bd03db52ca047b6",
+  "prompts": {},
+  "sessions": {
+    "s_fd2bff488fb845": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9b8b255c-720b-4323-83e4-1d78bc7cee3e",
+        "model": "composer-2.5"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
