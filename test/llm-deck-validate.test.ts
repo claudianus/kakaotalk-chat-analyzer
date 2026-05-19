@@ -35,6 +35,21 @@ test("sanitizeLlmDeck filters insideJokes evidence to keywords", () => {
   assert.deepEqual(out.insideJokes?.[0]?.evidenceKeywords, ["클로드"]);
 });
 
+test("sanitizeLlmDeck accepts decimal statRef tokens", () => {
+  const data = emptyReportData();
+  data.insights.top3ParticipantSharePercent = 36.9;
+  const out = sanitizeLlmDeck(
+    {
+      moments: [
+        { headline: "ok", statRef: "상위3 36.9%" },
+        { headline: "bad", statRef: "99.9%" },
+      ],
+    },
+    data,
+  );
+  assert.equal(out.moments?.length, 1);
+});
+
 test("sanitizeLlmDeck keeps roomArchetype when valid", () => {
   const data = emptyReportData();
   const out = sanitizeLlmDeck(

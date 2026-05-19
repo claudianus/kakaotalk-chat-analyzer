@@ -2928,7 +2928,7 @@ body.kca-oled .theme-btn.kca-ripple {
   min-height: 132px;
   border-radius: 14px;
   background: var(--card);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   box-shadow: var(--shadow, 0 2px 12px rgba(0, 0, 0, 0.06));
 }
 .llm-episode-emoji {
@@ -2967,7 +2967,7 @@ body.kca-oled .theme-btn.kca-ripple {
   padding: 12px 14px;
   border-radius: 12px;
   background: var(--bar-bg);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   min-height: 4.5rem;
 }
 .llm-moment-card h3 {
@@ -3010,7 +3010,7 @@ body.kca-oled .theme-btn.kca-ripple {
   padding: 14px;
   border-radius: 12px;
   background: var(--card);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   min-height: 108px;
   display: flex;
   flex-direction: column;

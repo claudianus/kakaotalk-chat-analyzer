@@ -511,62 +511,6 @@ export const CHARTS_INIT_SCRIPT = `
         });
       }
 
-      if (data.participants && document.getElementById("chart-participants")) {
-        var pieEl = document.getElementById("chart-participants");
-        var pg = layout(pieEl);
-        var topN = 10;
-        var ranked = data.participants.slice().sort(function (a, b) { return b.messages - a.messages; });
-        var topSlice = ranked.slice(0, topN);
-        var otherSum = ranked.slice(topN).reduce(function (s, x) { return s + x.messages; }, 0);
-        var pieData = topSlice.map(function (x) { return { name: x.alias, value: x.messages }; });
-        if (otherSum > 0) pieData.push({ name: "기타", value: otherSum });
-        var pieR = pg.w < 380 ? ["40%", "68%"] : ["38%", "66%"];
-        init("chart-participants", Object.assign(baseOpt(), {
-          tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
-          legend: { show: false },
-          series: [{
-            type: "pie",
-            radius: pieR,
-            center: ["50%", "48%"],
-            avoidLabelOverlap: true,
-            minShowLabelAngle: 10,
-            data: pieData,
-            label: {
-              show: true,
-              position: "outside",
-              color: text,
-              fontSize: pg.fs,
-              formatter: function (params) {
-                var n = params.name || "";
-                return n.length > 8 ? n.slice(0, 7) + "…" : n;
-              },
-            },
-            labelLine: { show: true, length: 8, length2: 6, lineStyle: { color: muted } },
-            itemStyle: { borderRadius: 4, borderWidth: 0 },
-          }],
-        }));
-      }
-
-      if (data.participantsByCharacters && data.participantsByCharacters.length && document.getElementById("chart-participants-chars")) {
-        var pcEl = document.getElementById("chart-participants-chars");
-        var pcg = layout(pcEl);
-        var pcTop = data.participantsByCharacters.slice(0, 10);
-        init("chart-participants-chars", Object.assign(baseOpt(), {
-          grid: { left: Math.max(pcg.leftCat, pcg.w < 380 ? 72 : 88), right: pcg.right, top: pcg.top, bottom: pcg.bottom },
-          xAxis: { type: "value", axisLabel: { color: muted, fontSize: pcg.fs } },
-          yAxis: {
-            type: "category",
-            data: pcTop.map(function (p) { return p.alias; }).reverse(),
-            axisLabel: { color: text, fontSize: pcg.fs },
-          },
-          series: [{
-            type: "bar",
-            data: pcTop.map(function (p) { return p.characters; }).reverse(),
-            itemStyle: { borderRadius: [0, 6, 6, 0], color: accent2 },
-          }],
-        }));
-      }
-
       if (data.sentiment && document.getElementById("chart-sentiment")) {
         var sentEl = document.getElementById("chart-sentiment");
         var sg = layout(sentEl);

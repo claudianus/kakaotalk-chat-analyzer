@@ -147,7 +147,7 @@ export function renderLlmDayMicroStories(data) {
 }
 export function renderLlmShareFooter(data) {
     const ins = data.llmInsights;
-    if (!ins?.shareLine && !(ins?.hashtags?.length))
+    if (!ins?.shareLine && !(ins?.hashtags?.length) && !(ins?.counterfactuals?.length))
         return "";
     const tags = (ins.hashtags ?? [])
         .map((h) => `<span class="llm-hash">#${escapeHtml(h)}</span>`)

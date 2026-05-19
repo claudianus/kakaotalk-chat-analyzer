@@ -21,6 +21,8 @@ function statTokens(data) {
             return;
         s.add(String(n));
         s.add(String(Math.round(n)));
+        if (!Number.isInteger(n))
+            s.add(n.toFixed(1));
     };
     pushNum(data.summary.totalMessages);
     pushNum(data.summary.participants);
@@ -37,8 +39,9 @@ function statRefOk(ref, data) {
     if (t.length < 2)
         return false;
     const stats = statTokens(data);
-    for (const tok of t.match(/\d+/g) ?? []) {
-        if (stats.has(tok))
+    for (const tok of t.match(/\d+(?:\.\d+)?/g) ?? []) {
+        const whole = tok.includes(".") ? tok.split(".")[0] : tok;
+        if (stats.has(tok) || stats.has(whole))
             return true;
     }
     return data.highlights.some((h) => h.includes(t.slice(0, Math.min(24, t.length))));

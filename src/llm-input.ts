@@ -69,7 +69,7 @@ export function buildLlmPromptPayload(data: ReportData, opts?: BuildLlmPromptOpt
       lines.push(`급증일: ${bursts.join(", ")}`);
     }
 
-    const phrases = data.repeatedPhrases.slice(0, 8).map((p) => `${p.label}(${p.count})`);
+    const phrases = data.repeatedPhrases.slice(0, 8).map((p, i) => `패턴${i + 1}(${p.count})`);
     if (phrases.length) lines.push(`반복문구: ${phrases.join(", ")}`);
 
     if (data.story.personas.length > 0) {
