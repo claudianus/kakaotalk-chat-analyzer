@@ -21,14 +21,16 @@ function raceTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): 
 }
 
 /** child·in-process 공용 — node-llama-cpp 직접 호출 */
-export async function runLlamaPromptInProcess(options: RunLlamaPromptOptions): Promise<string> {
-  const { modelPath, prompt, maxTokens = 768, inferTimeoutMs, loadTimeoutMs } = options;
+export async function runLlamaPromptInProcess(
+  options: RunLlamaPromptOptions & { grammarJsonSchema?: unknown },
+): Promise<string> {
+  const { modelPath, prompt, maxTokens = 768, inferTimeoutMs, loadTimeoutMs, grammarJsonSchema } = options;
   const mod = "node-llama-cpp";
   const { LlamaChatSession } = await import(mod);
   const llama = await getLlamaForKca();
-  const grammar = await getKcaLlmGrammar(
-    llama as Parameters<typeof getKcaLlmGrammar>[0],
-  );
+  const grammar = grammarJsonSchema
+    ? await (llama as Parameters<typeof getKcaLlmGrammar>[0]).createGrammarForJsonSchema(grammarJsonSchema)
+    : await getKcaLlmGrammar(llama as Parameters<typeof getKcaLlmGrammar>[0]);
   const sampling = resolveLlmSamplingParams();
 
   let model: LlamaModelLike | undefined;

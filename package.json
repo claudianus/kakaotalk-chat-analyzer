@@ -17,7 +17,9 @@
   },
   "files": [
     "dist/src",
-    "data",
+    "data/benchmark-cohort-v1.json",
+    "data/korean-profanity.txt",
+    "data/ml-models/manifest.json",
     "scripts/ensure-ml-bundles.mjs",
     "scripts/ml-bundle-install.mjs",
     "scripts/ml-bundle-lib.mjs",

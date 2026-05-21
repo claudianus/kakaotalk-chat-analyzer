@@ -9,7 +9,8 @@ import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { parseLlmJsonResponse } from "./llm-json.js";
 import { mergeTopicProposals } from "./topic-merge.js";
-import { sanitizeLlmDeck } from "./llm-deck-validate.js";
+import { sanitizeLlmDeck, isLlmGarbageText } from "./llm-deck-validate.js";
+import { buildKcaLlmJsonSchema } from "./llm-schema.js";
 import { resolveLlmGpuForInfer } from "./llm-gpu-policy.js";
 import { runLlamaPrompt, LlmInferProcessError } from "./llm-runtime.js";
 function debugLlmRaw(raw, label) {
@@ -77,6 +78,7 @@ async function runNodeLlamaOnce(prompt, size, plan, gpu) {
         loadTimeoutMs: llmLoadTimeoutMs(size),
         inferTimeoutMs: llmInferTimeoutMs(size, plan),
         gpu,
+        grammarJsonSchema: buildKcaLlmJsonSchema(),
     });
 }
 async function runNodeLlama(prompt, size, plan) {
@@ -212,7 +214,9 @@ function mergeTopics(data, parsed) {
     return topics;
 }
 function mergeNarrative(data, parsed, base) {
-    const llmParas = (parsed.paragraphs ?? []).filter((p) => p.trim().length > 8).slice(0, 3);
+    const llmParas = (parsed.paragraphs ?? [])
+        .filter((p) => p.trim().length > 8 && !isLlmGarbageText(p))
+        .slice(0, 3);
     if (llmParas.length === 0)
         return base;
     const merged = [...llmParas, ...base.paragraphs.slice(0, 2)];
@@ -222,9 +226,13 @@ function mergeNarrative(data, parsed, base) {
     };
 }
 function mergeLlmInsights(data, parsed, proposals) {
-    const insightBullets = (parsed.insightBullets ?? []).filter((s) => s.trim().length > 4).slice(0, 5);
-    const shopSearchSummary = parsed.shopSearchSummary?.trim().slice(0, 200);
-    const dyadInsight = parsed.dyadInsight?.trim().slice(0, 200);
+    const insightBullets = (parsed.insightBullets ?? [])
+        .filter((s) => s.trim().length > 4 && !isLlmGarbageText(s))
+        .slice(0, 5);
+    const rawShop = parsed.shopSearchSummary?.trim().slice(0, 200);
+    const shopSearchSummary = rawShop && !isLlmGarbageText(rawShop) ? rawShop : undefined;
+    const rawDyad = parsed.dyadInsight?.trim().slice(0, 200);
+    const dyadInsight = rawDyad && !isLlmGarbageText(rawDyad) ? rawDyad : undefined;
     const topicProposals = (proposals ?? [])
         .filter((p) => p.title?.trim())
         .slice(0, 4)

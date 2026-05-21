@@ -38,6 +38,7 @@ async function main() {
             maxTokens: req.maxTokens,
             inferTimeoutMs: req.inferTimeoutMs,
             loadTimeoutMs: req.loadTimeoutMs,
+            grammarJsonSchema: req.grammarJsonSchema,
         });
         writeResponse({ ok: true, text });
         process.exit(0);

@@ -4,6 +4,21 @@ import type { LlmInsights } from "./types.js";
 
 const KEYWORD_POOL_MAX = 80;
 
+/** LLM 출력의 템플릿 잔여물·오류 메시지 필터링 */
+export function isLlmGarbageText(value: string): boolean {
+  const v = value.trim();
+  if (v.length < 4) return true;
+  // JSON 문법 잔여물
+  if (/[\]}{]/.test(v)) return true;
+  // 오류/메타 메시지
+  if (/this is not correct|please wait|json|schema|format|template/i.test(v)) return true;
+  // 통계 숫자만 나열 (쉼표·공백·%·숫자 외 문자 없음)
+  if (/^[\d\s,%\.]+$/.test(v)) return true;
+  // 키워드 없이 구두점·숫자만 있는 경우
+  if (!/[\p{L}]/u.test(v)) return true;
+  return false;
+}
+
 function keywordPool(data: ReportData): Set<string> {
   const pool = new Set<string>();
   for (const k of data.keywords.slice(0, KEYWORD_POOL_MAX)) {

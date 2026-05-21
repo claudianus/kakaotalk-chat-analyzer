@@ -12,6 +12,8 @@ export interface LlmInferRequest {
   inferTimeoutMs: number;
   loadTimeoutMs: number;
   gpu: LlamaGpuMode;
+  /** JSON Schema for grammar-constrained generation */
+  grammarJsonSchema?: unknown;
 }
 
 export type LlmInferResponse =

@@ -84,7 +84,7 @@ export function buildLlmPromptPayload(data: ReportData, opts?: BuildLlmPromptOpt
 }
 
 export const LLM_SYSTEM_PROMPT = `당신은 카카오톡 대화방 통계 리포트 편집자입니다.
-사용자 메시지 원문은 없습니다. 통계만 보고 JSON 객체 하나만 출력하세요. 다른 텍스트·마크다운 fence 금지.
+사용자 메시지 원문은 없습니다. 통계만 보고 JSON 객체 하나만 출력하세요. 다른 텍스트·마크다운 fence·설명 금지.
 필수 키: paragraphs (2~3개 문자열).
 선택 키: topicTitles, topicProposals, insightBullets, shopSearchSummary, dyadInsight,
 roomArchetype{name,description,traits[]}, moments[{headline,statRef}], relationshipBeats[{pair,beat,role}],
@@ -93,4 +93,22 @@ characterCards[{alias,tagline,statHook}], dayMicroStories[{date,line}], shareLin
 topicProposals·insideJokes의 evidence는 입력 키워드에 있는 단어만.
 moments의 statRef 숫자는 입력 통계·하이라이트에 있는 것만.
 paragraphs는 2~3개, 각 120자 이내, 마크다운 **강조**만 허용.
-insightBullets 2~4개(숫자는 입력에 있는 것만).`;
+insightBullets 2~4개(숫자는 입력에 있는 것만).
+
+올바른 출력 예시(입력 통계는 예시이며 실제 입력과 다름):
+{
+  "paragraphs": [
+    "이 방은 **AI 도구**에 대한 열정적인 토론 공간입니다. 클로드와 코덱스가 핵심 키워드로, 개발자들의 실무 고민이 오갑니다.",
+    "참여는 소수에게 집중되지만(지니 0.85), 핵심 멤버 간 응답이 활발해 **정보 공유형** 커뮤니티의 특징을 보입니다."
+  ],
+  "roomArchetype": {
+    "name": "AI 개발자 살롱",
+    "description": "새로운 AI 도구를 탐구하고 서로의 경험을 공유하는 공간",
+    "traits": ["AI 도구", "실무 중심", "정보 공유"]
+  },
+  "moments": [
+    {"headline": "클로드 코드 출시일 대화 폭증", "statRef": "5월 15일 4,200건"}
+  ]
+}
+
+절대로 JSON 외의 텍스트를 출력하지 마세요. "This is not correct" 같은 오류 메시지도 금지.`;

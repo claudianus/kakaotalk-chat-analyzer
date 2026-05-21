@@ -13,11 +13,13 @@ function raceTimeout(promise, timeoutMs, label) {
 }
 /** child·in-process 공용 — node-llama-cpp 직접 호출 */
 export async function runLlamaPromptInProcess(options) {
-    const { modelPath, prompt, maxTokens = 768, inferTimeoutMs, loadTimeoutMs } = options;
+    const { modelPath, prompt, maxTokens = 768, inferTimeoutMs, loadTimeoutMs, grammarJsonSchema } = options;
     const mod = "node-llama-cpp";
     const { LlamaChatSession } = await import(mod);
     const llama = await getLlamaForKca();
-    const grammar = await getKcaLlmGrammar(llama);
+    const grammar = grammarJsonSchema
+        ? await llama.createGrammarForJsonSchema(grammarJsonSchema)
+        : await getKcaLlmGrammar(llama);
     const sampling = resolveLlmSamplingParams();
     let model;
     let context;

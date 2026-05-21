@@ -89,6 +89,8 @@ export interface RunLlamaPromptOptions {
   /** GGUF 로드+컨텍스트 생성 상한(ms) */
   loadTimeoutMs: number;
   gpu?: LlamaGpuMode;
+  /** JSON Schema for grammar-constrained generation (bypasses cached grammar) */
+  grammarJsonSchema?: unknown;
 }
 
 /** Qwen3.5 instruct(non-thinking) 기본 — env로 override */
