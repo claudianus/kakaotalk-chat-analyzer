@@ -1,7 +1,7 @@
 import { memoryHeadroomGb, probeMachineProfileSync } from "../../analysis-capability.js";
 import { ensureCoreMlBundles } from "../../ml-bundle-install.js";
 import { ensureKureBundle, ensureToxicityBundle } from "../../ml-bundle-cache.js";
-import { BUNDLED_KURE_MODEL_ID } from "../../ml-bundle-ids.js";
+import { BUNDLED_GRANITE_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID } from "../../ml-bundle-ids.js";
 import { semanticEmbeddingModelId } from "../../semantic-policy.js";
 import { preloadSentimentPipeline } from "./sentiment.js";
 import { preloadSemanticPipeline } from "./embedding.js";
@@ -30,8 +30,12 @@ export async function preloadUtteranceMlTasks(opts) {
         if (semanticModel === BUNDLED_KURE_MODEL_ID) {
             await ensureKureBundle().catch((error) => {
                 const msg = error instanceof Error ? error.message : String(error);
-                process.stderr.write(`[kca] KURE 번들 준비 건너뜀: ${msg}\n`);
+                process.stderr.write(`[kca] KURE 번들 준비 걸너뜀: ${msg}\n`);
             });
+        }
+        if (semanticModel === BUNDLED_GRANITE_EMBED_MODEL_ID) {
+            // Granite 번들은 npm 패키지 또는 data/ml-models에 포함
+            // 별도 lazy download 불필요
         }
     }
     const sequential = memoryHeadroomGb(probeMachineProfileSync()) < 12;

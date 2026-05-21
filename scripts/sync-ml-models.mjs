@@ -42,11 +42,27 @@ const EXPORTS = [
     source: "nlpai-lab/KURE-v1",
     task: "feature-extraction",
   },
+  // 2026-05: SOTA 교체 후보 (Hub 직접 로드 우선, ONNX 변환은 별도 검증)
+  {
+    id: "kca-granite-embed-97m",
+    source: "ibm-granite/granite-embedding-97m-multilingual-r2",
+    task: "feature-extraction",
+  },
+  {
+    id: "kca-krelectra-small",
+    source: "snunlp/KR-ELECTRA-small",
+    task: "text-classification",
+  },
+  {
+    id: "kca-kcelectra-toxic-detector",
+    source: "jinkyeongk/kcELECTRA-toxic-detector",
+    task: "text-classification",
+  },
 ];
 
-/** npm `kakaotalk-chat-analyzer-models` tarball (~110MB) — toxicity·KURE는 Release zip만 */
+/** npm `kakaotalk-chat-analyzer-models` tarball — Legacy + 신규 소형 모델 */
 const NPM_EXPORTS = EXPORTS.filter(
-  (e) => e.id !== "kca-kcelectra-base-toxicity" && e.id !== "kca-kure-v1",
+  (e) => !["kca-kcelectra-base-toxicity", "kca-kure-v1", "kca-granite-embed-97m"].includes(e.id),
 );
 
 function optimumCli() {

@@ -5,7 +5,7 @@ import {
   hubMirrorHosts,
   restoreHubTokens,
 } from "../src/ml-hub-access.js";
-import { HUB_KOELECTRA_NSMC } from "../src/ml/model-ids.js";
+import { HUB_KOELECTRA_NSMC, HUB_KRELECTRA_NSMC } from "../src/ml/model-ids.js";
 import { sentimentModelFallbacks } from "../src/sentiment-policy.js";
 
 describe("ml-hub-access", () => {
@@ -36,7 +36,7 @@ describe("ml-hub-access", () => {
 });
 
 describe("sentiment fallbacks", () => {
-  it("quality chain uses NSMC Hub (and bundle when present)", () => {
+  it("quality chain uses KoELECTRA NSMC (and bundle when present)", () => {
     const chain = sentimentModelFallbacks("quality");
     assert.ok(chain.includes(HUB_KOELECTRA_NSMC));
     assert.ok(chain.length >= 1 && chain.length <= 2);

@@ -7,7 +7,7 @@ import {
   isBundledSentimentModelReady,
   resolveBundledSentimentModelId,
 } from "./ml-bundled-models.js";
-import { HUB_KOELECTRA_NSMC } from "./ml/model-ids.js";
+import { HUB_KOELECTRA_NSMC, HUB_KRELECTRA_NSMC } from "./ml/model-ids.js";
 import {
   semanticReservoirCap,
   semanticSampleCap,
@@ -28,8 +28,10 @@ export function isBinarySentimentModel(modelId: string): boolean {
   const id = modelId.toLowerCase();
   return (
     id === BUNDLED_SENTIMENT_MODEL_ID ||
+    id === HUB_KRELECTRA_NSMC ||
     id === HUB_KOELECTRA_NSMC ||
-    id.includes("koelectra")
+    id.includes("koelectra") ||
+    id.includes("kr-electra")
   );
 }
 
@@ -51,7 +53,7 @@ export function sentimentModelId(
   return HUB_KOELECTRA_NSMC;
 }
 
-/** 번들 → Hub NSMC (구 bert Xenova 폴백 제거) */
+/** 번들 → KoELECTRA NSMC (KR-ELECTRA는 env 지정 시만) */
 export function sentimentModelFallbacks(
   preset?: string,
   messageCount?: number,

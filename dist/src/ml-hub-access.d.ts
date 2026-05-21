@@ -1,4 +1,4 @@
-type TransformersModule = typeof import("@xenova/transformers");
+type TransformersModule = typeof import("@huggingface/transformers");
 /** 공개 Xenova 모델 — 만료·잘못된 HF 토큰이 401을 유발할 수 있어 기본은 헤더 미전송 */
 export declare function clearHubTokensForPublicFetch(): Map<string, string | undefined>;
 export declare function restoreHubTokens(saved: Map<string, string | undefined>): void;

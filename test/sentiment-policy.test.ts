@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { HeuristicPrepassCollector } from "../src/export-prepass.js";
 import { BUNDLED_SENTIMENT_MODEL_ID, isBundledSentimentModelReady } from "../src/ml-bundled-models.js";
-import { HUB_KOELECTRA_NSMC } from "../src/ml/model-ids.js";
+import { HUB_KOELECTRA_NSMC, HUB_KRELECTRA_NSMC } from "../src/ml/model-ids.js";
 import {
   DEFAULT_SENTIMENT_MODEL,
   isBinarySentimentModel,
@@ -35,7 +35,7 @@ describe("sentiment-policy", () => {
     assert.equal(sentimentModelId("speed"), BUNDLED_SENTIMENT_MODEL_ID);
   });
 
-  it("sentimentModelFallbacks chains bundle to Hub NSMC", () => {
+  it("sentimentModelFallbacks chains bundle → KoELECTRA NSMC", () => {
     const chain = sentimentModelFallbacks("quality");
     if (isBundledSentimentModelReady()) {
       assert.deepEqual(chain, [BUNDLED_SENTIMENT_MODEL_ID, HUB_KOELECTRA_NSMC]);

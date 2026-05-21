@@ -13,10 +13,10 @@ let pipelinePromise = null;
 let loadedModelId = null;
 async function importTransformers() {
     try {
-        return await import("@xenova/transformers");
+        return await import("@huggingface/transformers");
     }
     catch {
-        throw new Error("[kca] 독성 ML은 optional dependency @xenova/transformers 가 필요합니다. KCA_NO_TOXICITY=1 로 끄세요.");
+        throw new Error("[kca] 독성 ML은 optional dependency @huggingface/transformers 가 필요합니다. KCA_NO_TOXICITY=1 로 끄세요.");
     }
 }
 function lexiconToxicityFromSamples(samples) {
@@ -69,20 +69,34 @@ async function loadPipeline(requestedModelId) {
         pipelinePromise = withQuietMlStderr(async () => {
             const mod = await importTransformers();
             const gpu = await configureTransformersEnv(mod);
-            const quantized = preferQuantizedModels(gpu);
+            const dtype = preferQuantizedModels(gpu);
             if (isLocalBundledToxicityModel(modelId)) {
                 const { bundledMlModelsDir } = await import("./ml-bundled-models.js");
                 mod.env.localModelPath = bundledMlModelsDir();
             }
             const { pipeline } = mod;
-            const load = () => pipeline("text-classification", modelId, { quantized });
+            const load = () => pipeline("text-classification", modelId, { dtype });
             let pipe;
             if (isLocalBundledToxicityModel(modelId)) {
-                pipe = await withLocalModelsOnly(mod, load);
+                try {
+                    pipe = await withLocalModelsOnly(mod, load);
+                }
+                catch (err) {
+                    // 로컬 번들이 손상되었거나 tokenizer가 누락된 경우 Hub 폰백
+                    if (isTransformersFetchError(err)) {
+                        process.stderr.write(`[kca] 독성 번들 로드 실패(${modelId}) → Hub 폰백(${HUB_KCELECTRA_TOXICITY})\n`);
+                        const hubLoad = () => pipeline("text-classification", HUB_KCELECTRA_TOXICITY, { dtype });
+                        pipe = await runWithHubMirrors(mod, hubLoad);
+                        loadedModelId = HUB_KCELECTRA_TOXICITY;
+                    }
+                    else {
+                        throw err;
+                    }
+                }
             }
             else if (modelId === BUNDLED_TOXICITY_MODEL_ID) {
                 // bundled ID인데 local에 없으면 Hub public 모델로 폰백
-                const hubLoad = () => pipeline("text-classification", HUB_KCELECTRA_TOXICITY, { quantized });
+                const hubLoad = () => pipeline("text-classification", HUB_KCELECTRA_TOXICITY, { dtype });
                 pipe = await runWithHubMirrors(mod, hubLoad);
                 loadedModelId = HUB_KCELECTRA_TOXICITY;
             }

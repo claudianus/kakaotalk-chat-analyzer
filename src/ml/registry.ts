@@ -17,7 +17,7 @@ import {
   HUB_KCELECTRA_TOXICITY,
   HUB_KOELECTRA_EMBED,
   HUB_KOELECTRA_KORSTS,
-  HUB_KOELECTRA_NSMC,
+  HUB_KRELECTRA_NSMC,
 } from "./model-ids.js";
 
 export type MlTask = "sentiment" | "embedding" | "toxicity";
@@ -33,7 +33,7 @@ export const ML_MODEL_REGISTRY: Record<MlTask, MlModelSpec> = {
   sentiment: {
     task: "sentiment",
     bundledId: BUNDLED_SENTIMENT_MODEL_ID,
-    hubFallback: HUB_KOELECTRA_NSMC,
+    hubFallback: HUB_KRELECTRA_NSMC,
     hubTask: "text-classification",
   },
   embedding: {

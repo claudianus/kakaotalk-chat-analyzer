@@ -12,6 +12,7 @@ export declare function isSentimentBundleReady(): boolean;
 export declare function isEmbedBundleReady(): boolean;
 export declare function isToxicityBundleReady(): boolean;
 export declare function isKureBundleReady(): boolean;
+export declare function isGraniteEmbedBundleReady(): boolean;
 export declare function isCoreBundleReady(): boolean;
 /** npm models 패키지 → monorepo data → user cache */
 export declare function listMlModelRoots(): string[];

@@ -11,7 +11,7 @@ import {
 import type { BuildReportOptions } from "./analyze-pool.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { runWithHubMirrors } from "./ml-hub-access.js";
-import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
+import { configureTransformersEnv, preferQuantizedModels, type TransformersDtype } from "./ml-runtime.js";
 import { isTransformersFetchError, withLocalModelsOnly } from "./ml-transformers-env.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveSentimentBatchSize } from "./ml-batch-size.js";
@@ -74,25 +74,25 @@ function resolveSentimentBuildOptions(
   return { ...buildOptions, preset };
 }
 
-async function importTransformers(): Promise<typeof import("@xenova/transformers")> {
+async function importTransformers(): Promise<typeof import("@huggingface/transformers")> {
   try {
-    return await import("@xenova/transformers");
+    return await import("@huggingface/transformers");
   } catch {
     throw new Error(
-      "[kca] 감정 분석은 optional dependency @xenova/transformers 가 필요합니다. " +
+      "[kca] 감정 분석은 optional dependency @huggingface/transformers 가 필요합니다. " +
         "재설치하거나 --no-sentiment / KCA_NO_SENTIMENT=1 로 끄세요.",
     );
   }
 }
 
 async function instantiateSentimentPipeline(
-  mod: typeof import("@xenova/transformers"),
+  mod: typeof import("@huggingface/transformers"),
   modelId: string,
-  quantized: boolean,
+  dtype: TransformersDtype,
 ): Promise<ClassificationPipeline> {
   const { pipeline } = mod;
   return (await pipeline("text-classification", modelId, {
-    quantized,
+    dtype,
   })) as ClassificationPipeline;
 }
 
@@ -114,7 +114,7 @@ async function loadPipeline(
   pipelinePromise = withQuietMlStderr(async () => {
     const mod = await importTransformers();
     const gpu = await configureTransformersEnv(mod);
-    const quantized = preferQuantizedModels(gpu);
+    const dtype = preferQuantizedModels(gpu);
     let lastError: unknown;
     for (let i = 0; i < candidates.length; i += 1) {
       const modelId = candidates[i]!;
@@ -124,12 +124,26 @@ async function loadPipeline(
           process.stderr.write(`[kca] 감정 모델 ${candidates[i - 1]} 로드 실패 → ${modelId}: ${msg}\n`);
         }
         process.stderr.write(
-          `[kca] 감정 분석 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`,
+          `[kca] 감정 분석 준비 중… (${modelId}${dtype === "fp32" ? ", full precision" : `, ${dtype}`})\n`,
         );
-        const load = () => instantiateSentimentPipeline(mod, modelId, quantized);
-        const pipe = isLocalBundledSentimentModel(modelId)
-          ? await withLocalModelsOnly(mod, load)
-          : await runWithHubMirrors(mod, load);
+        const load = () => instantiateSentimentPipeline(mod, modelId, dtype);
+        let pipe: ClassificationPipeline;
+        if (isLocalBundledSentimentModel(modelId)) {
+          try {
+            pipe = await withLocalModelsOnly(mod, load);
+          } catch (err) {
+            if (isTransformersFetchError(err)) {
+              process.stderr.write(
+                `[kca] 감정 번들 로드 실패(${modelId}) → Hub 폰백\n`,
+              );
+              pipe = await runWithHubMirrors(mod, load);
+            } else {
+              throw err;
+            }
+          }
+        } else {
+          pipe = await runWithHubMirrors(mod, load);
+        }
         loadedModelId = modelId;
         return pipe;
       } catch (error) {

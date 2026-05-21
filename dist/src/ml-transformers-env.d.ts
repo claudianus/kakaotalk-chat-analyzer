@@ -1,4 +1,4 @@
-type TransformersModule = typeof import("@xenova/transformers");
+type TransformersModule = typeof import("@huggingface/transformers");
 export declare function huggingFaceAccessToken(): string | undefined;
 /** cwd의 tokenizer.json이 hub 모델 로드를 깨는 경우 경고 */
 export declare function warnCwdTokenizerShadow(): void;

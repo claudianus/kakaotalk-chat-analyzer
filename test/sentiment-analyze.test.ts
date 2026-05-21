@@ -25,9 +25,9 @@ describe("sentiment-analyze", () => {
 
   it("runs transformers batch when dependency is available", async (t) => {
     try {
-      await import("@xenova/transformers");
+      await import("@huggingface/transformers");
     } catch {
-      t.skip("optional @xenova/transformers not installed");
+      t.skip("optional @huggingface/transformers not installed");
       return;
     }
     const { analyzeSentimentBatch } = await import("../src/sentiment-analyze.js");

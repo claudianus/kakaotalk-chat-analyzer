@@ -1,7 +1,7 @@
 import { isPrimarilyKoreanMessages } from "./korean-locale.js";
 import { presetForcesSentimentOff } from "./analysis-preset.js";
 import { BUNDLED_SENTIMENT_MODEL_ID, isBundledSentimentModelReady, resolveBundledSentimentModelId, } from "./ml-bundled-models.js";
-import { HUB_KOELECTRA_NSMC } from "./ml/model-ids.js";
+import { HUB_KOELECTRA_NSMC, HUB_KRELECTRA_NSMC } from "./ml/model-ids.js";
 import { subsampleSemanticMessages, } from "./semantic-policy.js";
 export { semanticSampleCap as sentimentSampleCap, semanticReservoirCap as sentimentReservoirCap, subsampleSemanticMessages as subsampleSentimentSamples, } from "./semantic-policy.js";
 export { HUB_KOELECTRA_NSMC as DEFAULT_SENTIMENT_MODEL };
@@ -9,8 +9,10 @@ const MIN_SENTIMENT_MESSAGES = 48;
 export function isBinarySentimentModel(modelId) {
     const id = modelId.toLowerCase();
     return (id === BUNDLED_SENTIMENT_MODEL_ID ||
+        id === HUB_KRELECTRA_NSMC ||
         id === HUB_KOELECTRA_NSMC ||
-        id.includes("koelectra"));
+        id.includes("koelectra") ||
+        id.includes("kr-electra"));
 }
 /** 이진 NSMC 계열: confidence < high 이면 neutral */
 export function binarySentimentConfidenceHigh() {
@@ -26,7 +28,7 @@ export function sentimentModelId(_preset, _messageCount, _options) {
         return resolveBundledSentimentModelId();
     return HUB_KOELECTRA_NSMC;
 }
-/** 번들 → Hub NSMC (구 bert Xenova 폴백 제거) */
+/** 번들 → KoELECTRA NSMC (KR-ELECTRA는 env 지정 시만) */
 export function sentimentModelFallbacks(preset, messageCount, options) {
     const primary = sentimentModelId(preset, messageCount, options);
     if (primary === HUB_KOELECTRA_NSMC)
