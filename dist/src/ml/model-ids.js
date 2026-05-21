@@ -18,8 +18,16 @@ export const SEMANTIC_HEADROOM_KURE_GB = 14;
 export const SEMANTIC_HEADROOM_BGE_GB = 20;
 /** balanced에서 KURE Hub — 번들 유지 하한 */
 export const SEMANTIC_HEADROOM_KURE_BALANCED_GB = 16;
-/** 독성·공격 톤 (base) */
-export const HUB_KCELECTRA_TOXICITY = "monologg/koelectra-base-v3-discriminator";
+/** 다국어 임베딩 SOTA — IBM Granite R2 (97M, 384dim, 200+ 언어, 32K ctx) */
+export const HUB_GRANITE_EMBED_97M = "ibm-granite/granite-embedding-97m-multilingual-r2";
+/** 다국어 임베딩 flagship — IBM Granite R2 (311M, 768dim, Matryoshka) */
+export const HUB_GRANITE_EMBED_311M = "ibm-granite/granite-embedding-311m-multilingual-r2";
+/** 감정 분석 — KR-ELECTRA-small (2024, NSMC fine-tuned) */
+export const HUB_KRELECTRA_NSMC = "snunlp/KR-ELECTRA-small";
+/** 독성·공격 톤 — KcELECTRA toxic detector (fine-tuned) */
+export const HUB_KCELECTRA_TOXICITY = "jinkyeongk/kcELECTRA-toxic-detector";
+/** 레거시 독성·공격 톤 (base discriminator, 비권장) */
+export const HUB_KCELECTRA_TOXICITY_LEGACY = "monologg/koelectra-base-v3-discriminator";
 /** 익명 Hub 401 또는 정책상 금지 — `KCA_*_MODEL` 로만 시도 */
 export const DEPRECATED_SENTIMENT_HUB_IDS = [
     "Xenova/bert-base-multilingual-uncased-sentiment",

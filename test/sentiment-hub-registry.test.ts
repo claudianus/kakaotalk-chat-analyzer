@@ -9,7 +9,7 @@ import {
 } from "../src/sentiment-hub-registry.js";
 
 describe("sentiment-hub-registry", () => {
-  it("default model is NSMC and not blocklisted", () => {
+  it("default model is KoELECTRA NSMC and not blocklisted", () => {
     assert.equal(DEFAULT_SENTIMENT_MODEL, HUB_KOELECTRA_NSMC);
     assert.equal(isSentimentHubBlocklisted(DEFAULT_SENTIMENT_MODEL), false);
     assert.doesNotThrow(() => assertDefaultSentimentHubAccessible());

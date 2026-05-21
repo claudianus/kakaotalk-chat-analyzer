@@ -4,12 +4,14 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   BUNDLED_EMBED_MODEL_ID,
+  BUNDLED_GRANITE_EMBED_MODEL_ID,
   BUNDLED_KURE_MODEL_ID,
   BUNDLED_SENTIMENT_MODEL_ID,
   BUNDLED_TOXICITY_MODEL_ID,
 } from "./ml-bundle-ids.js";
 import {
   isEmbedBundleReady,
+  isGraniteEmbedBundleReady,
   isKureBundleReady,
   isSentimentBundleReady,
   isToxicityBundleReady,
@@ -27,6 +29,7 @@ const PKG_DATA_ML = join(
 
 export {
   BUNDLED_EMBED_MODEL_ID,
+  BUNDLED_GRANITE_EMBED_MODEL_ID,
   BUNDLED_KURE_MODEL_ID,
   BUNDLED_SENTIMENT_MODEL_ID,
   BUNDLED_TOXICITY_MODEL_ID,
@@ -56,6 +59,10 @@ export function isBundledSentimentModelReady(): boolean {
 
 export function isBundledEmbedModelReady(): boolean {
   return isEmbedBundleReady();
+}
+
+export function isBundledGraniteEmbedModelReady(): boolean {
+  return isGraniteEmbedBundleReady();
 }
 
 export function isBundledToxicityModelReady(): boolean {
@@ -135,6 +142,7 @@ export function bundledMlModelsRoot(): string | undefined {
   if (
     isBundledSentimentModelReady() ||
     isBundledEmbedModelReady() ||
+    isBundledGraniteEmbedModelReady() ||
     isBundledToxicityModelReady() ||
     isBundledKureModelReady()
   ) {
@@ -157,4 +165,8 @@ export function isLocalBundledToxicityModel(modelId: string): boolean {
 
 export function isLocalBundledKureModel(modelId: string): boolean {
   return modelId === BUNDLED_KURE_MODEL_ID && isBundledKureModelReady();
+}
+
+export function isLocalBundledGraniteEmbedModel(modelId: string): boolean {
+  return modelId === BUNDLED_GRANITE_EMBED_MODEL_ID && isBundledGraniteEmbedModelReady();
 }

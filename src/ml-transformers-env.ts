@@ -5,7 +5,7 @@ import { clearHubTokensForPublicFetch } from "./ml-hub-access.js";
 import { bundledMlModelsRoot } from "./ml-bundled-models.js";
 import { ensureMlStderrQuantizationFilter } from "./ml-stderr.js";
 
-type TransformersModule = typeof import("@xenova/transformers");
+type TransformersModule = typeof import("@huggingface/transformers");
 
 const DEFAULT_CACHE = join(homedir(), ".cache", "kakaotalk-chat-analyzer", "transformers");
 

@@ -104,10 +104,14 @@ export async function listReleaseAssetUrls(assetName: string): Promise<string[]>
 }
 
 function modelOnnxReady(root: string, modelId: string): boolean {
-  return (
-    existsSync(join(root, modelId, "config.json")) &&
-    existsSync(join(root, modelId, "onnx", "model.onnx"))
-  );
+  const modelDir = join(root, modelId);
+  const hasConfig = existsSync(join(modelDir, "config.json"));
+  const hasOnnx = existsSync(join(modelDir, "onnx", "model.onnx"));
+  // tokenizer_config.json 또는 tokenizer.json 중 하나는 필수 (transformers.js가 tokenizer 로딩에 필요)
+  const hasTokenizer =
+    existsSync(join(modelDir, "tokenizer.json")) ||
+    existsSync(join(modelDir, "tokenizer_config.json"));
+  return hasConfig && hasOnnx && hasTokenizer;
 }
 
 function kureOnnxReady(root: string): boolean {
@@ -131,6 +135,10 @@ export function isToxicityBundleReady(): boolean {
 
 export function isKureBundleReady(): boolean {
   return listMlModelRoots().some((r) => kureOnnxReady(r));
+}
+
+export function isGraniteEmbedBundleReady(): boolean {
+  return listMlModelRoots().some((r) => modelOnnxReady(r, "kca-granite-embed-97m"));
 }
 
 export function isCoreBundleReady(): boolean {

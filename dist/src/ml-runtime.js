@@ -33,32 +33,18 @@ export async function probeOnnxGpu() {
 export function transformersDeviceHint(gpu) {
     return gpu === "webgpu" ? "webgpu" : "wasm";
 }
-/** @xenova/transformers env — ONNX 백엔드·디바이스 힌트 */
+/** @huggingface/transformers env — ONNX 백엔드·디바이스 힌트 */
 export async function configureTransformersEnv(mod) {
     const gpu = await probeOnnxGpu();
     applyTransformersEnv(mod);
-    const { env } = mod;
-    const device = transformersDeviceHint(gpu);
-    env.backends = env.backends ?? {};
-    if (device === "webgpu") {
-        env.backends.onnx = env.backends.onnx ?? {};
-        env.backends.onnx.wasm = env.backends.onnx.wasm ?? {};
-        env.backends.onnx.wasm.proxy = false;
-    }
-    const forcedDevice = process.env.KCA_TRANSFORMERS_DEVICE?.trim().toLowerCase();
-    if (forcedDevice === "webgpu") {
-        env.backends.onnx = env.backends.onnx ?? {};
-        env.backends.onnx.wasm = env.backends.onnx.wasm ?? {};
-        env.backends.onnx.wasm.proxy = false;
-    }
     return gpu;
 }
-/** Metal 등에서 quantized 로드 시 ORT 경고 방지 */
+/** v4: quantized → dtype. CPU(q8) / GPU(fp32) */
 export function preferQuantizedModels(gpu) {
     if (process.env.KCA_ML_QUANTIZED === "0")
-        return false;
+        return "fp32";
     if (process.env.KCA_ML_QUANTIZED === "1")
-        return true;
-    return gpu === "none";
+        return "q8";
+    return gpu === "none" ? "q8" : "fp32";
 }
 //# sourceMappingURL=ml-runtime.js.map

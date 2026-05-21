@@ -2,10 +2,10 @@ import { existsSync, mkdirSync, readdirSync, rmSync, symlinkSync } from "node:fs
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BUNDLED_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
-import { isEmbedBundleReady, isKureBundleReady, isSentimentBundleReady, isToxicityBundleReady, listMlModelRoots, resolveMlModelRootFor, } from "./ml-bundle-cache.js";
+import { BUNDLED_EMBED_MODEL_ID, BUNDLED_GRANITE_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
+import { isEmbedBundleReady, isGraniteEmbedBundleReady, isKureBundleReady, isSentimentBundleReady, isToxicityBundleReady, listMlModelRoots, resolveMlModelRootFor, } from "./ml-bundle-cache.js";
 const PKG_DATA_ML = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data", "ml-models");
-export { BUNDLED_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
+export { BUNDLED_EMBED_MODEL_ID, BUNDLED_GRANITE_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
 /** transformers `env.localModelPath` — 모든 루트 병합 디렉토리 우선 */
 export function bundledMlModelsDir() {
     return mergedMlModelsDir();
@@ -25,6 +25,9 @@ export function isBundledSentimentModelReady() {
 }
 export function isBundledEmbedModelReady() {
     return isEmbedBundleReady();
+}
+export function isBundledGraniteEmbedModelReady() {
+    return isGraniteEmbedBundleReady();
 }
 export function isBundledToxicityModelReady() {
     return isToxicityBundleReady();
@@ -94,6 +97,7 @@ export function mergedMlModelsDir() {
 export function bundledMlModelsRoot() {
     if (isBundledSentimentModelReady() ||
         isBundledEmbedModelReady() ||
+        isBundledGraniteEmbedModelReady() ||
         isBundledToxicityModelReady() ||
         isBundledKureModelReady()) {
         return mergedMlModelsDir();
@@ -111,5 +115,8 @@ export function isLocalBundledToxicityModel(modelId) {
 }
 export function isLocalBundledKureModel(modelId) {
     return modelId === BUNDLED_KURE_MODEL_ID && isBundledKureModelReady();
+}
+export function isLocalBundledGraniteEmbedModel(modelId) {
+    return modelId === BUNDLED_GRANITE_EMBED_MODEL_ID && isBundledGraniteEmbedModelReady();
 }
 //# sourceMappingURL=ml-bundled-models.js.map

@@ -7,9 +7,9 @@ import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveEmbedBatchSize } from "./ml-batch-size.js";
-import { isLocalBundledEmbedModel, isLocalBundledKureModel, withBundledOnnxSessionCwd, } from "./ml-bundled-models.js";
+import { isLocalBundledEmbedModel, isLocalBundledGraniteEmbedModel, isLocalBundledKureModel, withBundledOnnxSessionCwd, } from "./ml-bundled-models.js";
 import { resolveMlModelRootFor } from "./ml-bundle-cache.js";
-import { withLocalModelsOnly } from "./ml-transformers-env.js";
+import { isTransformersFetchError, withLocalModelsOnly } from "./ml-transformers-env.js";
 import { ensureCoreMlBundles } from "./ml-bundle-install.js";
 import { ensureSemanticEmbeddingBundle } from "./semantic-policy.js";
 const MIN_SAMPLES = 48;
@@ -21,29 +21,47 @@ async function loadPipelineForModel(modelId, buildOptions, messageCount) {
         await ensureSemanticEmbeddingBundle(buildOptions, messageCount);
         let mod;
         try {
-            mod = await import("@xenova/transformers");
+            mod = await import("@huggingface/transformers");
         }
         catch {
-            throw new Error("[kca] 시맨틱 키워드는 optional dependency @xenova/transformers 가 필요합니다. " +
+            throw new Error("[kca] 시맨틱 키워드는 optional dependency @huggingface/transformers 가 필요합니다. " +
                 "재설치하거나 --no-semantic-keywords 로 끄세요.");
         }
         const { pipeline } = mod;
         const gpu = await configureTransformersEnv(mod);
-        const quantized = preferQuantizedModels(gpu);
-        if (isLocalBundledEmbedModel(modelId) || isLocalBundledKureModel(modelId)) {
+        const dtype = preferQuantizedModels(gpu);
+        if (isLocalBundledEmbedModel(modelId) || isLocalBundledGraniteEmbedModel(modelId) || isLocalBundledKureModel(modelId)) {
             const root = resolveMlModelRootFor(modelId);
             if (root)
                 mod.env.localModelPath = root;
         }
-        process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
+        process.stderr.write(`[kca] 시맨틱 임베딩 준비 중… (${modelId}${dtype === "fp32" ? ", full precision" : `, ${dtype}`})\n`);
         const load = () => pipeline("feature-extraction", modelId, {
-            quantized,
+            dtype,
         });
-        if (isLocalBundledEmbedModel(modelId)) {
-            return withLocalModelsOnly(mod, load);
+        if (isLocalBundledEmbedModel(modelId) || isLocalBundledGraniteEmbedModel(modelId)) {
+            try {
+                return await withLocalModelsOnly(mod, load);
+            }
+            catch (err) {
+                if (isTransformersFetchError(err)) {
+                    process.stderr.write(`[kca] 시맨틱 번들 로드 실패(${modelId}) → Hub 폰백\n`);
+                    return await runWithHubMirrors(mod, load);
+                }
+                throw err;
+            }
         }
         if (isLocalBundledKureModel(modelId)) {
-            return withBundledOnnxSessionCwd(modelId, () => withLocalModelsOnly(mod, load));
+            try {
+                return await withBundledOnnxSessionCwd(modelId, () => withLocalModelsOnly(mod, load));
+            }
+            catch (err) {
+                if (isTransformersFetchError(err)) {
+                    process.stderr.write(`[kca] KURE 번들 로드 실패(${modelId}) → Hub 폰백\n`);
+                    return await runWithHubMirrors(mod, load);
+                }
+                throw err;
+            }
         }
         // bundled model ID인데 local에 없으면 Hub로 가지 않고 다음 폰백으로
         if (modelId.startsWith("kca-")) {

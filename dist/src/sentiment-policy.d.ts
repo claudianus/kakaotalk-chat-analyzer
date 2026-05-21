@@ -7,7 +7,7 @@ export declare function isBinarySentimentModel(modelId: string): boolean;
 /** 이진 NSMC 계열: confidence < high 이면 neutral */
 export declare function binarySentimentConfidenceHigh(): number;
 export declare function sentimentModelId(_preset?: string, _messageCount?: number, _options?: BuildReportOptions): string;
-/** 번들 → Hub NSMC (구 bert Xenova 폴백 제거) */
+/** 번들 → KoELECTRA NSMC (KR-ELECTRA는 env 지정 시만) */
 export declare function sentimentModelFallbacks(preset?: string, messageCount?: number, options?: BuildReportOptions): string[];
 export declare function shouldCollectSentimentSamples(messageCount: number): boolean;
 /**

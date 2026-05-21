@@ -1,12 +1,12 @@
 import { BUNDLED_EMBED_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, isBundledEmbedModelReady, isBundledSentimentModelReady, isBundledToxicityModelReady, resolveBundledSentimentModelId, } from "../ml-bundled-models.js";
 import { memoryHeadroomGb, probeMachineProfileSync } from "../analysis-capability.js";
 import { resolveDefaultSemanticHubId, shouldPreferBundledSemantic, } from "../semantic-model-resolve.js";
-import { HUB_KCELECTRA_TOXICITY, HUB_KOELECTRA_EMBED, HUB_KOELECTRA_NSMC, } from "./model-ids.js";
+import { HUB_KCELECTRA_TOXICITY, HUB_KOELECTRA_EMBED, HUB_KRELECTRA_NSMC, } from "./model-ids.js";
 export const ML_MODEL_REGISTRY = {
     sentiment: {
         task: "sentiment",
         bundledId: BUNDLED_SENTIMENT_MODEL_ID,
-        hubFallback: HUB_KOELECTRA_NSMC,
+        hubFallback: HUB_KRELECTRA_NSMC,
         hubTask: "text-classification",
     },
     embedding: {

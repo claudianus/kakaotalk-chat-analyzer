@@ -1,4 +1,4 @@
-type TransformersModule = typeof import("@xenova/transformers");
+type TransformersModule = typeof import("@huggingface/transformers");
 
 const HUB_TOKEN_KEYS = ["HF_TOKEN", "HF_ACCESS_TOKEN", "HUGGING_FACE_HUB_TOKEN"] as const;
 
