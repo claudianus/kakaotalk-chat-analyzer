@@ -1,29 +1,14 @@
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BUNDLED_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
 import { isEmbedBundleReady, isKureBundleReady, isSentimentBundleReady, isToxicityBundleReady, listMlModelRoots, resolveMlModelRootFor, } from "./ml-bundle-cache.js";
 const PKG_DATA_ML = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "data", "ml-models");
 export { BUNDLED_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID, BUNDLED_SENTIMENT_MODEL_ID, BUNDLED_TOXICITY_MODEL_ID, } from "./ml-bundle-ids.js";
-/** transformers `env.localModelPath` — 코어 번들(NSMC+embed)이 함께 있는 루트 우선 */
+/** transformers `env.localModelPath` — 모든 루트 병합 디렉토리 우선 */
 export function bundledMlModelsDir() {
-    for (const root of listMlModelRoots()) {
-        const sent = join(root, BUNDLED_SENTIMENT_MODEL_ID, "onnx", "model.onnx");
-        const embed = join(root, BUNDLED_EMBED_MODEL_ID, "onnx", "model.onnx");
-        if (existsSync(sent) && existsSync(embed))
-            return root;
-    }
-    for (const modelId of [
-        BUNDLED_SENTIMENT_MODEL_ID,
-        BUNDLED_EMBED_MODEL_ID,
-        BUNDLED_TOXICITY_MODEL_ID,
-    ]) {
-        const root = resolveMlModelRootFor(modelId);
-        if (root)
-            return root;
-    }
-    const roots = listMlModelRoots();
-    return roots[0] ?? PKG_DATA_ML;
+    return mergedMlModelsDir();
 }
 export function bundledModelDir(modelId) {
     const root = resolveMlModelRootFor(modelId) ?? bundledMlModelsDir();
@@ -70,12 +55,48 @@ export async function withBundledOnnxSessionCwd(modelId, fn) {
     onnxSessionCwdChain = run.then(() => undefined, () => undefined);
     return run;
 }
-/** 번들 ONNX가 있으면 transformers `env.localModelPath` 로 쓸 루트 */
+let _mergedMlModelsDir = null;
+/** 모든 모델 루트를 심볼릭 링크로 병합한 임시 디렉토리 — localModelPath가 하나의 경로에서 모든 모델을 찾을 수 있도록 */
+export function mergedMlModelsDir() {
+    if (_mergedMlModelsDir)
+        return _mergedMlModelsDir;
+    const tmpDir = join(tmpdir(), `kca-ml-models-${process.pid}`);
+    if (existsSync(tmpDir))
+        rmSync(tmpDir, { recursive: true, force: true });
+    mkdirSync(tmpDir, { recursive: true });
+    for (const root of listMlModelRoots()) {
+        let entries;
+        try {
+            entries = readdirSync(root, { withFileTypes: true });
+        }
+        catch {
+            continue;
+        }
+        for (const entry of entries) {
+            if (!entry.isDirectory())
+                continue;
+            const src = join(root, entry.name);
+            const dest = join(tmpDir, entry.name);
+            if (existsSync(dest))
+                continue; // 첫 번째 루트 우선
+            try {
+                symlinkSync(src, dest);
+            }
+            catch {
+                // 심볼릭 링크 실패 시 skip (Windows 비관리자 등)
+            }
+        }
+    }
+    _mergedMlModelsDir = tmpDir;
+    return tmpDir;
+}
+/** 번들 ONNX가 있으면 transformers `env.localModelPath` 로 쓸 루트 — 병합 디렉토리 우선 */
 export function bundledMlModelsRoot() {
     if (isBundledSentimentModelReady() ||
         isBundledEmbedModelReady() ||
-        isBundledToxicityModelReady()) {
-        return bundledMlModelsDir();
+        isBundledToxicityModelReady() ||
+        isBundledKureModelReady()) {
+        return mergedMlModelsDir();
     }
     return undefined;
 }

@@ -20,8 +20,17 @@ const richMachine: MachineProfile = {
 };
 
 test("resolvePresetSource distinguishes RAM-only vs corpus auto preset", () => {
-  assert.equal(resolvePresetSource(undefined, undefined, 125_000, richMachine), "auto-corpus");
+  // 48GB+ 시스템은 메시지 수 무관 ultra → 항상 auto-ram
+  assert.equal(resolvePresetSource(undefined, undefined, 125_000, richMachine), "auto-ram");
   assert.equal(resolvePresetSource(undefined, undefined, 5_000, richMachine), "auto-ram");
+  // 32GB 시스템에서는 메시지 수에 따라 달라짐
+  const machine32: MachineProfile = {
+    ...richMachine,
+    totalMemGb: 32,
+    availableMemGb: 18,
+  };
+  assert.equal(resolvePresetSource(undefined, undefined, 125_000, machine32), "auto-corpus");
+  assert.equal(resolvePresetSource(undefined, undefined, 5_000, machine32), "auto-ram");
 });
 
 test("buildAnalysisEffectiveConfig reports auto LLM for balanced on rich RAM", () => {

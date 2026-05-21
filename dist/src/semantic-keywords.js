@@ -9,9 +9,9 @@ import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveEmbedBatchSize } from "./ml-batch-size.js";
 import { isLocalBundledEmbedModel, isLocalBundledKureModel, withBundledOnnxSessionCwd, } from "./ml-bundled-models.js";
 import { resolveMlModelRootFor } from "./ml-bundle-cache.js";
+import { withLocalModelsOnly } from "./ml-transformers-env.js";
 import { ensureCoreMlBundles } from "./ml-bundle-install.js";
 import { ensureSemanticEmbeddingBundle } from "./semantic-policy.js";
-import { BUNDLED_KURE_MODEL_ID } from "./ml-bundled-models.js";
 const MIN_SAMPLES = 48;
 let pipelinePromise = null;
 let loadedModelId = null;
@@ -39,14 +39,16 @@ async function loadPipelineForModel(modelId, buildOptions, messageCount) {
         const load = () => pipeline("feature-extraction", modelId, {
             quantized,
         });
-        if (isLocalBundledEmbedModel(modelId))
-            return load();
-        if (isLocalBundledKureModel(modelId)) {
-            return withBundledOnnxSessionCwd(modelId, load);
+        if (isLocalBundledEmbedModel(modelId)) {
+            return withLocalModelsOnly(mod, load);
         }
-        if (modelId === BUNDLED_KURE_MODEL_ID) {
-            throw new Error("[kca] KURE 임베딩 번들이 없습니다. GitHub Release zip을 받거나 sync:ml-models로 export 하세요. " +
-                "끄려면 KCA_NO_KURE_DOWNLOAD=1");
+        if (isLocalBundledKureModel(modelId)) {
+            return withBundledOnnxSessionCwd(modelId, () => withLocalModelsOnly(mod, load));
+        }
+        // bundled model ID인데 local에 없으면 Hub로 가지 않고 다음 폰백으로
+        if (modelId.startsWith("kca-")) {
+            throw new Error(`[kca] ${modelId} 번들이 local에 없습니다. ` +
+                `npm install kakaotalk-chat-analyzer-models 또는 KCA_NO_SEMANTIC=1 로 끄세요.`);
         }
         return runWithHubMirrors(mod, load);
     });

@@ -16,9 +16,9 @@ Claiming work is complete without verification is dishonesty, not efficiency.
 ## kakaotalk-chat-analyzer
 
 - 기본: `npm test` (exit 0, failures 0).
-- 리포트/UI 변경: `npm run report:qa` + 브라우저 시각 QA (`AGENTS.md` §5, `visual-qa-testing` 스킬).
+- 리포트/UI 변경: `npm run report:qa` + 브라우저 시각 QA (스킬 `visual-qa-testing`).
 - docs pill: `npm run check:docs-version`.
-- 배포 가치 변경: PR → cubic pass → merge → npm Actions 확인 (`AGENTS.md` §1-B).
+- 배포 가치 변경: PR → cubic pass → merge → npm Actions 확인 (`AGENTS.md` §1, `cubic-pr-workflow`).
 
 ## The Iron Law
 

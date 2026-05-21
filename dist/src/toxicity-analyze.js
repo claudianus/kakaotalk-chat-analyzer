@@ -4,7 +4,7 @@ import { HUB_KCELECTRA_TOXICITY } from "./ml/model-ids.js";
 import { resolveToxicityModelId } from "./ml/registry.js";
 import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
-import { isTransformersFetchError } from "./ml-transformers-env.js";
+import { isTransformersFetchError, withLocalModelsOnly } from "./ml-transformers-env.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveSentimentBatchSize } from "./ml-batch-size.js";
 import { normalizeProfanityText, loadProfanityPatterns } from "./profanity.js";
@@ -76,8 +76,21 @@ async function loadPipeline(requestedModelId) {
             }
             const { pipeline } = mod;
             const load = () => pipeline("text-classification", modelId, { quantized });
-            const pipe = isLocalBundledToxicityModel(modelId) ? await load() : await runWithHubMirrors(mod, load);
-            loadedModelId = modelId;
+            let pipe;
+            if (isLocalBundledToxicityModel(modelId)) {
+                pipe = await withLocalModelsOnly(mod, load);
+            }
+            else if (modelId === BUNDLED_TOXICITY_MODEL_ID) {
+                // bundled ID인데 local에 없으면 Hub public 모델로 폰백
+                const hubLoad = () => pipeline("text-classification", HUB_KCELECTRA_TOXICITY, { quantized });
+                pipe = await runWithHubMirrors(mod, hubLoad);
+                loadedModelId = HUB_KCELECTRA_TOXICITY;
+            }
+            else {
+                pipe = await runWithHubMirrors(mod, load);
+            }
+            if (!loadedModelId)
+                loadedModelId = modelId;
             return pipe;
         });
     }

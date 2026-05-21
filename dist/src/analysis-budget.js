@@ -9,9 +9,11 @@ export function phaseReserveMs(phase, preset, profile, llmSize) {
     const headroom = memoryHeadroomGb(profile);
     if (phase === "semantic") {
         if (preset === "ultra" && headroom >= 20)
-            return 100_000;
+            return 90_000;
         if (preset === "ultra" && headroom >= 14)
             return 110_000;
+        if (preset === "quality" && headroom >= 20)
+            return 60_000;
         if (preset === "quality" && headroom >= 16)
             return 70_000;
         if (preset === "quality" && headroom >= 12)

@@ -43,23 +43,59 @@ export function memoryHeadroomForLlmLoad(profile: MachineProfile): number {
   return Math.round(headroom * 10) / 10;
 }
 
-const POST_ML_OS_SLACK_GB = 2;
+/** macOS 등에서 inactive memory를 포함한 실제 가용량 — 환경 변수로 덮어쓰기 가능 */
+function postMlOsSlackGb(profile: MachineProfile): number {
+  const env = Number(process.env.KCA_LLM_POST_ML_SLACK_GB);
+  if (Number.isFinite(env) && env >= 0) return env;
+  // macOS: freeMemGb가 inactive를 포함하지 않아 과소 추정됨.
+  // availableMemGb가 충분히 크면(≥total*0.4) OS slack을 줄여 freeMemGb 함정 완화
+  if (profile.platform === "darwin") {
+    const available = profile.availableMemGb ?? profile.freeMemGb;
+    const total = profile.totalMemGb;
+    if (total >= 32 && available >= total * 0.4) return 0.5;
+    if (total >= 16 && available >= total * 0.35) return 1;
+    return 1.5;
+  }
+  return 2;
+}
 
-/** ML dispose 직후 GGUF 로드용 headroom — free RAM을 더 보수적으로 반영 */
+/** macOS에서 freeMemGb가 inactive memory를 제외해 과소 추정될 때 완화 */
+function isDarwinFreeMemUnderstated(profile: MachineProfile): boolean {
+  if (profile.platform !== "darwin") return false;
+  const available = profile.availableMemGb ?? profile.freeMemGb;
+  const free = profile.freeMemGb;
+  // available이 free보다 3배 이상 크면 inactive memory가 많다는 의미
+  return available > free * 3 && available >= 10;
+}
+
+/** ML dispose 직후 GGUF 로드용 headroom — macOS에서 freeMemGb 함정 완화, availableMemGb 우선 */
 export function effectiveLlmHeadroomGb(profile: MachineProfile): number {
   const loadHeadroom = memoryHeadroomForLlmLoad(profile);
+  const available = profile.availableMemGb ?? profile.freeMemGb;
   const free = profile.freeMemGb;
   const minFree = minFreeGbForLlmRetry();
+  const slack = postMlOsSlackGb(profile);
+  const isUnderstated = isDarwinFreeMemUnderstated(profile);
 
   let effective = loadHeadroom;
-  const freeCap = Math.max(0, free - POST_ML_OS_SLACK_GB);
-  if (freeCap < effective) effective = freeCap;
 
-  if (free < minFree) {
+  // macOS에서 inactive memory가 많으면 freeMemGb 대신 availableMemGb 기반 제한 사용
+  if (isUnderstated) {
+    const availableCap = Math.max(0, available - slack);
+    if (availableCap < effective) effective = availableCap;
+  } else {
+    const freeCap = Math.max(0, free - slack);
+    if (freeCap < effective) effective = freeCap;
+  }
+
+  // free가 극도로 낮으면 최소 모델만 허용
+  if (free < minFree && !isUnderstated) {
     effective = Math.min(effective, qwen35Entry("0.8B").minHeadroomGb);
-  } else if (free < 4) {
+  } else if (free < minFree && isUnderstated && available < 6) {
+    effective = Math.min(effective, qwen35Entry("0.8B").minHeadroomGb);
+  } else if (free < 4 && !isUnderstated) {
     effective = Math.min(effective, qwen35Entry("2B").minHeadroomGb);
-  } else if (free < 6) {
+  } else if (free < 6 && !isUnderstated) {
     effective = Math.min(effective, qwen35Entry("4B").minHeadroomGb - 0.1);
   }
 

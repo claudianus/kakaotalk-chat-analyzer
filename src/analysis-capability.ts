@@ -64,7 +64,12 @@ export function analysisBudgetMs(
           : preset === "ultra"
             ? 480_000
             : 300_000;
-  if (headroom >= 16) {
+  if (headroom >= 20 && profile.totalMemGb >= 48) {
+    if (preset === "ultra") cap = 600_000;
+    else if (preset === "quality") cap = 480_000;
+    else if (preset === "balanced") cap = 420_000;
+    else if (preset === "speed") cap = 240_000;
+  } else if (headroom >= 16) {
     if (preset === "ultra") cap = 540_000;
     else if (preset === "quality") cap = 420_000;
     else if (preset === "balanced") cap = 360_000;

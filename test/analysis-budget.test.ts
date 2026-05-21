@@ -16,17 +16,20 @@ const profile = {
 test("analysisBudgetMs uses SLA cap regardless of message count", () => {
   const small = analysisBudgetMs("quality", 1_000, profile);
   const large = analysisBudgetMs("quality", 90_000, profile);
-  assert.equal(small, 420_000);
-  assert.equal(large, 420_000);
+  // 48GB+ & headroom>=20 → quality 480s
+  assert.equal(small, 480_000);
+  assert.equal(large, 480_000);
 });
 
 test("analysisBudgetMs balanced cap on ample RAM", () => {
   const ms = analysisBudgetMs("balanced", 90_000, profile);
-  assert.equal(ms, 360_000);
+  // 48GB+ & headroom>=20 → balanced 420s
+  assert.equal(ms, 420_000);
 });
 
 test("phaseReserveMs lowers semantic reserve when headroom is high", () => {
-  assert.equal(phaseReserveMs("semantic", "quality", profile), 70_000);
+  // 48GB+ & headroom>=20 → quality semantic 60s
+  assert.equal(phaseReserveMs("semantic", "quality", profile), 60_000);
   assert.ok(phaseReserveMs("semantic", "balanced", profile) < 120_000);
 });
 

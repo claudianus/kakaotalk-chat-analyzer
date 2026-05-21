@@ -49,6 +49,10 @@ export function autoPresetFromMachine(
 
   if (headroom < 4 || (headroom < 6 && total < 16)) return "speed";
 
+  // 48GB+는 메시지 수 관계없이 풀퀄리티 우선
+  if (total >= 48 && headroom >= 20) return "ultra";
+  if (total >= 48 && headroom >= 14) return n >= 150_000 ? "quality" : "ultra";
+
   if (total >= 32 && headroom >= 18) {
     if (n >= 130_000) return "balanced";
     if (n >= 90_000) return "quality";

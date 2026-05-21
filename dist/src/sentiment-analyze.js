@@ -3,7 +3,7 @@ import { binarySentimentConfidenceHigh, isBinarySentimentModel, sentimentModelFa
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { runWithHubMirrors } from "./ml-hub-access.js";
 import { configureTransformersEnv, preferQuantizedModels } from "./ml-runtime.js";
-import { isTransformersFetchError } from "./ml-transformers-env.js";
+import { isTransformersFetchError, withLocalModelsOnly } from "./ml-transformers-env.js";
 import { withQuietMlStderr } from "./ml-stderr.js";
 import { resolveSentimentBatchSize } from "./ml-batch-size.js";
 import { ensureCoreMlBundles } from "./ml-bundle-install.js";
@@ -94,7 +94,7 @@ async function loadPipeline(buildOptions, messageCount) {
                 process.stderr.write(`[kca] 감정 분석 준비 중… (${modelId}${quantized ? "" : ", full precision"})\n`);
                 const load = () => instantiateSentimentPipeline(mod, modelId, quantized);
                 const pipe = isLocalBundledSentimentModel(modelId)
-                    ? await load()
+                    ? await withLocalModelsOnly(mod, load)
                     : await runWithHubMirrors(mod, load);
                 loadedModelId = modelId;
                 return pipe;

@@ -7,7 +7,7 @@ export declare function llmRamReserveGb(profile: MachineProfile): number;
  * GGUF 로드 시점 가용 RAM — available−예약 우선, free+회수 가능분으로 OOM만 완화.
  */
 export declare function memoryHeadroomForLlmLoad(profile: MachineProfile): number;
-/** ML dispose 직후 GGUF 로드용 headroom — free RAM을 더 보수적으로 반영 */
+/** ML dispose 직후 GGUF 로드용 headroom — macOS에서 freeMemGb 함정 완화, availableMemGb 우선 */
 export declare function effectiveLlmHeadroomGb(profile: MachineProfile): number;
 export interface LlmRunPlan {
     enabled: boolean;
