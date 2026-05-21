@@ -7,6 +7,7 @@ import {
   shouldPreferBundledSemanticPolicy,
 } from "../src/semantic-model-resolve.js";
 import { BUNDLED_EMBED_MODEL_ID, BUNDLED_GRANITE_EMBED_MODEL_ID, BUNDLED_KURE_MODEL_ID } from "../src/ml-bundle-ids.js";
+import { isBundledGraniteEmbedModelReady } from "../src/ml-bundled-models.js";
 import {
   HUB_GRANITE_EMBED_97M,
   HUB_GRANITE_EMBED_311M,
@@ -24,10 +25,14 @@ test("shouldPreferBundledKure legacy mode only", () => {
   const prevLegacy = process.env.KCA_LEGACY_MODELS;
   const prevDl = process.env.KCA_NO_KURE_DOWNLOAD;
   delete process.env.KCA_NO_KURE_DOWNLOAD;
+  const hasGranite = isBundledGraniteEmbedModelReady();
   try {
-    // Granite 번들이 있으면 quality/ultra에서 Granite 우선
+    // Granite 번들이 있으면 quality/ultra에서 Granite 우선, 없으면 KoELECTRA embed 폰백
     assert.equal(shouldPreferBundledKure("ultra", 16), false);
-    assert.equal(resolveBundledSemanticModelId("ultra", 16), BUNDLED_GRANITE_EMBED_MODEL_ID);
+    assert.equal(
+      resolveBundledSemanticModelId("ultra", 16),
+      hasGranite ? BUNDLED_GRANITE_EMBED_MODEL_ID : BUNDLED_EMBED_MODEL_ID,
+    );
 
     // 레거시 모드 on → KURE 활성 (Granite 없을 때)
     process.env.KCA_LEGACY_MODELS = "1";
@@ -35,7 +40,10 @@ test("shouldPreferBundledKure legacy mode only", () => {
     assert.equal(shouldPreferBundledKure("quality", 14), true);
     assert.equal(shouldPreferBundledKure("balanced", 20), false);
     assert.equal(shouldPreferBundledKure("ultra", 12), false);
-    assert.equal(resolveBundledSemanticModelId("ultra", 16), BUNDLED_GRANITE_EMBED_MODEL_ID);
+    assert.equal(
+      resolveBundledSemanticModelId("ultra", 16),
+      hasGranite ? BUNDLED_GRANITE_EMBED_MODEL_ID : BUNDLED_KURE_MODEL_ID,
+    );
     assert.equal(resolveBundledSemanticModelId("speed", 20), BUNDLED_EMBED_MODEL_ID);
   } finally {
     if (prevLegacy === undefined) delete process.env.KCA_LEGACY_MODELS;
