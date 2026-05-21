@@ -1,0 +1,39 @@
+.agents/skills/visual-qa-testing/SKILL.md
+  s_59e3a26830c063::t_37514507c6cbb9 1-58
+.cursor/skills/kca-report-ux/SKILL.md
+  s_59e3a26830c063::t_c067e2b5293484 12
+.cursor/skills/verification-before-completion/SKILL.md
+  s_59e3a26830c063::t_93a30db23b4fc5 19
+  s_59e3a26830c063::t_ee4f618896e4e4 21
+.cursor/skills/visual-qa-testing/SKILL.md
+  s_59e3a26830c063::t_927c495d5fe71a 3,6,8,10,12-20,22,24,26-35,37,39,41,43-46,48,50,52,54-58
+.agents/skills/kca-report-ux/SKILL.md
+  s_59e3a26830c063::t_37514507c6cbb9 1-11,13-42
+  s_59e3a26830c063::t_b42ef79a74415a 12
+AGENTS.md
+  s_59e3a26830c063::t_1241e541ad2ec7 10-11,22,24-25,51,53,55-56
+  s_59e3a26830c063::t_d4d5d3a91390db 27,29-31
+.cursor/rules/cubic-pr-workflow.mdc
+  s_59e3a26830c063::t_69b66bf56638d6 13
+  s_59e3a26830c063::t_999fc54227fcff 21
+.cursor/skills/nodejs-backend-patterns/SKILL.md
+  s_59e3a26830c063::t_68c39f9510c218 32
+.agents/skills/context-maintenance/SKILL.md
+  s_59e3a26830c063::t_8a9fb2bb3c2059 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "64e57522b4b23244a454b29ba7007b60ec917898",
+  "prompts": {},
+  "sessions": {
+    "s_59e3a26830c063": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "260b4b40-d804-4dd4-bddf-44cf773a310f",
+        "model": "default"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
