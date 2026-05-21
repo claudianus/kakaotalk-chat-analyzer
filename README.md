@@ -261,6 +261,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.21.3** | macOS **inactive memory 완화**·48GB+ **ultra 자동**·분석 예산 600s·로컬 번들 **HF Hub 폰백 차단**·모델 루트 병합·HF token 이중 전략 |
 | **0.21.2** | KURE ONNX **ml-models-v0.2.1** 우선 다운로드(API→pinned)·models **0.2.1** lock — v0.2.0 404 수정 |
 | **0.21.1** | **KURE·독성 ONNX** 첫 사용 시 Release **자동 다운로드**(CI 업로드)·GitHub API 폴백 URL |
 | **0.21.0** | **`ultra` preset**·quality/ultra **KURE-v1** 로컬 ONNX lazy(Release zip)·KoELECTRA embed 폴백·preset별 시맨틱·독성 ML on(ultra) |

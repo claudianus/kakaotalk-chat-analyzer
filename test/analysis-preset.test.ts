@@ -59,8 +59,9 @@ const ultraMachine: MachineProfile = {
 
 test("autoPresetFromMachine picks ultra when RAM headroom >= 18GB", () => {
   assert.equal(autoPresetFromMachine(ultraMachine, 50_000), "ultra");
-  assert.equal(autoPresetFromMachine(ultraMachine, 95_000), "quality");
-  assert.equal(autoPresetFromMachine(ultraMachine, 135_000), "balanced");
+  // 48GB+ & headroom >= 20 → 메시지 수 무관 ultra
+  assert.equal(autoPresetFromMachine(ultraMachine, 95_000), "ultra");
+  assert.equal(autoPresetFromMachine(ultraMachine, 135_000), "ultra");
 });
 
 test("autoPresetFromMachine picks quality on 32GB until very large corpus", () => {
@@ -69,10 +70,11 @@ test("autoPresetFromMachine picks quality on 32GB until very large corpus", () =
 });
 
 test("autoPresetFromMachine uses available not free on macOS cache", () => {
-  assert.equal(autoPresetFromMachine(macCachedMemory, 90_000), "quality");
+  // 48GB+ & headroom=18 >= 14 → ultra (n < 150k), quality (n >= 150k)
+  assert.equal(autoPresetFromMachine(macCachedMemory, 90_000), "ultra");
   assert.equal(autoPresetFromMachine(macCachedMemory, 10_000), "ultra");
-  assert.equal(autoPresetFromMachine(macCachedMemory, 125_000), "quality");
-  assert.equal(autoPresetFromMachine(macCachedMemory, 140_000), "balanced");
+  assert.equal(autoPresetFromMachine(macCachedMemory, 125_000), "ultra");
+  assert.equal(autoPresetFromMachine(macCachedMemory, 160_000), "quality");
 });
 
 test("getPresetEffectiveFlags maps balanced semantic cap and auto LLM", () => {

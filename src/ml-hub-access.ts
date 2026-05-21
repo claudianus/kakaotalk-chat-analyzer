@@ -40,19 +40,35 @@ export function hubMirrorHosts(): readonly string[] {
 }
 
 /**
- * Hugging Face Hub 미러 순회 + 공개 모델용 토큰 제거.
- * `KCA_USE_HF_TOKEN=1` 이면 환경 토큰을 그대로 둡니다(게이트 모델·비공개 캐시용).
+ * Hugging Face Hub 미러 순회.
+ * 전략 1: HF token이 있으면 token 사용으로 먼저 시도.
+ * 전략 2: token 사용 실패 시 → token 삭제 후 public fetch로 재시도.
+ * 이중 전략으로 "Unauthorized access" 오류를 회피합니다.
  */
 export async function runWithHubMirrors<T>(
   mod: TransformersModule,
   fn: () => Promise<T>,
 ): Promise<T> {
   return withHubMirrorLock(async () => {
-    const useToken = process.env.KCA_USE_HF_TOKEN === "1";
-    const savedTokens = useToken ? null : clearHubTokensForPublicFetch();
     const previousHost = mod.env.remoteHost;
     const hosts = hubMirrorHosts();
     let lastError: unknown;
+
+    // 전략 1: HF token이 있으면 token 사용으로 시도
+    const hasToken = !!(process.env.HF_TOKEN ?? process.env.HF_ACCESS_TOKEN ?? process.env.HUGGING_FACE_HUB_TOKEN);
+    if (hasToken) {
+      for (const host of hosts) {
+        mod.env.remoteHost = host;
+        try {
+          return await fn();
+        } catch (error) {
+          lastError = error;
+        }
+      }
+    }
+
+    // 전략 2: token 삭제 후 public fetch로 재시도
+    const savedTokens = clearHubTokensForPublicFetch();
     try {
       for (const host of hosts) {
         mod.env.remoteHost = host;
@@ -65,7 +81,7 @@ export async function runWithHubMirrors<T>(
       throw lastError instanceof Error ? lastError : new Error(String(lastError));
     } finally {
       mod.env.remoteHost = previousHost;
-      if (savedTokens) restoreHubTokens(savedTokens);
+      restoreHubTokens(savedTokens);
     }
   });
 }

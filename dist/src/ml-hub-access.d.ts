@@ -4,8 +4,10 @@ export declare function clearHubTokensForPublicFetch(): Map<string, string | und
 export declare function restoreHubTokens(saved: Map<string, string | undefined>): void;
 export declare function hubMirrorHosts(): readonly string[];
 /**
- * Hugging Face Hub 미러 순회 + 공개 모델용 토큰 제거.
- * `KCA_USE_HF_TOKEN=1` 이면 환경 토큰을 그대로 둡니다(게이트 모델·비공개 캐시용).
+ * Hugging Face Hub 미러 순회.
+ * 전략 1: HF token이 있으면 token 사용으로 먼저 시도.
+ * 전략 2: token 사용 실패 시 → token 삭제 후 public fetch로 재시도.
+ * 이중 전략으로 "Unauthorized access" 오류를 회피합니다.
  */
 export declare function runWithHubMirrors<T>(mod: TransformersModule, fn: () => Promise<T>): Promise<T>;
 export {};

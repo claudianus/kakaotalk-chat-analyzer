@@ -29,7 +29,7 @@ Comprehensive guidance for building scalable, maintainable, and production-ready
 ## kakaotalk-chat-analyzer
 
 - Node **≥22**, **ESM** (`src/`, `scripts/`, workers). 스트리밍 CSV·ML 워커·LLM child 프로세스 패턴 참고.
-- 검증: `npm test`. 배포: `AGENTS.md` §1-B.
+- 검증: `npm test`. 배포: `AGENTS.md` §1.
 
 ## Instructions
 

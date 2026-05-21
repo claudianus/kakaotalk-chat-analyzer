@@ -26,15 +26,29 @@ export function applyTransformersEnv(mod, cacheDir = DEFAULT_CACHE) {
     const bundledRoot = bundledMlModelsRoot();
     if (bundledRoot)
         env.localModelPath = bundledRoot;
-    if (process.env.KCA_USE_HF_TOKEN !== "1") {
+    const token = huggingFaceAccessToken();
+    const hasToken = !!token;
+    // HF token이 있으면 자동 사용. 명시적 KCA_USE_HF_TOKEN=0 만 token 삭제
+    if (process.env.KCA_USE_HF_TOKEN === "0" || (!hasToken && process.env.KCA_USE_HF_TOKEN !== "1")) {
         clearHubTokensForPublicFetch();
     }
-    else {
-        const token = huggingFaceAccessToken();
-        if (token && !process.env.HF_TOKEN)
+    else if (hasToken) {
+        if (!process.env.HF_TOKEN)
             process.env.HF_TOKEN = token;
     }
     warnCwdTokenizerShadow();
+}
+/**
+ * 로컬 번들 로드 시 HF Hub 폰백을 차단합니다.
+ * 로컬에 파일이 있으면 로컬에서만 로드되고, 없으면 오류를 발생시킵니다.
+ */
+export function withLocalModelsOnly(mod, fn) {
+    const { env } = mod;
+    const previous = env.allowRemoteModels;
+    env.allowRemoteModels = false;
+    return fn().finally(() => {
+        env.allowRemoteModels = previous;
+    });
 }
 export function isTransformersFetchError(error) {
     const msg = error instanceof Error ? error.message : String(error);
