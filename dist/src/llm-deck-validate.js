@@ -1,5 +1,5 @@
 const KEYWORD_POOL_MAX = 80;
-/** LLM 출력의 템플릿 잔여물·오류 메시지 필터링 */
+/** LLM 출력의 템플릿 잔여물·오류 메시지·JSON 키 필터링 */
 export function isLlmGarbageText(value) {
     const v = value.trim();
     if (v.length < 4)
@@ -15,6 +15,12 @@ export function isLlmGarbageText(value) {
         return true;
     // 키워드 없이 구두점·숫자만 있는 경우
     if (!/[\p{L}]/u.test(v))
+        return true;
+    // JSON 필드명 그대로 출력된 경우 (camelCase 필드명)
+    if (/^(?:topicProposals|topicTitles|insightBullets|shopSearchSummary|dyadInsight|roomArchetype|relationshipBeats|episodeCards|eraLabels|insideJokes|characterCards|dayMicroStories|shareLine|hashtags|counterfactuals|paragraphs|moments)$/i.test(v))
+        return true;
+    // markdown fence나 json 키워드로 시작/끝
+    if (/^```|^\{|\}$|^\[|\]$/.test(v))
         return true;
     return false;
 }
