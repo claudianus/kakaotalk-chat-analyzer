@@ -261,6 +261,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.22.2** | **JSON 필드명 노출** 버그 수정·LLM 출력 필터링 강화·리포트 렌더링 품질 개선 |
 | **0.22.1** | **LLM JSON Grammar Constraint** 핫픽스(Child Process)·**템플릿 잔여물 필터링**·**Few-shot 프롬프트**·리포트 출력 품질 개선 |
 | **0.22.0** | **IBM Granite 97M multilingual R2** 임베딩·**kcELECTRA-toxic-detector** 독성 모델·transformers.js **v4 마이그레이션**·`@huggingface/transformers`·`dtype` API·ONNX 번들 캐시 무결성 검증 |
 | **0.21.3** | macOS **inactive memory 완화**·48GB+ **ultra 자동**·분석 예산 600s·로컬 번들 **HF Hub 폰백 차단**·모델 루트 병합·HF token 이중 전략 |

@@ -8,7 +8,7 @@ import { REPORT_STYLES } from "./report-styles.js";
 import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderHeroQuickJumps, renderTopChrome, topicNavLink, } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
-import { renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmEpisodeStrip, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmShareFooter, } from "./report-llm-deck.js";
+import { renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, } from "./report-llm-deck.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
 import { hasBenchmarkSection, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasTimelineSection, hasCalendarHeatmap, } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
@@ -65,10 +65,13 @@ export function renderReportHtml(data) {
     ${renderStorySections(data)}
     ${renderLlmEpisodeStrip(data)}
     ${renderLlmCharacterCards(data)}
+    ${renderLlmRelationshipBeats(data)}
+    ${renderLlmEraLabels(data)}
     ${renderFactMatrix(data)}
     ${renderOpenChatInsightCard(data)}
     ${renderShopSearchPromoted(data)}
     ${renderLlmMomentsBlock(data)}
+    ${renderLlmDayMicroStories(data)}
     ${renderInnovationDeck(data)}
 
     ${renderInsightDeck(data)}
@@ -266,12 +269,12 @@ function renderSectionNav(data) {
         : "";
     return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
-    <a href="#s-story" data-kca-jump="s-story">개요</a>
+    <a href="#s-story" data-kca-jump="s-story">⓪ Wrapped</a>
     ${archetype}
     ${storyNavLinks(data)}
+    <a href="#s-facts" data-kca-jump="s-facts">① 핵심 숫자</a>
     ${narrative}
     ${timeline}
-    <a href="#s-facts" data-kca-jump="s-facts">① 핵심 숫자</a>
     ${dyad}
     <a href="#s-compare" data-kca-jump="s-compare">기간 비교</a>
     ${explorer}
@@ -359,6 +362,9 @@ function linkEntropyMetric(data, ins) {
 }
 function renderInsightDeck(data) {
     const ins = data.insights;
+    const sessionMetric = insMetric("대화 세션", ins.avgMessagesPerSession === null
+        ? `${ins.sessionCount}개`
+        : `${ins.sessionCount}개 / 평균 ${ins.avgMessagesPerSession}건`, "30분 이상 침묵으로 구분");
     const giniStr = ins.participantGini === null ? "—" : String(ins.participantGini);
     const p90 = formatReplyGapMinutes(ins.replyGapP90Minutes);
     const silence = ins.maxSilenceBetweenActiveDays === null ? "—" : `${ins.maxSilenceBetweenActiveDays}일`;
@@ -398,6 +404,11 @@ function renderInsightDeck(data) {
       ${insMetric("상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
       ${insMetric("화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
       ${linkEntropyMetric(data, ins)}
+      ${insMetric("질문 수", `${ins.questionLikeMessagesPer100}/100`, "100메시지당 물음표 포함")}
+      ${insMetric("독백 비중", `${ins.monologueMessagesPercent}%`, "3연속 이상 동일인 메시지")}
+      ${sessionMetric}
+      ${insMetric("최고 활동일", `${ins.peakDaySharePercent}%`, "전체 중 일별 최대 비중")}
+      ${insMetric("고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
     </div>
     ${renderLlmInsideJokes(data)}
     <div class="insight-split">

@@ -18,14 +18,23 @@ export function hasLlmStoryDeck(data: ReportData): boolean {
 export function renderLlmArchetypeBanner(data: ReportData): string {
   const arch = data.llmInsights?.roomArchetype;
   if (!arch) return "";
-  const traits = arch.traits
-    .map((t) => `<span class="llm-trait-chip">${escapeHtml(t)}</span>`)
-    .join("");
+  const hasTraits = Array.isArray(arch.traits) && arch.traits.length > 0;
+  const traitsHtml = hasTraits
+    ? arch.traits
+        .map(
+          (t) =>
+            `<span class="llm-trait-chip"><span class="llm-trait-dot" aria-hidden="true"></span>${escapeHtml(t)}</span>`,
+        )
+        .join("")
+    : "";
+  const fallbackHtml = !hasTraits
+    ? `<div class="llm-trait-row llm-trait-row--fallback"><span class="llm-trait-chip llm-trait-chip--fallback">${escapeHtml(arch.name)}의 특징적인 대화 패턴</span></div>`
+    : "";
   return `<section id="s-archetype" class="llm-archetype-banner anim-enter" style="--enter-delay:0.025s" aria-label="방 아키타입">
     <p class="llm-archetype-kicker">이 방의 얼굴</p>
     <h2 class="llm-archetype-name">${escapeHtml(arch.name)}</h2>
     <p class="llm-archetype-desc">${renderHighlightLine(arch.description)}</p>
-    ${traits ? `<div class="llm-trait-row">${traits}</div>` : ""}
+    ${traitsHtml ? `<div class="llm-trait-row">${traitsHtml}</div>` : fallbackHtml}
   </section>`;
 }
 
@@ -80,7 +89,10 @@ export function renderLlmMomentsBlock(data: ReportData): string {
 
 function renderLlmDeckExtras(ins: ReportData["llmInsights"]): string {
   if (!ins) return "";
-  const bullets = (ins.insightBullets ?? [])
+  // insightBullets가 배열이 아닐 수 있음 (방어적 처리)
+  const rawBullets = Array.isArray(ins.insightBullets) ? ins.insightBullets : [];
+  const bullets = rawBullets
+    .filter((b): b is string => typeof b === "string" && b.trim().length > 0 && b !== "insightBullets")
     .map((b) => `<li>${renderHighlightLine(b)}</li>`)
     .join("");
   const proposals = (ins.topicProposals ?? [])
