@@ -1,0 +1,62 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#spa-content"
+  - text: / ▶ ▶ ▶
+  - generic [ref=e3]:
+    - heading "Use BrewPage from your stack" [level=2] [ref=e4]
+    - generic [ref=e5]:
+      - link "SK brewdoc:publish Claude Code skill →" [ref=e6] [cursor=pointer]:
+        - /url: https://doc-claude.brewcode.app/brewdoc/skills/publish/
+        - generic [ref=e7]: SK
+        - generic [ref=e8]:
+          - generic [ref=e9]: brewdoc:publish
+          - generic [ref=e10]: Claude Code skill
+        - generic [ref=e11]: →
+      - link "MCP brewpage-mcp MCP server (npm) →" [ref=e12] [cursor=pointer]:
+        - /url: https://www.npmjs.com/package/brewpage-mcp
+        - generic [ref=e13]: MCP
+        - generic [ref=e14]:
+          - generic [ref=e15]: brewpage-mcp
+          - generic [ref=e16]: MCP server (npm)
+        - generic [ref=e17]: →
+      - link "API OpenAPI Spec Interactive Scalar UI →" [ref=e18] [cursor=pointer]:
+        - /url: https://kochetkov-ma.github.io/brewpage-openapi/
+        - generic [ref=e19]: API
+        - generic [ref=e20]:
+          - generic [ref=e21]: OpenAPI Spec
+          - generic [ref=e22]: Interactive Scalar UI
+        - generic [ref=e23]: →
+    - group [ref=e24]:
+      - generic "Install prompts for your AI agent skill · MCP · REST" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+        - generic [ref=e29]: Install prompts for your AI agent
+        - generic [ref=e30]: skill · MCP · REST
+        - img [ref=e31]
+  - generic [ref=e33]:
+    - heading "Frequently Asked Questions" [level=2] [ref=e34]
+    - group [ref=e35]:
+      - generic "What is BrewPage? +" [ref=e36] [cursor=pointer]
+    - group [ref=e37]:
+      - generic "What can I host? +" [ref=e38] [cursor=pointer]
+    - group [ref=e39]:
+      - generic "Platform protection +" [ref=e40] [cursor=pointer]
+    - group [ref=e41]:
+      - generic "How long are pages available? Can I keep them longer? +" [ref=e42] [cursor=pointer]
+    - group [ref=e43]:
+      - generic "Is my page private? Why is (or isn't) it in the gallery? +" [ref=e44] [cursor=pointer]
+    - group [ref=e45]:
+      - generic "How can I see all of my own publications? +" [ref=e46] [cursor=pointer]
+    - group [ref=e47]:
+      - generic "How do I delete or edit my page? +" [ref=e48] [cursor=pointer]
+    - group [ref=e49]:
+      - generic "I lost my Owner Token — what now? +" [ref=e50] [cursor=pointer]
+    - group [ref=e51]:
+      - generic "Is BrewPage free? What are the limits? +" [ref=e52] [cursor=pointer]
+    - group [ref=e53]:
+      - generic "Can AI agents use BrewPage? +" [ref=e54] [cursor=pointer]
+    - group [ref=e55]:
+      - generic "Claude Code skill, MCP server, or direct REST — which do I pick? +" [ref=e56] [cursor=pointer]
+    - group [ref=e57]:
+      - generic "Is there a broader ecosystem? +" [ref=e58] [cursor=pointer]
+  - status "Loading" [ref=e59]:
+    - generic [ref=e61]: Loading…

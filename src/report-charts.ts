@@ -41,6 +41,7 @@ export interface ChartPayload {
     totalReplies: number;
     messageCounts?: number[];
   } | null;
+  topicTrend: { period: string; topics: { name: string; value: number }[] }[];
 }
 
 export function serializeChartPayload(data: ReportData): string {
@@ -105,6 +106,10 @@ export function buildChartPayload(data: ReportData): ChartPayload {
           messageCounts: data.interaction.messageCounts,
         }
       : null,
+    topicTrend: data.topicTrend.map((t) => ({
+      period: t.period,
+      topics: t.topics.map((topic) => ({ name: topic.name, value: topic.value })),
+    })),
   };
 }
 
@@ -182,8 +187,23 @@ export function renderChartDeck(data: ReportData): string {
       <p class="viz-hint">링크 호스트 상위</p>
       <div id="chart-domains" class="chart-box" role="img" aria-label="도메인 차트"></div>
     </article>
+    ${data.interaction ? `<article class="viz-card span-12">
+      <h3>응답 관계 네트워크</h3>
+      <p class="viz-hint">화자 간 응답 흐름을 force-directed 그래프로 봅니다. 노드 크기 = 메시지 수, 선 굵기 = 응답 횟수</p>
+      <div id="chart-network" class="chart-box" role="img" aria-label="응답 관계 네트워크"></div>
+    </article>` : ""}
     ${topicChart}
+    ${renderTopicTrendCard(data)}
   </div>`;
+}
+
+function renderTopicTrendCard(data: ReportData): string {
+  if (data.topicTrend.length < 2) return "";
+  return `<article class="viz-card span-12">
+      <h3>토픽 트랜드 · 월별 키워드</h3>
+      <p class="viz-hint">월별 상위 키워드 등장 횟수 추이. 스택드 에어리어 차트입니다.</p>
+      <div id="chart-topic-trend" class="chart-box" role="img" aria-label="토픽 트랜드 차트"></div>
+    </article>`;
 }
 
 function renderParticipantLegend(
@@ -610,6 +630,57 @@ export const CHARTS_INIT_SCRIPT = `
         }));
       }
 
+      if (data.topicTrend && data.topicTrend.length && document.getElementById("chart-topic-trend")) {
+        var ttEl = document.getElementById("chart-topic-trend");
+        var tg = layout(ttEl);
+        var periods = data.topicTrend.map(function (t) { return t.period; });
+        var allNames = [];
+        var nameSet = {};
+        data.topicTrend.forEach(function (t) {
+          t.topics.forEach(function (topic) {
+            if (!nameSet[topic.name]) {
+              nameSet[topic.name] = true;
+              allNames.push(topic.name);
+            }
+          });
+        });
+        var series = allNames.map(function (name, idx) {
+          return {
+            name: name,
+            type: "line",
+            stack: "Total",
+            areaStyle: { opacity: 0.18 },
+            lineStyle: { width: 1.5 },
+            symbol: "circle",
+            symbolSize: 4,
+            emphasis: { focus: "series" },
+            data: data.topicTrend.map(function (t) {
+              var found = t.topics.find(function (topic) { return topic.name === name; });
+              return found ? found.value : 0;
+            }),
+          };
+        });
+        var ttColors = [
+          dark ? "#818cf8" : "#4f46e5",
+          dark ? "#3ee8c5" : "#0f6b5c",
+          dark ? "#34d399" : "#059669",
+          dark ? "#2dd4bf" : "#0d9488",
+          dark ? "#38bdf8" : "#0284c7",
+          dark ? "#fbbf24" : "#d97706",
+          dark ? "#fb923c" : "#ea580c",
+          dark ? "#f472b6" : "#be185d",
+        ];
+        init("chart-topic-trend", Object.assign(baseOpt(), {
+          grid: { left: tg.leftCat, right: tg.right, top: tg.top, bottom: Math.max(tg.bottom, 60) },
+          tooltip: { trigger: "axis", backgroundColor: dark ? "#1c2128" : "#fff" },
+          legend: { type: "scroll", bottom: 0, textStyle: { color: muted, fontSize: tg.fs }, pageIconColor: accent, pageTextStyle: { color: muted } },
+          xAxis: { type: "category", data: periods, axisLabel: { color: muted, fontSize: tg.fs } },
+          yAxis: { type: "value", axisLabel: { color: muted, fontSize: tg.fs }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
+          color: ttColors,
+          series: series,
+        }));
+      }
+
       if (data.domains && document.getElementById("chart-domains")) {
         var domEl = document.getElementById("chart-domains");
         var domg = layout(domEl);
@@ -631,6 +702,92 @@ export const CHARTS_INIT_SCRIPT = `
             itemStyle: { borderColor: dark ? "#0d1117" : "#fff", gapWidth: 2 },
           }],
         }));
+      }
+
+      if (data.interaction && document.getElementById("chart-network")) {
+        var netEl = document.getElementById("chart-network");
+        var ng = layout(netEl);
+        var ix = data.interaction;
+        var aliases = ix.aliases;
+        var matrix = ix.matrix;
+        var msgCounts = ix.messageCounts || [];
+        var maxNode = 15;
+        var indices = aliases.map(function (_, i) { return i; })
+          .sort(function (a, b) { return (msgCounts[b] || 0) - (msgCounts[a] || 0); })
+          .slice(0, maxNode);
+        var idxMap = {};
+        indices.forEach(function (idx, i) { idxMap[idx] = i; });
+        var nodes = indices.map(function (idx) {
+          var msgCount = msgCounts[idx] || 0;
+          var totalReplies = 0;
+          for (var ci = 0; ci < matrix.length; ci += 1) {
+            totalReplies += (matrix[ci] && matrix[ci][idx]) || 0;
+            totalReplies += (matrix[idx] && matrix[idx][ci]) || 0;
+          }
+          var size = Math.max(20, Math.min(80, Math.sqrt(msgCount) * 2));
+          return {
+            name: aliases[idx],
+            value: totalReplies,
+            symbolSize: size,
+            label: { show: true, fontSize: ng.w < 380 ? 9 : 11 }
+          };
+        });
+        var links = [];
+        var maxLink = 1;
+        for (var ri = 0; ri < indices.length; ri += 1) {
+          for (var ci = 0; ci < indices.length; ci += 1) {
+            if (ri === ci) continue;
+            var src = indices[ri];
+            var tgt = indices[ci];
+            var v = (matrix[src] && matrix[src][tgt]) || 0;
+            if (v >= 50) {
+              if (v > maxLink) maxLink = v;
+              links.push({
+                source: aliases[src],
+                target: aliases[tgt],
+                value: v,
+                lineStyle: { width: Math.max(1, Math.min(8, v / maxLink * 6)), curveness: 0.2 }
+              });
+            }
+          }
+        }
+        if (nodes.length > 0 && links.length > 0) {
+          init("chart-network", Object.assign(baseOpt(), {
+            tooltip: {
+              formatter: function (p) {
+                if (p.dataType === "edge") {
+                  return p.data.source + " → " + p.data.target + ": " + p.data.value;
+                }
+                return p.data.name + "<br/>메시지: " + (msgCounts[indices[p.dataIndex]] || 0) + "<br/>응답: " + p.data.value;
+              }
+            },
+            series: [{
+              type: "graph",
+              layout: "force",
+              data: nodes,
+              links: links,
+              roam: true,
+              force: {
+                repulsion: ng.w < 380 ? 200 : 300,
+                edgeLength: ng.w < 380 ? 60 : 100,
+                gravity: 0.1
+              },
+              label: {
+                show: true,
+                color: text,
+                fontSize: ng.w < 380 ? 9 : 11
+              },
+              lineStyle: {
+                color: dark ? "rgba(62,232,197,0.4)" : "rgba(15,107,92,0.35)",
+                curveness: 0.2
+              },
+              emphasis: {
+                focus: "adjacency",
+                lineStyle: { width: 4 }
+              }
+            }]
+          }));
+        }
       }
 
       kcaDyadBoot(data);

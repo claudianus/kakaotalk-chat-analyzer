@@ -58,6 +58,7 @@ export declare class ReportAggregator {
     private readonly monthlyKeywordBuckets;
     private readonly dailyKeywordBuckets;
     private readonly dyads;
+    private readonly dailySentimentCounters;
     private total;
     private totalCharacters;
     private messagesWithLinks;

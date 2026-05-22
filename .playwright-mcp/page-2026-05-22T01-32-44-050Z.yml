@@ -1,0 +1,2404 @@
+- iframe [ref=e3]:
+  - generic [active] [ref=f2e1]:
+    - link "Wrapped로 건너뛰기" [ref=f2e2] [cursor=pointer]:
+      - /url: "#s-wrapped"
+    - main [ref=f2e3]:
+      - region "리포트 도구" [ref=f2e4]:
+        - toolbar "표시 테마" [ref=f2e6]:
+          - generic [ref=f2e7]: 테마
+          - button "라이트" [ref=f2e8] [cursor=pointer]
+          - button "다크" [ref=f2e9] [cursor=pointer]
+          - button "시스템" [pressed] [ref=f2e10] [cursor=pointer]
+        - group: ▸
+      - generic [ref=f2e11]:
+        - generic [ref=f2e12]:
+          - heading "카카오톡 대화 리포트" [level=1] [ref=f2e13]
+          - paragraph [ref=f2e14]: "[바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드"
+          - paragraph [ref=f2e15]:
+            - text: 「[바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드」에서 10.3만 개의 메시지가 오갔어요. 자주 나온 화제는
+            - strong [ref=f2e16]: 클로드 · 코드 · 코덱스 · 개발
+            - text: 쪽이에요. 최장
+            - strong [ref=f2e17]: 39일
+            - text: 연속 대화
+          - paragraph [ref=f2e18]:
+            - text: 원문·전체 URL은 저장하지 않아요.
+            - strong [ref=f2e19]: ⓪ Wrapped
+            - text: 로 한 장면씩 보거나, 아래 숫자·차트로 깊게 들어가면 됩니다.
+          - generic "바로가기" [ref=f2e20]:
+            - link "⓪ Wrapped" [ref=f2e21] [cursor=pointer]:
+              - /url: "#s-wrapped"
+              - strong [ref=f2e22]: ⓪
+              - text: Wrapped
+            - link "④ 차트" [ref=f2e23] [cursor=pointer]:
+              - /url: "#s-viz"
+              - strong [ref=f2e24]: ④
+              - text: 차트
+            - link "① 숫자" [ref=f2e25] [cursor=pointer]:
+              - /url: "#s-facts"
+              - strong [ref=f2e26]: ①
+              - text: 숫자
+            - link "용어 설명" [ref=f2e27] [cursor=pointer]:
+              - /url: "#s-help"
+          - generic [ref=f2e28]:
+            - generic [ref=f2e29]: "프라이버시: 부분 마스킹(기본)"
+            - generic [ref=f2e30]: "인코딩: utf-8-bom"
+            - generic [ref=f2e31]: "경고: 0건"
+        - generic [ref=f2e32]:
+          - paragraph [ref=f2e33]:
+            - strong [ref=f2e34]: 채팅방
+            - text: "[바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드"
+          - paragraph [ref=f2e35]:
+            - strong [ref=f2e36]: 생성 시각
+            - text: 2026. 5. 22. AM 10:21
+          - paragraph [ref=f2e37]:
+            - strong [ref=f2e38]: 생성 소요
+            - text: 97초 (집계 97초 · HTML 16ms · 저장 0ms)
+          - paragraph [ref=f2e39]:
+            - strong [ref=f2e40]: 생성 도구
+            - text: kcachat 0.1.72 → kca 0.22.1
+          - generic "분석 설정 요약" [ref=f2e41]:
+            - generic [ref=f2e42]: preset ultra
+            - generic [ref=f2e43]: 시맨틱 on
+            - generic [ref=f2e44]: LLM on
+          - paragraph [ref=f2e45]:
+            - strong [ref=f2e46]: 첫 메시지
+            - text: 2026-04-13 00:02:09
+          - paragraph [ref=f2e47]:
+            - strong [ref=f2e48]: 마지막 메시지
+            - text: 2026-05-21 09:32:33
+          - group [ref=f2e49]:
+            - generic "리포트 정보" [ref=f2e50] [cursor=pointer]
+      - region "방 아키타입" [ref=f2e51]:
+        - paragraph [ref=f2e52]: 이 방의 얼굴
+        - heading "AI 개발자 살롱" [level=2] [ref=f2e53]
+        - paragraph [ref=f2e54]: 새로운 AI 도구를 탐구하고 서로의 경험을 공유하는 공간
+      - region "대화 Wrapped" [ref=f2e55]:
+        - heading "⓪ [바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드 Wrapped" [level=2] [ref=f2e56]
+        - paragraph [ref=f2e57]: 핵심 장면 카드가 화면 너비에 맞게 배열됩니다. 원문 메시지는 없습니다.
+        - list [ref=f2e58]:
+          - listitem "[바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드" [ref=f2e59]:
+            - text: 💬
+            - paragraph [ref=f2e60]: "[바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드"
+            - paragraph [ref=f2e61]: 10.3만
+            - paragraph [ref=f2e62]: 메시지 · 39일 활동 · 40명
+          - listitem "이야기의 길이" [ref=f2e63]:
+            - text: 📅
+            - paragraph [ref=f2e64]: 이야기의 길이
+            - paragraph [ref=f2e65]: 39일
+            - paragraph [ref=f2e66]: 2026-04-13 → 2026-05-21
+          - listitem "끊기지 않은 날들" [ref=f2e67]:
+            - text: 🔥
+            - paragraph [ref=f2e68]: 끊기지 않은 날들
+            - paragraph [ref=f2e69]: 39일
+            - paragraph [ref=f2e70]: 하루도 빠짐없이 메시지가 이어진 최장 기록
+          - listitem "제2의 거실" [ref=f2e71]:
+            - text: ⏰
+            - paragraph [ref=f2e72]: 제2의 거실
+            - paragraph [ref=f2e73]: 15시
+            - paragraph [ref=f2e74]: 메시지가 가장 몰린 시간대
+          - listitem "대화의 중심" [ref=f2e75]:
+            - text: 👑
+            - paragraph [ref=f2e76]: 대화의 중심
+            - paragraph [ref=f2e77]: 메*묵
+            - paragraph [ref=f2e78]: 전체의 16.1% · 평균 11.4자
+          - listitem "방 리듬 점수" [ref=f2e79]:
+            - text: 🎵
+            - paragraph [ref=f2e80]: 방 리듬 점수
+            - paragraph [ref=f2e81]: "55"
+            - paragraph [ref=f2e82]: 참여 균형 · 연속 활동 · 밀도를 합친 0~100점
+          - listitem "주말의 비중" [ref=f2e83]:
+            - text: 🌴
+            - paragraph [ref=f2e84]: 주말의 비중
+            - paragraph [ref=f2e85]: 17%
+            - paragraph [ref=f2e86]: 토·일 메시지 비율
+          - listitem "분위기" [ref=f2e87]:
+            - text: 😂
+            - paragraph [ref=f2e88]: 분위기
+            - paragraph [ref=f2e89]: 100건당 8.3건
+            - paragraph [ref=f2e90]: 웃음·리액션 패턴 · 이모지 0.6건/100
+      - generic [ref=f2e91]:
+        - heading "활동 기간 그리드" [level=2] [ref=f2e92]
+        - paragraph [ref=f2e93]:
+          - text: GitHub 프로필
+          - strong [ref=f2e94]: Contributions
+          - text: 와 같은 레이아웃·색 단계예요. 셀에 마우스를 올리거나 탭하면 날짜와 건수가 표시됩니다.
+        - generic [ref=f2e95]:
+          - paragraph [ref=f2e96]:
+            - text: 이 기간 메시지
+            - strong [ref=f2e97]: 102,897
+            - text: 건
+            - generic [ref=f2e98]: 2026-04-13 ~ 2026-05-21 · 활동 6주 · 42일(메시지 39일)
+          - group "일별 활동 히트맵" [ref=f2e100]:
+            - generic [ref=f2e101]:
+              - generic [ref=f2e102]: 4월
+              - generic [ref=f2e103]: 5월
+            - generic [ref=f2e104]:
+              - generic [ref=f2e105]: 월
+              - generic [ref=f2e106]: 수
+              - generic [ref=f2e107]: 금
+            - generic [ref=f2e108]:
+              - generic [ref=f2e109]:
+                - button "2026년 4월 12일 · 활동 없음" [ref=f2e110] [cursor=pointer]
+                - button "2026년 4월 13일 · 1,347건" [ref=f2e111] [cursor=pointer]
+                - button "2026년 4월 14일 · 2,301건" [ref=f2e112] [cursor=pointer]
+                - button "2026년 4월 15일 · 2,809건" [ref=f2e113] [cursor=pointer]
+                - button "2026년 4월 16일 · 2,495건" [ref=f2e114] [cursor=pointer]
+                - button "2026년 4월 17일 · 2,403건" [ref=f2e115] [cursor=pointer]
+                - button "2026년 4월 18일 · 1,573건" [ref=f2e116] [cursor=pointer]
+              - generic [ref=f2e117]:
+                - button "2026년 4월 19일 · 2,123건" [ref=f2e118] [cursor=pointer]
+                - button "2026년 4월 20일 · 3,035건" [ref=f2e119] [cursor=pointer]
+                - button "2026년 4월 21일 · 3,180건" [ref=f2e120] [cursor=pointer]
+                - button "2026년 4월 22일 · 3,082건" [ref=f2e121] [cursor=pointer]
+                - button "2026년 4월 23일 · 2,345건" [ref=f2e122] [cursor=pointer]
+                - button "2026년 4월 24일 · 3,804건" [ref=f2e123] [cursor=pointer]
+                - button "2026년 4월 25일 · 1,036건" [ref=f2e124] [cursor=pointer]
+              - generic [ref=f2e125]:
+                - button "2026년 4월 26일 · 1,787건" [ref=f2e126] [cursor=pointer]
+                - button "2026년 4월 27일 · 2,798건" [ref=f2e127] [cursor=pointer]
+                - button "2026년 4월 28일 · 2,217건" [ref=f2e128] [cursor=pointer]
+                - button "2026년 4월 29일 · 4,400건" [ref=f2e129] [cursor=pointer]
+                - button "2026년 4월 30일 · 3,860건" [ref=f2e130] [cursor=pointer]
+                - button "2026년 5월 1일 · 856건" [ref=f2e131] [cursor=pointer]
+                - button "2026년 5월 2일 · 1,910건" [ref=f2e132] [cursor=pointer]
+              - generic [ref=f2e133]:
+                - button "2026년 5월 3일 · 1,962건" [ref=f2e134] [cursor=pointer]
+                - button "2026년 5월 4일 · 1,978건" [ref=f2e135] [cursor=pointer]
+                - button "2026년 5월 5일 · 2,727건" [ref=f2e136] [cursor=pointer]
+                - button "2026년 5월 6일 · 1,994건" [ref=f2e137] [cursor=pointer]
+                - button "2026년 5월 7일 · 3,556건" [ref=f2e138] [cursor=pointer]
+                - button "2026년 5월 8일 · 2,206건" [ref=f2e139] [cursor=pointer]
+                - button "2026년 5월 9일 · 1,134건" [ref=f2e140] [cursor=pointer]
+              - generic [ref=f2e141]:
+                - button "2026년 5월 10일 · 1,252건" [ref=f2e142] [cursor=pointer]
+                - button "2026년 5월 11일 · 3,367건" [ref=f2e143] [cursor=pointer]
+                - button "2026년 5월 12일 · 3,958건" [ref=f2e144] [cursor=pointer]
+                - button "2026년 5월 13일 · 4,946건" [ref=f2e145] [cursor=pointer]
+                - button "2026년 5월 14일 · 6,563건" [ref=f2e146] [cursor=pointer]
+                - button "2026년 5월 15일 · 5,006건" [ref=f2e147] [cursor=pointer]
+                - button "2026년 5월 16일 · 2,415건" [ref=f2e148] [cursor=pointer]
+              - generic [ref=f2e149]:
+                - button "2026년 5월 17일 · 2,536건" [ref=f2e150] [cursor=pointer]
+                - button "2026년 5월 18일 · 2,488건" [ref=f2e151] [cursor=pointer]
+                - button "2026년 5월 19일 · 1,800건" [ref=f2e152] [cursor=pointer]
+                - button "2026년 5월 20일 · 3,339건" [ref=f2e153] [cursor=pointer]
+                - button "2026년 5월 21일 · 309건" [ref=f2e154] [cursor=pointer]
+                - button "2026년 5월 22일 · 활동 없음" [ref=f2e155] [cursor=pointer]
+                - button "2026년 5월 23일 · 활동 없음" [ref=f2e156] [cursor=pointer]
+          - generic [ref=f2e157]:
+            - generic [ref=f2e158]: 적음
+            - generic [ref=f2e165]: 많음
+      - region "핵심 지표 요약" [ref=f2e166]:
+        - heading "① 핵심 숫자" [level=2] [ref=f2e167]
+        - note [ref=f2e168]:
+          - generic [ref=f2e169]: 표본
+          - strong [ref=f2e170]: 102,897
+          - text: 건 ·
+          - strong [ref=f2e171]: "838"
+          - text: 명 · 활동
+          - strong [ref=f2e172]: "39"
+          - text: 일 2026-04-13 ~ 2026-05-21
+        - generic "핵심 숫자" [ref=f2e173]:
+          - generic [ref=f2e174]:
+            - generic [ref=f2e175]: 총 메시지
+            - text: 102,897
+          - generic [ref=f2e176]:
+            - generic [ref=f2e177]: 참여자
+            - text: "838"
+        - paragraph [ref=f2e178]:
+          - strong [ref=f2e179]: 보낸 CSV 숫자만
+          - text: 으로 만든 요약이에요. 쏠림·리듬은 아래 ③에서 패턴으로 봅니다.
+        - generic [ref=f2e180]:
+          - generic [ref=f2e181]:
+            - generic [ref=f2e182]: 총 메시지
+            - text: 102,897
+          - generic [ref=f2e183]:
+            - generic [ref=f2e184]: 참여자
+            - text: "838"
+          - generic [ref=f2e185]:
+            - generic [ref=f2e186]: 활동일
+            - text: "39"
+          - generic [ref=f2e187]:
+            - generic [ref=f2e188]: 일평균(활동일)
+            - text: "2638.4"
+          - generic [ref=f2e189]:
+            - generic [ref=f2e190]: 상위3 점유
+            - text: 36.6%
+          - generic [ref=f2e191]:
+            - generic [ref=f2e192]: 참여 지니
+            - text: "0.937"
+          - generic [ref=f2e193]:
+            - generic [ref=f2e194]: 피크 시각
+            - text: 15시
+          - generic [ref=f2e195]:
+            - generic [ref=f2e196]: 최장 연속일
+            - text: "39"
+        - group [ref=f2e197]:
+          - generic "더 많은 지표" [ref=f2e198] [cursor=pointer]
+      - region "방 이야기" [ref=f2e199]:
+        - heading "② 방 이야기" [level=2] [ref=f2e200]
+        - paragraph [ref=f2e201]:
+          - text: 통계·키워드만 입력한
+          - strong [ref=f2e202]: 로컬 LLM
+          - text: 이 서사·순간을 보강했습니다(원문 미포함).
+        - generic [ref=f2e203]:
+          - paragraph [ref=f2e204]: insightBullets
+          - paragraph [ref=f2e205]:
+            - text: 「[바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드」은 총
+            - strong [ref=f2e206]: 102,897
+            - text: 건의 메시지,
+            - strong [ref=f2e207]: "838"
+            - text: 명이 참여한 대화 공간으로 읽힙니다. 전체 톤은
+            - strong [ref=f2e208]: ⚡ 실시간 토론장
+            - text: — 화자 전환 64.48/100 · 1분 이내 간격 93.9% — 토론·오픈채팅형 템포
+          - paragraph [ref=f2e209]:
+            - text: 참여는 소수에게 몰리는 편입니다(지니
+            - strong [ref=f2e210]: "0.937"
+            - text: ", 상위 3명"
+            - strong [ref=f2e211]: 36.6%
+            - text: ). 특히
+            - strong [ref=f2e212]: V
+            - text: "*v→메*묵"
+            - strong [ref=f2e213]: 사이 응답이 잦아, 핵심 멤버끼리 대화가 이어지는 구조로 보입니다.
+      - region "이벤트 타임라인" [ref=f2e214]:
+        - heading "이벤트 스파인" [level=2] [ref=f2e215]
+        - paragraph [ref=f2e216]:
+          - text: 활동
+          - strong [ref=f2e217]: 2026-04-13
+          - text: ~
+          - strong [ref=f2e218]: 2026-05-21
+          - text: · 이벤트
+          - strong [ref=f2e219]: "24"
+          - text: 건 — 급증·침묵·입퇴장·링크·약속 신호 등
+          - strong [ref=f2e220]: 임계값을 넘은 날
+          - text: 만 나열합니다(전 기간 달력 아님).
+        - list [ref=f2e221]:
+          - listitem [ref=f2e222]:
+            - time [ref=f2e223]: 2026-04-13
+            - strong [ref=f2e224]: 입·퇴장 활발
+            - text: 입장 6 · 퇴장 5 · 강퇴 0
+          - listitem [ref=f2e225]:
+            - time [ref=f2e226]: 2026-04-13
+            - strong [ref=f2e227]: 신규 참여자 유입
+            - text: 처음 말한 사람 94명
+          - listitem [ref=f2e228]:
+            - time [ref=f2e229]: 2026-04-13
+            - strong [ref=f2e230]: 약속·일정 신호
+            - text: 날짜·시간 표현 11건 (추정)
+          - listitem [ref=f2e231]:
+            - time [ref=f2e232]: 2026-04-14
+            - strong [ref=f2e233]: 입·퇴장 활발
+            - text: 입장 6 · 퇴장 10 · 강퇴 0
+          - listitem [ref=f2e234]:
+            - time [ref=f2e235]: 2026-04-14
+            - strong [ref=f2e236]: 신규 참여자 유입
+            - text: 처음 말한 사람 61명
+          - listitem [ref=f2e237]:
+            - time [ref=f2e238]: 2026-04-14
+            - strong [ref=f2e239]: 약속·일정 신호
+            - text: 날짜·시간 표현 15건 (추정)
+          - listitem [ref=f2e240]:
+            - time [ref=f2e241]: 2026-04-15
+            - strong [ref=f2e242]: 입·퇴장 활발
+            - text: 입장 6 · 퇴장 5 · 강퇴 0
+          - listitem [ref=f2e243]:
+            - time [ref=f2e244]: 2026-04-15
+            - strong [ref=f2e245]: 신규 참여자 유입
+            - text: 처음 말한 사람 46명
+          - listitem [ref=f2e246]:
+            - time [ref=f2e247]: 2026-04-15
+            - strong [ref=f2e248]: 약속·일정 신호
+            - text: 날짜·시간 표현 14건 (추정)
+          - listitem [ref=f2e249]:
+            - time [ref=f2e250]: 2026-04-16
+            - strong [ref=f2e251]: 입·퇴장 활발
+            - text: 입장 6 · 퇴장 7 · 강퇴 0
+          - listitem [ref=f2e252]:
+            - time [ref=f2e253]: 2026-04-16
+            - strong [ref=f2e254]: 신규 참여자 유입
+            - text: 처음 말한 사람 39명
+          - listitem [ref=f2e255]:
+            - time [ref=f2e256]: 2026-04-16
+            - strong [ref=f2e257]: 링크 공유 집중
+            - text: 링크 포함 메시지 29건
+          - listitem [ref=f2e258]:
+            - time [ref=f2e259]: 2026-04-16
+            - strong [ref=f2e260]: 약속·일정 신호
+            - text: 날짜·시간 표현 14건 (추정)
+          - listitem [ref=f2e261]:
+            - time [ref=f2e262]: 2026-04-17
+            - strong [ref=f2e263]: 입·퇴장 활발
+            - text: 입장 6 · 퇴장 7 · 강퇴 0
+          - listitem [ref=f2e264]:
+            - time [ref=f2e265]: 2026-04-17
+            - strong [ref=f2e266]: 신규 참여자 유입
+            - text: 처음 말한 사람 28명
+          - listitem [ref=f2e267]:
+            - time [ref=f2e268]: 2026-04-18
+            - strong [ref=f2e269]: 입·퇴장 활발
+            - text: 입장 6 · 퇴장 4 · 강퇴 0
+          - listitem [ref=f2e270]:
+            - time [ref=f2e271]: 2026-04-18
+            - strong [ref=f2e272]: 신규 참여자 유입
+            - text: 처음 말한 사람 17명
+          - listitem [ref=f2e273]:
+            - time [ref=f2e274]: 2026-04-19
+            - strong [ref=f2e275]: 입·퇴장 활발
+            - text: 입장 11 · 퇴장 7 · 강퇴 0
+          - listitem [ref=f2e276]:
+            - time [ref=f2e277]: 2026-04-19
+            - strong [ref=f2e278]: 신규 참여자 유입
+            - text: 처음 말한 사람 22명
+          - listitem [ref=f2e279]:
+            - time [ref=f2e280]: 2026-04-20
+            - strong [ref=f2e281]: 입·퇴장 활발
+            - text: 입장 29 · 퇴장 9 · 강퇴 0
+          - listitem [ref=f2e282]:
+            - time [ref=f2e283]: 2026-04-20
+            - strong [ref=f2e284]: 신규 참여자 유입
+            - text: 처음 말한 사람 39명
+          - listitem [ref=f2e285]:
+            - time [ref=f2e286]: 2026-04-20
+            - strong [ref=f2e287]: 반복 문구
+            - text: 「"🖐 환영합니다 🖼 우측 상단 ☰ 누르고 -> ♡ 눌러주세요 :) 🎇 카톡 기본 닉네임 X 닉네임 변경 부탁해요! 🎁…」 510회
+          - listitem [ref=f2e288]:
+            - time [ref=f2e289]: 2026-04-21
+            - strong [ref=f2e290]: 입·퇴장 활발
+            - text: 입장 26 · 퇴장 11 · 강퇴 0
+          - listitem [ref=f2e291]:
+            - time [ref=f2e292]: 2026-04-21
+            - strong [ref=f2e293]: 신규 참여자 유입
+            - text: 처음 말한 사람 37명
+      - region "상호작용" [ref=f2e294]:
+        - heading "누가 누구에게 답하는가" [level=2] [ref=f2e295]
+        - paragraph [ref=f2e296]:
+          - text: 연속 메시지에서 화자가 바뀔 때
+          - strong [ref=f2e297]: 직전 화자 → 현재 화자
+          - text: 로 응답 엣지를 셉니다(상위 12명).
+        - list [ref=f2e298]:
+          - listitem [ref=f2e299]:
+            - strong [ref=f2e300]: V***v
+            - text: → 메*묵 · 2,238회
+          - listitem [ref=f2e301]:
+            - strong [ref=f2e302]: 메*묵
+            - text: → V***v · 2,188회
+          - listitem [ref=f2e303]:
+            - strong [ref=f2e304]: V***v
+            - text: → C**브 · 902회
+          - listitem [ref=f2e305]:
+            - strong [ref=f2e306]: C**브
+            - text: → V***v · 874회
+          - listitem [ref=f2e307]:
+            - strong [ref=f2e308]: C**브
+            - text: → 메*묵 · 710회
+          - listitem [ref=f2e309]:
+            - strong [ref=f2e310]: 메*묵
+            - text: → C**브 · 707회
+        - generic "상호작용 히트맵" [ref=f2e311]:
+          - generic: 상호작용 히트맵 불러오는 중…
+      - region "기간 비교" [ref=f2e312]:
+        - heading "기간 비교" [level=2] [ref=f2e313]
+        - paragraph [ref=f2e314]:
+          - text: 처음 7일·마지막 7일·전체와, 월별 키워드
+          - strong [ref=f2e315]: 전반/후반
+          - text: 차이입니다.
+        - generic [ref=f2e316]:
+          - generic [ref=f2e317]:
+            - generic [ref=f2e318]: 처음 7일
+            - text: 15,051건 · 활동 7일 · 일당 2150.1
+          - generic [ref=f2e319]:
+            - generic [ref=f2e320]: 마지막 7일
+            - text: 17,893건 · 활동 7일 · 일당 2556.1
+          - generic [ref=f2e321]:
+            - generic [ref=f2e322]: 전체
+            - text: 102,897건 · 활동 39일 · 일당 2638.4
+        - generic [ref=f2e323]:
+          - generic [ref=f2e324]:
+            - heading "초반에만 두드러짐" [level=4] [ref=f2e325]
+            - paragraph [ref=f2e326]: 개발 · 코드
+          - generic [ref=f2e327]:
+            - heading "후반에만 두드러짐" [level=4] [ref=f2e328]
+            - paragraph [ref=f2e329]: 사람 · 저도
+      - region "기간 탐색" [ref=f2e330]:
+        - heading "기간 탐색" [level=2] [ref=f2e331]
+        - paragraph [ref=f2e332]:
+          - text: 날짜를 좁히면 아래 숫자가
+          - strong [ref=f2e333]: 선택 기간만
+          - text: 다시 집계됩니다(브라우저 내, 원문 없음).
+        - generic [ref=f2e334]:
+          - generic [ref=f2e335]:
+            - text: 시작
+            - textbox "시작" [ref=f2e336]: 2026-04-13
+          - generic [ref=f2e337]:
+            - text: 끝
+            - textbox "끝" [ref=f2e338]: 2026-05-21
+        - paragraph [ref=f2e340]:
+          - strong [ref=f2e341]: 선택 구간
+          - text: 2026-04-13 ~ 2026-05-21 · 메시지
+          - strong [ref=f2e342]: 102,897
+          - text: 건 · 활동일
+          - strong [ref=f2e343]: "39"
+          - text: 일
+        - img "선택 기간 일별" [ref=f2e344]
+      - generic [ref=f2e347]:
+        - note [ref=f2e348]:
+          - strong [ref=f2e349]: ⚡ 실시간 토론장
+          - generic [ref=f2e350]: 화자 전환 64.48/100 · 1분 이내 간격 93.9% — 토론·오픈채팅형 템포
+        - generic "기간별 메시지 비교" [ref=f2e351]:
+          - generic [ref=f2e352]:
+            - text: 처음 7일
+            - generic [ref=f2e353]: 15,051
+            - text: 7일 활동
+          - generic [ref=f2e354]:
+            - text: 마지막 7일
+            - generic [ref=f2e355]: 17,893
+            - text: 7일 활동
+          - generic [ref=f2e356]:
+            - text: 전체
+            - generic [ref=f2e357]: 102,897
+            - text: 39일 활동
+        - generic [ref=f2e358]:
+          - generic [ref=f2e359]:
+            - heading "③ 분위기·리듬 (고급 인사이트)" [level=2] [ref=f2e360]
+            - paragraph [ref=f2e361]:
+              - text: 참여가 고르지 않은지, 응답이 한번에 몰리는지, 링크가 여러 사이트로 퍼지는지 같은
+              - strong [ref=f2e362]: 패턴 지표
+              - text: 예요. 낯선 말은 맨 아래
+              - link "⑥ 용어 설명" [ref=f2e363] [cursor=pointer]:
+                - /url: "#s-help"
+              - text: 을 펼쳐 보세요.
+          - generic "리듬 점수" [ref=f2e364]:
+            - generic:
+              - strong: 리듬
+              - generic: 55/100
+        - generic [ref=f2e367]:
+          - generic [ref=f2e368]:
+            - generic [ref=f2e369]: 주말 비중
+            - text: 17%
+            - generic [ref=f2e370]: 토·일 메시지 비율
+          - generic [ref=f2e371]:
+            - generic [ref=f2e372]: 참여 지니
+            - text: "0.937"
+            - generic [ref=f2e373]: 소수 집중(상대) · n=838
+          - generic [ref=f2e374]:
+            - generic [ref=f2e375]: 응답 상위10%
+            - text: 36초
+            - generic [ref=f2e376]: 느린 쪽 10% 구간
+          - generic [ref=f2e377]:
+            - generic [ref=f2e378]: 최장 공백
+            - text: 0일
+            - generic [ref=f2e379]: 활동일 사이 최대 휴지
+          - generic [ref=f2e380]:
+            - generic [ref=f2e381]: 상위3 점유
+            - text: 36.6%
+            - generic [ref=f2e382]: 비중 분산 · 지니도 높음
+          - generic [ref=f2e383]:
+            - generic [ref=f2e384]: 화자 전환
+            - text: 64.48/100
+            - generic [ref=f2e385]: 100메시지당 말바꿈
+          - generic [ref=f2e386]:
+            - generic [ref=f2e387]: 링크 다양성
+            - text: 7.14 bit
+            - generic [ref=f2e388]: 공유 사이트 종류
+        - generic [ref=f2e389]:
+          - generic [ref=f2e390]:
+            - heading "하루 시간대 비중" [level=3] [ref=f2e391]
+            - paragraph [ref=f2e392]:
+              - text: 새벽·아침·낮·저녁 네 덩어리로 나눈
+              - strong [ref=f2e393]: 메시지 비율
+              - text: 이에요.
+            - img "시간대 비중" [ref=f2e394]:
+              - generic "새벽(0~5시) 12.3%" [ref=f2e395]
+              - generic "오전(6~11시) 18.4%" [ref=f2e396]
+              - generic "오후(12~17시) 42%" [ref=f2e397]
+              - generic "저녁(18~23시) 27.3%" [ref=f2e398]
+            - list [ref=f2e399]:
+              - listitem [ref=f2e400]:
+                - text: 새벽(0~5시)
+                - strong [ref=f2e402]: 12.3%
+              - listitem [ref=f2e403]:
+                - text: 오전(6~11시)
+                - strong [ref=f2e405]: 18.4%
+              - listitem [ref=f2e406]:
+                - text: 오후(12~17시)
+                - strong [ref=f2e408]: 42%
+              - listitem [ref=f2e409]:
+                - text: 저녁(18~23시)
+                - strong [ref=f2e411]: 27.3%
+          - generic [ref=f2e412]:
+            - heading "참여자 말풍선 맵" [level=3] [ref=f2e413]
+            - paragraph [ref=f2e414]:
+              - text: 말풍선
+              - strong [ref=f2e415]: 크기·위치
+              - text: 로 비중(가로)과 평균 글자 수(세로)를 봅니다. 좁은 화면에서는 채팅 목록형으로 펼쳐져요.
+            - 'img "참여자 말풍선 맵: 가로 메시지 비중, 세로 평균 글자 수" [ref=f2e416]':
+              - generic: 평균 글자 ↑
+              - generic: 평균 글자 ↓
+              - generic: 비중 ↓
+              - generic: 비중 ↑
+              - generic: 길게 · 적게
+              - generic: 길게 · 많이
+              - generic: 짧게 · 적게
+              - generic: 짧게 · 많이
+              - generic [ref=f2e417]:
+                - generic "메*묵 · 16.1% · 평균 11.4자 · 16,532건" [ref=f2e418]:
+                  - generic [ref=f2e420]:
+                    - strong [ref=f2e421]: 메*묵
+                    - generic [ref=f2e422]: 16.1%
+                    - generic [ref=f2e423]: 평균 11.4자 · 16,532건
+                - generic "V***v · 14.6% · 평균 13.3자 · 15,033건" [ref=f2e424]:
+                  - generic [ref=f2e426]:
+                    - strong [ref=f2e427]: V***v
+                    - generic [ref=f2e428]: 14.6%
+                    - generic [ref=f2e429]: 평균 13.3자 · 15,033건
+                - generic "C**브 · 5.9% · 평균 15.2자 · 6,082건" [ref=f2e430]:
+                  - generic [ref=f2e432]:
+                    - strong [ref=f2e433]: C**브
+                    - generic [ref=f2e434]: 5.9%
+                    - generic [ref=f2e435]: 평균 15.2자 · 6,082건
+                - generic "m******u · 3.9% · 평균 17.5자 · 4,036건" [ref=f2e436]:
+                  - generic [ref=f2e438]:
+                    - strong [ref=f2e439]: m******u
+                    - generic [ref=f2e440]: 3.9%
+                    - generic [ref=f2e441]: 평균 17.5자 · 4,036건
+                - generic "바***국 · 3% · 평균 17.9자 · 3,121건" [ref=f2e442]:
+                  - generic [ref=f2e444]:
+                    - strong [ref=f2e445]: 바***국
+                    - generic [ref=f2e446]: 3%
+                    - generic [ref=f2e447]: 평균 17.9자 · 3,121건
+                - generic "A***e · 2.9% · 평균 18.9자 · 2,992건" [ref=f2e448]:
+                  - generic [ref=f2e450]:
+                    - strong [ref=f2e451]: A***e
+                    - generic [ref=f2e452]: 2.9%
+                    - generic [ref=f2e453]: 평균 18.9자 · 2,992건
+                - generic "간*****드 · 2.4% · 평균 14.1자 · 2,504건" [ref=f2e454]:
+                  - generic [ref=f2e456]:
+                    - strong [ref=f2e457]: 간*****드
+                    - generic [ref=f2e458]: 2.4%
+                    - generic [ref=f2e459]: 평균 14.1자 · 2,504건
+                - generic "백***보 · 2.3% · 평균 27.4자 · 2,412건" [ref=f2e460]:
+                  - generic [ref=f2e462]:
+                    - strong [ref=f2e463]: 백***보
+                    - generic [ref=f2e464]: 2.3%
+                    - generic [ref=f2e465]: 평균 27.4자 · 2,412건
+                - generic "둘******드 · 2.2% · 평균 15.2자 · 2,231건" [ref=f2e466]:
+                  - generic [ref=f2e468]:
+                    - strong [ref=f2e469]: 둘******드
+                    - generic [ref=f2e470]: 2.2%
+                    - generic [ref=f2e471]: 평균 15.2자 · 2,231건
+                - generic "@******g · 2.1% · 평균 16.3자 · 2,177건" [ref=f2e472]:
+                  - generic [ref=f2e474]:
+                    - strong [ref=f2e475]: "@******g"
+                    - generic [ref=f2e476]: 2.1%
+                    - generic [ref=f2e477]: 평균 16.3자 · 2,177건
+                - generic "김******천 · 2.1% · 평균 11.6자 · 2,139건" [ref=f2e478]:
+                  - generic [ref=f2e480]:
+                    - strong [ref=f2e481]: 김******천
+                    - generic [ref=f2e482]: 2.1%
+                    - generic [ref=f2e483]: 평균 11.6자 · 2,139건
+                - generic "김******) · 2% · 평균 11.3자 · 2,106건" [ref=f2e484]:
+                  - generic [ref=f2e486]:
+                    - strong [ref=f2e487]: 김******)
+                    - generic [ref=f2e488]: 2%
+                    - generic [ref=f2e489]: 평균 11.3자 · 2,106건
+      - generic [ref=f2e490]:
+        - heading "이 방의 주제 맵" [level=2] [ref=f2e491]
+        - paragraph [ref=f2e492]:
+          - text: 짧은 기간 보내기는
+          - strong [ref=f2e493]: 월 메시지 비중
+          - text: 이 주제처럼 보일 수 있어, 월별 카드는 숨기고 「기간 비교」를 봐 주세요.
+        - generic [ref=f2e494]:
+          - heading "의미 테마" [level=3] [ref=f2e495]
+          - generic [ref=f2e496]:
+            - article [ref=f2e497]:
+              - generic [ref=f2e498]:
+                - generic [ref=f2e499]: 주제
+                - strong [ref=f2e500]: 클로드 · 코드
+                - generic [ref=f2e501]: ~1.9%
+              - generic [ref=f2e502]:
+                - generic [ref=f2e503]: 클로드
+                - generic [ref=f2e504]: 코드
+                - generic [ref=f2e505]: 코덱스
+                - generic [ref=f2e506]: 개발
+                - generic [ref=f2e507]: 토큰
+                - generic [ref=f2e508]: 코딩
+            - article [ref=f2e509]:
+              - generic [ref=f2e510]:
+                - generic [ref=f2e511]: 주제
+                - strong [ref=f2e512]: 개발 · 카톡
+                - generic [ref=f2e513]: ~1.1%
+              - generic [ref=f2e514]:
+                - generic [ref=f2e515]: 개발
+                - generic [ref=f2e516]: 카톡
+                - generic [ref=f2e517]: saas
+                - generic [ref=f2e518]: gpts
+            - article [ref=f2e519]:
+              - generic [ref=f2e520]:
+                - generic [ref=f2e521]: 주제
+                - strong [ref=f2e522]: 코딩 · 바이브
+                - generic [ref=f2e523]: ~0.7%
+              - generic [ref=f2e524]:
+                - generic [ref=f2e525]: 코딩
+                - generic [ref=f2e526]: 바이브
+                - generic [ref=f2e527]: 바이브코딩
+                - generic [ref=f2e528]: 클로드
+      - region "인터랙티브 차트" [ref=f2e529]:
+        - heading "📊 인터랙티브 차트" [level=2] [ref=f2e530]
+        - paragraph [ref=f2e531]:
+          - text: ECharts 기반 — 막대·히트맵·워드클라우드에 마우스를 올리면 수치를 확인할 수 있어요. 키워드
+          - strong [ref=f2e532]: "120"
+          - text: 개(메시지 등장 횟수 기준).
+      - generic [ref=f2e533]:
+        - article [ref=f2e534]:
+          - heading "키워드 워드클라우드" [level=3] [ref=f2e535]
+          - paragraph [ref=f2e536]: 글자 크기 = 메시지 등장 빈도. Kiwi·BM25로 뽑은 본문 키워드입니다.
+          - img "키워드 워드클라우드" [ref=f2e537]
+        - article [ref=f2e539]:
+          - heading "시간대 분포" [level=3] [ref=f2e540]
+          - paragraph [ref=f2e541]: 0~23시 메시지량
+          - img "시간대 차트" [ref=f2e542]
+        - article [ref=f2e545]:
+          - heading "요일 분포" [level=3] [ref=f2e546]
+          - paragraph [ref=f2e547]: 요일별 메시지량
+          - img "요일 차트" [ref=f2e548]
+        - article [ref=f2e551]:
+          - heading "키워드 순위 · 메시지 등장 횟수" [level=3] [ref=f2e552]
+          - paragraph [ref=f2e553]: 막대 길이 = 1위 대비 비율 · 전체 120개 · 워드클라우드는 위 카드
+          - group "키워드 정렬" [ref=f2e554]:
+            - button "빈도 순" [pressed] [ref=f2e555] [cursor=pointer]
+            - button "특이어 순" [ref=f2e556] [cursor=pointer]
+          - table [ref=f2e560]:
+            - rowgroup [ref=f2e566]:
+              - row "# 키워드 비율 메시지 수" [ref=f2e567]:
+                - columnheader "#" [ref=f2e568]
+                - columnheader "키워드" [ref=f2e569]
+                - columnheader "비율" [ref=f2e570]
+                - columnheader "메시지 수" [ref=f2e571]
+            - rowgroup [ref=f2e572]:
+              - row "1 클로드 1935 1,935" [ref=f2e573]:
+                - cell "1" [ref=f2e574]
+                - cell "클로드" [ref=f2e575]
+                - cell "1935" [ref=f2e576]:
+                  - meter "클로드 메시지 1,935건" [ref=f2e577]
+                - cell "1,935" [ref=f2e579]
+              - row "2 코덱스 1446 1,446" [ref=f2e580]:
+                - cell "2" [ref=f2e581]
+                - cell "코덱스" [ref=f2e582]
+                - cell "1446" [ref=f2e583]:
+                  - meter "코덱스 메시지 1,446건" [ref=f2e584]
+                - cell "1,446" [ref=f2e586]
+              - row "3 개발 1105 1,105" [ref=f2e587]:
+                - cell "3" [ref=f2e588]
+                - cell "개발" [ref=f2e589]
+                - cell "1105" [ref=f2e590]:
+                  - meter "개발 메시지 1,105건" [ref=f2e591]
+                - cell "1,105" [ref=f2e593]
+              - row "4 토큰 846 846" [ref=f2e594]:
+                - cell "4" [ref=f2e595]
+                - cell "토큰" [ref=f2e596]
+                - cell "846" [ref=f2e597]:
+                  - meter "토큰 메시지 846건" [ref=f2e598]
+                - cell "846" [ref=f2e600]
+              - row "5 코드 819 819" [ref=f2e601]:
+                - cell "5" [ref=f2e602]
+                - cell "코드" [ref=f2e603]
+                - cell "819" [ref=f2e604]:
+                  - meter "코드 메시지 819건" [ref=f2e605]
+                - cell "819" [ref=f2e607]
+              - row "6 코딩 765 765" [ref=f2e608]:
+                - cell "6" [ref=f2e609]
+                - cell "코딩" [ref=f2e610]
+                - cell "765" [ref=f2e611]:
+                  - meter "코딩 메시지 765건" [ref=f2e612]
+                - cell "765" [ref=f2e614]
+              - row "7 모델 671 671" [ref=f2e615]:
+                - cell "7" [ref=f2e616]
+                - cell "모델" [ref=f2e617]
+                - cell "671" [ref=f2e618]:
+                  - meter "모델 메시지 671건" [ref=f2e619]
+                - cell "671" [ref=f2e621]
+              - row "8 카톡 668 668" [ref=f2e622]:
+                - cell "8" [ref=f2e623]
+                - cell "카톡" [ref=f2e624]
+                - cell "668" [ref=f2e625]:
+                  - meter "카톡 메시지 668건" [ref=f2e626]
+                - cell "668" [ref=f2e628]
+              - row "9 클코 622 622" [ref=f2e629]:
+                - cell "9" [ref=f2e630]
+                - cell "클코" [ref=f2e631]
+                - cell "622" [ref=f2e632]:
+                  - meter "클코 메시지 622건" [ref=f2e633]
+                - cell "622" [ref=f2e635]
+              - row "10 회사 592 592" [ref=f2e636]:
+                - cell "10" [ref=f2e637]
+                - cell "회사" [ref=f2e638]
+                - cell "592" [ref=f2e639]:
+                  - meter "회사 메시지 592건" [ref=f2e640]
+                - cell "592" [ref=f2e642]
+              - row "11 결제 531 531" [ref=f2e643]:
+                - cell "11" [ref=f2e644]
+                - cell "결제" [ref=f2e645]
+                - cell "531" [ref=f2e646]:
+                  - meter "결제 메시지 531건" [ref=f2e647]
+                - cell "531" [ref=f2e649]
+              - row "12 saas 526 526" [ref=f2e650]:
+                - cell "12" [ref=f2e651]
+                - cell "saas" [ref=f2e652]
+                - cell "526" [ref=f2e653]:
+                  - meter "saas 메시지 526건" [ref=f2e654]
+                - cell "526" [ref=f2e656]
+              - row "13 개발자 525 525" [ref=f2e657]:
+                - cell "13" [ref=f2e658]
+                - cell "개발자" [ref=f2e659]
+                - cell "525" [ref=f2e660]:
+                  - meter "개발자 메시지 525건" [ref=f2e661]
+                - cell "525" [ref=f2e663]
+              - row "14 바이브 518 518" [ref=f2e664]:
+                - cell "14" [ref=f2e665]
+                - cell "바이브" [ref=f2e666]
+                - cell "518" [ref=f2e667]:
+                  - meter "바이브 메시지 518건" [ref=f2e668]
+                - cell "518" [ref=f2e670]
+              - row "15 gpts 511 511" [ref=f2e671]:
+                - cell "15" [ref=f2e672]
+                - cell "gpts" [ref=f2e673]
+                - cell "511" [ref=f2e674]:
+                  - meter "gpts 메시지 511건" [ref=f2e675]
+                - cell "511" [ref=f2e677]
+              - row "16 saas 개발 510 510" [ref=f2e678]:
+                - cell "16" [ref=f2e679]
+                - cell "saas 개발" [ref=f2e680]
+                - cell "510" [ref=f2e681]:
+                  - meter "saas 개발 메시지 510건" [ref=f2e682]
+                - cell "510" [ref=f2e684]
+              - row "17 이미지 410 410" [ref=f2e685]:
+                - cell "17" [ref=f2e686]
+                - cell "이미지" [ref=f2e687]
+                - cell "410" [ref=f2e688]:
+                  - meter "이미지 메시지 410건" [ref=f2e689]
+                - cell "410" [ref=f2e691]
+              - row "18 지피티 397 397" [ref=f2e692]:
+                - cell "18" [ref=f2e693]
+                - cell "지피티" [ref=f2e694]
+                - cell "397" [ref=f2e695]:
+                  - meter "지피티 메시지 397건" [ref=f2e696]
+                - cell "397" [ref=f2e698]
+              - row "19 구글 396 396" [ref=f2e699]:
+                - cell "19" [ref=f2e700]
+                - cell "구글" [ref=f2e701]
+                - cell "396" [ref=f2e702]:
+                  - meter "구글 메시지 396건" [ref=f2e703]
+                - cell "396" [ref=f2e705]
+              - row "20 로컬 369 369" [ref=f2e706]:
+                - cell "20" [ref=f2e707]
+                - cell "로컬" [ref=f2e708]
+                - cell "369" [ref=f2e709]:
+                  - meter "로컬 메시지 369건" [ref=f2e710]
+                - cell "369" [ref=f2e712]
+              - row "21 게임 362 362" [ref=f2e713]:
+                - cell "21" [ref=f2e714]
+                - cell "게임" [ref=f2e715]
+                - cell "362" [ref=f2e716]:
+                  - meter "게임 메시지 362건" [ref=f2e717]
+                - cell "362" [ref=f2e719]
+              - row "22 서버 361 361" [ref=f2e720]:
+                - cell "22" [ref=f2e721]
+                - cell "서버" [ref=f2e722]
+                - cell "361" [ref=f2e723]:
+                  - meter "서버 메시지 361건" [ref=f2e724]
+                - cell "361" [ref=f2e726]
+              - row "23 서비스 356 356" [ref=f2e727]:
+                - cell "23" [ref=f2e728]
+                - cell "서비스" [ref=f2e729]
+                - cell "356" [ref=f2e730]:
+                  - meter "서비스 메시지 356건" [ref=f2e731]
+                - cell "356" [ref=f2e733]
+              - row "24 디자인 354 354" [ref=f2e734]:
+                - cell "24" [ref=f2e735]
+                - cell "디자인" [ref=f2e736]
+                - cell "354" [ref=f2e737]:
+                  - meter "디자인 메시지 354건" [ref=f2e738]
+                - cell "354" [ref=f2e740]
+              - row "25 에이전트 351 351" [ref=f2e741]:
+                - cell "25" [ref=f2e742]
+                - cell "에이전트" [ref=f2e743]
+                - cell "351" [ref=f2e744]:
+                  - meter "에이전트 메시지 351건" [ref=f2e745]
+                - cell "351" [ref=f2e747]
+              - row "26 달러 351 351" [ref=f2e748]:
+                - cell "26" [ref=f2e749]
+                - cell "달러" [ref=f2e750]
+                - cell "351" [ref=f2e751]:
+                  - meter "달러 메시지 351건" [ref=f2e752]
+                - cell "351" [ref=f2e754]
+              - row "27 제미나이 350 350" [ref=f2e755]:
+                - cell "27" [ref=f2e756]
+                - cell "제미나이" [ref=f2e757]
+                - cell "350" [ref=f2e758]:
+                  - meter "제미나이 메시지 350건" [ref=f2e759]
+                - cell "350" [ref=f2e761]
+              - row "28 중국 335 335" [ref=f2e762]:
+                - cell "28" [ref=f2e763]
+                - cell "중국" [ref=f2e764]
+                - cell "335" [ref=f2e765]:
+                  - meter "중국 메시지 335건" [ref=f2e766]
+                - cell "335" [ref=f2e768]
+              - row "29 한국 335 335" [ref=f2e769]:
+                - cell "29" [ref=f2e770]
+                - cell "한국" [ref=f2e771]
+                - cell "335" [ref=f2e772]:
+                  - meter "한국 메시지 335건" [ref=f2e773]
+                - cell "335" [ref=f2e775]
+              - row "30 사용량 327 327" [ref=f2e776]:
+                - cell "30" [ref=f2e777]
+                - cell "사용량" [ref=f2e778]
+                - cell "327" [ref=f2e779]:
+                  - meter "사용량 메시지 327건" [ref=f2e780]
+                - cell "327" [ref=f2e782]
+              - row "31 프로그램 317 317" [ref=f2e783]:
+                - cell "31" [ref=f2e784]
+                - cell "프로그램" [ref=f2e785]
+                - cell "317" [ref=f2e786]:
+                  - meter "프로그램 메시지 317건" [ref=f2e787]
+                - cell "317" [ref=f2e789]
+              - row "32 가격 316 316" [ref=f2e790]:
+                - cell "32" [ref=f2e791]
+                - cell "가격" [ref=f2e792]
+                - cell "316" [ref=f2e793]:
+                  - meter "가격 메시지 316건" [ref=f2e794]
+                - cell "316" [ref=f2e796]
+              - row "33 좋은 316 316" [ref=f2e797]:
+                - cell "33" [ref=f2e798]
+                - cell "좋은" [ref=f2e799]
+                - cell "316" [ref=f2e800]:
+                  - meter "좋은 메시지 316건" [ref=f2e801]
+                - cell "316" [ref=f2e803]
+              - row "34 성능 307 307" [ref=f2e804]:
+                - cell "34" [ref=f2e805]
+                - cell "성능" [ref=f2e806]
+                - cell "307" [ref=f2e807]:
+                  - meter "성능 메시지 307건" [ref=f2e808]
+                - cell "307" [ref=f2e810]
+              - row "35 커서 303 303" [ref=f2e811]:
+                - cell "35" [ref=f2e812]
+                - cell "커서" [ref=f2e813]
+                - cell "303" [ref=f2e814]:
+                  - meter "커서 메시지 303건" [ref=f2e815]
+                - cell "303" [ref=f2e817]
+              - row "36 바이브 코딩 302 302" [ref=f2e818]:
+                - cell "36" [ref=f2e819]
+                - cell "바이브 코딩" [ref=f2e820]
+                - cell "302" [ref=f2e821]:
+                  - meter "바이브 코딩 메시지 302건" [ref=f2e822]
+                - cell "302" [ref=f2e824]
+              - row "37 구독 289 289" [ref=f2e825]:
+                - cell "37" [ref=f2e826]
+                - cell "구독" [ref=f2e827]
+                - cell "289" [ref=f2e828]:
+                  - meter "구독 메시지 289건" [ref=f2e829]
+                - cell "289" [ref=f2e831]
+              - row "38 수준 289 289" [ref=f2e832]:
+                - cell "38" [ref=f2e833]
+                - cell "수준" [ref=f2e834]
+                - cell "289" [ref=f2e835]:
+                  - meter "수준 메시지 289건" [ref=f2e836]
+                - cell "289" [ref=f2e838]
+              - row "39 데이터 287 287" [ref=f2e839]:
+                - cell "39" [ref=f2e840]
+                - cell "데이터" [ref=f2e841]
+                - cell "287" [ref=f2e842]:
+                  - meter "데이터 메시지 287건" [ref=f2e843]
+                - cell "287" [ref=f2e845]
+              - row "40 사이트 285 285" [ref=f2e846]:
+                - cell "40" [ref=f2e847]
+                - cell "사이트" [ref=f2e848]
+                - cell "285" [ref=f2e849]:
+                  - meter "사이트 메시지 285건" [ref=f2e850]
+                - cell "285" [ref=f2e852]
+              - row "41 계정 279 279" [ref=f2e853]:
+                - cell "41" [ref=f2e854]
+                - cell "계정" [ref=f2e855]
+                - cell "279" [ref=f2e856]:
+                  - meter "계정 메시지 279건" [ref=f2e857]
+                - cell "279" [ref=f2e859]
+              - row "42 무료 277 277" [ref=f2e860]:
+                - cell "42" [ref=f2e861]
+                - cell "무료" [ref=f2e862]
+                - cell "277" [ref=f2e863]:
+                  - meter "무료 메시지 277건" [ref=f2e864]
+                - cell "277" [ref=f2e866]
+              - row "43 영상 275 275" [ref=f2e867]:
+                - cell "43" [ref=f2e868]
+                - cell "영상" [ref=f2e869]
+                - cell "275" [ref=f2e870]:
+                  - meter "영상 메시지 275건" [ref=f2e871]
+                - cell "275" [ref=f2e873]
+              - row "44 자동화 271 271" [ref=f2e874]:
+                - cell "44" [ref=f2e875]
+                - cell "자동화" [ref=f2e876]
+                - cell "271" [ref=f2e877]:
+                  - meter "자동화 메시지 271건" [ref=f2e878]
+                - cell "271" [ref=f2e880]
+              - row "45 맥북 267 267" [ref=f2e881]:
+                - cell "45" [ref=f2e882]
+                - cell "맥북" [ref=f2e883]
+                - cell "267" [ref=f2e884]:
+                  - meter "맥북 메시지 267건" [ref=f2e885]
+                - cell "267" [ref=f2e887]
+              - row "46 인간 267 267" [ref=f2e888]:
+                - cell "46" [ref=f2e889]
+                - cell "인간" [ref=f2e890]
+                - cell "267" [ref=f2e891]:
+                  - meter "인간 메시지 267건" [ref=f2e892]
+                - cell "267" [ref=f2e894]
+              - row "47 연결 266 266" [ref=f2e895]:
+                - cell "47" [ref=f2e896]
+                - cell "연결" [ref=f2e897]
+                - cell "266" [ref=f2e898]:
+                  - meter "연결 메시지 266건" [ref=f2e899]
+                - cell "266" [ref=f2e901]
+              - row "48 시작 263 263" [ref=f2e902]:
+                - cell "48" [ref=f2e903]
+                - cell "시작" [ref=f2e904]
+                - cell "263" [ref=f2e905]:
+                  - meter "시작 메시지 263건" [ref=f2e906]
+                - cell "263" [ref=f2e908]
+              - row "49 정보 253 253" [ref=f2e909]:
+                - cell "49" [ref=f2e910]
+                - cell "정보" [ref=f2e911]
+                - cell "253" [ref=f2e912]:
+                  - meter "정보 메시지 253건" [ref=f2e913]
+                - cell "253" [ref=f2e915]
+              - row "50 생성 251 251" [ref=f2e916]:
+                - cell "50" [ref=f2e917]
+                - cell "생성" [ref=f2e918]
+                - cell "251" [ref=f2e919]:
+                  - meter "생성 메시지 251건" [ref=f2e920]
+                - cell "251" [ref=f2e922]
+              - row "51 관리 250 250" [ref=f2e923]:
+                - cell "51" [ref=f2e924]
+                - cell "관리" [ref=f2e925]
+                - cell "250" [ref=f2e926]:
+                  - meter "관리 메시지 250건" [ref=f2e927]
+                - cell "250" [ref=f2e929]
+              - row "52 세션 245 245" [ref=f2e930]:
+                - cell "52" [ref=f2e931]
+                - cell "세션" [ref=f2e932]
+                - cell "245" [ref=f2e933]:
+                  - meter "세션 메시지 245건" [ref=f2e934]
+                - cell "245" [ref=f2e936]
+              - row "53 처리 245 245" [ref=f2e937]:
+                - cell "53" [ref=f2e938]
+                - cell "처리" [ref=f2e939]
+                - cell "245" [ref=f2e940]:
+                  - meter "처리 메시지 245건" [ref=f2e941]
+                - cell "245" [ref=f2e943]
+              - row "54 개인 242 242" [ref=f2e944]:
+                - cell "54" [ref=f2e945]
+                - cell "개인" [ref=f2e946]
+                - cell "242" [ref=f2e947]:
+                  - meter "개인 메시지 242건" [ref=f2e948]
+                - cell "242" [ref=f2e950]
+              - row "55 프로젝트 240 240" [ref=f2e951]:
+                - cell "55" [ref=f2e952]
+                - cell "프로젝트" [ref=f2e953]
+                - cell "240" [ref=f2e954]:
+                  - meter "프로젝트 메시지 240건" [ref=f2e955]
+                - cell "240" [ref=f2e957]
+              - row "56 윈도우 240 240" [ref=f2e958]:
+                - cell "56" [ref=f2e959]
+                - cell "윈도우" [ref=f2e960]
+                - cell "240" [ref=f2e961]:
+                  - meter "윈도우 메시지 240건" [ref=f2e962]
+                - cell "240" [ref=f2e964]
+              - row "57 부분 240 240" [ref=f2e965]:
+                - cell "57" [ref=f2e966]
+                - cell "부분" [ref=f2e967]
+                - cell "240" [ref=f2e968]:
+                  - meter "부분 메시지 240건" [ref=f2e969]
+                - cell "240" [ref=f2e971]
+              - row "58 프롬프트 235 235" [ref=f2e972]:
+                - cell "58" [ref=f2e973]
+                - cell "프롬프트" [ref=f2e974]
+                - cell "235" [ref=f2e975]:
+                  - meter "프롬프트 메시지 235건" [ref=f2e976]
+                - cell "235" [ref=f2e978]
+              - row "59 그쵸 234 234" [ref=f2e979]:
+                - cell "59" [ref=f2e980]
+                - cell "그쵸" [ref=f2e981]
+                - cell "234" [ref=f2e982]:
+                  - meter "그쵸 메시지 234건" [ref=f2e983]
+                - cell "234" [ref=f2e985]
+              - row "60 비용 234 234" [ref=f2e986]:
+                - cell "60" [ref=f2e987]
+                - cell "비용" [ref=f2e988]
+                - cell "234" [ref=f2e989]:
+                  - meter "비용 메시지 234건" [ref=f2e990]
+                - cell "234" [ref=f2e992]
+              - row "61 중요 234 234" [ref=f2e993]:
+                - cell "61" [ref=f2e994]
+                - cell "중요" [ref=f2e995]
+                - cell "234" [ref=f2e996]:
+                  - meter "중요 메시지 234건" [ref=f2e997]
+                - cell "234" [ref=f2e999]
+              - row "62 추가 231 231" [ref=f2e1000]:
+                - cell "62" [ref=f2e1001]
+                - cell "추가" [ref=f2e1002]
+                - cell "231" [ref=f2e1003]:
+                  - meter "추가 메시지 231건" [ref=f2e1004]
+                - cell "231" [ref=f2e1006]
+              - row "63 자체 230 230" [ref=f2e1007]:
+                - cell "63" [ref=f2e1008]
+                - cell "자체" [ref=f2e1009]
+                - cell "230" [ref=f2e1010]:
+                  - meter "자체 메시지 230건" [ref=f2e1011]
+                - cell "230" [ref=f2e1013]
+              - row "64 만들어서 221 221" [ref=f2e1014]:
+                - cell "64" [ref=f2e1015]
+                - cell "만들어서" [ref=f2e1016]
+                - cell "221" [ref=f2e1017]:
+                  - meter "만들어서 메시지 221건" [ref=f2e1018]
+                - cell "221" [ref=f2e1020]
+              - row "65 클로드가 220 220" [ref=f2e1021]:
+                - cell "65" [ref=f2e1022]
+                - cell "클로드가" [ref=f2e1023]
+                - cell "220" [ref=f2e1024]:
+                  - meter "클로드가 메시지 220건" [ref=f2e1025]
+                - cell "220" [ref=f2e1027]
+              - row "66 업무 218 218" [ref=f2e1028]:
+                - cell "66" [ref=f2e1029]
+                - cell "업무" [ref=f2e1030]
+                - cell "218" [ref=f2e1031]:
+                  - meter "업무 메시지 218건" [ref=f2e1032]
+                - cell "218" [ref=f2e1034]
+              - row "67 텍스트 217 217" [ref=f2e1035]:
+                - cell "67" [ref=f2e1036]
+                - cell "텍스트" [ref=f2e1037]
+                - cell "217" [ref=f2e1038]:
+                  - meter "텍스트 메시지 217건" [ref=f2e1039]
+                - cell "217" [ref=f2e1041]
+              - row "68 경우 217 217" [ref=f2e1042]:
+                - cell "68" [ref=f2e1043]
+                - cell "경우" [ref=f2e1044]
+                - cell "217" [ref=f2e1045]:
+                  - meter "경우 메시지 217건" [ref=f2e1046]
+                - cell "217" [ref=f2e1048]
+              - row "69 테스트 216 216" [ref=f2e1049]:
+                - cell "69" [ref=f2e1050]
+                - cell "테스트" [ref=f2e1051]
+                - cell "216" [ref=f2e1052]:
+                  - meter "테스트 메시지 216건" [ref=f2e1053]
+                - cell "216" [ref=f2e1055]
+              - row "70 그때 216 216" [ref=f2e1056]:
+                - cell "70" [ref=f2e1057]
+                - cell "그때" [ref=f2e1058]
+                - cell "216" [ref=f2e1059]:
+                  - meter "그때 메시지 216건" [ref=f2e1060]
+                - cell "216" [ref=f2e1062]
+              - row "71 클로드 코드 215 215" [ref=f2e1063]:
+                - cell "71" [ref=f2e1064]
+                - cell "클로드 코드" [ref=f2e1065]
+                - cell "215" [ref=f2e1066]:
+                  - meter "클로드 코드 메시지 215건" [ref=f2e1067]
+                - cell "215" [ref=f2e1069]
+              - row "72 방법 215 215" [ref=f2e1070]:
+                - cell "72" [ref=f2e1071]
+                - cell "방법" [ref=f2e1072]
+                - cell "215" [ref=f2e1073]:
+                  - meter "방법 메시지 215건" [ref=f2e1074]
+                - cell "215" [ref=f2e1076]
+              - row "73 역시 215 215" [ref=f2e1077]:
+                - cell "73" [ref=f2e1078]
+                - cell "역시" [ref=f2e1079]
+                - cell "215" [ref=f2e1080]:
+                  - meter "역시 메시지 215건" [ref=f2e1081]
+                - cell "215" [ref=f2e1083]
+              - row "74 아하 213 213" [ref=f2e1084]:
+                - cell "74" [ref=f2e1085]
+                - cell "아하" [ref=f2e1086]
+                - cell "213" [ref=f2e1087]:
+                  - meter "아하 메시지 213건" [ref=f2e1088]
+                - cell "213" [ref=f2e1090]
+              - row "75 설치 212 212" [ref=f2e1091]:
+                - cell "75" [ref=f2e1092]
+                - cell "설치" [ref=f2e1093]
+                - cell "212" [ref=f2e1094]:
+                  - meter "설치 메시지 212건" [ref=f2e1095]
+                - cell "212" [ref=f2e1097]
+              - row "76 지원 211 211" [ref=f2e1098]:
+                - cell "76" [ref=f2e1099]
+                - cell "지원" [ref=f2e1100]
+                - cell "211" [ref=f2e1101]:
+                  - meter "지원 메시지 211건" [ref=f2e1102]
+                - cell "211" [ref=f2e1104]
+              - row "77 환불 209 209" [ref=f2e1105]:
+                - cell "77" [ref=f2e1106]
+                - cell "환불" [ref=f2e1107]
+                - cell "209" [ref=f2e1108]:
+                  - meter "환불 메시지 209건" [ref=f2e1109]
+                - cell "209" [ref=f2e1111]
+              - row "78 시스템 206 206" [ref=f2e1112]:
+                - cell "78" [ref=f2e1113]
+                - cell "시스템" [ref=f2e1114]
+                - cell "206" [ref=f2e1115]:
+                  - meter "시스템 메시지 206건" [ref=f2e1116]
+                - cell "206" [ref=f2e1118]
+              - row "79 요새 206 206" [ref=f2e1119]:
+                - cell "79" [ref=f2e1120]
+                - cell "요새" [ref=f2e1121]
+                - cell "206" [ref=f2e1122]:
+                  - meter "요새 메시지 206건" [ref=f2e1123]
+                - cell "206" [ref=f2e1125]
+              - row "80 마누스 205 205" [ref=f2e1126]:
+                - cell "80" [ref=f2e1127]
+                - cell "마누스" [ref=f2e1128]
+                - cell "205" [ref=f2e1129]:
+                  - meter "마누스 메시지 205건" [ref=f2e1130]
+                - cell "205" [ref=f2e1132]
+              - row "81 이미지 생성 79 79" [ref=f2e1133]:
+                - cell "81" [ref=f2e1134]
+                - cell "이미지 생성" [ref=f2e1135]
+                - cell "79" [ref=f2e1136]:
+                  - meter "이미지 생성 메시지 79건" [ref=f2e1137]
+                - cell "79" [ref=f2e1139]
+              - row "82 중국 모델 67 67" [ref=f2e1140]:
+                - cell "82" [ref=f2e1141]
+                - cell "중국 모델" [ref=f2e1142]
+                - cell "67" [ref=f2e1143]:
+                  - meter "중국 모델 메시지 67건" [ref=f2e1144]
+                - cell "67" [ref=f2e1146]
+              - row "83 유지 보수 63 63" [ref=f2e1147]:
+                - cell "83" [ref=f2e1148]
+                - cell "유지 보수" [ref=f2e1149]
+                - cell "63" [ref=f2e1150]:
+                  - meter "유지 보수 메시지 63건" [ref=f2e1151]
+                - cell "63" [ref=f2e1153]
+              - row "84 안티 그래비티 55 55" [ref=f2e1154]:
+                - cell "84" [ref=f2e1155]
+                - cell "안티 그래비티" [ref=f2e1156]
+                - cell "55" [ref=f2e1157]:
+                  - meter "안티 그래비티 메시지 55건" [ref=f2e1158]
+                - cell "55" [ref=f2e1160]
+              - row "85 개인 정보 47 47" [ref=f2e1161]:
+                - cell "85" [ref=f2e1162]
+                - cell "개인 정보" [ref=f2e1163]
+                - cell "47" [ref=f2e1164]:
+                  - meter "개인 정보 메시지 47건" [ref=f2e1165]
+                - cell "47" [ref=f2e1167]
+              - row "86 로컬 모델 46 46" [ref=f2e1168]:
+                - cell "86" [ref=f2e1169]
+                - cell "로컬 모델" [ref=f2e1170]
+                - cell "46" [ref=f2e1171]:
+                  - meter "로컬 모델 메시지 46건" [ref=f2e1172]
+                - cell "46" [ref=f2e1174]
+              - row "87 서브 에이전트 40 40" [ref=f2e1175]:
+                - cell "87" [ref=f2e1176]
+                - cell "서브 에이전트" [ref=f2e1177]
+                - cell "40" [ref=f2e1178]:
+                  - meter "서브 에이전트 메시지 40건" [ref=f2e1179]
+                - cell "40" [ref=f2e1181]
+              - row "88 스타 링크 37 37" [ref=f2e1182]:
+                - cell "88" [ref=f2e1183]
+                - cell "스타 링크" [ref=f2e1184]
+                - cell "37" [ref=f2e1185]:
+                  - meter "스타 링크 메시지 37건" [ref=f2e1186]
+                - cell "37" [ref=f2e1188]
+              - row "89 클로드 디자인 36 36" [ref=f2e1189]:
+                - cell "89" [ref=f2e1190]
+                - cell "클로드 디자인" [ref=f2e1191]
+                - cell "36" [ref=f2e1192]:
+                  - meter "클로드 디자인 메시지 36건" [ref=f2e1193]
+                - cell "36" [ref=f2e1195]
+              - row "90 클로드 맥스 34 34" [ref=f2e1196]:
+                - cell "90" [ref=f2e1197]
+                - cell "클로드 맥스" [ref=f2e1198]
+                - cell "34" [ref=f2e1199]:
+                  - meter "클로드 맥스 메시지 34건" [ref=f2e1200]
+                - cell "34" [ref=f2e1202]
+              - row "91 토큰 소모 33 33" [ref=f2e1203]:
+                - cell "91" [ref=f2e1204]
+                - cell "토큰 소모" [ref=f2e1205]
+                - cell "33" [ref=f2e1206]:
+                  - meter "토큰 소모 메시지 33건" [ref=f2e1207]
+                - cell "33" [ref=f2e1209]
+              - row "92 하루 종일 32 32" [ref=f2e1210]:
+                - cell "92" [ref=f2e1211]
+                - cell "하루 종일" [ref=f2e1212]
+                - cell "32" [ref=f2e1213]:
+                  - meter "하루 종일 메시지 32건" [ref=f2e1214]
+                - cell "32" [ref=f2e1216]
+              - row "93 프론트 엔드 32 32" [ref=f2e1217]:
+                - cell "93" [ref=f2e1218]
+                - cell "프론트 엔드" [ref=f2e1219]
+                - cell "32" [ref=f2e1220]:
+                  - meter "프론트 엔드 메시지 32건" [ref=f2e1221]
+                - cell "32" [ref=f2e1223]
+              - row "94 코드 리뷰 31 31" [ref=f2e1224]:
+                - cell "94" [ref=f2e1225]
+                - cell "코드 리뷰" [ref=f2e1226]
+                - cell "31" [ref=f2e1227]:
+                  - meter "코드 리뷰 메시지 31건" [ref=f2e1228]
+                - cell "31" [ref=f2e1230]
+              - row "95 코덱스 클코 31 31" [ref=f2e1231]:
+                - cell "95" [ref=f2e1232]
+                - cell "코덱스 클코" [ref=f2e1233]
+                - cell "31" [ref=f2e1234]:
+                  - meter "코덱스 클코 메시지 31건" [ref=f2e1235]
+                - cell "31" [ref=f2e1237]
+              - row "96 서울 우유 30 30" [ref=f2e1238]:
+                - cell "96" [ref=f2e1239]
+                - cell "서울 우유" [ref=f2e1240]
+                - cell "30" [ref=f2e1241]:
+                  - meter "서울 우유 메시지 30건" [ref=f2e1242]
+                - cell "30" [ref=f2e1244]
+              - row "97 클코 코덱스 29 29" [ref=f2e1245]:
+                - cell "97" [ref=f2e1246]
+                - cell "클코 코덱스" [ref=f2e1247]
+                - cell "29" [ref=f2e1248]:
+                  - meter "클코 코덱스 메시지 29건" [ref=f2e1249]
+                - cell "29" [ref=f2e1251]
+              - row "98 나노 바나나 26 26" [ref=f2e1252]:
+                - cell "98" [ref=f2e1253]
+                - cell "나노 바나나" [ref=f2e1254]
+                - cell "26" [ref=f2e1255]:
+                  - meter "나노 바나나 메시지 26건" [ref=f2e1256]
+                - cell "26" [ref=f2e1258]
+              - row "99 인공 지능 26 26" [ref=f2e1259]:
+                - cell "99" [ref=f2e1260]
+                - cell "인공 지능" [ref=f2e1261]
+                - cell "26" [ref=f2e1262]:
+                  - meter "인공 지능 메시지 26건" [ref=f2e1263]
+                - cell "26" [ref=f2e1265]
+              - row "100 articleview html 26 26" [ref=f2e1266]:
+                - cell "100" [ref=f2e1267]
+                - cell "articleview html" [ref=f2e1268]
+                - cell "26" [ref=f2e1269]:
+                  - meter "articleview html 메시지 26건" [ref=f2e1270]
+                - cell "26" [ref=f2e1272]
+              - row "101 html idxno 26 26" [ref=f2e1273]:
+                - cell "101" [ref=f2e1274]
+                - cell "html idxno" [ref=f2e1275]
+                - cell "26" [ref=f2e1276]:
+                  - meter "html idxno 메시지 26건" [ref=f2e1277]
+                - cell "26" [ref=f2e1279]
+              - row "102 여자 친구 26 26" [ref=f2e1280]:
+                - cell "102" [ref=f2e1281]
+                - cell "여자 친구" [ref=f2e1282]
+                - cell "26" [ref=f2e1283]:
+                  - meter "여자 친구 메시지 26건" [ref=f2e1284]
+                - cell "26" [ref=f2e1286]
+              - row "103 바이브 코더 26 26" [ref=f2e1287]:
+                - cell "103" [ref=f2e1288]
+                - cell "바이브 코더" [ref=f2e1289]
+                - cell "26" [ref=f2e1290]:
+                  - meter "바이브 코더 메시지 26건" [ref=f2e1291]
+                - cell "26" [ref=f2e1293]
+              - row "104 회원 가입 25 25" [ref=f2e1294]:
+                - cell "104" [ref=f2e1295]
+                - cell "회원 가입" [ref=f2e1296]
+                - cell "25" [ref=f2e1297]:
+                  - meter "회원 가입 메시지 25건" [ref=f2e1298]
+                - cell "25" [ref=f2e1300]
+              - row "105 주간 한도 25 25" [ref=f2e1301]:
+                - cell "105" [ref=f2e1302]
+                - cell "주간 한도" [ref=f2e1303]
+                - cell "25" [ref=f2e1304]:
+                  - meter "주간 한도 메시지 25건" [ref=f2e1305]
+                - cell "25" [ref=f2e1307]
+              - row "106 멀티 모달 23 23" [ref=f2e1308]:
+                - cell "106" [ref=f2e1309]
+                - cell "멀티 모달" [ref=f2e1310]
+                - cell "23" [ref=f2e1311]:
+                  - meter "멀티 모달 메시지 23건" [ref=f2e1312]
+                - cell "23" [ref=f2e1314]
+              - row "107 그래픽 카드 23 23" [ref=f2e1315]:
+                - cell "107" [ref=f2e1316]
+                - cell "그래픽 카드" [ref=f2e1317]
+                - cell "23" [ref=f2e1318]:
+                  - meter "그래픽 카드 메시지 23건" [ref=f2e1319]
+                - cell "23" [ref=f2e1321]
+              - row "108 업무 자동화 23 23" [ref=f2e1322]:
+                - cell "108" [ref=f2e1323]
+                - cell "업무 자동화" [ref=f2e1324]
+                - cell "23" [ref=f2e1325]:
+                  - meter "업무 자동화 메시지 23건" [ref=f2e1326]
+                - cell "23" [ref=f2e1328]
+              - row "109 플레이 스토어 22 22" [ref=f2e1329]:
+                - cell "109" [ref=f2e1330]
+                - cell "플레이 스토어" [ref=f2e1331]
+                - cell "22" [ref=f2e1332]:
+                  - meter "플레이 스토어 메시지 22건" [ref=f2e1333]
+                - cell "22" [ref=f2e1335]
+              - row "110 고객 센터 22 22" [ref=f2e1336]:
+                - cell "110" [ref=f2e1337]
+                - cell "고객 센터" [ref=f2e1338]
+                - cell "22" [ref=f2e1339]:
+                  - meter "고객 센터 메시지 22건" [ref=f2e1340]
+                - cell "22" [ref=f2e1342]
+              - row "111 코덱스 토큰 22 22" [ref=f2e1343]:
+                - cell "111" [ref=f2e1344]
+                - cell "코덱스 토큰" [ref=f2e1345]
+                - cell "22" [ref=f2e1346]:
+                  - meter "코덱스 토큰 메시지 22건" [ref=f2e1347]
+                - cell "22" [ref=f2e1349]
+              - row "112 맥스튜디오 21 21" [ref=f2e1350]:
+                - cell "112" [ref=f2e1351]
+                - cell "맥스튜디오" [ref=f2e1352]
+                - cell "21" [ref=f2e1353]:
+                  - meter "맥스튜디오 메시지 21건" [ref=f2e1354]
+                - cell "21" [ref=f2e1356]
+              - row "113 생각했는데 21 21" [ref=f2e1357]:
+                - cell "113" [ref=f2e1358]
+                - cell "생각했는데" [ref=f2e1359]
+                - cell "21" [ref=f2e1360]:
+                  - meter "생각했는데 메시지 21건" [ref=f2e1361]
+                - cell "21" [ref=f2e1363]
+              - row "114 프론트엔드 21 21" [ref=f2e1364]:
+                - cell "114" [ref=f2e1365]
+                - cell "프론트엔드" [ref=f2e1366]
+                - cell "21" [ref=f2e1367]:
+                  - meter "프론트엔드 메시지 21건" [ref=f2e1368]
+                - cell "21" [ref=f2e1370]
+              - row "115 프롬프트를 21 21" [ref=f2e1371]:
+                - cell "115" [ref=f2e1372]
+                - cell "프롬프트를" [ref=f2e1373]
+                - cell "21" [ref=f2e1374]:
+                  - meter "프롬프트를 메시지 21건" [ref=f2e1375]
+                - cell "21" [ref=f2e1377]
+              - row "116 괜찮은데 21 21" [ref=f2e1378]:
+                - cell "116" [ref=f2e1379]
+                - cell "괜찮은데" [ref=f2e1380]
+                - cell "21" [ref=f2e1381]:
+                  - meter "괜찮은데 메시지 21건" [ref=f2e1382]
+                - cell "21" [ref=f2e1384]
+              - row "117 되는거죠 21 21" [ref=f2e1385]:
+                - cell "117" [ref=f2e1386]
+                - cell "되는거죠" [ref=f2e1387]
+                - cell "21" [ref=f2e1388]:
+                  - meter "되는거죠 메시지 21건" [ref=f2e1389]
+                - cell "21" [ref=f2e1391]
+              - row "118 레퍼런스 21 21" [ref=f2e1392]:
+                - cell "118" [ref=f2e1393]
+                - cell "레퍼런스" [ref=f2e1394]
+                - cell "21" [ref=f2e1395]:
+                  - meter "레퍼런스 메시지 21건" [ref=f2e1396]
+                - cell "21" [ref=f2e1398]
+              - row "119 만들어줘 21 21" [ref=f2e1399]:
+                - cell "119" [ref=f2e1400]
+                - cell "만들어줘" [ref=f2e1401]
+                - cell "21" [ref=f2e1402]:
+                  - meter "만들어줘 메시지 21건" [ref=f2e1403]
+                - cell "21" [ref=f2e1405]
+              - row "120 사람들도 21 21" [ref=f2e1406]:
+                - cell "120" [ref=f2e1407]
+                - cell "사람들도" [ref=f2e1408]
+                - cell "21" [ref=f2e1409]:
+                  - meter "사람들도 메시지 21건" [ref=f2e1410]
+                - cell "21" [ref=f2e1412]
+        - article [ref=f2e1413]:
+          - heading "공유 도메인" [level=3] [ref=f2e1414]
+          - paragraph [ref=f2e1415]: 링크 호스트 상위
+          - img "도메인 차트" [ref=f2e1416]
+        - article [ref=f2e1419]:
+          - heading "대화 테마 · c-TF-IDF" [level=3] [ref=f2e1420]
+          - paragraph [ref=f2e1421]:
+            - text: 막대 =
+            - strong [ref=f2e1422]: 의미 주제
+            - text: 신호 비중(근사 %). 월별 메시지량은 「기간 비교」·아래 주제 카드의 월별 화제를 보세요.
+          - img "주제 테마 차트" [ref=f2e1423]
+      - generic [ref=f2e1426]:
+        - generic [ref=f2e1427]:
+          - group [ref=f2e1428]:
+            - generic "참여자 랭킹 · 상위 40 / 전체 40" [ref=f2e1429] [cursor=pointer]
+            - paragraph [ref=f2e1430]: 말풍선 맵(③)과 함께 보면 비중·길이가 잡혀요.
+            - table [ref=f2e1432]:
+              - rowgroup [ref=f2e1433]:
+                - row "표시명 메시지 비율 평균 길이 URL 첨부 심야 연속 최대" [ref=f2e1434]:
+                  - columnheader "표시명" [ref=f2e1435]
+                  - columnheader "메시지" [ref=f2e1436]
+                  - columnheader "비율" [ref=f2e1437]
+                  - columnheader "평균 길이" [ref=f2e1438]
+                  - columnheader "URL" [ref=f2e1439]
+                  - columnheader "첨부" [ref=f2e1440]
+                  - columnheader "심야" [ref=f2e1441]
+                  - columnheader "연속 최대" [ref=f2e1442]
+              - rowgroup [ref=f2e1443]:
+                - row "메*묵 16,532 16.1% 11.4 13 555 4,551 14" [ref=f2e1444]:
+                  - cell "메*묵" [ref=f2e1445]
+                  - cell "16,532" [ref=f2e1446]
+                  - cell "16.1%" [ref=f2e1447]
+                  - cell "11.4" [ref=f2e1448]
+                  - cell "13" [ref=f2e1449]
+                  - cell "555" [ref=f2e1450]
+                  - cell "4,551" [ref=f2e1451]
+                  - cell "14" [ref=f2e1452]
+                - row "V***v 15,033 14.6% 13.3 36 304 2,794 11" [ref=f2e1453]:
+                  - cell "V***v" [ref=f2e1454]
+                  - cell "15,033" [ref=f2e1455]
+                  - cell "14.6%" [ref=f2e1456]
+                  - cell "13.3" [ref=f2e1457]
+                  - cell "36" [ref=f2e1458]
+                  - cell "304" [ref=f2e1459]
+                  - cell "2,794" [ref=f2e1460]
+                  - cell "11" [ref=f2e1461]
+                - row "C**브 6,082 5.9% 15.2 15 260 665 15" [ref=f2e1462]:
+                  - cell "C**브" [ref=f2e1463]
+                  - cell "6,082" [ref=f2e1464]
+                  - cell "5.9%" [ref=f2e1465]
+                  - cell "15.2" [ref=f2e1466]
+                  - cell "15" [ref=f2e1467]
+                  - cell "260" [ref=f2e1468]
+                  - cell "665" [ref=f2e1469]
+                  - cell "15" [ref=f2e1470]
+                - row "m******u 4,036 3.9% 17.5 95 477 694 12" [ref=f2e1471]:
+                  - cell "m******u" [ref=f2e1472]
+                  - cell "4,036" [ref=f2e1473]
+                  - cell "3.9%" [ref=f2e1474]
+                  - cell "17.5" [ref=f2e1475]
+                  - cell "95" [ref=f2e1476]
+                  - cell "477" [ref=f2e1477]
+                  - cell "694" [ref=f2e1478]
+                  - cell "12" [ref=f2e1479]
+                - row "바***국 3,121 3% 17.9 15 109 764 11" [ref=f2e1480]:
+                  - cell "바***국" [ref=f2e1481]
+                  - cell "3,121" [ref=f2e1482]
+                  - cell "3%" [ref=f2e1483]
+                  - cell "17.9" [ref=f2e1484]
+                  - cell "15" [ref=f2e1485]
+                  - cell "109" [ref=f2e1486]
+                  - cell "764" [ref=f2e1487]
+                  - cell "11" [ref=f2e1488]
+                - row "A***e 2,992 2.9% 18.9 10 104 648 14" [ref=f2e1489]:
+                  - cell "A***e" [ref=f2e1490]
+                  - cell "2,992" [ref=f2e1491]
+                  - cell "2.9%" [ref=f2e1492]
+                  - cell "18.9" [ref=f2e1493]
+                  - cell "10" [ref=f2e1494]
+                  - cell "104" [ref=f2e1495]
+                  - cell "648" [ref=f2e1496]
+                  - cell "14" [ref=f2e1497]
+                - row "간*****드 2,504 2.4% 14.1 2 32 351 7" [ref=f2e1498]:
+                  - cell "간*****드" [ref=f2e1499]
+                  - cell "2,504" [ref=f2e1500]
+                  - cell "2.4%" [ref=f2e1501]
+                  - cell "14.1" [ref=f2e1502]
+                  - cell "2" [ref=f2e1503]
+                  - cell "32" [ref=f2e1504]
+                  - cell "351" [ref=f2e1505]
+                  - cell "7" [ref=f2e1506]
+                - row "백***보 2,412 2.3% 27.4 16 111 637 6" [ref=f2e1507]:
+                  - cell "백***보" [ref=f2e1508]
+                  - cell "2,412" [ref=f2e1509]
+                  - cell "2.3%" [ref=f2e1510]
+                  - cell "27.4" [ref=f2e1511]
+                  - cell "16" [ref=f2e1512]
+                  - cell "111" [ref=f2e1513]
+                  - cell "637" [ref=f2e1514]
+                  - cell "6" [ref=f2e1515]
+                - row "둘******드 2,231 2.2% 15.2 21 88 430 4" [ref=f2e1516]:
+                  - cell "둘******드" [ref=f2e1517]
+                  - cell "2,231" [ref=f2e1518]
+                  - cell "2.2%" [ref=f2e1519]
+                  - cell "15.2" [ref=f2e1520]
+                  - cell "21" [ref=f2e1521]
+                  - cell "88" [ref=f2e1522]
+                  - cell "430" [ref=f2e1523]
+                  - cell "4" [ref=f2e1524]
+                - row "@******g 2,177 2.1% 16.3 12 90 995 7" [ref=f2e1525]:
+                  - cell "@******g" [ref=f2e1526]
+                  - cell "2,177" [ref=f2e1527]
+                  - cell "2.1%" [ref=f2e1528]
+                  - cell "16.3" [ref=f2e1529]
+                  - cell "12" [ref=f2e1530]
+                  - cell "90" [ref=f2e1531]
+                  - cell "995" [ref=f2e1532]
+                  - cell "7" [ref=f2e1533]
+                - row "김******천 2,139 2.1% 11.6 14 154 467 15" [ref=f2e1534]:
+                  - cell "김******천" [ref=f2e1535]
+                  - cell "2,139" [ref=f2e1536]
+                  - cell "2.1%" [ref=f2e1537]
+                  - cell "11.6" [ref=f2e1538]
+                  - cell "14" [ref=f2e1539]
+                  - cell "154" [ref=f2e1540]
+                  - cell "467" [ref=f2e1541]
+                  - cell "15" [ref=f2e1542]
+                - row "김******) 2,106 2% 11.3 13 91 512 11" [ref=f2e1543]:
+                  - cell "김******)" [ref=f2e1544]
+                  - cell "2,106" [ref=f2e1545]
+                  - cell "2%" [ref=f2e1546]
+                  - cell "11.3" [ref=f2e1547]
+                  - cell "13" [ref=f2e1548]
+                  - cell "91" [ref=f2e1549]
+                  - cell "512" [ref=f2e1550]
+                  - cell "11" [ref=f2e1551]
+                - row "엔******2 1,635 1.6% 9.6 22 25 60 10" [ref=f2e1552]:
+                  - cell "엔******2" [ref=f2e1553]
+                  - cell "1,635" [ref=f2e1554]
+                  - cell "1.6%" [ref=f2e1555]
+                  - cell "9.6" [ref=f2e1556]
+                  - cell "22" [ref=f2e1557]
+                  - cell "25" [ref=f2e1558]
+                  - cell "60" [ref=f2e1559]
+                  - cell "10" [ref=f2e1560]
+                - row "주* 1,532 1.5% 17.3 41 81 398 9" [ref=f2e1561]:
+                  - cell "주*" [ref=f2e1562]
+                  - cell "1,532" [ref=f2e1563]
+                  - cell "1.5%" [ref=f2e1564]
+                  - cell "17.3" [ref=f2e1565]
+                  - cell "41" [ref=f2e1566]
+                  - cell "81" [ref=f2e1567]
+                  - cell "398" [ref=f2e1568]
+                  - cell "9" [ref=f2e1569]
+                - row "0*8 1,458 1.4% 25.3 9 82 333 7" [ref=f2e1570]:
+                  - cell "0*8" [ref=f2e1571]
+                  - cell "1,458" [ref=f2e1572]
+                  - cell "1.4%" [ref=f2e1573]
+                  - cell "25.3" [ref=f2e1574]
+                  - cell "9" [ref=f2e1575]
+                  - cell "82" [ref=f2e1576]
+                  - cell "333" [ref=f2e1577]
+                  - cell "7" [ref=f2e1578]
+                - row "앜* 1,306 1.3% 13.3 2 19 296 6" [ref=f2e1579]:
+                  - cell "앜*" [ref=f2e1580]
+                  - cell "1,306" [ref=f2e1581]
+                  - cell "1.3%" [ref=f2e1582]
+                  - cell "13.3" [ref=f2e1583]
+                  - cell "2" [ref=f2e1584]
+                  - cell "19" [ref=f2e1585]
+                  - cell "296" [ref=f2e1586]
+                  - cell "6" [ref=f2e1587]
+                - row "도* 1,118 1.1% 13.9 2 30 72 8" [ref=f2e1588]:
+                  - cell "도*" [ref=f2e1589]
+                  - cell "1,118" [ref=f2e1590]
+                  - cell "1.1%" [ref=f2e1591]
+                  - cell "13.9" [ref=f2e1592]
+                  - cell "2" [ref=f2e1593]
+                  - cell "30" [ref=f2e1594]
+                  - cell "72" [ref=f2e1595]
+                  - cell "8" [ref=f2e1596]
+                - row "M*P 1,088 1.1% 15.8 7 29 27 6" [ref=f2e1597]:
+                  - cell "M*P" [ref=f2e1598]
+                  - cell "1,088" [ref=f2e1599]
+                  - cell "1.1%" [ref=f2e1600]
+                  - cell "15.8" [ref=f2e1601]
+                  - cell "7" [ref=f2e1602]
+                  - cell "29" [ref=f2e1603]
+                  - cell "27" [ref=f2e1604]
+                  - cell "6" [ref=f2e1605]
+                - row "김*우 1,084 1.1% 9.9 2 67 265 9" [ref=f2e1606]:
+                  - cell "김*우" [ref=f2e1607]
+                  - cell "1,084" [ref=f2e1608]
+                  - cell "1.1%" [ref=f2e1609]
+                  - cell "9.9" [ref=f2e1610]
+                  - cell "2" [ref=f2e1611]
+                  - cell "67" [ref=f2e1612]
+                  - cell "265" [ref=f2e1613]
+                  - cell "9" [ref=f2e1614]
+                - row "高***다 916 0.9% 34.3 2 96 83 6" [ref=f2e1615]:
+                  - cell "高***다" [ref=f2e1616]
+                  - cell "916" [ref=f2e1617]
+                  - cell "0.9%" [ref=f2e1618]
+                  - cell "34.3" [ref=f2e1619]
+                  - cell "2" [ref=f2e1620]
+                  - cell "96" [ref=f2e1621]
+                  - cell "83" [ref=f2e1622]
+                  - cell "6" [ref=f2e1623]
+                - row "로*리 908 0.9% 17.1 10 46 45 6" [ref=f2e1624]:
+                  - cell "로*리" [ref=f2e1625]
+                  - cell "908" [ref=f2e1626]
+                  - cell "0.9%" [ref=f2e1627]
+                  - cell "17.1" [ref=f2e1628]
+                  - cell "10" [ref=f2e1629]
+                  - cell "46" [ref=f2e1630]
+                  - cell "45" [ref=f2e1631]
+                  - cell "6" [ref=f2e1632]
+                - row "B******T 866 0.8% 18 4 50 25 5" [ref=f2e1633]:
+                  - cell "B******T" [ref=f2e1634]
+                  - cell "866" [ref=f2e1635]
+                  - cell "0.8%" [ref=f2e1636]
+                  - cell "18" [ref=f2e1637]
+                  - cell "4" [ref=f2e1638]
+                  - cell "50" [ref=f2e1639]
+                  - cell "25" [ref=f2e1640]
+                  - cell "5" [ref=f2e1641]
+                - row "라*웃 850 0.8% 26.4 4 69 203 5" [ref=f2e1642]:
+                  - cell "라*웃" [ref=f2e1643]
+                  - cell "850" [ref=f2e1644]
+                  - cell "0.8%" [ref=f2e1645]
+                  - cell "26.4" [ref=f2e1646]
+                  - cell "4" [ref=f2e1647]
+                  - cell "69" [ref=f2e1648]
+                  - cell "203" [ref=f2e1649]
+                  - cell "5" [ref=f2e1650]
+                - row "독*남 805 0.8% 20.5 9 5 239 10" [ref=f2e1651]:
+                  - cell "독*남" [ref=f2e1652]
+                  - cell "805" [ref=f2e1653]
+                  - cell "0.8%" [ref=f2e1654]
+                  - cell "20.5" [ref=f2e1655]
+                  - cell "9" [ref=f2e1656]
+                  - cell "5" [ref=f2e1657]
+                  - cell "239" [ref=f2e1658]
+                  - cell "10" [ref=f2e1659]
+                - row "산***드 791 0.8% 12.3 1 7 83 10" [ref=f2e1660]:
+                  - cell "산***드" [ref=f2e1661]
+                  - cell "791" [ref=f2e1662]
+                  - cell "0.8%" [ref=f2e1663]
+                  - cell "12.3" [ref=f2e1664]
+                  - cell "1" [ref=f2e1665]
+                  - cell "7" [ref=f2e1666]
+                  - cell "83" [ref=f2e1667]
+                  - cell "10" [ref=f2e1668]
+                - row "햄*먼 767 0.7% 22.2 4 53 174 5" [ref=f2e1669]:
+                  - cell "햄*먼" [ref=f2e1670]
+                  - cell "767" [ref=f2e1671]
+                  - cell "0.7%" [ref=f2e1672]
+                  - cell "22.2" [ref=f2e1673]
+                  - cell "4" [ref=f2e1674]
+                  - cell "53" [ref=f2e1675]
+                  - cell "174" [ref=f2e1676]
+                  - cell "5" [ref=f2e1677]
+                - row "네*드 696 0.7% 17.6 2 17 5 5" [ref=f2e1678]:
+                  - cell "네*드" [ref=f2e1679]
+                  - cell "696" [ref=f2e1680]
+                  - cell "0.7%" [ref=f2e1681]
+                  - cell "17.6" [ref=f2e1682]
+                  - cell "2" [ref=f2e1683]
+                  - cell "17" [ref=f2e1684]
+                  - cell "5" [ref=f2e1685]
+                  - cell "5" [ref=f2e1686]
+                - row "기**그 687 0.7% 30.2 1 15 78 5" [ref=f2e1687]:
+                  - cell "기**그" [ref=f2e1688]
+                  - cell "687" [ref=f2e1689]
+                  - cell "0.7%" [ref=f2e1690]
+                  - cell "30.2" [ref=f2e1691]
+                  - cell "1" [ref=f2e1692]
+                  - cell "15" [ref=f2e1693]
+                  - cell "78" [ref=f2e1694]
+                  - cell "5" [ref=f2e1695]
+                - row "꿈*무 593 0.6% 14.3 1 9 41 6" [ref=f2e1696]:
+                  - cell "꿈*무" [ref=f2e1697]
+                  - cell "593" [ref=f2e1698]
+                  - cell "0.6%" [ref=f2e1699]
+                  - cell "14.3" [ref=f2e1700]
+                  - cell "1" [ref=f2e1701]
+                  - cell "9" [ref=f2e1702]
+                  - cell "41" [ref=f2e1703]
+                  - cell "6" [ref=f2e1704]
+                - row "제*팍 590 0.6% 16.8 0 30 26 8" [ref=f2e1705]:
+                  - cell "제*팍" [ref=f2e1706]
+                  - cell "590" [ref=f2e1707]
+                  - cell "0.6%" [ref=f2e1708]
+                  - cell "16.8" [ref=f2e1709]
+                  - cell "0" [ref=f2e1710]
+                  - cell "30" [ref=f2e1711]
+                  - cell "26" [ref=f2e1712]
+                  - cell "8" [ref=f2e1713]
+                - row "주*****럿 560 0.5% 27.5 7 63 20 8" [ref=f2e1714]:
+                  - cell "주*****럿" [ref=f2e1715]
+                  - cell "560" [ref=f2e1716]
+                  - cell "0.5%" [ref=f2e1717]
+                  - cell "27.5" [ref=f2e1718]
+                  - cell "7" [ref=f2e1719]
+                  - cell "63" [ref=f2e1720]
+                  - cell "20" [ref=f2e1721]
+                  - cell "8" [ref=f2e1722]
+                - row "J***n 549 0.5% 11.2 3 20 77 5" [ref=f2e1723]:
+                  - cell "J***n" [ref=f2e1724]
+                  - cell "549" [ref=f2e1725]
+                  - cell "0.5%" [ref=f2e1726]
+                  - cell "11.2" [ref=f2e1727]
+                  - cell "3" [ref=f2e1728]
+                  - cell "20" [ref=f2e1729]
+                  - cell "77" [ref=f2e1730]
+                  - cell "5" [ref=f2e1731]
+                - row "바****자 545 0.5% 13.3 9 26 55 6" [ref=f2e1732]:
+                  - cell "바****자" [ref=f2e1733]
+                  - cell "545" [ref=f2e1734]
+                  - cell "0.5%" [ref=f2e1735]
+                  - cell "13.3" [ref=f2e1736]
+                  - cell "9" [ref=f2e1737]
+                  - cell "26" [ref=f2e1738]
+                  - cell "55" [ref=f2e1739]
+                  - cell "6" [ref=f2e1740]
+                - row "오***봇 510 0.5% 99 0 0 91 5" [ref=f2e1741]:
+                  - cell "오***봇" [ref=f2e1742]
+                  - cell "510" [ref=f2e1743]
+                  - cell "0.5%" [ref=f2e1744]
+                  - cell "99" [ref=f2e1745]
+                  - cell "0" [ref=f2e1746]
+                  - cell "0" [ref=f2e1747]
+                  - cell "91" [ref=f2e1748]
+                  - cell "5" [ref=f2e1749]
+                - row "소*넷 500 0.5% 18.8 9 20 205 7" [ref=f2e1750]:
+                  - cell "소*넷" [ref=f2e1751]
+                  - cell "500" [ref=f2e1752]
+                  - cell "0.5%" [ref=f2e1753]
+                  - cell "18.8" [ref=f2e1754]
+                  - cell "9" [ref=f2e1755]
+                  - cell "20" [ref=f2e1756]
+                  - cell "205" [ref=f2e1757]
+                  - cell "7" [ref=f2e1758]
+                - row "힛******릅 495 0.5% 20.7 0 39 27 6" [ref=f2e1759]:
+                  - cell "힛******릅" [ref=f2e1760]
+                  - cell "495" [ref=f2e1761]
+                  - cell "0.5%" [ref=f2e1762]
+                  - cell "20.7" [ref=f2e1763]
+                  - cell "0" [ref=f2e1764]
+                  - cell "39" [ref=f2e1765]
+                  - cell "27" [ref=f2e1766]
+                  - cell "6" [ref=f2e1767]
+                - row "응******언 492 0.5% 12.7 3 34 68 5" [ref=f2e1768]:
+                  - cell "응******언" [ref=f2e1769]
+                  - cell "492" [ref=f2e1770]
+                  - cell "0.5%" [ref=f2e1771]
+                  - cell "12.7" [ref=f2e1772]
+                  - cell "3" [ref=f2e1773]
+                  - cell "34" [ref=f2e1774]
+                  - cell "68" [ref=f2e1775]
+                  - cell "5" [ref=f2e1776]
+                - row "김*사 491 0.5% 15.2 1 8 223 6" [ref=f2e1777]:
+                  - cell "김*사" [ref=f2e1778]
+                  - cell "491" [ref=f2e1779]
+                  - cell "0.5%" [ref=f2e1780]
+                  - cell "15.2" [ref=f2e1781]
+                  - cell "1" [ref=f2e1782]
+                  - cell "8" [ref=f2e1783]
+                  - cell "223" [ref=f2e1784]
+                  - cell "6" [ref=f2e1785]
+                - row "감**량 484 0.5% 14 2 50 32 5" [ref=f2e1786]:
+                  - cell "감**량" [ref=f2e1787]
+                  - cell "484" [ref=f2e1788]
+                  - cell "0.5%" [ref=f2e1789]
+                  - cell "14" [ref=f2e1790]
+                  - cell "2" [ref=f2e1791]
+                  - cell "50" [ref=f2e1792]
+                  - cell "32" [ref=f2e1793]
+                  - cell "5" [ref=f2e1794]
+                - row "Y* 470 0.5% 8.6 2 9 14 5" [ref=f2e1795]:
+                  - cell "Y*" [ref=f2e1796]
+                  - cell "470" [ref=f2e1797]
+                  - cell "0.5%" [ref=f2e1798]
+                  - cell "8.6" [ref=f2e1799]
+                  - cell "2" [ref=f2e1800]
+                  - cell "9" [ref=f2e1801]
+                  - cell "14" [ref=f2e1802]
+                  - cell "5" [ref=f2e1803]
+          - generic [ref=f2e1804]:
+            - heading "글자 수 랭킹 · 상위 40" [level=2] [ref=f2e1805]
+            - paragraph [ref=f2e1806]: 메시지 건수와 별도로, 보낸 글자 수·글자 비율로 봅니다.
+            - table [ref=f2e1808]:
+              - rowgroup [ref=f2e1809]:
+                - row "표시명 총 글자 글자 비율 메시지 평균 길이" [ref=f2e1810]:
+                  - columnheader "표시명" [ref=f2e1811]
+                  - columnheader "총 글자" [ref=f2e1812]
+                  - columnheader "글자 비율" [ref=f2e1813]
+                  - columnheader "메시지" [ref=f2e1814]
+                  - columnheader "평균 길이" [ref=f2e1815]
+              - rowgroup [ref=f2e1816]:
+                - row "V***v 199,646 11.7% 15,033 13.3" [ref=f2e1817]:
+                  - cell "V***v" [ref=f2e1818]
+                  - cell "199,646" [ref=f2e1819]
+                  - cell "11.7%" [ref=f2e1820]
+                  - cell "15,033" [ref=f2e1821]
+                  - cell "13.3" [ref=f2e1822]
+                - row "메*묵 188,399 11.1% 16,532 11.4" [ref=f2e1823]:
+                  - cell "메*묵" [ref=f2e1824]
+                  - cell "188,399" [ref=f2e1825]
+                  - cell "11.1%" [ref=f2e1826]
+                  - cell "16,532" [ref=f2e1827]
+                  - cell "11.4" [ref=f2e1828]
+                - row "C**브 92,174 5.4% 6,082 15.2" [ref=f2e1829]:
+                  - cell "C**브" [ref=f2e1830]
+                  - cell "92,174" [ref=f2e1831]
+                  - cell "5.4%" [ref=f2e1832]
+                  - cell "6,082" [ref=f2e1833]
+                  - cell "15.2" [ref=f2e1834]
+                - row "m******u 70,781 4.2% 4,036 17.5" [ref=f2e1835]:
+                  - cell "m******u" [ref=f2e1836]
+                  - cell "70,781" [ref=f2e1837]
+                  - cell "4.2%" [ref=f2e1838]
+                  - cell "4,036" [ref=f2e1839]
+                  - cell "17.5" [ref=f2e1840]
+                - row "백***보 66,098 3.9% 2,412 27.4" [ref=f2e1841]:
+                  - cell "백***보" [ref=f2e1842]
+                  - cell "66,098" [ref=f2e1843]
+                  - cell "3.9%" [ref=f2e1844]
+                  - cell "2,412" [ref=f2e1845]
+                  - cell "27.4" [ref=f2e1846]
+                - row "A***e 56,615 3.3% 2,992 18.9" [ref=f2e1847]:
+                  - cell "A***e" [ref=f2e1848]
+                  - cell "56,615" [ref=f2e1849]
+                  - cell "3.3%" [ref=f2e1850]
+                  - cell "2,992" [ref=f2e1851]
+                  - cell "18.9" [ref=f2e1852]
+                - row "바***국 55,817 3.3% 3,121 17.9" [ref=f2e1853]:
+                  - cell "바***국" [ref=f2e1854]
+                  - cell "55,817" [ref=f2e1855]
+                  - cell "3.3%" [ref=f2e1856]
+                  - cell "3,121" [ref=f2e1857]
+                  - cell "17.9" [ref=f2e1858]
+                - row "오***봇 50,490 3% 510 99" [ref=f2e1859]:
+                  - cell "오***봇" [ref=f2e1860]
+                  - cell "50,490" [ref=f2e1861]
+                  - cell "3%" [ref=f2e1862]
+                  - cell "510" [ref=f2e1863]
+                  - cell "99" [ref=f2e1864]
+                - row "0*8 36,876 2.2% 1,458 25.3" [ref=f2e1865]:
+                  - cell "0*8" [ref=f2e1866]
+                  - cell "36,876" [ref=f2e1867]
+                  - cell "2.2%" [ref=f2e1868]
+                  - cell "1,458" [ref=f2e1869]
+                  - cell "25.3" [ref=f2e1870]
+                - row "@******g 35,514 2.1% 2,177 16.3" [ref=f2e1871]:
+                  - cell "@******g" [ref=f2e1872]
+                  - cell "35,514" [ref=f2e1873]
+                  - cell "2.1%" [ref=f2e1874]
+                  - cell "2,177" [ref=f2e1875]
+                  - cell "16.3" [ref=f2e1876]
+                - row "간*****드 35,424 2.1% 2,504 14.1" [ref=f2e1877]:
+                  - cell "간*****드" [ref=f2e1878]
+                  - cell "35,424" [ref=f2e1879]
+                  - cell "2.1%" [ref=f2e1880]
+                  - cell "2,504" [ref=f2e1881]
+                  - cell "14.1" [ref=f2e1882]
+                - row "둘******드 33,909 2% 2,231 15.2" [ref=f2e1883]:
+                  - cell "둘******드" [ref=f2e1884]
+                  - cell "33,909" [ref=f2e1885]
+                  - cell "2%" [ref=f2e1886]
+                  - cell "2,231" [ref=f2e1887]
+                  - cell "15.2" [ref=f2e1888]
+                - row "高***다 31,463 1.8% 916 34.3" [ref=f2e1889]:
+                  - cell "高***다" [ref=f2e1890]
+                  - cell "31,463" [ref=f2e1891]
+                  - cell "1.8%" [ref=f2e1892]
+                  - cell "916" [ref=f2e1893]
+                  - cell "34.3" [ref=f2e1894]
+                - row "주* 26,536 1.6% 1,532 17.3" [ref=f2e1895]:
+                  - cell "주*" [ref=f2e1896]
+                  - cell "26,536" [ref=f2e1897]
+                  - cell "1.6%" [ref=f2e1898]
+                  - cell "1,532" [ref=f2e1899]
+                  - cell "17.3" [ref=f2e1900]
+                - row "김******천 24,909 1.5% 2,139 11.6" [ref=f2e1901]:
+                  - cell "김******천" [ref=f2e1902]
+                  - cell "24,909" [ref=f2e1903]
+                  - cell "1.5%" [ref=f2e1904]
+                  - cell "2,139" [ref=f2e1905]
+                  - cell "11.6" [ref=f2e1906]
+                - row "김******) 23,727 1.4% 2,106 11.3" [ref=f2e1907]:
+                  - cell "김******)" [ref=f2e1908]
+                  - cell "23,727" [ref=f2e1909]
+                  - cell "1.4%" [ref=f2e1910]
+                  - cell "2,106" [ref=f2e1911]
+                  - cell "11.3" [ref=f2e1912]
+                - row "라*웃 22,415 1.3% 850 26.4" [ref=f2e1913]:
+                  - cell "라*웃" [ref=f2e1914]
+                  - cell "22,415" [ref=f2e1915]
+                  - cell "1.3%" [ref=f2e1916]
+                  - cell "850" [ref=f2e1917]
+                  - cell "26.4" [ref=f2e1918]
+                - row "기**그 20,757 1.2% 687 30.2" [ref=f2e1919]:
+                  - cell "기**그" [ref=f2e1920]
+                  - cell "20,757" [ref=f2e1921]
+                  - cell "1.2%" [ref=f2e1922]
+                  - cell "687" [ref=f2e1923]
+                  - cell "30.2" [ref=f2e1924]
+                - row "앜* 17,431 1% 1,306 13.3" [ref=f2e1925]:
+                  - cell "앜*" [ref=f2e1926]
+                  - cell "17,431" [ref=f2e1927]
+                  - cell "1%" [ref=f2e1928]
+                  - cell "1,306" [ref=f2e1929]
+                  - cell "13.3" [ref=f2e1930]
+                - row "M*P 17,237 1% 1,088 15.8" [ref=f2e1931]:
+                  - cell "M*P" [ref=f2e1932]
+                  - cell "17,237" [ref=f2e1933]
+                  - cell "1%" [ref=f2e1934]
+                  - cell "1,088" [ref=f2e1935]
+                  - cell "15.8" [ref=f2e1936]
+                - row "햄*먼 16,995 1% 767 22.2" [ref=f2e1937]:
+                  - cell "햄*먼" [ref=f2e1938]
+                  - cell "16,995" [ref=f2e1939]
+                  - cell "1%" [ref=f2e1940]
+                  - cell "767" [ref=f2e1941]
+                  - cell "22.2" [ref=f2e1942]
+                - row "독*남 16,470 1% 805 20.5" [ref=f2e1943]:
+                  - cell "독*남" [ref=f2e1944]
+                  - cell "16,470" [ref=f2e1945]
+                  - cell "1%" [ref=f2e1946]
+                  - cell "805" [ref=f2e1947]
+                  - cell "20.5" [ref=f2e1948]
+                - row "엔******2 15,670 0.9% 1,635 9.6" [ref=f2e1949]:
+                  - cell "엔******2" [ref=f2e1950]
+                  - cell "15,670" [ref=f2e1951]
+                  - cell "0.9%" [ref=f2e1952]
+                  - cell "1,635" [ref=f2e1953]
+                  - cell "9.6" [ref=f2e1954]
+                - row "B******T 15,552 0.9% 866 18" [ref=f2e1955]:
+                  - cell "B******T" [ref=f2e1956]
+                  - cell "15,552" [ref=f2e1957]
+                  - cell "0.9%" [ref=f2e1958]
+                  - cell "866" [ref=f2e1959]
+                  - cell "18" [ref=f2e1960]
+                - row "로*리 15,533 0.9% 908 17.1" [ref=f2e1961]:
+                  - cell "로*리" [ref=f2e1962]
+                  - cell "15,533" [ref=f2e1963]
+                  - cell "0.9%" [ref=f2e1964]
+                  - cell "908" [ref=f2e1965]
+                  - cell "17.1" [ref=f2e1966]
+                - row "도* 15,516 0.9% 1,118 13.9" [ref=f2e1967]:
+                  - cell "도*" [ref=f2e1968]
+                  - cell "15,516" [ref=f2e1969]
+                  - cell "0.9%" [ref=f2e1970]
+                  - cell "1,118" [ref=f2e1971]
+                  - cell "13.9" [ref=f2e1972]
+                - row "주*****럿 15,399 0.9% 560 27.5" [ref=f2e1973]:
+                  - cell "주*****럿" [ref=f2e1974]
+                  - cell "15,399" [ref=f2e1975]
+                  - cell "0.9%" [ref=f2e1976]
+                  - cell "560" [ref=f2e1977]
+                  - cell "27.5" [ref=f2e1978]
+                - row "바*라 14,230 0.8% 415 34.3" [ref=f2e1979]:
+                  - cell "바*라" [ref=f2e1980]
+                  - cell "14,230" [ref=f2e1981]
+                  - cell "0.8%" [ref=f2e1982]
+                  - cell "415" [ref=f2e1983]
+                  - cell "34.3" [ref=f2e1984]
+                - row "네*드 12,237 0.7% 696 17.6" [ref=f2e1985]:
+                  - cell "네*드" [ref=f2e1986]
+                  - cell "12,237" [ref=f2e1987]
+                  - cell "0.7%" [ref=f2e1988]
+                  - cell "696" [ref=f2e1989]
+                  - cell "17.6" [ref=f2e1990]
+                - row "김*우 10,690 0.6% 1,084 9.9" [ref=f2e1991]:
+                  - cell "김*우" [ref=f2e1992]
+                  - cell "10,690" [ref=f2e1993]
+                  - cell "0.6%" [ref=f2e1994]
+                  - cell "1,084" [ref=f2e1995]
+                  - cell "9.9" [ref=f2e1996]
+                - row "힛******릅 10,245 0.6% 495 20.7" [ref=f2e1997]:
+                  - cell "힛******릅" [ref=f2e1998]
+                  - cell "10,245" [ref=f2e1999]
+                  - cell "0.6%" [ref=f2e2000]
+                  - cell "495" [ref=f2e2001]
+                  - cell "20.7" [ref=f2e2002]
+                - row "제*팍 9,899 0.6% 590 16.8" [ref=f2e2003]:
+                  - cell "제*팍" [ref=f2e2004]
+                  - cell "9,899" [ref=f2e2005]
+                  - cell "0.6%" [ref=f2e2006]
+                  - cell "590" [ref=f2e2007]
+                  - cell "16.8" [ref=f2e2008]
+                - row "산***드 9,729 0.6% 791 12.3" [ref=f2e2009]:
+                  - cell "산***드" [ref=f2e2010]
+                  - cell "9,729" [ref=f2e2011]
+                  - cell "0.6%" [ref=f2e2012]
+                  - cell "791" [ref=f2e2013]
+                  - cell "12.3" [ref=f2e2014]
+                - row "소*넷 9,391 0.6% 500 18.8" [ref=f2e2015]:
+                  - cell "소*넷" [ref=f2e2016]
+                  - cell "9,391" [ref=f2e2017]
+                  - cell "0.6%" [ref=f2e2018]
+                  - cell "500" [ref=f2e2019]
+                  - cell "18.8" [ref=f2e2020]
+                - row "꿈*무 8,509 0.5% 593 14.3" [ref=f2e2021]:
+                  - cell "꿈*무" [ref=f2e2022]
+                  - cell "8,509" [ref=f2e2023]
+                  - cell "0.5%" [ref=f2e2024]
+                  - cell "593" [ref=f2e2025]
+                  - cell "14.3" [ref=f2e2026]
+                - row "잡* 8,419 0.5% 208 40.5" [ref=f2e2027]:
+                  - cell "잡*" [ref=f2e2028]
+                  - cell "8,419" [ref=f2e2029]
+                  - cell "0.5%" [ref=f2e2030]
+                  - cell "208" [ref=f2e2031]
+                  - cell "40.5" [ref=f2e2032]
+                - row "엉******치 8,417 0.5% 292 28.8" [ref=f2e2033]:
+                  - cell "엉******치" [ref=f2e2034]
+                  - cell "8,417" [ref=f2e2035]
+                  - cell "0.5%" [ref=f2e2036]
+                  - cell "292" [ref=f2e2037]
+                  - cell "28.8" [ref=f2e2038]
+                - row "옛**람 8,390 0.5% 328 25.6" [ref=f2e2039]:
+                  - cell "옛**람" [ref=f2e2040]
+                  - cell "8,390" [ref=f2e2041]
+                  - cell "0.5%" [ref=f2e2042]
+                  - cell "328" [ref=f2e2043]
+                  - cell "25.6" [ref=f2e2044]
+                - row "아**구 8,135 0.5% 115 70.7" [ref=f2e2045]:
+                  - cell "아**구" [ref=f2e2046]
+                  - cell "8,135" [ref=f2e2047]
+                  - cell "0.5%" [ref=f2e2048]
+                  - cell "115" [ref=f2e2049]
+                  - cell "70.7" [ref=f2e2050]
+                - row "딥******년 7,732 0.5% 322 24" [ref=f2e2051]:
+                  - cell "딥******년" [ref=f2e2052]
+                  - cell "7,732" [ref=f2e2053]
+                  - cell "0.5%" [ref=f2e2054]
+                  - cell "322" [ref=f2e2055]
+                  - cell "24" [ref=f2e2056]
+        - generic [ref=f2e2057]:
+          - generic [ref=f2e2058]:
+            - heading "첨부 유형" [level=2] [ref=f2e2059]
+            - paragraph [ref=f2e2060]: 사진·동영상 등 메타 유형 비중이에요.
+            - generic [ref=f2e2061]:
+              - generic [ref=f2e2062]:
+                - generic "사진 — 메시지 2,537건" [ref=f2e2063]: 사진
+                - generic [ref=f2e2066]: 2,537
+              - generic [ref=f2e2067]:
+                - generic "이모티콘 — 메시지 633건" [ref=f2e2068]: 이모티콘
+                - generic [ref=f2e2071]: "633"
+              - generic [ref=f2e2072]:
+                - generic "파일 — 메시지 427건" [ref=f2e2073]: 파일
+                - generic [ref=f2e2076]: "427"
+              - generic [ref=f2e2077]:
+                - generic "지도 — 메시지 362건" [ref=f2e2078]: 지도
+                - generic [ref=f2e2081]: "362"
+              - generic [ref=f2e2082]:
+                - generic "공유 — 메시지 161건" [ref=f2e2083]: 공유
+                - generic [ref=f2e2086]: "161"
+              - generic [ref=f2e2087]:
+                - generic "동영상 — 메시지 50건" [ref=f2e2088]: 동영상
+                - generic [ref=f2e2091]: "50"
+              - generic [ref=f2e2092]:
+                - generic "연락처 — 메시지 6건" [ref=f2e2093]: 연락처
+                - generic [ref=f2e2096]: "6"
+              - generic [ref=f2e2097]:
+                - generic "투표 — 메시지 1건" [ref=f2e2098]: 투표
+                - generic [ref=f2e2101]: "1"
+          - generic [ref=f2e2102]:
+            - heading "톤·감정 신호" [level=2] [ref=f2e2103]
+            - paragraph [ref=f2e2104]: 건수만 표시하며 원문 욕설·문장은 노출하지 않습니다.
+            - generic [ref=f2e2105]:
+              - heading "비속·거친 표현(패턴)" [level=3] [ref=f2e2106]
+              - paragraph [ref=f2e2107]:
+                - text: 전체
+                - strong [ref=f2e2108]: 102,897
+                - text: 건 중 패턴 매칭 메시지
+                - strong [ref=f2e2109]: "222"
+                - text: 건 · hit 합계
+                - strong [ref=f2e2110]: "247"
+                - text: · 100건당
+                - strong [ref=f2e2111]: "0.22"
+              - list [ref=f2e2112]:
+                - listitem [ref=f2e2113]:
+                  - strong [ref=f2e2114]: 메*묵
+                  - text: · hit 56 · 51건
+                - listitem [ref=f2e2115]:
+                  - strong [ref=f2e2116]: V***v
+                  - text: · hit 24 · 24건
+                - listitem [ref=f2e2117]:
+                  - strong [ref=f2e2118]: 간*****드
+                  - text: · hit 16 · 15건
+                - listitem [ref=f2e2119]:
+                  - strong [ref=f2e2120]: "@******g"
+                  - text: · hit 14 · 8건
+                - listitem [ref=f2e2121]:
+                  - strong [ref=f2e2122]: A***e
+                  - text: · hit 12 · 12건
+            - generic [ref=f2e2123]:
+              - heading "감정 톤(샘플 2,000건)" [level=3] [ref=f2e2124]
+              - paragraph [ref=f2e2125]:
+                - text: 긍정
+                - strong [ref=f2e2126]: 0%
+                - text: · 중립
+                - strong [ref=f2e2127]: 100%
+                - text: · 부정
+                - strong [ref=f2e2128]: 0%
+                - text: · compound
+                - strong [ref=f2e2129]: "0"
+                - text: (중립에 가까움)
+              - img "감정 분포 차트" [ref=f2e2130]
+            - generic [ref=f2e2133]:
+              - heading "공격·거친 톤(ML, 샘플 2,000건)" [level=3] [ref=f2e2134]
+              - paragraph [ref=f2e2135]:
+                - text: 독성 추정
+                - strong [ref=f2e2136]: 2%
+                - text: · 중립
+                - strong [ref=f2e2137]: 98%
+                - text: · 해당 샘플
+                - strong [ref=f2e2138]: "40"
+                - text: 건
+        - generic [ref=f2e2140]:
+          - heading "자주 나온 도메인" [level=2] [ref=f2e2141]
+          - paragraph [ref=f2e2142]: 공유 링크 호스트 상위
+          - generic [ref=f2e2143]:
+            - generic [ref=f2e2144]:
+              - generic "github.com — 메시지 69건" [ref=f2e2145]: github.com
+              - generic [ref=f2e2148]: "69"
+            - generic [ref=f2e2149]:
+              - generic "youtube.com — 메시지 48건" [ref=f2e2150]: youtube.com
+              - generic [ref=f2e2153]: "48"
+            - generic [ref=f2e2154]:
+              - generic "youtu.be — 메시지 44건" [ref=f2e2155]: youtu.be
+              - generic [ref=f2e2158]: "44"
+            - generic [ref=f2e2159]:
+              - generic "threads.com — 메시지 16건" [ref=f2e2160]: threads.com
+              - generic [ref=f2e2163]: "16"
+            - generic [ref=f2e2164]:
+              - generic "news.hada.io — 메시지 15건" [ref=f2e2165]: news.hada.io
+              - generic [ref=f2e2168]: "15"
+            - generic [ref=f2e2169]:
+              - generic "status.claude.com — 메시지 11건" [ref=f2e2170]: status.claude.com
+              - generic [ref=f2e2173]: "11"
+            - generic [ref=f2e2174]:
+              - generic "aitimes.com — 메시지 10건" [ref=f2e2175]: aitimes.com
+              - generic [ref=f2e2178]: "10"
+            - generic [ref=f2e2179]:
+              - generic "claudianus.github.io — 메시지 9건" [ref=f2e2180]: claudianus.github.io
+              - generic [ref=f2e2183]: "9"
+            - generic [ref=f2e2184]:
+              - generic "vibeflea.com — 메시지 9건" [ref=f2e2185]: vibeflea.com
+              - generic [ref=f2e2188]: "9"
+            - generic [ref=f2e2189]:
+              - generic "chatgpt.com — 메시지 8건" [ref=f2e2190]: chatgpt.com
+              - generic [ref=f2e2193]: "8"
+            - generic [ref=f2e2194]:
+              - generic "chosun.com — 메시지 8건" [ref=f2e2195]: chosun.com
+              - generic [ref=f2e2198]: "8"
+            - generic [ref=f2e2199]:
+              - generic "share.google — 메시지 8건" [ref=f2e2200]: share.google
+              - generic [ref=f2e2203]: "8"
+            - generic [ref=f2e2204]:
+              - generic "x.com — 메시지 8건" [ref=f2e2205]: x.com
+              - generic [ref=f2e2208]: "8"
+            - generic [ref=f2e2209]:
+              - generic "zdnet.co.kr — 메시지 7건" [ref=f2e2210]: zdnet.co.kr
+              - generic [ref=f2e2213]: "7"
+            - generic [ref=f2e2214]:
+              - generic "blog.naver.com — 메시지 6건" [ref=f2e2215]: blog.naver.com
+              - generic [ref=f2e2218]: "6"
+            - generic [ref=f2e2219]:
+              - generic "gdrb.kr — 메시지 6건" [ref=f2e2220]: gdrb.kr
+              - generic [ref=f2e2223]: "6"
+            - generic [ref=f2e2224]:
+              - generic "instagram.com — 메시지 6건" [ref=f2e2225]: instagram.com
+              - generic [ref=f2e2228]: "6"
+            - generic [ref=f2e2229]:
+              - generic "m.etnews.com — 메시지 6건" [ref=f2e2230]: m.etnews.com
+              - generic [ref=f2e2233]: "6"
+            - generic [ref=f2e2234]:
+              - generic "minion.toss.im — 메시지 6건" [ref=f2e2235]: minion.toss.im
+              - generic [ref=f2e2238]: "6"
+            - generic [ref=f2e2239]:
+              - generic "opencrab.sh — 메시지 6건" [ref=f2e2240]: opencrab.sh
+              - generic [ref=f2e2243]: "6"
+            - generic [ref=f2e2244]:
+              - generic "v.daum.net — 메시지 6건" [ref=f2e2245]: v.daum.net
+              - generic [ref=f2e2248]: "6"
+            - generic [ref=f2e2249]:
+              - generic "coupang.com — 메시지 5건" [ref=f2e2250]: coupang.com
+              - generic [ref=f2e2253]: "5"
+            - generic [ref=f2e2254]:
+              - generic "hankyung.com — 메시지 5건" [ref=f2e2255]: hankyung.com
+              - generic [ref=f2e2258]: "5"
+            - generic [ref=f2e2259]:
+              - generic "huggingface.co — 메시지 5건" [ref=f2e2260]: huggingface.co
+              - generic [ref=f2e2263]: "5"
+        - generic [ref=f2e2264]:
+          - generic [ref=f2e2265]:
+            - heading "카카오톡 시스템·운영 알림" [level=2] [ref=f2e2266]
+            - paragraph [ref=f2e2267]: 입·퇴장, 삭제·가림, 강퇴 등 시스템 문구를 본문과 분리해 집계합니다. 아래 막대는 일별 운영·유입 펄스예요.
+            - generic [ref=f2e2268]:
+              - generic [ref=f2e2269]:
+                - generic "들어왔습니다 (입장) — 메시지 522건" [ref=f2e2270]: 들어왔습니다 (입장)
+                - generic [ref=f2e2273]: "522"
+              - generic [ref=f2e2274]:
+                - generic "나갔습니다 (퇴장) — 메시지 417건" [ref=f2e2275]: 나갔습니다 (퇴장)
+                - generic [ref=f2e2278]: "417"
+              - generic [ref=f2e2279]:
+                - generic "메시지가 삭제되었습니다 — 메시지 2건" [ref=f2e2280]: 메시지가 삭제되었습니다
+                - generic [ref=f2e2283]: "2"
+              - generic [ref=f2e2284]:
+                - generic "관리자가 메시지를 가렸습니다 — 메시지 222건" [ref=f2e2285]: 관리자가 메시지를 가렸습니다
+                - generic [ref=f2e2288]: "222"
+              - generic [ref=f2e2289]:
+                - generic "님을보냈습니다 (강퇴) — 메시지 4건" [ref=f2e2290]: 님을보냈습니다 (강퇴)
+                - generic [ref=f2e2293]: "4"
+              - generic [ref=f2e2294]:
+                - generic "샵검색 — 메시지 96건" [ref=f2e2295]: 샵검색
+                - generic [ref=f2e2298]: "96"
+              - generic [ref=f2e2299]:
+                - generic "사진 묶음 — 메시지 84건" [ref=f2e2300]: 사진 묶음
+                - generic [ref=f2e2303]: "84"
+            - generic [ref=f2e2304]:
+              - heading "일별 운영·유입 펄스 (입·퇴·가림·강퇴 합)" [level=4] [ref=f2e2305]
+              - img "일별 시스템 알림 강도" [ref=f2e2306]:
+                - generic "2026-04-13 입장 6 · 퇴장 5 · 가림 9 · 강퇴 0" [ref=f2e2307]
+                - generic "2026-04-14 입장 6 · 퇴장 10 · 가림 15 · 강퇴 0" [ref=f2e2308]
+                - generic "2026-04-15 입장 6 · 퇴장 5 · 가림 4 · 강퇴 0" [ref=f2e2309]
+                - generic "2026-04-16 입장 6 · 퇴장 7 · 가림 7 · 강퇴 0" [ref=f2e2310]
+                - generic "2026-04-17 입장 6 · 퇴장 7 · 가림 1 · 강퇴 0" [ref=f2e2311]
+                - generic "2026-04-18 입장 6 · 퇴장 4 · 가림 4 · 강퇴 0" [ref=f2e2312]
+                - generic "2026-04-19 입장 11 · 퇴장 7 · 가림 1 · 강퇴 0" [ref=f2e2313]
+                - generic "2026-04-20 입장 29 · 퇴장 9 · 가림 11 · 강퇴 0" [ref=f2e2314]
+                - generic "2026-04-21 입장 26 · 퇴장 11 · 가림 2 · 강퇴 0" [ref=f2e2315]
+                - generic "2026-04-22 입장 29 · 퇴장 20 · 가림 6 · 강퇴 0" [ref=f2e2316]
+                - generic "2026-04-23 입장 21 · 퇴장 18 · 가림 7 · 강퇴 0" [ref=f2e2317]
+                - generic "2026-04-24 입장 17 · 퇴장 21 · 가림 4 · 강퇴 0" [ref=f2e2318]
+                - generic "2026-04-25 입장 18 · 퇴장 7 · 가림 3 · 강퇴 0" [ref=f2e2319]
+                - generic "2026-04-26 입장 21 · 퇴장 9 · 가림 10 · 강퇴 0" [ref=f2e2320]
+                - generic "2026-04-27 입장 16 · 퇴장 19 · 가림 3 · 강퇴 0" [ref=f2e2321]
+                - generic "2026-04-28 입장 20 · 퇴장 15 · 가림 4 · 강퇴 1" [ref=f2e2322]
+                - generic "2026-04-29 입장 20 · 퇴장 11 · 가림 5 · 강퇴 0" [ref=f2e2323]
+                - generic "2026-04-30 입장 14 · 퇴장 12 · 가림 7 · 강퇴 0" [ref=f2e2324]
+                - generic "2026-05-01 입장 14 · 퇴장 11 · 가림 2 · 강퇴 0" [ref=f2e2325]
+                - generic "2026-05-02 입장 10 · 퇴장 6 · 가림 8 · 강퇴 0" [ref=f2e2326]
+                - generic "2026-05-03 입장 11 · 퇴장 12 · 가림 1 · 강퇴 0" [ref=f2e2327]
+                - generic "2026-05-04 입장 13 · 퇴장 8 · 가림 8 · 강퇴 0" [ref=f2e2328]
+                - generic "2026-05-05 입장 11 · 퇴장 10 · 가림 3 · 강퇴 0" [ref=f2e2329]
+                - generic "2026-05-06 입장 13 · 퇴장 13 · 가림 6 · 강퇴 0" [ref=f2e2330]
+                - generic "2026-05-07 입장 12 · 퇴장 15 · 가림 4 · 강퇴 0" [ref=f2e2331]
+                - generic "2026-05-08 입장 14 · 퇴장 8 · 가림 4 · 강퇴 0" [ref=f2e2332]
+                - generic "2026-05-09 입장 15 · 퇴장 8 · 가림 1 · 강퇴 0" [ref=f2e2333]
+                - generic "2026-05-10 입장 5 · 퇴장 7 · 가림 1 · 강퇴 0" [ref=f2e2334]
+                - generic "2026-05-11 입장 13 · 퇴장 13 · 가림 7 · 강퇴 0" [ref=f2e2335]
+                - generic "2026-05-12 입장 16 · 퇴장 15 · 가림 13 · 강퇴 0" [ref=f2e2336]
+                - generic "2026-05-13 입장 14 · 퇴장 15 · 가림 10 · 강퇴 0" [ref=f2e2337]
+                - generic "2026-05-14 입장 13 · 퇴장 19 · 가림 12 · 강퇴 2" [ref=f2e2338]
+                - generic "2026-05-15 입장 14 · 퇴장 9 · 가림 17 · 강퇴 0" [ref=f2e2339]
+                - generic "2026-05-16 입장 8 · 퇴장 11 · 가림 8 · 강퇴 1" [ref=f2e2340]
+                - generic "2026-05-17 입장 7 · 퇴장 11 · 가림 1 · 강퇴 0" [ref=f2e2341]
+                - generic "2026-05-18 입장 9 · 퇴장 6 · 가림 5 · 강퇴 0" [ref=f2e2342]
+                - generic "2026-05-19 입장 10 · 퇴장 9 · 가림 2 · 강퇴 0" [ref=f2e2343]
+                - generic "2026-05-20 입장 18 · 퇴장 11 · 가림 6 · 강퇴 0" [ref=f2e2344]
+                - generic "2026-05-21 입장 4 · 퇴장 3 · 가림 0 · 강퇴 0" [ref=f2e2345]
+            - paragraph [ref=f2e2346]:
+              - text: 전체
+              - strong [ref=f2e2347]: 102,897
+              - text: 건 중 시스템·운영 알림 합계
+              - strong [ref=f2e2348]: "1347"
+              - text: 건 (입장 0.51% · 퇴장 0.41% · 가림 0.22% · 강퇴 0%).
+          - generic [ref=f2e2349]:
+            - heading "리액션·반복 문구" [level=2] [ref=f2e2350]
+            - paragraph [ref=f2e2351]: ㅋㅋ만 보낸 메시지와 똑같은 문장 반복(3회 이상)입니다.
+            - paragraph [ref=f2e2352]:
+              - strong [ref=f2e2353]: ㅋㅋ·ㅎㅎ만
+              - text: · 2,740건 (2.7%)
+            - paragraph [ref=f2e2354]: 웃음 패턴 포함 · 100건당 8.3건
+            - generic [ref=f2e2355]:
+              - generic [ref=f2e2356]:
+                - generic "\"🖐 환영합니다 🖼 우측 상단 ☰ 누르고 -> ♡ 눌러주세요 :) 🎇 카톡 기본 닉네임 X 닉네임 변경 부탁해요! 🎁… — 메시지 510건" [ref=f2e2357]: "\"🖐 환영합니다 🖼 우측 상단 ☰ 누르고 -> ♡ 눌러주세요 :) 🎇 카톡 기본 닉네임 X 닉네임 변경 부탁해요! 🎁…"
+                - generic [ref=f2e2360]: "510"
+              - generic [ref=f2e2361]:
+                - generic "https://www.aitimes.com/news/articleView.html?idxno=209929 — 메시지 5건" [ref=f2e2362]: https://www.aitimes.com/news/articleView.html?idxno=209929
+                - generic [ref=f2e2365]: "5"
+              - generic [ref=f2e2366]:
+                - generic "https://www.alibabacloud.com/ko/campaign/ai-scene-coding?_p_lc=1 — 메시지 3건" [ref=f2e2367]: https://www.alibabacloud.com/ko/campaign/ai-scene-coding?_p_lc=1
+                - generic [ref=f2e2370]: "3"
+              - generic [ref=f2e2371]:
+                - generic "https://opencrab.sh/ — 메시지 3건" [ref=f2e2372]: https://opencrab.sh/
+                - generic [ref=f2e2375]: "3"
+        - generic [ref=f2e2377]:
+          - heading "샵검색 키워드" [level=2] [ref=f2e2378]
+          - paragraph [ref=f2e2379]: "카카오톡 샵검색으로 공유된 #주제입니다."
+          - generic [ref=f2e2380]:
+            - generic [ref=f2e2381]:
+              - generic "#계산기 — 메시지 2건" [ref=f2e2382]: "#계산기"
+              - generic [ref=f2e2385]: "2"
+            - generic [ref=f2e2386]:
+              - generic "#미국 환율 — 메시지 2건" [ref=f2e2387]: "#미국 환율"
+              - generic [ref=f2e2390]: "2"
+            - generic [ref=f2e2391]:
+              - generic "#우리가게 정상영업 — 메시지 2건" [ref=f2e2392]: "#우리가게 정상영업"
+              - generic [ref=f2e2395]: "2"
+            - generic [ref=f2e2396]:
+              - generic "#qwer — 메시지 2건" [ref=f2e2397]: "#qwer"
+              - generic [ref=f2e2400]: "2"
+            - generic [ref=f2e2401]:
+              - generic "#*nix — 메시지 1건" [ref=f2e2402]: "#*nix"
+              - generic [ref=f2e2405]: "1"
+            - generic [ref=f2e2406]:
+              - generic "#갤럭시s2 — 메시지 1건" [ref=f2e2407]: "#갤럭시s2"
+              - generic [ref=f2e2410]: "1"
+            - generic [ref=f2e2411]:
+              - generic "#고대 이집트 인류 — 메시지 1건" [ref=f2e2412]: "#고대 이집트 인류"
+              - generic [ref=f2e2415]: "1"
+            - generic [ref=f2e2416]:
+              - generic "#고메 스퀘어 — 메시지 1건" [ref=f2e2417]: "#고메 스퀘어"
+              - generic [ref=f2e2420]: "1"
+            - generic [ref=f2e2421]:
+              - generic "#관운장 — 메시지 1건" [ref=f2e2422]: "#관운장"
+              - generic [ref=f2e2425]: "1"
+            - generic [ref=f2e2426]:
+              - generic "#구찌 비와이 — 메시지 1건" [ref=f2e2427]: "#구찌 비와이"
+              - generic [ref=f2e2430]: "1"
+            - generic [ref=f2e2431]:
+              - generic "#국민신문고 민원신청 — 메시지 1건" [ref=f2e2432]: "#국민신문고 민원신청"
+              - generic [ref=f2e2435]: "1"
+            - generic [ref=f2e2436]:
+              - generic "#김계란 — 메시지 1건" [ref=f2e2437]: "#김계란"
+              - generic [ref=f2e2440]: "1"
+            - generic [ref=f2e2441]:
+              - generic "#김대식 애플 노키아 — 메시지 1건" [ref=f2e2442]: "#김대식 애플 노키아"
+              - generic [ref=f2e2445]: "1"
+            - generic [ref=f2e2446]:
+              - generic "#나는 관대하다 — 메시지 1건" [ref=f2e2447]: "#나는 관대하다"
+              - generic [ref=f2e2450]: "1"
+            - generic [ref=f2e2451]:
+              - generic "#나디아 잠수함 — 메시지 1건" [ref=f2e2452]: "#나디아 잠수함"
+              - generic [ref=f2e2455]: "1"
+            - generic [ref=f2e2456]:
+              - generic "#나만 아니면 되 — 메시지 1건" [ref=f2e2457]: "#나만 아니면 되"
+              - generic [ref=f2e2460]: "1"
+            - generic [ref=f2e2461]:
+              - generic "#덕테이프 — 메시지 1건" [ref=f2e2462]: "#덕테이프"
+              - generic [ref=f2e2465]: "1"
+            - generic [ref=f2e2466]:
+              - generic "#델 노트북 — 메시지 1건" [ref=f2e2467]: "#델 노트북"
+              - generic [ref=f2e2470]: "1"
+            - generic [ref=f2e2471]:
+              - generic "#동전던지기 — 메시지 1건" [ref=f2e2472]: "#동전던지기"
+              - generic [ref=f2e2475]: "1"
+            - generic [ref=f2e2476]:
+              - generic "#두두타 — 메시지 1건" [ref=f2e2477]: "#두두타"
+              - generic [ref=f2e2480]: "1"
+            - generic [ref=f2e2481]:
+              - generic "#두릅 — 메시지 1건" [ref=f2e2482]: "#두릅"
+              - generic [ref=f2e2485]: "1"
+            - generic [ref=f2e2486]:
+              - generic "#라면냄비 — 메시지 1건" [ref=f2e2487]: "#라면냄비"
+              - generic [ref=f2e2490]: "1"
+            - generic [ref=f2e2491]:
+              - generic "#레이저블레이드 18 — 메시지 1건" [ref=f2e2492]: "#레이저블레이드 18"
+              - generic [ref=f2e2495]: "1"
+            - generic [ref=f2e2496]:
+              - generic "#마른 근육남 — 메시지 1건" [ref=f2e2497]: "#마른 근육남"
+              - generic [ref=f2e2500]: "1"
+            - generic [ref=f2e2501]:
+              - generic "#마자용 — 메시지 1건" [ref=f2e2502]: "#마자용"
+              - generic [ref=f2e2505]: "1"
+            - generic [ref=f2e2506]:
+              - generic "#마젠타 — 메시지 1건" [ref=f2e2507]: "#마젠타"
+              - generic [ref=f2e2510]: "1"
+            - generic [ref=f2e2511]:
+              - generic "#맞습니다 맞고요 — 메시지 1건" [ref=f2e2512]: "#맞습니다 맞고요"
+              - generic [ref=f2e2515]: "1"
+            - generic [ref=f2e2516]:
+              - generic "#매운콩라면 — 메시지 1건" [ref=f2e2517]: "#매운콩라면"
+              - generic [ref=f2e2520]: "1"
+            - generic [ref=f2e2521]:
+              - generic "#맥북 크램쉘 — 메시지 1건" [ref=f2e2522]: "#맥북 크램쉘"
+              - generic [ref=f2e2525]: "1"
+            - generic [ref=f2e2526]:
+              - generic "#맥북네오 — 메시지 1건" [ref=f2e2527]: "#맥북네오"
+              - generic [ref=f2e2530]: "1"
+          - paragraph [ref=f2e2531]:
+            - text: 알림
+            - strong [ref=f2e2532]: "96"
+            - text: 건 · 태그 추출
+            - strong [ref=f2e2533]: "96"
+            - text: 건(고유
+            - strong [ref=f2e2534]: "92"
+            - text: 개).
+      - region "용어 설명" [ref=f2e2535]:
+        - paragraph [ref=f2e2536]:
+          - text: "직접 만들기:"
+          - code [ref=f2e2537]: npx kcachat@latest "./파일.csv"
+          - text: ·
+          - link "GitHub" [ref=f2e2538] [cursor=pointer]:
+            - /url: "#"
+          - text: ·
+          - link "소개" [ref=f2e2539] [cursor=pointer]:
+            - /url: "#"
+        - group [ref=f2e2540]:
+          - generic "용어가 낯설 때 — 한 번에 펼쳐보기" [ref=f2e2541]
+      - generic [ref=f2e2542]: kcachat 0.1.72 → kca 0.22.1 · [바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드 · KakaoTalk_Chat_[바이브코딩 x 챗과장] AI 입코딩 커서 클로드 코드_2026-05... · 경고 0건 · 생성 97초 · 본 리포트는 통계·참고용이며 법적·회계적 증빙으로 쓸 수 없습니다 · kca 리포트

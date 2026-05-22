@@ -129,6 +129,7 @@ export function renderReportHtml(data: ReportData): string {
     ${renderInsightDeck(data)}
 
     ${renderTopicMap(data)}
+    ${renderTopicTrendSection(data)}
 
     ${renderChartDeck(data)}
 
@@ -341,6 +342,26 @@ function renderSectionNav(data: ReportData): string {
     <a href="#s-charts" data-kca-jump="s-charts">⑤ 표·막대 모음</a>
     <a href="#s-help" data-kca-jump="s-help">⑥ 용어 설명</a>
   </nav>`;
+}
+
+function renderTopicTrendSection(data: ReportData): string {
+  if (data.topicTrend.length < 2) return "";
+  const rows = data.topicTrend
+    .map(
+      (t) =>
+        `<tr><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
+          .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong>${formatNumber(topic.value)}</strong></span>`)
+          .join("")}</td></tr>`,
+    )
+    .join("");
+  return `<section id="s-topic-trend" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.054s">
+    <h2>토픽 트랜드</h2>
+    <p class="chart-hint">월별 상위 키워드의 등장 횟수 변화입니다. 아래 차트에서 추이를 확인하세요.</p>
+    <table class="table">
+      <thead><tr><th>기간</th><th>상위 키워드</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </section>`;
 }
 
 function renderHelpGlossary(): string {

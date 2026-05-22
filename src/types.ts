@@ -360,11 +360,29 @@ export interface LlmDayMicroStory {
   line: string;
 }
 
+export interface TopicTrendItem {
+  period: string; // "2026-04" 또는 "2026-05"
+  topics: { name: string; value: number }[];
+}
+
 export interface DailyHotTopic {
-  date: string;        // YYYY-MM-DD
-  keywords: string[];  // 상위 3개 키워드
-  summary: string;     // LLM 요약 (한 줄)
+  date: string;
+  keywords: string[];
+  summary: string;
   messageCount: number;
+}
+
+export interface TopicTrendItem {
+  period: string;
+  topics: { name: string; value: number }[];
+}
+
+export interface DailySentiment {
+  date: string;
+  positive: number;
+  negative: number;
+  neutral: number;
+  energy: number;
 }
 
 export interface LlmInsights {
@@ -606,4 +624,8 @@ export interface ReportData {
   burstDetectionMethod: "heuristic" | "mad";
   /** 일별 핫토픽 (상위 키워드 + 요약) */
   dailyHotTopics: DailyHotTopic[];
+  /** 월별 토픽 트랜드 (근사적 — 상위 키워드 기반) */
+  topicTrend: TopicTrendItem[];
+  /** 일별 감정 점수 (긍정/부정/중립/에너지) */
+  dailySentiment: DailySentiment[];
 }

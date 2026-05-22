@@ -56,6 +56,40 @@ const EMOJI_RE = /\p{Extended_Pictographic}/u;
 const LAUGH_RE = /(?:ㅋ{2,}|ㅎ{2,}|ㅠ+|ㅜ+|ㅇㅇ|ㅋㅋ|ㅎㅎ|ㅋㅎ|ㅎㅋ)/;
 const LINK_HINT_RE = /https?:\/\/|www\./i;
 const HAS_TOKEN_CHAR_RE = /[가-힣A-Za-z]/;
+/** 규칙 기반 감정 키워드 — 긍정/부정/중립 분류 */
+const POSITIVE_PATTERNS = [
+    /(?:\b|[^가-힣A-Za-z])(ㅋㅋ|ㅎㅎ|ㅋㅎ|ㅎㅋ)(?:\b|[^가-힣A-Za-z])/u,
+    /(?:좋아요|고마워|감사|축하|대박|신나|기쁘|행복|재미|재밌|웃겨|웃기|ㅇㅋ|ㅇㅇ|넵|예|굿|좋|최고|멋|잘했|잘하|사랑|귀엽|예쁘|잘생|대단|훌륭|완벽|만세|ㅊㅋ|파이팅|화이팅|감동|행복|신난다|대단|베스트|예쁘다|멋지|잘한다|고마워|ㅋㅋㅋ|ㅎㅎㅎ)/u,
+];
+const NEGATIVE_PATTERNS = [
+    /(?:싫어|짜증|화나|분노|슬퍼|우울|걱정|불안|화가|엽나|빡|ㅅㅂ|ㅆㅂ|졌나|씨발|시발|지랄|미친|병신|개같|극혐|싫|나쁘|별로|안돼|큰일|문제|실패|어렵|힘들|짜증|귀찮|쓸데없|헛소리|비아냥|까|디스|따져|몰라|관심없|지겹|답답|후회|실망|분통|개빡|열|지치|괴롭|울고|눈물|죽겠|죽음)/u,
+];
+function classifySentiment(text) {
+    let positive = 0;
+    let negative = 0;
+    for (const re of POSITIVE_PATTERNS) {
+        const m = text.match(re);
+        if (m)
+            positive += m.length;
+    }
+    for (const re of NEGATIVE_PATTERNS) {
+        const m = text.match(re);
+        if (m)
+            negative += m.length;
+    }
+    // 중립 = 메시지 1건으로 카운트하되, 긍정/부정이 없으면 neutral 1
+    if (positive === 0 && negative === 0) {
+        return { positive: 0, negative: 0, neutral: 1 };
+    }
+    return { positive, negative, neutral: 0 };
+}
+function computeEnergy(positive, negative, neutral) {
+    const total = positive + negative + neutral;
+    if (total === 0)
+        return 0;
+    // 긍정 100%, 부정 0% → +100; 부정 100%, 긍정 0% → -100
+    return Math.round(((positive - negative) / total) * 100);
+}
 /** 시맨틱 supplement messageHits 상한 — RRF 독점 방지 */
 export function semanticSupplementHitCap(corpusMessages) {
     return Math.min(24, 4 + Math.floor(Math.sqrt(Math.max(corpusMessages, 1))));
@@ -93,6 +127,7 @@ export class ReportAggregator {
     monthlyKeywordBuckets = new Map();
     dailyKeywordBuckets = new Map();
     dyads = new DyadAccumulator();
+    dailySentimentCounters = new Map();
     total = 0;
     totalCharacters = 0;
     messagesWithLinks = 0;
@@ -365,6 +400,16 @@ export class ReportAggregator {
                 else if (this.sentimentReservoir && messageLength >= 12) {
                     this.sentimentReservoir.push(msg, record.sender);
                 }
+                // 규칙 기반 일별 감정 카운터 업데이트
+                const sent = classifySentiment(msg);
+                let daySent = this.dailySentimentCounters.get(dayKey);
+                if (!daySent) {
+                    daySent = { positive: 0, negative: 0, neutral: 0 };
+                    this.dailySentimentCounters.set(dayKey, daySent);
+                }
+                daySent.positive += sent.positive;
+                daySent.negative += sent.negative;
+                daySent.neutral += sent.neutral;
             }
             if (isOpenChatBoilerplate(msg)) {
                 this.openChatBoilerplateExcluded += 1;
@@ -741,6 +786,19 @@ export class ReportAggregator {
             rhythmScore,
             weekendSharePercent,
         });
+        const dailySentiment = dailySorted
+            .map((d) => {
+            const counters = this.dailySentimentCounters.get(d.date) ?? { positive: 0, negative: 0, neutral: 0 };
+            const totalSent = counters.positive + counters.negative + counters.neutral;
+            if (totalSent === 0) {
+                return { date: d.date, positive: 0, negative: 0, neutral: 100, energy: 0 };
+            }
+            const positive = round((counters.positive / totalSent) * 100, 1);
+            const negative = round((counters.negative / totalSent) * 100, 1);
+            const neutral = round(100 - positive - negative, 1);
+            const energy = computeEnergy(counters.positive, counters.negative, counters.neutral);
+            return { date: d.date, positive, negative, neutral, energy };
+        });
         const dailyHotTopics = dailySorted
             .map((d) => {
             const bucket = this.dailyKeywordBuckets.get(d.date);
@@ -840,6 +898,8 @@ export class ReportAggregator {
             openChatBoilerplateExcluded: this.openChatBoilerplateExcluded,
             burstDetectionMethod,
             dailyHotTopics,
+            topicTrend: [],
+            dailySentiment,
         };
     }
 }
