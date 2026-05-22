@@ -197,4 +197,44 @@ export function renderLlmShareFooter(data) {
     ${cf}
   </div>`;
 }
+export function renderParticipantRoles(data) {
+    const roles = data.participantRoles;
+    if (!roles || roles.length === 0)
+        return "";
+    const roleEmoji = {
+        리더: "👑",
+        조력자: "🤝",
+        방관자: "👁️",
+        유머메이커: "😂",
+        조용한기여자: "📝",
+    };
+    const roleDesc = {
+        리더: "주도형",
+        조력자: "조력형",
+        방관자: "관찰형",
+        유머메이커: "분위기형",
+        조용한기여자: "깊이형",
+    };
+    const cards = roles
+        .map((r) => {
+        const emoji = roleEmoji[r.role] ?? "💬";
+        const desc = roleDesc[r.role] ?? r.role;
+        return `<article class="participant-role-card" role="listitem" data-role="${escapeHtml(r.role)}">
+        <div class="role-card-header">
+          <span class="role-emoji" aria-hidden="true">${emoji}</span>
+          <div class="role-info">
+            <h3 class="role-alias">${escapeHtml(r.alias)}</h3>
+            <span class="role-badge">${escapeHtml(desc)}</span>
+          </div>
+          <span class="role-confidence" title="신뢰도">${Math.round(r.confidence * 100)}%</span>
+        </div>
+        <p class="role-reason">${escapeHtml(r.reason)}</p>
+      </article>`;
+    })
+        .join("");
+    return `<section id="s-participant-roles" class="participant-roles-section anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할">
+    <h2 class="llm-strip-title">참여자 역할</h2>
+    <div class="participant-roles-grid" role="list">${cards}</div>
+  </section>`;
+}
 //# sourceMappingURL=report-llm-deck.js.map

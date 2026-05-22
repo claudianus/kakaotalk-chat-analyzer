@@ -149,6 +149,7 @@ export function emptyReportData(): ReportData {
     dailyHotTopics: [],
     topicTrend: [],
     dailySentiment: [],
+    participantRoles: [],
     explorer: { daily: [], hourly: [], monthly: [], range: { min: "", max: "" } },
   };
 }

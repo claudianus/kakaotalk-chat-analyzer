@@ -51,6 +51,13 @@ export interface ParticipantStat {
   maxConsecutive: number;
 }
 
+export interface ParticipantRole {
+  alias: string;
+  role: string;
+  confidence: number;
+  reason: string;
+}
+
 export interface CountItem {
   label: string;
   count: number;
@@ -90,6 +97,20 @@ export interface ToxicityStats {
   usedMlModel: boolean;
   modelId?: string;
   tier: "lexicon" | "ml";
+}
+
+export interface EmojiSentimentStats {
+  totalEmojiMessages: number;
+  breakdown: {
+    positive: number;
+    negative: number;
+    neutral: number;
+    love: number;
+    anger: number;
+    surprise: number;
+    sadness: number;
+  };
+  topEmojis: { emoji: string; count: number }[];
 }
 
 /** c-TF-IDF·공기 군집으로 뽑은 대화 주제 */
@@ -628,4 +649,5 @@ export interface ReportData {
   topicTrend: TopicTrendItem[];
   /** 일별 감정 점수 (긍정/부정/중립/에너지) */
   dailySentiment: DailySentiment[];
+  participantRoles: ParticipantRole[];
 }

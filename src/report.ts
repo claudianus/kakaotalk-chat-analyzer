@@ -46,6 +46,7 @@ import {
   renderLlmMomentsBlock,
   renderLlmRelationshipBeats,
   renderLlmShareFooter,
+  renderParticipantRoles,
 } from "./report-llm-deck.js";
 import {
   formatGeneratorLine,
@@ -116,6 +117,7 @@ export function renderReportHtml(data: ReportData): string {
     ${renderStorySections(data)}
     ${renderLlmEpisodeStrip(data)}
     ${renderLlmCharacterCards(data)}
+    ${renderParticipantRoles(data)}
     ${renderLlmRelationshipBeats(data)}
     ${renderLlmEraLabels(data)}
     ${renderFactMatrix(data)}

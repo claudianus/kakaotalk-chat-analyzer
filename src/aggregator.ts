@@ -63,7 +63,7 @@ import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
 import { semanticItemsToTopics } from "./embedding-topics.js";
 import { buildKeywordSeedTopics } from "./keyword-seed-topics.js";
 import { mergeTopicLanes } from "./topic-merge.js";
-import type { ExplorerPayload } from "./types.js";
+import type { ExplorerPayload, ParticipantRole } from "./types.js";
 
 const ATTACHMENT_MARKERS = [
   "사진",
@@ -632,6 +632,12 @@ export class ReportAggregator {
         maxConsecutive: stat.maxConsecutive,
       };
     });
+    const participantRoles = buildParticipantRoles(
+      allParticipants,
+      this.laughBySender,
+      this.shortBySender,
+      aliases,
+    );
     const participantStats = [...allParticipants]
       .sort((a, b) => b.messages - a.messages)
       .slice(0, this.top);
@@ -1048,6 +1054,7 @@ export class ReportAggregator {
       dailyHotTopics,
       topicTrend: [],
       dailySentiment,
+      participantRoles,
     };
   }
 }
@@ -1343,6 +1350,70 @@ function computeDaypartPercents(
     rounded = rounded.map((x, i) => (i === idx ? { ...x, percent: round(x.percent + drift, 1) } : x));
   }
   return rounded;
+}
+
+function buildParticipantRoles(
+  participants: ParticipantStat[],
+  laughBySender: Map<string, number>,
+  shortBySender: Map<string, number>,
+  aliases: Map<string, string>,
+): ParticipantRole[] {
+  if (participants.length === 0) return [];
+
+  const sortedByMessages = [...participants].sort((a, b) => b.messages - a.messages);
+  const totalMessages = participants.reduce((sum, p) => sum + p.messages, 0);
+  const avgLengthOverall =
+    participants.reduce((sum, p) => sum + p.averageLength, 0) / participants.length;
+
+  const top25Threshold = Math.ceil(participants.length * 0.25);
+  const top50Threshold = Math.ceil(participants.length * 0.5);
+
+  const results: ParticipantRole[] = [];
+
+  for (const p of participants) {
+    const rawAlias = [...aliases.entries()].find(([, a]) => a === p.alias)?.[0];
+    const laughCount = rawAlias ? (laughBySender.get(rawAlias) ?? 0) : 0;
+    const shortCount = rawAlias ? (shortBySender.get(rawAlias) ?? 0) : 0;
+    const laughRate = p.messages > 0 ? (laughCount / p.messages) : 0;
+    const shortRate = p.messages > 0 ? (shortCount / p.messages) : 0;
+
+    const rankByMessages = sortedByMessages.findIndex((x) => x.alias === p.alias);
+    const isTop25 = rankByMessages < top25Threshold;
+    const isBottom50 = rankByMessages >= top50Threshold;
+    const isLong = p.averageLength >= avgLengthOverall * 1.2;
+    const isShort = p.averageLength <= avgLengthOverall * 0.7;
+    const isVeryLong = p.averageLength >= avgLengthOverall * 1.5;
+
+    let role: string;
+    let confidence: number;
+    let reason: string;
+
+    if (isTop25 && isLong) {
+      role = "리더";
+      confidence = 0.9;
+      reason = `메시지 수 상위(${p.messages}건)에 평균 길이(${p.averageLength}자)가 전체 평균(${avgLengthOverall.toFixed(1)}자)보다 긴 주도형 참여자`;
+    } else if (laughRate > 0.15 || (isBottom50 && shortRate > 0.3)) {
+      role = "유머메이커";
+      confidence = 0.8;
+      reason = `웃음 표현 비율(${Math.round(laughRate * 100)}%)이 높거나 짧은 반응 메시지가 많은 분위기 메이커`;
+    } else if (isBottom50 && isVeryLong) {
+      role = "조용한기여자";
+      confidence = 0.85;
+      reason = `메시지 수는 적지만 평균 길이(${p.averageLength}자)가 전체 평균(${avgLengthOverall.toFixed(1)}자)의 1.5배 이상인 깊이 있는 기여자`;
+    } else if (isBottom50 && isShort) {
+      role = "방관자";
+      confidence = 0.8;
+      reason = `메시지 수가 적고 짧은 메시지(${p.averageLength}자) 위주로 주로 관찰하는 참여자`;
+    } else {
+      role = "조력자";
+      confidence = 0.75;
+      reason = `균형 잡힌 메시지 수(${p.messages}건)와 길이(${p.averageLength}자)로 대화를 돕는 조력자`;
+    }
+
+    results.push({ alias: p.alias, role, confidence, reason });
+  }
+
+  return results;
 }
 
 function computeRhythmScore(input: {

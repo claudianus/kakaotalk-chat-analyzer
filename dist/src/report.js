@@ -8,7 +8,7 @@ import { REPORT_STYLES } from "./report-styles.js";
 import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderHeroQuickJumps, renderTopChrome, topicNavLink, } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
-import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, } from "./report-llm-deck.js";
+import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderParticipantRoles, } from "./report-llm-deck.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
 import { hasBenchmarkSection, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasTimelineSection, hasCalendarHeatmap, } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
@@ -65,6 +65,7 @@ export function renderReportHtml(data) {
     ${renderStorySections(data)}
     ${renderLlmEpisodeStrip(data)}
     ${renderLlmCharacterCards(data)}
+    ${renderParticipantRoles(data)}
     ${renderLlmRelationshipBeats(data)}
     ${renderLlmEraLabels(data)}
     ${renderFactMatrix(data)}
