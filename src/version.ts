@@ -1,2 +1,2 @@
-export const VERSION = "0.22.3";
+export const VERSION = "0.22.4";
 export const USER_AGENT = `kakaotalk-chat-analyzer/${VERSION}`;

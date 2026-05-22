@@ -59,12 +59,15 @@ export declare class ReportAggregator {
     private readonly dailyKeywordBuckets;
     private readonly dyads;
     private readonly dailySentimentCounters;
+    private readonly senderHonorificCounts;
     private total;
     private totalCharacters;
     private messagesWithLinks;
     private messagesWithAttachments;
     private nightMessages;
     private emojiMessages;
+    private emojiSentimentCounts;
+    private topEmojis;
     private weekendMessages;
     private questionMessages;
     private speakerSwitches;

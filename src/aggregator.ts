@@ -28,6 +28,7 @@ import {
   sentimentSampleCap,
   subsampleSentimentRecords,
 } from "./sentiment-policy.js";
+import { extractMemorableMoments } from "./memorable-moments.js";
 import {
   effectiveSemanticSampleCap,
   semanticReservoirCap,
@@ -41,6 +42,7 @@ import { isNoiseKeyword } from "./keyword-quality.js";
 import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
 import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
+import { extractEmojis, classifyEmoji } from "./emoji-sentiment.js";
 import {
   buildRoomPulse,
   computeActivityArc,
@@ -57,6 +59,7 @@ import {
 import { buildReportStory } from "./story.js";
 import { DyadAccumulator } from "./dyad-matrix.js";
 import { buildEventSpine } from "./event-spine.js";
+import { analyzeHonorificStyle } from "./honorific-analyzer.js";
 import { buildRoomNarrative } from "./room-narrative.js";
 import { buildPeriodCompare } from "./period-compare.js";
 import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
@@ -202,6 +205,7 @@ export class ReportAggregator {
   private readonly dailyKeywordBuckets = new Map<string, KeywordCounter>();
   private readonly dyads = new DyadAccumulator();
   private readonly dailySentimentCounters = new Map<string, { positive: number; negative: number; neutral: number }>();
+  private readonly senderHonorificCounts = new Map<string, { honorific: number; casual: number; neutral: number }>();
 
   private total = 0;
   private totalCharacters = 0;
@@ -209,6 +213,11 @@ export class ReportAggregator {
   private messagesWithAttachments = 0;
   private nightMessages = 0;
   private emojiMessages = 0;
+  private emojiSentimentCounts = {
+    positive: 0, negative: 0, neutral: 0,
+    love: 0, anger: 0, surprise: 0, sadness: 0
+  };
+  private topEmojis = new Map<string, number>();
   private weekendMessages = 0;
   private questionMessages = 0;
   private speakerSwitches = 0;
@@ -416,6 +425,12 @@ export class ReportAggregator {
     if (!isPureSystem) {
       if (messageLength > 0 && EMOJI_RE.test(msg)) {
         this.emojiMessages += 1;
+        const emojis = extractEmojis(msg);
+        for (const emoji of emojis) {
+          const cat = classifyEmoji(emoji);
+          this.emojiSentimentCounts[cat as keyof typeof this.emojiSentimentCounts]++;
+          this.topEmojis.set(emoji, (this.topEmojis.get(emoji) || 0) + 1);
+        }
       }
 
       if (messageLength > 0 && LAUGH_RE.test(msg)) {
@@ -963,6 +978,20 @@ export class ReportAggregator {
       })
       .filter((d) => d.keywords.length > 0 || d.messageCount > 0);
 
+    const memorableMoments = extractMemorableMoments({
+      daily: dailySorted,
+      dailySentiment,
+      totalMessages: total,
+      firstMessageDate: this.firstDate ? formatDateTime(this.firstDate) : null,
+      lastMessageDate: this.lastDate ? formatDateTime(this.lastDate) : null,
+    });
+
+    const emojiInsight: import("./types.js").EmojiInsight = {
+      totalEmojis: this.emojiMessages,
+      breakdown: { ...this.emojiSentimentCounts },
+      topEmojis: topCounts(this.topEmojis, 5).map((item) => ({ emoji: item.label, count: item.count })),
+    };
+
     return {
       generatedAt: new Date().toISOString(),
       privacy: this.privacy,
@@ -1055,6 +1084,8 @@ export class ReportAggregator {
       topicTrend: [],
       dailySentiment,
       participantRoles,
+      emojiInsight,
+      memorableMoments,
     };
   }
 }

@@ -8,7 +8,7 @@ import { REPORT_STYLES } from "./report-styles.js";
 import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderHeroQuickJumps, renderTopChrome, topicNavLink, } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
-import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderParticipantRoles, } from "./report-llm-deck.js";
+import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderMemorableMoments, renderParticipantRoles, } from "./report-llm-deck.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
 import { hasBenchmarkSection, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasTimelineSection, hasCalendarHeatmap, } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
@@ -74,6 +74,7 @@ export function renderReportHtml(data) {
     ${renderLlmMomentsBlock(data)}
     ${renderLlmDayMicroStories(data)}
     ${renderDailyHotTopics(data)}
+    ${renderMemorableMoments(data)}
     ${renderInnovationDeck(data)}
 
     ${renderInsightDeck(data)}
@@ -443,6 +444,8 @@ function renderInsightDeck(data) {
       ${insMetric("고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
     </div>
     ${renderLlmInsideJokes(data)}
+    ${renderEmojiInsight(data.emojiInsight)}
+    ${renderHonorificInsight(data.honorificInsight)}
     <div class="insight-split">
       <div>
         <h3 class="insight-sub">하루 시간대 비중</h3>
@@ -459,6 +462,62 @@ function renderInsightDeck(data) {
       </div>
     </div>
   </section>`;
+}
+function renderEmojiInsight(emojiInsight) {
+    const b = emojiInsight.breakdown;
+    const total = emojiInsight.totalEmojis;
+    if (total === 0)
+        return "";
+    const stats = [
+        { label: "긍정", emoji: "😊", count: b.positive },
+        { label: "부정", emoji: "😢", count: b.negative },
+        { label: "중립", emoji: "😐", count: b.neutral },
+        { label: "사랑", emoji: "❤️", count: b.love },
+        { label: "화남", emoji: "😡", count: b.anger },
+        { label: "놀람", emoji: "😮", count: b.surprise },
+        { label: "슬픔", emoji: "😭", count: b.sadness },
+    ];
+    const breakdownHtml = stats
+        .filter((s) => s.count > 0)
+        .map((s) => `<span class="emoji-stat">${escapeHtml(s.emoji)} ${escapeHtml(s.label)}: ${formatNumber(s.count)}</span>`)
+        .join(" ");
+    const topHtml = emojiInsight.topEmojis
+        .map((item) => `${escapeHtml(item.emoji)}(${formatNumber(item.count)})`)
+        .join(" ");
+    return `<div class="emoji-insight-card" style="margin-top:14px">
+    <h3 class="insight-sub">이모지 감정 맵</h3>
+    <p class="chart-hint">이모지가 포함된 메시지 <strong>${formatNumber(total)}</strong>건의 감정 분포예요.</p>
+    <div class="emoji-breakdown" style="display:flex;flex-wrap:wrap;gap:10px;margin:8px 0">
+      ${breakdownHtml}
+    </div>
+    <div class="top-emojis" style="margin-top:6px;font-size:13px;color:var(--muted)">
+      TOP ${emojiInsight.topEmojis.length}: ${topHtml}
+    </div>
+  </div>`;
+}
+function renderHonorificInsight(honorific) {
+    if (!honorific || honorific.participants.length === 0)
+        return "";
+    const styleLabels = {
+        honorific: "존칭",
+        casual: "반말",
+        mixed: "혼합",
+    };
+    const roomLabel = styleLabels[honorific.roomStyle] ?? honorific.roomStyle;
+    const participantHtml = honorific.participants
+        .slice(0, 5)
+        .map((p) => {
+        const style = styleLabels[p.dominantStyle] ?? p.dominantStyle;
+        return `<span class="honorific-stat">${escapeHtml(p.alias)}: ${style} (존칙 ${Math.round(p.honorificRatio * 100)}%)</span>`;
+    })
+        .join(" ");
+    return `<div class="honorific-insight-card" style="margin-top:14px">
+    <h3 class="insight-sub">높임법 분석</h3>
+    <p class="chart-hint">이 방은 대체로 <strong>${roomLabel}</strong> 스타일을 사용해요.</p>
+    <div class="honorific-participants" style="display:flex;flex-wrap:wrap;gap:10px;margin:8px 0;font-size:13px">
+      ${participantHtml}
+    </div>
+  </div>`;
 }
 function renderSampleBadge(data) {
     const s = data.summary;

@@ -50,6 +50,16 @@ export interface ParticipantRole {
     confidence: number;
     reason: string;
 }
+export interface ParticipantHonorific {
+    alias: string;
+    honorificRatio: number;
+    casualRatio: number;
+    dominantStyle: string;
+}
+export interface HonorificInsight {
+    participants: ParticipantHonorific[];
+    roomStyle: "formal" | "casual" | "mixed";
+}
 export interface CountItem {
     label: string;
     count: number;
@@ -93,6 +103,22 @@ export interface ToxicityStats {
 }
 export interface EmojiSentimentStats {
     totalEmojiMessages: number;
+    breakdown: {
+        positive: number;
+        negative: number;
+        neutral: number;
+        love: number;
+        anger: number;
+        surprise: number;
+        sadness: number;
+    };
+    topEmojis: {
+        emoji: string;
+        count: number;
+    }[];
+}
+export interface EmojiInsight {
+    totalEmojis: number;
     breakdown: {
         positive: number;
         negative: number;
@@ -379,6 +405,15 @@ export interface DailySentiment {
     neutral: number;
     energy: number;
 }
+export interface MemorableMoment {
+    date: string;
+    type: "peak_activity" | "emotional_spike" | "milestone" | "conflict_resolution" | "shared_joy";
+    title: string;
+    description: string;
+    messageCount: number;
+    participants: string[];
+    keywords: string[];
+}
 export interface LlmInsights {
     insightBullets?: string[];
     shopSearchSummary?: string;
@@ -630,4 +665,8 @@ export interface ReportData {
     /** 일별 감정 점수 (긍정/부정/중립/에너지) */
     dailySentiment: DailySentiment[];
     participantRoles: ParticipantRole[];
+    emojiInsight: EmojiInsight;
+    honorificInsight?: HonorificInsight;
+    /** 기억에 남는 순간 (규칙 기반 추출) */
+    memorableMoments: MemorableMoment[];
 }

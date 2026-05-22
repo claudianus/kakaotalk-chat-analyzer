@@ -273,3 +273,34 @@ export function renderParticipantRoles(data: ReportData): string {
     <div class="participant-roles-grid" role="list">${cards}</div>
   </section>`;
 }
+
+export function renderMemorableMoments(data: ReportData): string {
+  const moments = data.memorableMoments;
+  if (!moments || moments.length === 0) return "";
+
+  const TYPE_ICONS: Record<string, string> = {
+    peak_activity: "📈",
+    emotional_spike: "💥",
+    milestone: "🎯",
+    conflict_resolution: "🤝",
+    shared_joy: "🎉",
+  };
+
+  const items = moments
+    .slice(0, 10)
+    .map((m) => {
+      const icon = TYPE_ICONS[m.type] ?? "💬";
+      return `<li class="moment-item">
+        <time datetime="${escapeHtml(m.date)}">${escapeHtml(m.date)}</time>
+        <span class="moment-icon" aria-hidden="true">${icon}</span>
+        <strong class="moment-title">${escapeHtml(m.title)}</strong>
+        <span class="moment-desc">${escapeHtml(m.description)}</span>
+      </li>`;
+    })
+    .join("");
+
+  return `<section id="s-memorable-moments" class="memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간">
+    <h2 class="llm-strip-title">기억에 남는 순간</h2>
+    <ul class="moments-list">${items}</ul>
+  </section>`;
+}

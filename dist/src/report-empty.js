@@ -148,6 +148,24 @@ export function emptyReportData() {
         topicTrend: [],
         dailySentiment: [],
         participantRoles: [],
+        emojiInsight: {
+            totalEmojis: 0,
+            breakdown: {
+                positive: 0,
+                negative: 0,
+                neutral: 0,
+                love: 0,
+                anger: 0,
+                surprise: 0,
+                sadness: 0,
+            },
+            topEmojis: [],
+        },
+        honorificInsight: {
+            participants: [],
+            roomStyle: "mixed",
+        },
+        memorableMoments: [],
         explorer: { daily: [], hourly: [], monthly: [], range: { min: "", max: "" } },
     };
 }
