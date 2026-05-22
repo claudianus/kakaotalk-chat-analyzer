@@ -161,6 +161,7 @@ export function emptyReportData() {
             },
             topEmojis: [],
         },
+        participantEmojiStats: [],
         honorificInsight: {
             participants: [],
             roomStyle: "mixed",

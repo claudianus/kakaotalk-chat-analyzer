@@ -163,6 +163,7 @@ export function emptyReportData(): ReportData {
       },
       topEmojis: [],
     },
+    participantEmojiStats: [],
     honorificInsight: {
       participants: [],
       roomStyle: "mixed",

@@ -1,6 +1,6 @@
 {
   "name": "kcachat",
-  "version": "0.1.74",
+  "version": "0.1.76",
   "description": "짧은 npx 이름으로 kakaotalk-chat-analyzer(kca) CLI를 실행합니다.",
   "type": "module",
   "bin": {

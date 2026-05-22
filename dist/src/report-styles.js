@@ -3093,5 +3093,166 @@ body.kca-oled .theme-btn.kca-ripple {
   font-size: 14px;
 }
 
+
+/* 10-kca-insight-cards.css */
+/* 이모지 인사이트 · 기억에 남는 순간 · 참여자 역할 · 높임법 분석 */
+
+/* 이모지 인사이트 */
+.emoji-insight-card {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+}
+.emoji-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--bar-bg);
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+/* 기억에 남는 순간 */
+.moments-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.moment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.moment-item:last-child {
+  border-bottom: none;
+}
+.moment-item time {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+.moment-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.moment-title {
+  font-weight: 600;
+  margin-right: 8px;
+  color: var(--ink);
+}
+.moment-desc {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* 참여자 역할 */
+.participant-roles-section {
+  margin-bottom: var(--kca-section-gap, 16px);
+}
+.participant-roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.participant-role-card {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+}
+.role-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.role-emoji {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.role-info {
+  flex: 1;
+  min-width: 0;
+}
+.role-alias {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.role-badge {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.role-confidence {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.role-reason {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* 높임법 */
+.honorific-insight-card {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 14px;
+  border: 1px solid var(--line);
+}
+.honorific-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--bar-bg);
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.moment-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.moment-keywords .tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--accent-bg, rgba(99, 102, 241, 0.12));
+  color: var(--accent, #6366f1);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 모바일 대응 */
+@media (max-width: 480px) {
+  .moment-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .participant-roles-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 `;
 //# sourceMappingURL=report-styles.js.map

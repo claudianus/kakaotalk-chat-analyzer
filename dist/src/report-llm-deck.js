@@ -252,11 +252,17 @@ export function renderMemorableMoments(data) {
         .slice(0, 10)
         .map((m) => {
         const icon = TYPE_ICONS[m.type] ?? "💬";
+        const keywordsHtml = m.keywords && m.keywords.length > 0
+            ? `<div class="moment-keywords">${m.keywords
+                .map((k) => `<span class="tag">${escapeHtml(k)}</span>`)
+                .join("")}</div>`
+            : "";
         return `<li class="moment-item">
         <time datetime="${escapeHtml(m.date)}">${escapeHtml(m.date)}</time>
         <span class="moment-icon" aria-hidden="true">${icon}</span>
         <strong class="moment-title">${escapeHtml(m.title)}</strong>
         <span class="moment-desc">${escapeHtml(m.description)}</span>
+        ${keywordsHtml}
       </li>`;
     })
         .join("");

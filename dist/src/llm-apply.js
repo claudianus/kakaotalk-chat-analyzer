@@ -1,4 +1,5 @@
 import { applyLlmEnrichment } from "./llm-summarize.js";
+import { enhanceMemorableMomentsWithLlm } from "./memorable-moments.js";
 /** finalize 이후 리포트에 LLM 보강 반영 */
 export async function enrichReportWithLlm(report, options, ctx) {
     const result = await applyLlmEnrichment(report, options, report.summary.totalMessages, { budget: ctx?.budget, llmPlan: ctx?.llmPlan });
@@ -12,11 +13,14 @@ export async function enrichReportWithLlm(report, options, ctx) {
             },
         };
     }
+    // LLM 보강 적용
+    const enhancedMoments = enhanceMemorableMomentsWithLlm(report.memorableMoments, result.llmInsights);
     return {
         ...report,
         topics: result.topics ?? report.topics,
         narrative: result.narrative ?? report.narrative,
         llmInsights: result.llmInsights ?? report.llmInsights,
+        memorableMoments: enhancedMoments,
         summary: {
             ...report.summary,
             usedLlmAnalysis: true,

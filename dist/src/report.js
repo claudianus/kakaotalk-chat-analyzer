@@ -445,6 +445,7 @@ function renderInsightDeck(data) {
     </div>
     ${renderLlmInsideJokes(data)}
     ${renderEmojiInsight(data.emojiInsight)}
+    ${renderParticipantEmojiStats(data.participantEmojiStats)}
     ${renderHonorificInsight(data.honorificInsight)}
     <div class="insight-split">
       <div>
@@ -462,6 +463,36 @@ function renderInsightDeck(data) {
       </div>
     </div>
   </section>`;
+}
+function renderParticipantEmojiStats(participantEmojiStats) {
+    if (participantEmojiStats.length === 0)
+        return "";
+    const rows = participantEmojiStats
+        .slice(0, 10)
+        .map((p) => {
+        const topEmojisHtml = p.topEmojis
+            .map((item) => `${escapeHtml(item.emoji)}(${formatNumber(item.count)})`)
+            .join(" ");
+        const emotionLabels = {
+            positive: "긍정",
+            negative: "부정",
+            neutral: "중립",
+            love: "사랑",
+            anger: "화남",
+            surprise: "놀람",
+            sadness: "슬픔",
+        };
+        return `<tr><td>${escapeHtml(p.alias)}</td><td>${topEmojisHtml}</td><td>${escapeHtml(emotionLabels[p.dominantEmotion] ?? p.dominantEmotion)}</td></tr>`;
+    })
+        .join("");
+    return `<div class="participant-emoji-insight-card" style="margin-top:14px">
+    <h3 class="insight-sub">참여자별 이모지 패턴</h3>
+    <p class="chart-hint">참여자별로 자주 쓴 이모지 TOP 3와 주요 감정 톤입니다.</p>
+    <table class="table" style="margin-top:8px">
+      <thead><tr><th>표시명</th><th>자주 쓴 이모지</th><th>주요 감정</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
 }
 function renderEmojiInsight(emojiInsight) {
     const b = emojiInsight.breakdown;

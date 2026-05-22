@@ -5,8 +5,67 @@ const TYPE_ICONS = {
     conflict_resolution: "🤝",
     shared_joy: "🎉",
 };
+const PEAK_DESCRIPTIONS = [
+    "평소보다 훨씬 활발했던 날이에요! {count}건의 메시지가 쏟아졌어요.",
+    "이날은 무슨 일이 있었나요? {count}건으로 평소의 2배 이상이에요.",
+    "대화의 불꽃이 튀었던 날! 총 {count}건의 메시지가 오갔어요.",
+    "평범하지 않은 하루였어요. {count}건이나 주고받았네요!",
+    "우와, {count}건! 이 날만큼은 말문이 트였던 것 같아요.",
+];
+const EMOTIONAL_SPIKE_UP_DESCRIPTIONS = [
+    "긍정 에너지가 급등했어요. 에너지 지수 {curr}(전날 {prev}).",
+    "기분 좋은 날이었나 봐요! 긍정 지수가 {prev}에서 {curr}로 치솟았어요.",
+    "활기 넘치는 대화였어요. 에너지가 {prev} → {curr}로 상승!",
+];
+const EMOTIONAL_SPIKE_DOWN_DESCRIPTIONS = [
+    "부정 에너지가 급등했어요. 에너지 지수 {curr}(전날 {prev}).",
+    "조금 무거운 날이었나 봐요. 에너지 지수가 {prev}에서 {curr}로 하락했어요.",
+    "대화 톤이 가라앉았어요. 에너지 {prev} → {curr}.",
+];
+const MILESTONE_FIRST_DESCRIPTIONS = [
+    "대화가 시작되었어요. 첫 메시지가 별냈네요!",
+    "첫 인사가 오갔던 날, 이야기의 시작이에요.",
+];
+const MILESTONE_LAST_DESCRIPTIONS = [
+    "마지막 메시지가 별냈어요.",
+    "이날이 기록상 마지막 대화예요.",
+];
+const MILESTONE_NUMBER_DESCRIPTIONS = [
+    "{n}번째 메시지가 별냈어요! 🎉",
+    "대화가 {n}건을 돌파했어요. 기념할 만한 순간!",
+    "벌써 {n}번째 메시지라니, 놀라워요!",
+];
+const SHARED_JOY_DESCRIPTIONS = [
+    "{count}건의 메시지가 오갔어요. 웃음 가득한 날이었나 봐요!",
+    "활기찬 대화의 날! {count}건이나 나눴어요.",
+    "이날은 특별했어요. {count}건의 메시지로 가득 찼네요.",
+];
+const CONFLICT_RESOLUTION_DESCRIPTIONS = [
+    "부정적 분위기에서 긍정적으로 전환했어요. 부정 {prevNeg}% → {currNeg}%, 긍정 {prevPos}% → {currPos}%.",
+    "갈등이 해소된 듯해요. 부정 {prevNeg}% → {currNeg}%, 긍정 {prevPos}% → {currPos}%.",
+    "다시 화해의 미소를 찾은 날! 부정 {prevNeg}% → {currNeg}%, 긍정 {prevPos}% → {currPos}%.",
+];
 export function getTypeIcon(type) {
     return TYPE_ICONS[type] ?? "💬";
+}
+function pick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+export function enhanceMemorableMomentsWithLlm(moments, llmInsights) {
+    if (!llmInsights || !llmInsights.moments || llmInsights.moments.length === 0) {
+        return moments;
+    }
+    return moments.map((m) => {
+        // 날짜 기반으로 LLM moment 매칭 시도
+        const relatedLlmMoment = llmInsights.moments.find((lm) => lm.statRef && m.date.includes(lm.statRef));
+        if (relatedLlmMoment) {
+            return {
+                ...m,
+                description: relatedLlmMoment.headline,
+            };
+        }
+        return m;
+    });
 }
 export function extractMemorableMoments(params) {
     const { daily, dailySentiment, totalMessages, firstMessageDate, lastMessageDate } = params;
@@ -37,7 +96,7 @@ function extractPeakDays(daily) {
         date: d.date,
         type: "peak_activity",
         title: "대화 폭발일",
-        description: `평소 평균(${Math.round(avg)}건)의 2배 이상인 ${d.count}건의 메시지가 오갔어요.`,
+        description: pick(PEAK_DESCRIPTIONS).replace("{count}", String(d.count)),
         messageCount: d.count,
         participants: [],
         keywords: [],
@@ -60,7 +119,9 @@ function extractEmotionalSpikes(dailySentiment) {
                 date: curr.date,
                 type: "emotional_spike",
                 title: "감정 고조일",
-                description: `긍정 에너지가 급등했어요. 에너지 지수 ${Math.round(currEnergy)}(전날 ${Math.round(prevEnergy)}).`,
+                description: pick(EMOTIONAL_SPIKE_UP_DESCRIPTIONS)
+                    .replace("{curr}", String(Math.round(currEnergy)))
+                    .replace("{prev}", String(Math.round(prevEnergy))),
                 messageCount: 0,
                 participants: [],
                 keywords: [],
@@ -72,7 +133,9 @@ function extractEmotionalSpikes(dailySentiment) {
                 date: curr.date,
                 type: "emotional_spike",
                 title: "감정 저조일",
-                description: `부정 에너지가 급등했어요. 에너지 지수 ${Math.round(currEnergy)}(전날 ${Math.round(prevEnergy)}).`,
+                description: pick(EMOTIONAL_SPIKE_DOWN_DESCRIPTIONS)
+                    .replace("{curr}", String(Math.round(currEnergy)))
+                    .replace("{prev}", String(Math.round(prevEnergy))),
                 messageCount: 0,
                 participants: [],
                 keywords: [],
@@ -89,7 +152,7 @@ function extractMilestones(daily, totalMessages, firstMessageDate, lastMessageDa
             date: firstMessageDate.slice(0, 10),
             type: "milestone",
             title: "첫 대화",
-            description: `대화가 시작되었어요.`,
+            description: pick(MILESTONE_FIRST_DESCRIPTIONS),
             messageCount: 1,
             participants: [],
             keywords: [],
@@ -101,7 +164,7 @@ function extractMilestones(daily, totalMessages, firstMessageDate, lastMessageDa
             date: lastMessageDate.slice(0, 10),
             type: "milestone",
             title: "마지막 대화",
-            description: `마지막 메시지가 볃냈어요.`,
+            description: pick(MILESTONE_LAST_DESCRIPTIONS),
             messageCount: 1,
             participants: [],
             keywords: [],
@@ -114,10 +177,12 @@ function extractMilestones(daily, totalMessages, firstMessageDate, lastMessageDa
             // 근사: n번째 메시지가 속한 날짜 추정
             let cumulative = 0;
             let milestoneDate = daily[0].date;
+            let milestoneDayKeywords = [];
             for (const d of daily) {
                 cumulative += d.count;
                 if (cumulative >= n) {
                     milestoneDate = d.date;
+                    milestoneDayKeywords = [];
                     break;
                 }
             }
@@ -125,10 +190,10 @@ function extractMilestones(daily, totalMessages, firstMessageDate, lastMessageDa
                 date: milestoneDate,
                 type: "milestone",
                 title: `${n.toLocaleString()}번째 메시지`,
-                description: `${n.toLocaleString()}번째 메시지가 볃냈어요.`,
+                description: pick(MILESTONE_NUMBER_DESCRIPTIONS).replace("{n}", n.toLocaleString()),
                 messageCount: n,
                 participants: [],
-                keywords: [],
+                keywords: milestoneDayKeywords,
             });
         }
     }
@@ -137,7 +202,7 @@ function extractMilestones(daily, totalMessages, firstMessageDate, lastMessageDa
 function extractSharedJoy(daily) {
     if (daily.length === 0)
         return [];
-    // 상위 10% 메시지량 날짜를 "웃음 폭발일"로 근사
+    // 상위 10% 메시지량 날짜를 "활발한 대화일"로 근사
     const sorted = [...daily].sort((a, b) => b.count - a.count);
     const topCount = Math.max(1, Math.ceil(daily.length * 0.1));
     const topDays = sorted.slice(0, topCount);
@@ -145,7 +210,7 @@ function extractSharedJoy(daily) {
         date: d.date,
         type: "shared_joy",
         title: "활발한 대화일",
-        description: `${d.count}건의 메시지가 오갔어요.`,
+        description: pick(SHARED_JOY_DESCRIPTIONS).replace("{count}", String(d.count)),
         messageCount: d.count,
         participants: [],
         keywords: [],
@@ -164,7 +229,11 @@ function extractConflictResolution(dailySentiment) {
                 date: curr.date,
                 type: "conflict_resolution",
                 title: "갈등 해결",
-                description: `부정적 분위기에서 긍정적으로 전환했어요. 부정 ${Math.round(prev.negative)}% → ${Math.round(curr.negative)}%, 긍정 ${Math.round(prev.positive)}% → ${Math.round(curr.positive)}%.`,
+                description: pick(CONFLICT_RESOLUTION_DESCRIPTIONS)
+                    .replace("{prevNeg}", String(Math.round(prev.negative)))
+                    .replace("{currNeg}", String(Math.round(curr.negative)))
+                    .replace("{prevPos}", String(Math.round(prev.positive)))
+                    .replace("{currPos}", String(Math.round(curr.positive))),
                 messageCount: 0,
                 participants: [],
                 keywords: [],

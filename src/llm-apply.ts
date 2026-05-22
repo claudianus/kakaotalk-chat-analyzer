@@ -3,6 +3,7 @@ import type { BuildReportOptions } from "./analyze-pool.js";
 import type { AnalysisBudgetTracker } from "./analysis-budget.js";
 import type { LlmRunPlan } from "./llm-policy.js";
 import { applyLlmEnrichment } from "./llm-summarize.js";
+import { enhanceMemorableMomentsWithLlm } from "./memorable-moments.js";
 
 export interface LlmEnrichmentContext {
   budget?: AnalysisBudgetTracker;
@@ -31,11 +32,19 @@ export async function enrichReportWithLlm(
       },
     };
   }
+
+  // LLM 보강 적용
+  const enhancedMoments = enhanceMemorableMomentsWithLlm(
+    report.memorableMoments,
+    result.llmInsights
+  );
+
   return {
     ...report,
     topics: result.topics ?? report.topics,
     narrative: result.narrative ?? report.narrative,
     llmInsights: result.llmInsights ?? report.llmInsights,
+    memorableMoments: enhancedMoments,
     summary: {
       ...report.summary,
       usedLlmAnalysis: true,

@@ -27,6 +27,7 @@ import { isOpenChatBoilerplate, splitMessageForAnalysis, SYSTEM_NOTICE_KEYWORD_S
 import { buildReportStory } from "./story.js";
 import { DyadAccumulator } from "./dyad-matrix.js";
 import { buildEventSpine } from "./event-spine.js";
+import { analyzeHonorificStyle } from "./honorific-analyzer.js";
 import { buildRoomNarrative } from "./room-narrative.js";
 import { buildPeriodCompare } from "./period-compare.js";
 import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
@@ -131,6 +132,7 @@ export class ReportAggregator {
     dyads = new DyadAccumulator();
     dailySentimentCounters = new Map();
     senderHonorificCounts = new Map();
+    senderEmojiCounts = new Map();
     total = 0;
     totalCharacters = 0;
     messagesWithLinks = 0;
@@ -339,6 +341,12 @@ export class ReportAggregator {
                     const cat = classifyEmoji(emoji);
                     this.emojiSentimentCounts[cat]++;
                     this.topEmojis.set(emoji, (this.topEmojis.get(emoji) || 0) + 1);
+                    // sender별 이모지 집계
+                    if (!this.senderEmojiCounts.has(record.sender)) {
+                        this.senderEmojiCounts.set(record.sender, new Map());
+                    }
+                    const senderEmojis = this.senderEmojiCounts.get(record.sender);
+                    senderEmojis.set(emoji, (senderEmojis.get(emoji) || 0) + 1);
                 }
             }
             if (messageLength > 0 && LAUGH_RE.test(msg)) {
@@ -407,6 +415,19 @@ export class ReportAggregator {
                     increment(this.domains, domain);
             }
             if (!isPureSystem && !isOpenChatBoilerplate(msg)) {
+                // 존칙/반말 스타일 집계
+                const style = analyzeHonorificStyle(msg);
+                let hCounts = this.senderHonorificCounts.get(record.sender);
+                if (!hCounts) {
+                    hCounts = { honorific: 0, casual: 0, neutral: 0 };
+                    this.senderHonorificCounts.set(record.sender, hCounts);
+                }
+                if (style === "honorific")
+                    hCounts.honorific += 1;
+                else if (style === "casual")
+                    hCounts.casual += 1;
+                else
+                    hCounts.neutral += 1;
                 this.profanityCounter.add(msg, record.sender);
                 if (opts?.collectSamples) {
                     this.pushAnalysisSamples(msg, record.sender, messageLength, isPureSystem);
@@ -841,6 +862,67 @@ export class ReportAggregator {
             breakdown: { ...this.emojiSentimentCounts },
             topEmojis: topCounts(this.topEmojis, 5).map((item) => ({ emoji: item.label, count: item.count })),
         };
+        const participantEmojiStats = [];
+        for (const [rawSender, emojiMap] of this.senderEmojiCounts) {
+            const alias = aliases.get(rawSender);
+            if (!alias)
+                continue;
+            const totalEmojis = [...emojiMap.values()].reduce((a, b) => a + b, 0);
+            const topEmojis = topCounts(emojiMap, 3).map((item) => ({ emoji: item.label, count: item.count }));
+            // dominantEmotion: 가장 많이 나온 감정 카테고리
+            const emotionCounts = {};
+            for (const [emoji, count] of emojiMap) {
+                const cat = classifyEmoji(emoji);
+                emotionCounts[cat] = (emotionCounts[cat] || 0) + count;
+            }
+            let dominantEmotion = "neutral";
+            let maxCount = -1;
+            for (const [cat, count] of Object.entries(emotionCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    dominantEmotion = cat;
+                }
+            }
+            participantEmojiStats.push({ alias, totalEmojis, topEmojis, dominantEmotion });
+        }
+        participantEmojiStats.sort((a, b) => b.totalEmojis - a.totalEmojis);
+        // 존칙/반말 인사이트 및 관계 추론
+        const participantHonorifics = [];
+        let roomHonorificCount = 0;
+        let roomCasualCount = 0;
+        for (const [rawSender, counts] of this.senderHonorificCounts) {
+            const alias = aliases.get(rawSender);
+            if (!alias)
+                continue;
+            const total = counts.honorific + counts.casual;
+            const honorificRatio = total > 0 ? counts.honorific / total : 0;
+            const casualRatio = total > 0 ? counts.casual / total : 0;
+            let dominantStyle = "mixed";
+            if (honorificRatio >= 0.7)
+                dominantStyle = "honorific";
+            else if (casualRatio >= 0.7)
+                dominantStyle = "casual";
+            participantHonorifics.push({ alias, honorificRatio, casualRatio, dominantStyle });
+            roomHonorificCount += counts.honorific;
+            roomCasualCount += counts.casual;
+        }
+        participantHonorifics.sort((a, b) => b.honorificRatio - a.honorificRatio);
+        let roomStyle = "mixed";
+        const roomTotal = roomHonorificCount + roomCasualCount;
+        if (roomTotal > 0) {
+            const roomHonorificRatio = roomHonorificCount / roomTotal;
+            const roomCasualRatio = roomCasualCount / roomTotal;
+            if (roomHonorificRatio >= 0.7)
+                roomStyle = "formal";
+            else if (roomCasualRatio >= 0.7)
+                roomStyle = "casual";
+        }
+        const honorificInsight = participantHonorifics.length > 0
+            ? { participants: participantHonorifics, roomStyle }
+            : undefined;
+        const roomRelationship = honorificInsight
+            ? inferRoomRelationship(honorificInsight)
+            : undefined;
         return {
             generatedAt: new Date().toISOString(),
             privacy: this.privacy,
@@ -929,6 +1011,9 @@ export class ReportAggregator {
             dailySentiment,
             participantRoles,
             emojiInsight,
+            participantEmojiStats,
+            honorificInsight,
+            roomRelationship,
             memorableMoments,
         };
     }
@@ -1362,5 +1447,45 @@ function formatDayMdHighlight(ymd) {
     if (p.length === 3)
         return `${Number(p[1])}/${Number(p[2])}`;
     return ymd;
+}
+function inferRoomRelationship(honorific) {
+    const honorificCount = honorific.participants.filter((p) => p.dominantStyle === "honorific").length;
+    const casualCount = honorific.participants.filter((p) => p.dominantStyle === "casual").length;
+    const total = honorific.participants.length;
+    if (total === 0) {
+        return { type: "mixed", description: "높임법 분석 데이터가 부족합니다.", evidence: [] };
+    }
+    const honorificRatio = honorificCount / total;
+    const casualRatio = casualCount / total;
+    if (honorificRatio >= 0.7) {
+        return {
+            type: "formal",
+            description: "대부분 존칭을 사용하는 격식 있는 방입니다.",
+            evidence: [`${honorificCount}명 중 ${Math.round(honorificRatio * 100)}%가 존칭 사용`],
+        };
+    }
+    if (casualRatio >= 0.7) {
+        return {
+            type: "friendly",
+            description: "친구나 동료처럼 편안한 반말을 주로 사용합니다.",
+            evidence: [`${casualCount}명 중 ${Math.round(casualRatio * 100)}%가 반말 사용`],
+        };
+    }
+    // 일부는 존칙, 일부는 반말
+    if (honorificCount > 0 && casualCount > 0) {
+        return {
+            type: "hierarchical",
+            description: "존칭과 반말이 혼용되어 선후배/상하 관계가 있을 수 있습니다.",
+            evidence: [
+                `존칭 사용자: ${honorificCount}명`,
+                `반말 사용자: ${casualCount}명`,
+            ],
+        };
+    }
+    return {
+        type: "mixed",
+        description: "다양한 높임법 스타일이 혼재되어 있습니다.",
+        evidence: ["명확한 패턴을 찾을 수 없음"],
+    };
 }
 //# sourceMappingURL=aggregator.js.map

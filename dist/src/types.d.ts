@@ -60,6 +60,11 @@ export interface HonorificInsight {
     participants: ParticipantHonorific[];
     roomStyle: "formal" | "casual" | "mixed";
 }
+export interface RoomRelationship {
+    type: "hierarchical" | "friendly" | "formal" | "casual" | "mixed";
+    description: string;
+    evidence: string[];
+}
 export interface CountItem {
     label: string;
     count: number;
@@ -132,6 +137,15 @@ export interface EmojiInsight {
         emoji: string;
         count: number;
     }[];
+}
+export interface ParticipantEmojiStat {
+    alias: string;
+    totalEmojis: number;
+    topEmojis: {
+        emoji: string;
+        count: number;
+    }[];
+    dominantEmotion: string;
 }
 /** c-TF-IDF·공기 군집으로 뽑은 대화 주제 */
 export interface ReportTopic {
@@ -666,7 +680,9 @@ export interface ReportData {
     dailySentiment: DailySentiment[];
     participantRoles: ParticipantRole[];
     emojiInsight: EmojiInsight;
+    participantEmojiStats: ParticipantEmojiStat[];
     honorificInsight?: HonorificInsight;
+    roomRelationship?: RoomRelationship;
     /** 기억에 남는 순간 (규칙 기반 추출) */
     memorableMoments: MemorableMoment[];
 }
