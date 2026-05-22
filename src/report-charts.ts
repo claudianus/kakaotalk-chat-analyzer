@@ -437,7 +437,7 @@ export const CHARTS_INIT_SCRIPT = `
         var hg = layout(hoursEl);
         init("chart-hours", Object.assign(baseOpt(), {
           grid: { left: hg.left, right: hg.right, top: hg.top, bottom: hg.bottom },
-          xAxis: { type: "category", data: data.hourly.map(function (_, h) { return h + "시"; }), axisLabel: { color: muted, fontSize: hg.fs, rotate: hg.rot } },
+          xAxis: { type: "category", data: data.hourly.map(function (_, h) { return h + "시"; }), axisLabel: { color: muted, fontSize: hg.fs, rotate: hg.rot, interval: hg.w < 480 ? 2 : 0 } },
           yAxis: { type: "value", axisLabel: { color: muted }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
           series: [{
             type: "bar",
@@ -483,9 +483,16 @@ export const CHARTS_INIT_SCRIPT = `
       if (data.monthly && document.getElementById("chart-monthly")) {
         var moEl = document.getElementById("chart-monthly");
         var mg = layout(moEl);
+        var monthLabels = data.monthly.map(function (m) {
+          if (mg.w < 480) {
+            var p = m.label.split("-");
+            return p.length >= 2 ? Number(p[1]) + "월" : m.label;
+          }
+          return m.label;
+        });
         init("chart-monthly", Object.assign(baseOpt(), {
           grid: { left: mg.left, right: mg.right, top: mg.top, bottom: mg.bottom },
-          xAxis: { type: "category", data: data.monthly.map(function (m) { return m.label; }), axisLabel: { color: muted, fontSize: mg.fs, rotate: mg.bottomRot } },
+          xAxis: { type: "category", data: monthLabels, axisLabel: { color: muted, fontSize: mg.fs, rotate: mg.bottomRot } },
           yAxis: { type: "value", axisLabel: { color: muted, fontSize: mg.fs }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
           series: [{ type: "line", smooth: true, data: data.monthly.map(function (m) { return m.count; }), areaStyle: { opacity: 0.12 }, lineStyle: { width: 2, color: accent2 }, itemStyle: { color: accent2 } }],
         }));
@@ -604,12 +611,23 @@ export const CHARTS_INIT_SCRIPT = `
       }
 
       if (data.domains && document.getElementById("chart-domains")) {
+        var domEl = document.getElementById("chart-domains");
+        var domg = layout(domEl);
         init("chart-domains", Object.assign(baseOpt(), {
           tooltip: { trigger: "item" },
           series: [{
             type: "treemap",
             data: data.domains.map(function (d) { return { name: d.label, value: d.count }; }),
-            label: { color: text, fontSize: 11 },
+            label: {
+              color: text,
+              fontSize: 11,
+              formatter: function (p) {
+                var name = p.name;
+                if (domg.w < 480 && name.length > 12) return name.slice(0, 10) + "...";
+                if (name.length > 20) return name.slice(0, 18) + "...";
+                return name;
+              }
+            },
             itemStyle: { borderColor: dark ? "#0d1117" : "#fff", gapWidth: 2 },
           }],
         }));

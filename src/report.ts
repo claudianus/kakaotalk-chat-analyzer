@@ -36,6 +36,7 @@ import {
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
 import {
+  renderDailyHotTopics,
   renderLlmArchetypeBanner,
   renderLlmCharacterCards,
   renderLlmDayMicroStories,
@@ -122,6 +123,7 @@ export function renderReportHtml(data: ReportData): string {
     ${renderShopSearchPromoted(data)}
     ${renderLlmMomentsBlock(data)}
     ${renderLlmDayMicroStories(data)}
+    ${renderDailyHotTopics(data)}
     ${renderInnovationDeck(data)}
 
     ${renderInsightDeck(data)}
@@ -403,12 +405,28 @@ function renderFactMatrix(data: ReportData): string {
 function renderParticipantsFold(data: ReportData): string {
   const n = data.participants.length;
   if (n === 0) return "";
-  const body = renderParticipants(data.participants);
-  return `<details class="panel-fold" open>
-    <summary>참여자 랭킹 · 상위 ${formatNumber(Math.min(n, 40))} / 전체 ${formatNumber(n)}</summary>
-    <p class="chart-hint">말풍선 맵(③)과 함께 보면 비중·길이가 잡혀요.</p>
-    ${body}
+  const top10 = data.participants.slice(0, 10);
+  const rest = data.participants.slice(10);
+  const topBody = renderParticipants(top10);
+
+  let html = `<details class="panel-fold" open>
+    <summary>참여자 랭킹 · 상위 ${formatNumber(Math.min(n, 10))} / 전체 ${formatNumber(n)}${rest.length > 0 ? " (더 보기)" : ""}</summary>
+    <p class="chart-hint">말풍선 맵(③)과 함께 본면 비중·길이가 잡혀요.</p>
+    ${topBody}`;
+
+  if (rest.length > 0) {
+    const restBody = renderParticipants(rest);
+    html += `
+    <details class="panel-fold panel-fold--nested" style="margin-top:16px">
+      <summary>나머지 ${formatNumber(rest.length)}명 더 보기</summary>
+      ${restBody}
+    </details>`;
+  }
+
+  html += `
   </details>`;
+
+  return html;
 }
 
 function linkEntropyMetric(data: ReportData, ins: ReportData["insights"]): string {

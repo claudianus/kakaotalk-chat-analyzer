@@ -1,11 +1,11 @@
 {
     "schema_version": 1,
-    "commit": "e6b12182d3dc1234ea5d52c5dfaee1b8b08df41d",
-    "indexed_at": "2026-05-21T00:51:03Z",
+    "commit": "7a21787e4df69d9650e568d14fa73b0878f16395",
+    "indexed_at": "2026-05-22T01:33:14Z",
     "project": "Users-modumaru-Desktop-code-kakaotalk-chat-analyzer",
-    "nodes": 1986,
-    "edges": 4724,
-    "original_size": 5570560,
-    "compressed_size": 1193200,
-    "compression_level": 9
+    "nodes": 181891,
+    "edges": 184033,
+    "original_size": 247988224,
+    "compressed_size": 16690026,
+    "compression_level": 3
 }

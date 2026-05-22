@@ -144,6 +144,7 @@ export function emptyReportData() {
         benchmarks: [],
         openChatBoilerplateExcluded: 0,
         burstDetectionMethod: "heuristic",
+        dailyHotTopics: [],
         explorer: { daily: [], hourly: [], monthly: [], range: { min: "", max: "" } },
     };
 }

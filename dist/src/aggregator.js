@@ -91,6 +91,7 @@ export class ReportAggregator {
     dailyLinks = new Map();
     dailyPlanSignals = new Map();
     monthlyKeywordBuckets = new Map();
+    dailyKeywordBuckets = new Map();
     dyads = new DyadAccumulator();
     total = 0;
     totalCharacters = 0;
@@ -374,6 +375,13 @@ export class ReportAggregator {
                 if (!opts?.skipKeywords) {
                     const kwTokens = tokenizeForKeywords(msg);
                     this.applyKeywordTokens(kwTokens, `${record.date.year}-${pad2(record.date.month)}`);
+                    let dayBucket = this.dailyKeywordBuckets.get(dayKey);
+                    if (!dayBucket) {
+                        dayBucket = new KeywordCounter();
+                        this.dailyKeywordBuckets.set(dayKey, dayBucket);
+                    }
+                    for (const t of kwTokens)
+                        dayBucket.add(t);
                 }
                 if (!opts?.keywordsOnly) {
                     const kwOpts = {
@@ -733,6 +741,21 @@ export class ReportAggregator {
             rhythmScore,
             weekendSharePercent,
         });
+        const dailyHotTopics = dailySorted
+            .map((d) => {
+            const bucket = this.dailyKeywordBuckets.get(d.date);
+            const topKeywords = bucket ? bucket.topCounts(3).map((item) => item.label) : [];
+            const summary = topKeywords.length > 0
+                ? `${topKeywords.join("·")} 언급이 많았어요`
+                : "활발한 대화가 이어졌어요";
+            return {
+                date: d.date,
+                keywords: topKeywords,
+                summary,
+                messageCount: d.count,
+            };
+        })
+            .filter((d) => d.keywords.length > 0 || d.messageCount > 0);
         return {
             generatedAt: new Date().toISOString(),
             privacy: this.privacy,
@@ -816,6 +839,7 @@ export class ReportAggregator {
             explorer,
             openChatBoilerplateExcluded: this.openChatBoilerplateExcluded,
             burstDetectionMethod,
+            dailyHotTopics,
         };
     }
 }

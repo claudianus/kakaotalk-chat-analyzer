@@ -184,6 +184,36 @@ export function renderLlmDayMicroStories(data: ReportData): string {
   return `<div class="llm-day-stories"><h3 class="insight-sub">그날의 방</h3><ul>${rows}</ul></div>`;
 }
 
+export function renderDailyHotTopics(data: ReportData): string {
+  const topics = data.dailyHotTopics;
+  if (!topics?.length) return "";
+
+  const burstSet = new Set(data.burstDays.map((d) => d.date));
+
+  const rows = topics
+    .map((t) => {
+      const isBurst = burstSet.has(t.date);
+      const burstCls = isBurst ? " hot-topic--burst" : "";
+      const burstBadge = isBurst ? '<span class="hot-topic-badge">🔥 급증일</span>' : "";
+      const keywords = t.keywords
+        .map((k) => `<span class="hot-topic-kw">${escapeHtml(k)}</span>`)
+        .join("");
+      return `<article class="hot-topic-card${burstCls}" role="listitem">
+        <time class="hot-topic-date" datetime="${escapeHtml(t.date)}">${escapeHtml(t.date)}</time>
+        ${burstBadge}
+        <div class="hot-topic-kws">${keywords}</div>
+        <p class="hot-topic-summary">${escapeHtml(t.summary)}</p>
+        <span class="hot-topic-count">${t.messageCount}건</span>
+      </article>`;
+    })
+    .join("");
+
+  return `<section id="s-hot-topics" class="hot-topics-section anim-enter" style="--enter-delay:0.045s" aria-label="이 날의 핫토픽">
+    <h2 class="llm-strip-title">이 날의 핫토픽</h2>
+    <div class="hot-topics-grid" role="list">${rows}</div>
+  </section>`;
+}
+
 export function renderLlmShareFooter(data: ReportData): string {
   const ins = data.llmInsights;
   if (!ins?.shareLine && !(ins?.hashtags?.length) && !(ins?.counterfactuals?.length)) return "";

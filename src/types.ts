@@ -360,6 +360,13 @@ export interface LlmDayMicroStory {
   line: string;
 }
 
+export interface DailyHotTopic {
+  date: string;        // YYYY-MM-DD
+  keywords: string[];  // 상위 3개 키워드
+  summary: string;     // LLM 요약 (한 줄)
+  messageCount: number;
+}
+
 export interface LlmInsights {
   insightBullets?: string[];
   shopSearchSummary?: string;
@@ -597,4 +604,6 @@ export interface ReportData {
   openChatBoilerplateExcluded: number;
   /** 급증일 탐지 방식 */
   burstDetectionMethod: "heuristic" | "mad";
+  /** 일별 핫토픽 (상위 키워드 + 요약) */
+  dailyHotTopics: DailyHotTopic[];
 }

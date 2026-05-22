@@ -8,4 +8,5 @@ export declare function renderLlmCharacterCards(data: ReportData): string;
 export declare function renderLlmInsideJokes(data: ReportData): string;
 export declare function renderLlmEraLabels(data: ReportData): string;
 export declare function renderLlmDayMicroStories(data: ReportData): string;
+export declare function renderDailyHotTopics(data: ReportData): string;
 export declare function renderLlmShareFooter(data: ReportData): string;

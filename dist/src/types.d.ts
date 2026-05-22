@@ -330,6 +330,12 @@ export interface LlmDayMicroStory {
     date: string;
     line: string;
 }
+export interface DailyHotTopic {
+    date: string;
+    keywords: string[];
+    summary: string;
+    messageCount: number;
+}
 export interface LlmInsights {
     insightBullets?: string[];
     shopSearchSummary?: string;
@@ -574,4 +580,6 @@ export interface ReportData {
     openChatBoilerplateExcluded: number;
     /** 급증일 탐지 방식 */
     burstDetectionMethod: "heuristic" | "mad";
+    /** 일별 핫토픽 (상위 키워드 + 요약) */
+    dailyHotTopics: DailyHotTopic[];
 }
