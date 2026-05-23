@@ -65,7 +65,7 @@ npx 예시:
 function registerPipelineOptions(cmd: Command): void {
   cmd
     .option("--local", "HTML만 만들고 업로드는 하지 않습니다.", false)
-    .option("--dry-run", "업로드를 생략하고 리포트만 생성합니다.", false)
+    .option("--dry-run", "[deprecated] --local을 대신 사용하세요", false)
     .option("--host <host>", "brewpage, tempfile, cloudflare", "brewpage")
     .option("--ttl <days>", "임시 호스팅 TTL(일)", "30")
     .option("--ns <namespace>", "호스팅 네임스페이스", DEFAULT_NAMESPACE)
@@ -553,7 +553,11 @@ function parsePrivacy(value: string): PrivacyMode {
 
 function parseTtl(value: string): number {
   const ttl = parsePositiveInt(value, 30);
-  return Math.max(1, Math.min(30, ttl));
+  const clamped = Math.max(1, Math.min(30, ttl));
+  if (clamped !== ttl) {
+    console.warn(`⚠ --ttl ${ttl}일 → 최대 30일로 조정되었습니다.`);
+  }
+  return clamped;
 }
 
 function parsePositiveInt(value: string, fallback: number): number {

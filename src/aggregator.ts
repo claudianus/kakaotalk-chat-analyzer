@@ -82,7 +82,6 @@ const ATTACHMENT_MARKERS = [
 ] as const;
 
 const KEYWORD_EXCLUDE = new Set<string>([...ATTACHMENT_MARKERS, ...SYSTEM_NOTICE_KEYWORD_STOP]);
-const PHOTO_BUNDLE_RE = /^사진\s+\d+\s*장$/;
 const PURE_LAUGH_RE = /^[ㅋㅎㅠㅜ]+$/u;
 const PLAN_SIGNAL_RE =
   /(?:\d{1,2}\s*월|\d{1,2}\s*일|내일|모레|다음\s*주|오전|오후|저녁|점심|몇\s*시|\d{1,2}:\d{2})/u;
