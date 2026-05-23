@@ -2289,7 +2289,10 @@ main {
 
 .kca-topbar,
 #s-story,
-#s-wrapped {
+#s-wrapped,
+#s-facts,
+#s-viz,
+#s-archetype {
   content-visibility: visible;
 }
 
