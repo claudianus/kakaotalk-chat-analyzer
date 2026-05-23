@@ -1,4 +1,4 @@
-/* kca 리셋·타이포·시네마틱 배경 */
+/* kca 리셋·타이포·시네마틱 배경 v2 */
 *,
 *::before,
 *::after {
@@ -18,17 +18,17 @@ body.kca-oled {
   min-height: 100dvh;
   background-color: var(--bg2);
   background-image:
-    radial-gradient(ellipse 120% 80% at 50% -30%, var(--glow-violet), transparent 55%),
-    radial-gradient(ellipse 90% 60% at 100% 20%, var(--glow-warm), transparent 50%),
-    radial-gradient(ellipse 80% 50% at 0% 60%, var(--glow), transparent 48%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 42%, var(--oled-deep) 100%);
+    radial-gradient(ellipse 110% 70% at 50% -25%, var(--glow-violet), transparent 52%),
+    radial-gradient(ellipse 80% 55% at 95% 15%, var(--glow-warm), transparent 48%),
+    radial-gradient(ellipse 75% 45% at 5% 55%, var(--glow), transparent 45%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 38%, var(--oled-deep) 100%);
   color: var(--ink);
   font-family: var(--kca-font-sans);
   font-size: var(--font-size-1);
   line-height: var(--font-lineheight-3);
   transition:
-    background 0.45s var(--ease-out),
-    color 0.25s var(--ease-out);
+    background 0.5s var(--ease-out),
+    color 0.3s var(--ease-out);
 }
 
 body.kca-oled::before {
@@ -37,11 +37,12 @@ body.kca-oled::before {
   inset: 0;
   z-index: -2;
   pointer-events: none;
-  opacity: 0.55;
+  opacity: 0.48;
   background:
-    radial-gradient(circle at 20% 30%, var(--glow) 0%, transparent 42%),
-    radial-gradient(circle at 80% 10%, var(--glow-violet) 0%, transparent 38%);
-  animation: kca-aurora 18s ease-in-out infinite alternate;
+    radial-gradient(circle at 25% 35%, var(--glow) 0%, transparent 40%),
+    radial-gradient(circle at 75% 15%, var(--glow-violet) 0%, transparent 36%),
+    radial-gradient(circle at 50% 80%, var(--glow-warm) 0%, transparent 42%);
+  animation: kca-aurora 20s ease-in-out infinite alternate;
 }
 
 body.kca-oled::after {
@@ -50,8 +51,8 @@ body.kca-oled::after {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 .skip-link {
@@ -96,15 +97,15 @@ h1 {
   margin: 0;
   font-size: clamp(var(--font-size-5), 4.2vw, var(--font-size-8));
   line-height: var(--font-lineheight-00);
-  letter-spacing: var(--font-letterspacing-0);
-  font-weight: var(--font-weight-8);
+  letter-spacing: -0.04em;
+  font-weight: 850;
 }
 
 h2 {
   margin: 0 0 var(--size-2);
   font-size: var(--font-size-3);
-  font-weight: var(--font-weight-7);
-  letter-spacing: var(--font-letterspacing-0);
+  font-weight: 750;
+  letter-spacing: -0.02em;
 }
 
 a {
@@ -113,29 +114,33 @@ a {
 }
 
 a:hover {
-  text-shadow: 0 0 20px color-mix(in oklab, var(--accent) 55%, transparent);
+  text-shadow: 0 0 24px color-mix(in oklab, var(--accent) 60%, transparent);
 }
 
 @keyframes kca-aurora {
   0% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.45;
+    opacity: 0.4;
   }
-  50% {
-    transform: translate(2%, 3%) scale(1.04);
-    opacity: 0.65;
+  33% {
+    transform: translate(1.5%, 2%) scale(1.03);
+    opacity: 0.55;
+  }
+  66% {
+    transform: translate(-1%, -1%) scale(1.05);
+    opacity: 0.6;
   }
   100% {
-    transform: translate(-2%, 1%) scale(1.02);
-    opacity: 0.5;
+    transform: translate(-1.5%, 1.5%) scale(1.02);
+    opacity: 0.45;
   }
 }
 
 @keyframes kca-fade-up {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.985);
-    filter: blur(4px);
+    transform: translateY(24px) scale(0.98);
+    filter: blur(6px);
   }
   to {
     opacity: 1;
@@ -146,9 +151,9 @@ a:hover {
 
 @keyframes kca-ring-in {
   from {
-    transform: scale(0.88);
-    opacity: 0.6;
-    filter: blur(2px);
+    transform: scale(0.85);
+    opacity: 0.5;
+    filter: blur(3px);
   }
   to {
     transform: scale(1);
@@ -158,32 +163,34 @@ a:hover {
 }
 
 @keyframes kca-shimmer {
-  0% {
-    background-position: 200% center;
-  }
-  100% {
-    background-position: -200% center;
-  }
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }
 
 @keyframes kca-pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 20px color-mix(in oklab, var(--accent) 25%, transparent);
+  0%, 100% { box-shadow: 0 0 24px color-mix(in oklab, var(--accent) 28%, transparent); }
+  50% { box-shadow: 0 0 44px color-mix(in oklab, var(--accent) 50%, transparent); }
+}
+
+@keyframes kca-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
   }
-  50% {
-    box-shadow: 0 0 36px color-mix(in oklab, var(--accent) 45%, transparent);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .anim-enter {
-  animation: kca-fade-up 0.72s var(--ease-out) forwards;
+  animation: kca-fade-up 0.75s var(--ease-out) forwards;
   opacity: 0;
   animation-delay: var(--enter-delay, 0s);
 }
 
 .rh-wrap.anim-ring {
-  animation: kca-ring-in 0.85s var(--ease-spring) forwards;
+  animation: kca-ring-in 0.9s var(--ease-spring) forwards;
 }
 
 .anim-enter:target {
@@ -193,14 +200,8 @@ a:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  body.kca-oled::before {
-    animation: none;
-  }
-
+  html { scroll-behavior: auto; }
+  body.kca-oled::before { animation: none; }
   .anim-enter,
   .rh-wrap.anim-ring {
     animation: none !important;
