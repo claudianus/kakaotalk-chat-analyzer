@@ -52,6 +52,8 @@
     "docs:capture-demo": "node scripts/capture-docs-demo.mjs",
     "docs:open": "node scripts/docs-open-preview.mjs",
     "smoke": "node dist/src/cli.js --help",
+    "lint": "eslint src/",
+    "format": "prettier --write 'src/**/*.ts'",
     "gh:sync-npm-secret": "bash scripts/sync-npm-token-to-gh.sh",
     "postinstall": "node scripts/ensure-ml-bundles.mjs"
   },
@@ -71,10 +73,14 @@
     "onnxruntime-node": "^1.21.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.19.19",
+    "eslint": "^10.4.0",
     "open-props": "^1.7.15",
     "playwright": "^1.52.0",
-    "typescript": "^6.0.3"
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.4"
   },
   "keywords": [
     "kakaotalk",
