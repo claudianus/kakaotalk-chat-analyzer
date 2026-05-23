@@ -323,7 +323,7 @@ export const CHARTS_INIT_SCRIPT = `
         var splitFill = dark ? ["rgba(255,255,255,0.03)", "rgba(255,255,255,0.06)"] : ["rgba(0,0,0,0.02)", "rgba(0,0,0,0.05)"];
         var chart = init("chart-dyad", Object.assign(baseOpt(), {
           animation: false,
-          tooltip: { position: "top", formatter: function (p) { var v = p.value[2]; return ix.aliases[p.value[1]] + " → " + ix.aliases[p.value[0]] + ": " + v; } },
+          tooltip: { position: "top", formatter: function (p) { var v = p.value[2]; function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); } return esc(ix.aliases[p.value[1]]) + " → " + esc(ix.aliases[p.value[0]]) + ": " + v; } },
           grid: { left: Math.max(dg.leftCat, 80), right: dg.right, top: dg.top, bottom: Math.max(dg.bottom, 72) },
           xAxis: {
             type: "category",
@@ -832,13 +832,14 @@ export const CHARTS_INIT_SCRIPT = `
               tooltip: {
                 trigger: "item",
                 formatter: function (p) {
+                  function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
                   if (p.dataType === "edge") {
                     var arrowColor = dark ? "#5ee8ff" : "#0f6b5c";
-                    return '<div style="font-weight:600;margin-bottom:4px">' + p.data.source + ' <span style="color:' + arrowColor + '">→</span> ' + p.data.target + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
+                    return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.source) + ' <span style="color:' + arrowColor + '">→</span> ' + esc(p.data.target) + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
                   }
                   var idx = aliases.indexOf(p.data.name);
                   if (idx < 0) idx = 0;
-                  return '<div style="font-weight:600;margin-bottom:4px">' + p.data.name + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
+                  return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.name) + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
                 }
               },
               series: [{
@@ -900,13 +901,14 @@ export const CHARTS_INIT_SCRIPT = `
               tooltip: {
                 trigger: "item",
                 formatter: function (p) {
+                  function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
                   if (p.dataType === "edge") {
                     var arrowColor2 = dark ? "#5ee8ff" : "#0f6b5c";
-                    return '<div style="font-weight:600;margin-bottom:4px">' + p.data.source + ' <span style="color:' + arrowColor2 + '">→</span> ' + p.data.target + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
+                    return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.source) + ' <span style="color:' + arrowColor2 + '">→</span> ' + esc(p.data.target) + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
                   }
                   var idx = aliases.indexOf(p.data.name);
                   if (idx < 0) idx = 0;
-                  return '<div style="font-weight:600;margin-bottom:4px">' + p.data.name + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
+                  return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.name) + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
                 }
               },
               series: [{
