@@ -1,0 +1,22 @@
+src/accumulator/aggregator-helpers.ts
+  s_ccaebc1732a494::t_2db9c10cf4f5a2 1-467
+src/aggregator.ts
+  s_ccaebc1732a494::t_8c051edaa64124 70-98
+  s_ccaebc1732a494::t_747a23d59e6598 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "6b327ce6539fa61bf56d31ac729724ceb99e43b0",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
