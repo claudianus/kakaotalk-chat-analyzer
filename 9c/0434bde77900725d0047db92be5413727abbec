@@ -1,0 +1,137 @@
+src/report-llm-deck.ts
+  s_c55238be1bcfc3::t_7db7b962322e07 33
+  s_c55238be1bcfc3::t_58a97ed9f49a35 55
+  s_c55238be1bcfc3::t_150c3995b65fce 145
+  s_c55238be1bcfc3::t_39a601b7f9cdeb 211
+  s_c55238be1bcfc3::t_835b569e174a06 271
+  s_c55238be1bcfc3::t_3c31c696c75671 308
+  s_c55238be1bcfc3::t_268484077b831d 81
+dist/src/report-llm-deck.js
+  s_c55238be1bcfc3::t_6e492d3d306586 27
+  s_c55238be1bcfc3::t_a1bd67ddbd5e25 46,69,125,179,235,269
+package.json
+  s_c55238be1bcfc3::t_eee92b64d09187 3
+dist/src/version.d.ts
+  s_c55238be1bcfc3::t_e37df5c3286b2e 1-2
+dist/src/report-charts.js
+  s_c55238be1bcfc3::t_6e492d3d306586 90,96,101,106,112,118,128,140,145,167
+  s_c55238be1bcfc3::t_1e708e36e422ef 123
+  s_c55238be1bcfc3::t_73cb973be0f809 147-151,153-158,675-676,678-679,681-682,684,686-691,699,701,705-709,711,713-714,716-772,774-786,789-790,792-793,795-854,857-858,860-861,863-934
+  s_c55238be1bcfc3::t_ebadd56d61ebf8 152,710,712,715,787-788,791,855-856,859
+src/report/css/03-kca-story.css
+  s_c55238be1bcfc3::t_013327585d8ba4 188-191
+  s_c55238be1bcfc3::t_b1e8da93b4f410 197-201
+src/report/css/07-kca-oled-glass.css
+  s_c55238be1bcfc3::t_bbac748fbea720 85-93
+  s_c55238be1bcfc3::t_ae0cf5375b3fdc 98-105
+  s_c55238be1bcfc3::t_f901baf2c2de19 112-113
+  s_c55238be1bcfc3::t_370a3d0172fdde 30-38
+  s_c55238be1bcfc3::t_421ff75857608e 60-68
+  s_c55238be1bcfc3::t_53aa9ca324487d 8-16
+src/report-styles.ts
+  s_c55238be1bcfc3::t_73cb973be0f809 1826-1910,1926-1954
+  s_c55238be1bcfc3::t_61c32381120faf 74-85,135-145,191-199,256-264
+  s_c55238be1bcfc3::t_ebadd56d61ebf8 1911-1925
+  s_c55238be1bcfc3::t_4ac3fad1ec4c98 549-578,714,2324,2415,2446,2713-2714
+  s_c55238be1bcfc3::t_6f8f84a998c57a 485-540,579-580,644,1422-1425,2609-2617,2631-2639,2661-2669,2686-2694,2699-2706
+  s_c55238be1bcfc3::t_1e708e36e422ef 541-548,1716-1721
+  s_c55238be1bcfc3::t_2594ebbd924d6d 1431-1435
+dist/src/version.js
+  s_c55238be1bcfc3::t_e37df5c3286b2e 1
+dist/src/report-ux.js
+  s_c55238be1bcfc3::t_4ac3fad1ec4c98 167
+src/version.ts
+  s_c55238be1bcfc3::t_e37df5c3286b2e 1
+src/report/css/00-kca-tokens.css
+  s_c55238be1bcfc3::t_aeffa7be570d7a 69-80
+  s_c55238be1bcfc3::t_ee22e9139ce168 130-140
+  s_c55238be1bcfc3::t_20c5036027e0c0 186-194
+  s_c55238be1bcfc3::t_63cfadeb7deb56 251-259
+src/report-ux.ts
+  s_c55238be1bcfc3::t_f744d806327175 172
+dist/src/report.js
+  s_c55238be1bcfc3::t_4ac3fad1ec4c98 41-42,54,62
+  s_c55238be1bcfc3::t_2594ebbd924d6d 955,965
+  s_c55238be1bcfc3::t_1e708e36e422ef 645
+  s_c55238be1bcfc3::t_6e492d3d306586 87,90,93,98,103,107,301,313,358,416,907,928
+dist/src/report-innovation.js
+  s_c55238be1bcfc3::t_6e492d3d306586 33,47,68,82,91
+dist/src/report-story.js
+  s_c55238be1bcfc3::t_2594ebbd924d6d 136-137
+  s_c55238be1bcfc3::t_6e492d3d306586 101,115,135
+src/report/css/04-kca-charts.css
+  s_c55238be1bcfc3::t_b6cf544a3b3889 91-97
+  s_c55238be1bcfc3::t_5c2e8f849d8341 286-300
+  s_c55238be1bcfc3::t_65036fe4cb76a7 200-285,301-328
+src/report.ts
+  s_c55238be1bcfc3::t_1ceba1306104bc 1104
+  s_c55238be1bcfc3::t_9a99967f7779db 361
+  s_c55238be1bcfc3::t_a5d96728d469c2 140,144,148,153,158,162
+  s_c55238be1bcfc3::t_cd5051349531e6 374
+  s_c55238be1bcfc3::t_d287b75e0d44cf 420
+  s_c55238be1bcfc3::t_bb89af1924f1e8 735
+  s_c55238be1bcfc3::t_7a86a2f8b1bbfe 94-95,107,115
+  s_c55238be1bcfc3::t_a7e34dc475d995 486
+  s_c55238be1bcfc3::t_28fbee1369e998 1064
+  s_c55238be1bcfc3::t_bb7ef55eedaa93 1041
+  s_c55238be1bcfc3::t_b4ab513a00c28f 1090
+src/report-charts.ts
+  s_c55238be1bcfc3::t_feb07129dffa4d 724-725,727-728,730-731,733,735-740,748,750,754-758,760,762-763,765-821,823-835,838-839,841-842,844-903,906-907,909-910,912-983
+  s_c55238be1bcfc3::t_d7ea5b1a9341dd 130,147,154,161,173,185,190,212
+  s_c55238be1bcfc3::t_4b29859b4413d6 836-837,840,904-905,908
+  s_c55238be1bcfc3::t_5313e08783cc81 137
+  s_c55238be1bcfc3::t_0d33db5b527bb5 197
+  s_c55238be1bcfc3::t_551f55425b0f9b 167
+  s_c55238be1bcfc3::t_13a043f601c183 192-196,198-203
+  s_c55238be1bcfc3::t_0cedcc5a07c95e 142
+  s_c55238be1bcfc3::t_b15d8bc3b728c6 759,761,764
+dist/src/report-charts.d.ts
+  s_c55238be1bcfc3::t_ebadd56d61ebf8 84
+src/report-story.ts
+  s_c55238be1bcfc3::t_cf73f3f55364ac 155
+  s_c55238be1bcfc3::t_20c1f573a6396b 132
+  s_c55238be1bcfc3::t_3fe3d566316a76 156-157
+  s_c55238be1bcfc3::t_d319717fef3124 115
+dist/src/report-styles.js
+  s_c55238be1bcfc3::t_2594ebbd924d6d 1431-1435
+  s_c55238be1bcfc3::t_ebadd56d61ebf8 1911-1925
+  s_c55238be1bcfc3::t_4ac3fad1ec4c98 549-578,714,2324,2415,2446,2713-2714
+  s_c55238be1bcfc3::t_1e708e36e422ef 541-548,1716-1721
+  s_c55238be1bcfc3::t_73cb973be0f809 1826-1910,1926-1954
+  s_c55238be1bcfc3::t_61c32381120faf 74-85,135-145,191-199,256-264
+  s_c55238be1bcfc3::t_6f8f84a998c57a 485-540,579-580,644,1422-1425,2609-2617,2631-2639,2661-2669,2686-2694,2699-2706
+src/report/css/02-kca-components.css
+  s_c55238be1bcfc3::t_d2c90d7f8c0318 58-65
+  s_c55238be1bcfc3::t_1f9192f4ba7739 231
+  s_c55238be1bcfc3::t_c36fda806d7fd0 2-57,96-97
+  s_c55238be1bcfc3::t_615a0a0c427628 66-95
+  s_c55238be1bcfc3::t_a3addd65ed1bce 161
+dist/src/report-styles.d.ts
+  s_c55238be1bcfc3::t_1e708e36e422ef 2
+src/report/css/06-kca-responsive.css
+  s_c55238be1bcfc3::t_865e89a14a0278 146
+  s_c55238be1bcfc3::t_9e8acaceb6205b 237
+  s_c55238be1bcfc3::t_d1ad8e53df81ed 268
+src/report-innovation.ts
+  s_c55238be1bcfc3::t_9c703c74d35477 99
+  s_c55238be1bcfc3::t_8c19ce1228c54c 56
+  s_c55238be1bcfc3::t_ed777534fa4f0e 39
+  s_c55238be1bcfc3::t_ecc6fd6f6e64e8 82
+  s_c55238be1bcfc3::t_3e47299ab7c39a 108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "9c0434bde77900725d0047db92be5413727abbec",
+  "prompts": {},
+  "sessions": {
+    "s_c55238be1bcfc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1abced36bffeJ1yWcZjCGU6S6i",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
