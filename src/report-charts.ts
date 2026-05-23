@@ -8,8 +8,8 @@ export const CHART_CDN_HEAD = ``;
 
 /** body 끝: 차트 라이브러리 — defer 금지(인라인 init보다 반드시 먼저 실행) */
 export const CHART_CDN_BODY = `
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" crossorigin="anonymous" onerror="this.onerror=null;this.src='https://unpkg.com/echarts@5.6.0/dist/echarts.min.js'"></script>
-  <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js" crossorigin="anonymous" onerror="this.onerror=null;this.src='https://unpkg.com/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js'"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" crossorigin="anonymous" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" onerror="this.onerror=null;this.src='https://unpkg.com/echarts@5.6.0/dist/echarts.min.js'"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js" crossorigin="anonymous" integrity="sha384-U1KEY0DDCF4Dq6Yx1J+EZ5Hnj8X5bMn52OAcJB8C4OiAWeU4iJhJ/Tv5KhTqu8zZ" onerror="this.onerror=null;this.src='https://unpkg.com/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js'"></script>
 `;
 
 /** @deprecated styles live in src/report/css — bundled via report-styles.ts */
