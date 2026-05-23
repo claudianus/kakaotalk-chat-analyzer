@@ -1,0 +1,21 @@
+scripts/sync-version.mjs
+  s_ccaebc1732a494::t_c2168a7fd3db03 6-7,12-19
+kcachat/package.json
+  s_ccaebc1732a494::t_fff7f1151dd561 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "6acae5b362ea48dc60782899f3015b23a2ac1416",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
