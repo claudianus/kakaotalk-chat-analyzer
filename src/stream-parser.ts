@@ -1,4 +1,4 @@
-import { open } from "node:fs/promises";
+import { open, stat } from "node:fs/promises";
 import { basename } from "node:path";
 import { createInterface } from "node:readline";
 import { detectEncodingFromBytes, openDecodedStream } from "./encoding.js";
@@ -120,8 +120,17 @@ export async function* streamKakaoExport(
   };
 }
 
-/** DATE 줄만 세어 메시지 건수 추정(진행률 %용, CSV 2회 읽기) */
+/** DATE 줄만 세어 메시지 건수 추정(진행률 %용).
+ * 512KB 초과 파일은 파일 크기 기반 휴리스틱으로 빠르게 추정합니다. */
 export async function estimateKakaoMessageCount(filePath: string): Promise<number> {
+  // 빠른 휴리스틱: 카카오톡 CSV 평균 ~200바이트/메시지
+  const { size } = await stat(filePath);
+  if (size > SAMPLE_BYTES) {
+    const estimate = Math.ceil(size / 200);
+    // 오차 보정 마진 +10% (멀티라인 메시지 등)
+    return Math.ceil(estimate * 1.1);
+  }
+  // 작은 파일만 정밀 카운트
   const sample = await readFileSample(filePath, SAMPLE_BYTES);
   const { encoding, skipBytes } = detectEncodingFromBytes(sample);
   const input = openDecodedStream(filePath, encoding, skipBytes, READ_HIGH_WATER_MARK);
