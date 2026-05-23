@@ -1,0 +1,21 @@
+src/keyword-counter.ts
+  s_ccaebc1732a494::t_340df81168453a 53,57
+test/keyword-large-corpus.test.ts
+  s_ccaebc1732a494::t_348d1e4f936c91 38-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "1335543b87dd95c1a4ca4f97e9832b4abbf937e7",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
