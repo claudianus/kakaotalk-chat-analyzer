@@ -11,12 +11,20 @@ const version = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).ver
 const docsPath = join(root, "docs", "index.html");
 let html = readFileSync(docsPath, "utf8");
 
+// New design: version in hero-badge: "v0.22.3 · Node.js 22+"
+// Fallback: old design: <span class="pill">v0.22.3</span>
+const badgeRe = /(<div class="hero-badge">[\s\S]*?)v\d+\.\d+\.\d+(\s*·)/;
 const pillRe = /(<span class="pill">)v\d+\.\d+\.\d+(<\/span>)/;
-if (!pillRe.test(html)) {
-  console.error("sync-docs-version: hero version pill not found in docs/index.html");
+
+if (badgeRe.test(html)) {
+  html = html.replace(badgeRe, `$1v${version}$2`);
+  console.log(`sync-docs-version: docs/index.html badge → v${version}`);
+} else if (pillRe.test(html)) {
+  html = html.replace(pillRe, `$1v${version}$2`);
+  console.log(`sync-docs-version: docs/index.html pill → v${version}`);
+} else {
+  console.error("sync-docs-version: version not found in docs/index.html");
   process.exit(1);
 }
 
-html = html.replace(pillRe, `$1v${version}$2`);
 writeFileSync(docsPath, html, "utf8");
-console.log(`sync-docs-version: docs/index.html pill → v${version}`);

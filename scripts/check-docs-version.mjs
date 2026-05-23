@@ -11,11 +11,13 @@ const version = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).ver
 const errors = [];
 
 const docsHtml = readFileSync(join(root, "docs", "index.html"), "utf8");
-const pillMatch = docsHtml.match(/<span class="pill">v(\d+\.\d+\.\d+)<\/span>/);
+// Support both new hero-badge design and old pill design
+const versionRe = /(?:<div class="hero-badge">[\s\S]*?|class="pill">)v(\d+\.\d+\.\d+)/;
+const pillMatch = docsHtml.match(versionRe);
 if (!pillMatch) {
-  errors.push("docs/index.html: hero version pill not found");
+  errors.push("docs/index.html: version not found");
 } else if (pillMatch[1] !== version) {
-  errors.push(`docs/index.html pill v${pillMatch[1]} !== package.json ${version} (run: npm run sync-docs-version)`);
+  errors.push(`docs/index.html version v${pillMatch[1]} !== package.json ${version} (run: npm run sync-docs-version)`);
 }
 
 const manifestPath = join(root, "docs", "assets", "demo", "manifest.json");
