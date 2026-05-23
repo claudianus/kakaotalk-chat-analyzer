@@ -1,0 +1,25 @@
+src/report-charts.ts
+  s_ccaebc1732a494::t_6a387d20d2940e 326
+  s_ccaebc1732a494::t_f2aa4df8d63f16 904,907,911
+  s_ccaebc1732a494::t_8297c23314807d 835
+  s_ccaebc1732a494::t_0f19bf86817cb4 838,842
+test/report-chart-util.test.ts
+  s_ccaebc1732a494::t_37b2ccce213277 35-47
+  s_ccaebc1732a494::t_90e4c35239ad79 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "067ff4bc286f3486989063ab7d9f00f206603c37",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
