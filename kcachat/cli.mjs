@@ -28,7 +28,7 @@ function spawnNpxLatest(forwardArgs) {
   return spawnSync(npx, ["--yes", "--prefer-online", "kakaotalk-chat-analyzer@latest", ...forwardArgs], {
     stdio: "inherit",
     env: { ...process.env, KCA_INVOKER: `kcachat/${wrapperVersion}` },
-    shell: process.platform === "win32",
+    // npx.cmd is resolved above; avoid shell:true to prevent special-char injection on Windows
   });
 }
 
