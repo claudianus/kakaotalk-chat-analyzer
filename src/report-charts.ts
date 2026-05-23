@@ -823,144 +823,86 @@ export const CHARTS_INIT_SCRIPT = `
             };
           });
 
-          // 기존 차트 인스턴스 있으면 setOption으로 업데이트, 없으면 init
+          // 공통 툴팁·시리즈 설정 (setOption / init 경로 중복 제거)
+          var networkTooltip = {
+            trigger: "item",
+            formatter: function (p) {
+              function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+              if (p.dataType === "edge") {
+                var arrowColor = dark ? "#5ee8ff" : "#0f6b5c";
+                return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.source) + ' <span style="color:' + arrowColor + '">→</span> ' + esc(p.data.target) + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
+              }
+              var idx = aliases.indexOf(p.data.name);
+              if (idx < 0) idx = 0;
+              return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.name) + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
+            }
+          };
+          var networkSeries = {
+            type: "graph",
+            layout: "circular",
+            circular: { rotateLabel: false },
+            data: nodes,
+            links: styledLinks,
+            roam: isMobile ? false : "scale",
+            draggable: false,
+            edgeSymbol: ["none", "arrow"],
+            edgeSymbolSize: [0, isMobile ? 6 : 9],
+            symbol: "circle",
+            itemStyle: {
+              borderColor: dark ? "#1c2128" : "#fff",
+              borderWidth: 2,
+              color: dark ? "#5ee8ff" : "#0f6b5c"
+            },
+            label: {
+              show: true,
+              position: "right",
+              color: text,
+              fontSize: isMobile ? 9 : (isSmall ? 10 : 11),
+              fontWeight: 600,
+              distance: 8,
+              formatter: function (p) {
+                var name = p.name;
+                if (isMobile && name.length > 5) return name.slice(0, 4) + "..";
+                if (isSmall && name.length > 7) return name.slice(0, 6) + "..";
+                if (name.length > 10) return name.slice(0, 8) + "..";
+                return name;
+              }
+            },
+            labelLayout: { hideOverlap: true },
+            lineStyle: {
+              color: dark ? "rgba(94,232,255,0.5)" : "rgba(15,107,92,0.45)",
+              curveness: 0.3,
+              opacity: 0.55
+            },
+            emphasis: {
+              focus: "adjacency",
+              scale: 1.4,
+              label: { fontSize: isMobile ? 11 : 13, fontWeight: 700 },
+              itemStyle: { shadowBlur: 18, shadowColor: dark ? "rgba(94,232,255,0.45)" : "rgba(15,107,92,0.3)" },
+              lineStyle: { width: 5, opacity: 1 }
+            },
+            blur: {
+              itemStyle: { opacity: 0.12 },
+              lineStyle: { opacity: 0.04 },
+              label: { opacity: 0.15 }
+            }
+          };
+
           if (networkChart) {
             networkChart.setOption(Object.assign(baseOpt(), {
-              animation: true,
+              animation: false,
               animationDuration: 600,
               animationEasing: "cubicOut",
-              tooltip: {
-                trigger: "item",
-                formatter: function (p) {
-                  function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-                  if (p.dataType === "edge") {
-                    var arrowColor = dark ? "#5ee8ff" : "#0f6b5c";
-                    return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.source) + ' <span style="color:' + arrowColor + '">→</span> ' + esc(p.data.target) + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
-                  }
-                  var idx = aliases.indexOf(p.data.name);
-                  if (idx < 0) idx = 0;
-                  return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.name) + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
-                }
-              },
-              series: [{
-                type: "graph",
-                layout: "circular",
-                circular: { rotateLabel: false },
-                data: nodes,
-                links: styledLinks,
-                roam: isMobile ? false : "scale",
-                draggable: false,
-                edgeSymbol: ["none", "arrow"],
-                edgeSymbolSize: [0, isMobile ? 6 : 9],
-                symbol: "circle",
-                itemStyle: {
-                  borderColor: dark ? "#1c2128" : "#fff",
-                  borderWidth: 2,
-                  color: dark ? "#5ee8ff" : "#0f6b5c"
-                },
-                label: {
-                  show: true,
-                  position: "right",
-                  color: text,
-                  fontSize: isMobile ? 9 : (isSmall ? 10 : 11),
-                  fontWeight: 600,
-                  distance: 8,
-                  formatter: function (p) {
-                    var name = p.name;
-                    if (isMobile && name.length > 5) return name.slice(0, 4) + "..";
-                    if (isSmall && name.length > 7) return name.slice(0, 6) + "..";
-                    if (name.length > 10) return name.slice(0, 8) + "..";
-                    return name;
-                  }
-                },
-                labelLayout: { hideOverlap: true },
-                lineStyle: {
-                  color: dark ? "rgba(94,232,255,0.5)" : "rgba(15,107,92,0.45)",
-                  curveness: 0.3,
-                  opacity: 0.55
-                },
-                emphasis: {
-                  focus: "adjacency",
-                  scale: 1.4,
-                  label: { fontSize: isMobile ? 11 : 13, fontWeight: 700 },
-                  itemStyle: { shadowBlur: 18, shadowColor: dark ? "rgba(94,232,255,0.45)" : "rgba(15,107,92,0.3)" },
-                  lineStyle: { width: 5, opacity: 1 }
-                },
-                blur: {
-                  itemStyle: { opacity: 0.12 },
-                  lineStyle: { opacity: 0.04 },
-                  label: { opacity: 0.15 }
-                }
-              }]
+              tooltip: networkTooltip,
+              series: [networkSeries]
             }), { notMerge: false });
           } else {
             networkChart = init("chart-network", Object.assign(baseOpt(), {
               animation: true,
               animationDuration: 600,
               animationEasing: "cubicOut",
-              tooltip: {
-                trigger: "item",
-                formatter: function (p) {
-                  function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-                  if (p.dataType === "edge") {
-                    var arrowColor2 = dark ? "#5ee8ff" : "#0f6b5c";
-                    return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.source) + ' <span style="color:' + arrowColor2 + '">→</span> ' + esc(p.data.target) + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
-                  }
-                  var idx = aliases.indexOf(p.data.name);
-                  if (idx < 0) idx = 0;
-                  return '<div style="font-weight:600;margin-bottom:4px">' + esc(p.data.name) + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
-                }
-              },
-              series: [{
-                type: "graph",
-                layout: "circular",
-                circular: { rotateLabel: false },
-                data: nodes,
-                links: styledLinks,
-                roam: isMobile ? false : "scale",
-                draggable: false,
-                edgeSymbol: ["none", "arrow"],
-                edgeSymbolSize: [0, isMobile ? 6 : 9],
-                symbol: "circle",
-                itemStyle: {
-                  borderColor: dark ? "#1c2128" : "#fff",
-                  borderWidth: 2,
-                  color: dark ? "#5ee8ff" : "#0f6b5c"
-                },
-                label: {
-                  show: true,
-                  position: "right",
-                  color: text,
-                  fontSize: isMobile ? 9 : (isSmall ? 10 : 11),
-                  fontWeight: 600,
-                  distance: 8,
-                  formatter: function (p) {
-                    var name = p.name;
-                    if (isMobile && name.length > 5) return name.slice(0, 4) + "..";
-                    if (isSmall && name.length > 7) return name.slice(0, 6) + "..";
-                    if (name.length > 10) return name.slice(0, 8) + "..";
-                    return name;
-                  }
-                },
-                labelLayout: { hideOverlap: true },
-                lineStyle: {
-                  color: dark ? "rgba(94,232,255,0.5)" : "rgba(15,107,92,0.45)",
-                  curveness: 0.3,
-                  opacity: 0.55
-                },
-                emphasis: {
-                  focus: "adjacency",
-                  scale: 1.4,
-                  label: { fontSize: isMobile ? 11 : 13, fontWeight: 700 },
-                  itemStyle: { shadowBlur: 18, shadowColor: dark ? "rgba(94,232,255,0.45)" : "rgba(15,107,92,0.3)" },
-                  lineStyle: { width: 5, opacity: 1 }
-                },
-                blur: {
-                  itemStyle: { opacity: 0.12 },
-                  lineStyle: { opacity: 0.04 },
-                  label: { opacity: 0.15 }
-                }
-              }]
+              tooltip: networkTooltip,
+              series: [networkSeries]
             }));
           }
         }
