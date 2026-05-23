@@ -1,0 +1,44 @@
+/* Safari <16.4 color-mix() 폴백 — rgba() 대체 */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  /* ── Dark theme ── */
+  :root[data-theme="dark"] {
+    --glow: rgba(46, 242, 208, 0.24);
+    --glow-violet: rgba(184, 169, 255, 0.20);
+    --glow-warm: rgba(255, 154, 69, 0.18);
+    --spot-glow: rgba(46, 242, 208, 0.45);
+    --accent-grad-soft: linear-gradient(
+      120deg,
+      rgba(46, 242, 208, 0.40),
+      rgba(184, 169, 255, 0.28)
+    );
+  }
+
+  /* ── Light theme ── */
+  :root[data-theme="light"] {
+    --glow: rgba(13, 148, 136, 0.14);
+    --glow-violet: rgba(124, 58, 237, 0.12);
+    --spot-glow: rgba(13, 148, 136, 0.28);
+    --accent-grad-soft: linear-gradient(
+      120deg,
+      rgba(13, 148, 136, 0.18),
+      rgba(124, 58, 237, 0.14)
+    );
+  }
+
+  /* ── Auto dark (prefers-color-scheme) ── */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --glow: rgba(46, 242, 208, 0.24);
+      --glow-violet: rgba(184, 169, 255, 0.20);
+      --glow-warm: rgba(255, 154, 69, 0.18);
+      --spot-glow: rgba(46, 242, 208, 0.45);
+    }
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --glow: rgba(13, 148, 136, 0.14);
+      --glow-violet: rgba(124, 58, 237, 0.12);
+      --spot-glow: rgba(13, 148, 136, 0.28);
+    }
+  }
+}

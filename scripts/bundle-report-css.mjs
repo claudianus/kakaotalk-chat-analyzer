@@ -22,6 +22,7 @@ const layers = [
   "08-kca-innovation.css",
   "09-kca-llm-deck.css",
   "10-kca-insight-cards.css",
+  "11-kca-safari-fallback.css",
 ];
 
 function readLayer(name) {
