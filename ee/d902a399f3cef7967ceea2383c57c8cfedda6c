@@ -1,0 +1,21 @@
+src/report-styles.ts
+  s_ccaebc1732a494::t_375cde0b918d2f 2292-2295
+src/report/css/06-kca-responsive.css
+  s_ccaebc1732a494::t_256c2fef011db2 114-117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "eed902a399f3cef7967ceea2383c57c8cfedda6c",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
