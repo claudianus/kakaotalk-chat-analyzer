@@ -1,0 +1,21 @@
+scripts/sync-npm-token-to-gh.sh
+  s_c55238be1bcfc3::t_9861c46969daae 2-4,9-13,41-42,54
+.github/workflows/npm-publish.yml
+  s_c55238be1bcfc3::t_3561e9d2743163 28,82,91,121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "45af4469acdbe7bd0155e15ab26581b150ba4645",
+  "prompts": {},
+  "sessions": {
+    "s_c55238be1bcfc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1abced36bffeJ1yWcZjCGU6S6i",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
