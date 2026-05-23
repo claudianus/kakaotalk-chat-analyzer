@@ -35,4 +35,17 @@ describe("large corpus keywords", () => {
     assert.ok(domain!.count >= 50, `클로드 hits too low: ${domain!.count}`);
     assert.equal(freq.some((x) => x.count <= 5), false);
   });
+
+  it("prune resets totalHits to sum of kept entries", () => {
+    const kc = new KeywordCounter();
+    // MAX_KEYS=24000, PRUNE_TO=18000. Fill beyond MAX_KEYS to trigger prune.
+    for (let i = 0; i < 25_000; i += 1) {
+      kc.add(`token-${i}`);
+    }
+    const top1 = kc.top1SharePercent();
+    assert.ok(top1 !== null, "top1SharePercent should not be null");
+    // After pruning to 18000 keys with ~1 hit each, totalHits ≈ 18000
+    // maxCount should be 1 (all tokens have 1 hit)
+    assert.ok(top1! <= 0.1, `top1SharePercent should be ~0.006% not ${top1}%`);
+  });
 });
