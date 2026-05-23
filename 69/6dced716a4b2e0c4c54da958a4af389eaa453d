@@ -1,0 +1,24 @@
+package.json
+  s_ccaebc1732a494::t_a3cfedd1800dc9 3
+src/version.ts
+  s_ccaebc1732a494::t_078e1e7f913a9c 1
+kcachat/package.json
+  s_ccaebc1732a494::t_a3cfedd1800dc9 3
+  s_ccaebc1732a494::t_078e1e7f913a9c 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "696dced716a4b2e0c4c54da958a4af389eaa453d",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
