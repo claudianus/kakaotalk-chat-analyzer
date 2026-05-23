@@ -1,0 +1,20 @@
+src/cli.ts
+  s_ccaebc1732a494::t_349d13ac26ac40 68
+  s_ccaebc1732a494::t_84c97105401963 556-560
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "63a9fae0d7590fb5fbfbb6712abb7e4604374007",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
