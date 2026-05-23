@@ -87,45 +87,45 @@ export function renderChartDeck(data) {
     const showDailyHeat = !hasCalendarHeatmap(data);
     const showMonthly = showMonthlyChart(data);
     const topicChart = themeCount > 0
-        ? `<article class="viz-card span-12">
+        ? `<article class="viz-card kca-card--chart span-12">
       <h3>대화 테마 · c-TF-IDF</h3>
       <p class="viz-hint">막대 = <strong>의미 주제</strong> 신호 비중(근사 %). 월별 메시지량은 「기간 비교」·아래 주제 카드의 월별 화제를 보세요.</p>
       <div id="chart-topics" class="chart-box" role="img" aria-label="주제 테마 차트"></div>
     </article>`
         : "";
-    return `<section id="s-viz" class="viz-hero anim-enter" style="--enter-delay:0.055s" aria-label="인터랙티브 차트">
+    return `<section id="s-viz" class="kca-section viz-hero anim-enter" style="--enter-delay:0.055s" aria-label="인터랙티브 차트">
     <h2>📊 인터랙티브 차트</h2>
     <p>ECharts 기반 — 막대·히트맵·워드클라우드에 마우스를 올리면 수치를 확인할 수 있어요. 키워드 <strong>${formatNumber(kw)}</strong>개(메시지 등장 횟수 기준).</p>
   </section>
   <div class="viz-grid anim-enter" style="--enter-delay:0.06s">
-    <article class="viz-card span-8">
+    <article class="viz-card kca-card--chart span-8">
       <h3>키워드 워드클라우드</h3>
       <p class="viz-hint">글자 크기 = 메시지 등장 빈도. Kiwi·BM25로 뽑은 본문 키워드입니다.</p>
       <div id="chart-kw-cloud" class="chart-box tall" role="img" aria-label="키워드 워드클라우드"></div>
     </article>
-    <article class="viz-card span-4">
+    <article class="viz-card kca-card--chart span-4">
       <h3>시간대 분포</h3>
       <p class="viz-hint">0~23시 메시지량</p>
       <div id="chart-hours" class="chart-box compact" role="img" aria-label="시간대 차트"></div>
     </article>
     ${showDailyHeat
-        ? `<article class="viz-card span-6">
+        ? `<article class="viz-card kca-card--chart span-6">
       <h3>일별 활동 히트맵</h3>
       <p class="viz-hint">활동 기간만 표시 · 급증일 강조</p>
       <div id="chart-daily-heat" class="chart-box" role="img" aria-label="일별 히트맵"></div>
     </article>`
         : ""}
-    <article class="viz-card span-6">
+    <article class="viz-card kca-card--chart span-6">
       <h3>요일 분포</h3>
       <p class="viz-hint">요일별 메시지량</p>
       <div id="chart-weekday" class="chart-box compact" role="img" aria-label="요일 차트"></div>
       ${showMonthly
-        ? `<h3 style="margin-top:14px">월별 추이</h3>
+        ? `<h3 class="viz-sub-title">월별 추이</h3>
       <p class="viz-hint">월 단위 합계</p>
       <div id="chart-monthly" class="chart-box compact" role="img" aria-label="월별 차트"></div>`
         : ""}
     </article>
-    <article class="viz-card span-12">
+    <article class="viz-card kca-card--chart span-12">
       <h3>키워드 순위 · 메시지 등장 횟수</h3>
       <p class="viz-hint">막대 길이 = 1위 대비 비율 · 전체 ${formatNumber(kw)}개 · 워드클라우드는 위 카드</p>
       <div class="kw-sort-toggle" role="group" aria-label="키워드 정렬">
@@ -137,15 +137,25 @@ export function renderChartDeck(data) {
         <div id="kw-ranked-distinct" hidden>${renderKeywordRankedList(data.keywordsDistinctive)}</div>
       </div>
     </article>
-    <article class="viz-card span-12">
+    <article class="viz-card kca-card--chart span-12">
       <h3>공유 도메인</h3>
       <p class="viz-hint">링크 호스트 상위</p>
       <div id="chart-domains" class="chart-box" role="img" aria-label="도메인 차트"></div>
     </article>
-    ${data.interaction ? `<article class="viz-card span-12">
+    ${data.interaction ? `<article class="viz-card kca-card--chart span-12">
       <h3>응답 관계 네트워크</h3>
-      <p class="viz-hint">화자 간 응답 흐름을 force-directed 그래프로 봅니다. 노드 크기 = 메시지 수, 선 굵기 = 응답 횟수</p>
-      <div id="chart-network" class="chart-box" role="img" aria-label="응답 관계 네트워크"></div>
+      <p class="viz-hint">누가 누구에게 답하는지 <strong>원형 아크 다이어그램</strong>으로 보여줍니다. 화살표 = 응답 방향, 선 굵기 = 응답 횟수, 노드 크기 = 응답 총량입니다.</p>
+      <div id="chart-network-insight" class="network-insight" aria-live="polite"></div>
+      <div class="network-controls">
+        <label class="network-filter-label">
+          <span>최소 응답</span>
+          <input type="range" id="network-threshold" min="1" max="500" value="3" class="network-threshold-slider" aria-label="최소 응답 횟수 필터">
+          <span id="network-threshold-val" class="network-threshold-value">3</span>
+          <span>회 이상</span>
+        </label>
+      </div>
+      <div id="chart-network" class="chart-box chart-box--network" role="img" aria-label="응답 관계 네트워크"></div>
+      <div id="chart-network-empty" class="network-empty" hidden aria-hidden="true">표시할 응답 관계가 없습니다. 최소 응답 횟수를 낮춰보세요.</div>
     </article>` : ""}
     ${topicChart}
     ${renderTopicTrendCard(data)}
@@ -154,7 +164,7 @@ export function renderChartDeck(data) {
 function renderTopicTrendCard(data) {
     if (data.topicTrend.length < 2)
         return "";
-    return `<article class="viz-card span-12">
+    return `<article class="viz-card kca-card--chart span-12">
       <h3>토픽 트랜드 · 월별 키워드</h3>
       <p class="viz-hint">월별 상위 키워드 등장 횟수 추이. 스택드 에어리어 차트입니다.</p>
       <div id="chart-topic-trend" class="chart-box" role="img" aria-label="토픽 트랜드 차트"></div>
@@ -662,28 +672,23 @@ export const CHARTS_INIT_SCRIPT = `
         var aliases = ix.aliases;
         var matrix = ix.matrix;
         var msgCounts = ix.messageCounts || [];
+
+        // 응답 총량(수신+발신) 기준 정렬 — 응답 네트워크에 적합
         var maxNode = 15;
-        var indices = aliases.map(function (_, i) { return i; })
-          .sort(function (a, b) { return (msgCounts[b] || 0) - (msgCounts[a] || 0); })
-          .slice(0, maxNode);
-        var idxMap = {};
-        indices.forEach(function (idx, i) { idxMap[idx] = i; });
-        var nodes = indices.map(function (idx) {
-          var msgCount = msgCounts[idx] || 0;
-          var totalReplies = 0;
+        var replyCounts = aliases.map(function (_, idx) {
+          var total = 0;
           for (var ci = 0; ci < matrix.length; ci += 1) {
-            totalReplies += (matrix[ci] && matrix[ci][idx]) || 0;
-            totalReplies += (matrix[idx] && matrix[idx][ci]) || 0;
+            total += (matrix[ci] && matrix[ci][idx]) || 0;
+            total += (matrix[idx] && matrix[idx][ci]) || 0;
           }
-          var size = Math.max(20, Math.min(80, Math.sqrt(msgCount) * 2));
-          return {
-            name: aliases[idx],
-            value: totalReplies,
-            symbolSize: size,
-            label: { show: true, fontSize: ng.w < 380 ? 9 : 11 }
-          };
+          return total;
         });
-        var links = [];
+        var indices = aliases.map(function (_, i) { return i; })
+          .sort(function (a, b) { return (replyCounts[b] || 0) - (replyCounts[a] || 0); })
+          .slice(0, maxNode);
+
+        // 모든 엣지 수집 (임계값 없이)
+        var allLinks = [];
         var maxLink = 1;
         for (var ri = 0; ri < indices.length; ri += 1) {
           for (var ci = 0; ci < indices.length; ci += 1) {
@@ -691,53 +696,242 @@ export const CHARTS_INIT_SCRIPT = `
             var src = indices[ri];
             var tgt = indices[ci];
             var v = (matrix[src] && matrix[src][tgt]) || 0;
-            if (v >= 50) {
+            if (v > 0) {
               if (v > maxLink) maxLink = v;
-              links.push({
-                source: aliases[src],
-                target: aliases[tgt],
-                value: v,
-                lineStyle: { width: Math.max(1, Math.min(8, v / maxLink * 6)), curveness: 0.2 }
-              });
+              allLinks.push({ source: aliases[src], target: aliases[tgt], value: v });
             }
           }
         }
-        if (nodes.length > 0 && links.length > 0) {
-          init("chart-network", Object.assign(baseOpt(), {
-            tooltip: {
-              formatter: function (p) {
-                if (p.dataType === "edge") {
-                  return p.data.source + " → " + p.data.target + ": " + p.data.value;
-                }
-                return p.data.name + "<br/>메시지: " + (msgCounts[indices[p.dataIndex]] || 0) + "<br/>응답: " + p.data.value;
-              }
-            },
-            series: [{
-              type: "graph",
-              layout: "force",
-              data: nodes,
-              links: links,
-              roam: true,
-              force: {
-                repulsion: ng.w < 380 ? 200 : 300,
-                edgeLength: ng.w < 380 ? 60 : 100,
-                gravity: 0.1
-              },
-              label: {
-                show: true,
-                color: text,
-                fontSize: ng.w < 380 ? 9 : 11
-              },
+
+        // 상위 응답 인사이트 생성
+        var insightEl = document.getElementById("chart-network-insight");
+        if (insightEl) {
+          var sortedLinks = allLinks.slice().sort(function (a, b) { return b.value - a.value; });
+          function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+          var insightItems = sortedLinks.slice(0, 3).map(function (l) {
+            return '<span class="network-insight-item"><strong>' + esc(l.source) + '</strong> <span class="network-arrow">→</span> <strong>' + esc(l.target) + '</strong> <span class="network-count">' + esc(l.value) + '회</span></span>';
+          });
+          if (insightItems.length > 0) {
+            insightEl.innerHTML = '<span class="network-insight-label">💡 상위 응답 흐름</span>' + insightItems.join('<span class="network-insight-sep">·</span>') + '<span class="network-insight-note"> (전체 기준)</span>';
+          }
+        }
+
+        // 기본 임계값: 데이터 기반 자동 설정 (최대값의 2%, 최소 2)
+        var defaultThreshold = Math.max(2, Math.min(10, Math.floor(maxLink * 0.02)));
+        var currentThreshold = defaultThreshold;
+        var networkChart = null;
+
+        function buildNetworkChart(threshold) {
+          // 임계값으로 필터링
+          var links = [];
+          for (var i = 0; i < allLinks.length; i += 1) {
+            if (allLinks[i].value >= threshold) links.push(allLinks[i]);
+          }
+          // 표시할 상위 N개만 (최대 60개 — 가독성 보장)
+          if (links.length > 60) {
+            links.sort(function (a, b) { return b.value - a.value; });
+            links = links.slice(0, 60);
+          }
+
+          var emptyEl = document.getElementById("chart-network-empty");
+          if (emptyEl) emptyEl.hidden = links.length > 0 || allLinks.length === 0;
+
+          var isMobile = ng.w < 380;
+          var isSmall = ng.w < 600;
+
+          // 노드: 응답 총량 기반 크기, 원형 배치
+          var nodes = indices.map(function (idx) {
+            var totalReplies = replyCounts[idx] || 0;
+            // 면적 인식 고려 sqrt 스케일링, 최소 22px ~ 최대 68px
+            var size = Math.max(22, Math.min(68, Math.sqrt(totalReplies + 1) * 3.2));
+            return {
+              name: aliases[idx],
+              value: totalReplies,
+              symbolSize: size,
+              category: 0,
+              label: { show: true }
+            };
+          });
+
+          if (links.length === 0 && allLinks.length > 0) {
+            // 엣지 없으면 노드만 표시 (빈 원형 다이어그램)
+            links = [];
+          }
+
+          if (nodes.length === 0) return;
+
+          // 엣지 스타일: 비례 두께 + 방향 화살표
+          var styledLinks = links.map(function (l) {
+            return {
+              source: l.source,
+              target: l.target,
+              value: l.value,
               lineStyle: {
-                color: dark ? "rgba(62,232,197,0.4)" : "rgba(15,107,92,0.35)",
-                curveness: 0.2
-              },
-              emphasis: {
-                focus: "adjacency",
-                lineStyle: { width: 4 }
+                width: Math.max(1, Math.min(10, (l.value / maxLink) * 8)),
+                curveness: 0.3,
+                opacity: Math.max(0.2, Math.min(0.8, (l.value / maxLink)))
               }
-            }]
-          }));
+            };
+          });
+
+          // 기존 차트 인스턴스 있으면 setOption으로 업데이트, 없으면 init
+          if (networkChart) {
+            networkChart.setOption(Object.assign(baseOpt(), {
+              animation: true,
+              animationDuration: 600,
+              animationEasing: "cubicOut",
+              tooltip: {
+                trigger: "item",
+                formatter: function (p) {
+                  if (p.dataType === "edge") {
+                    var arrowColor = dark ? "#5ee8ff" : "#0f6b5c";
+                    return '<div style="font-weight:600;margin-bottom:4px">' + p.data.source + ' <span style="color:' + arrowColor + '">→</span> ' + p.data.target + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
+                  }
+                  var idx = aliases.indexOf(p.data.name);
+                  if (idx < 0) idx = 0;
+                  return '<div style="font-weight:600;margin-bottom:4px">' + p.data.name + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
+                }
+              },
+              series: [{
+                type: "graph",
+                layout: "circular",
+                circular: { rotateLabel: false },
+                data: nodes,
+                links: styledLinks,
+                roam: isMobile ? false : "scale",
+                draggable: false,
+                edgeSymbol: ["none", "arrow"],
+                edgeSymbolSize: [0, isMobile ? 6 : 9],
+                symbol: "circle",
+                itemStyle: {
+                  borderColor: dark ? "#1c2128" : "#fff",
+                  borderWidth: 2,
+                  color: dark ? "#5ee8ff" : "#0f6b5c"
+                },
+                label: {
+                  show: true,
+                  position: "right",
+                  color: text,
+                  fontSize: isMobile ? 9 : (isSmall ? 10 : 11),
+                  fontWeight: 600,
+                  distance: 8,
+                  formatter: function (p) {
+                    var name = p.name;
+                    if (isMobile && name.length > 5) return name.slice(0, 4) + "..";
+                    if (isSmall && name.length > 7) return name.slice(0, 6) + "..";
+                    if (name.length > 10) return name.slice(0, 8) + "..";
+                    return name;
+                  }
+                },
+                labelLayout: { hideOverlap: true },
+                lineStyle: {
+                  color: dark ? "rgba(94,232,255,0.5)" : "rgba(15,107,92,0.45)",
+                  curveness: 0.3,
+                  opacity: 0.55
+                },
+                emphasis: {
+                  focus: "adjacency",
+                  scale: 1.4,
+                  label: { fontSize: isMobile ? 11 : 13, fontWeight: 700 },
+                  itemStyle: { shadowBlur: 18, shadowColor: dark ? "rgba(94,232,255,0.45)" : "rgba(15,107,92,0.3)" },
+                  lineStyle: { width: 5, opacity: 1 }
+                },
+                blur: {
+                  itemStyle: { opacity: 0.12 },
+                  lineStyle: { opacity: 0.04 },
+                  label: { opacity: 0.15 }
+                }
+              }]
+            }), { notMerge: false });
+          } else {
+            networkChart = init("chart-network", Object.assign(baseOpt(), {
+              animation: true,
+              animationDuration: 600,
+              animationEasing: "cubicOut",
+              tooltip: {
+                trigger: "item",
+                formatter: function (p) {
+                  if (p.dataType === "edge") {
+                    var arrowColor2 = dark ? "#5ee8ff" : "#0f6b5c";
+                    return '<div style="font-weight:600;margin-bottom:4px">' + p.data.source + ' <span style="color:' + arrowColor2 + '">→</span> ' + p.data.target + '</div><div>응답: <strong>' + p.data.value + '회</strong></div>';
+                  }
+                  var idx = aliases.indexOf(p.data.name);
+                  if (idx < 0) idx = 0;
+                  return '<div style="font-weight:600;margin-bottom:4px">' + p.data.name + '</div><div>메시지: <strong>' + (msgCounts[idx] || 0) + '건</strong></div><div>응답 총량: <strong>' + (replyCounts[idx] || 0) + '회</strong></div>';
+                }
+              },
+              series: [{
+                type: "graph",
+                layout: "circular",
+                circular: { rotateLabel: false },
+                data: nodes,
+                links: styledLinks,
+                roam: isMobile ? false : "scale",
+                draggable: false,
+                edgeSymbol: ["none", "arrow"],
+                edgeSymbolSize: [0, isMobile ? 6 : 9],
+                symbol: "circle",
+                itemStyle: {
+                  borderColor: dark ? "#1c2128" : "#fff",
+                  borderWidth: 2,
+                  color: dark ? "#5ee8ff" : "#0f6b5c"
+                },
+                label: {
+                  show: true,
+                  position: "right",
+                  color: text,
+                  fontSize: isMobile ? 9 : (isSmall ? 10 : 11),
+                  fontWeight: 600,
+                  distance: 8,
+                  formatter: function (p) {
+                    var name = p.name;
+                    if (isMobile && name.length > 5) return name.slice(0, 4) + "..";
+                    if (isSmall && name.length > 7) return name.slice(0, 6) + "..";
+                    if (name.length > 10) return name.slice(0, 8) + "..";
+                    return name;
+                  }
+                },
+                labelLayout: { hideOverlap: true },
+                lineStyle: {
+                  color: dark ? "rgba(94,232,255,0.5)" : "rgba(15,107,92,0.45)",
+                  curveness: 0.3,
+                  opacity: 0.55
+                },
+                emphasis: {
+                  focus: "adjacency",
+                  scale: 1.4,
+                  label: { fontSize: isMobile ? 11 : 13, fontWeight: 700 },
+                  itemStyle: { shadowBlur: 18, shadowColor: dark ? "rgba(94,232,255,0.45)" : "rgba(15,107,92,0.3)" },
+                  lineStyle: { width: 5, opacity: 1 }
+                },
+                blur: {
+                  itemStyle: { opacity: 0.12 },
+                  lineStyle: { opacity: 0.04 },
+                  label: { opacity: 0.15 }
+                }
+              }]
+            }));
+          }
+        }
+
+        // 초기 렌더링
+        buildNetworkChart(currentThreshold);
+
+        // 임계값 슬라이더 바인딩
+        var thresholdSlider = document.getElementById("network-threshold");
+        var thresholdVal = document.getElementById("network-threshold-val");
+        if (thresholdSlider && thresholdVal) {
+          thresholdSlider.value = String(defaultThreshold);
+          thresholdVal.textContent = String(defaultThreshold);
+          thresholdSlider.addEventListener("input", function () {
+            var val = parseInt(this.value, 10);
+            thresholdVal.textContent = String(val);
+          });
+          thresholdSlider.addEventListener("change", function () {
+            var val = parseInt(this.value, 10);
+            currentThreshold = val;
+            buildNetworkChart(val);
+          });
         }
       }
 

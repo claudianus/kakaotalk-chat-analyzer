@@ -1,4 +1,100 @@
 /* kca Components v2 — 개선된 카드, 글라스, 인터랙션 */
+
+/* ── v3 통합 섹션 & 카드 시스템 ── */
+.kca-section {
+  margin-bottom: var(--section-gap);
+  scroll-margin-top: var(--kca-topbar-offset, 112px);
+}
+.kca-section-header {
+  margin: 0 0 var(--heading-gap);
+  font-size: clamp(18px, 2.4vw, 24px);
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.kca-section-lede {
+  margin: 0 0 var(--heading-gap);
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.kca-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  padding: var(--card-pad);
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.25s ease, transform 0.25s var(--ease-out), border-color 0.2s ease;
+}
+.kca-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 28px 64px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+  transform: translateY(-2px);
+}
+.kca-card--glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+}
+.kca-card--chart {
+  padding: var(--card-pad-sm) var(--card-pad);
+}
+.kca-card--story {
+  border-radius: var(--card-radius);
+  padding: var(--card-pad);
+}
+.kca-card--fact {
+  border-radius: var(--card-radius);
+}
+.kca-card--insight {
+  padding: var(--card-pad-sm);
+}
+.kca-card--data {
+  padding: var(--card-pad);
+}
+.kca-card--inline {
+  padding: var(--card-pad-sm);
+  border-radius: 14px;
+}
+/* ── 패널 타이틀 (구 panel() h2 → h3) ── */
+.panel-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+/* ── 히어로 레이아웃 ── */
+.kca-hero-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.kca-hero-meta {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  padding: var(--card-pad-sm);
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kca-hero-meta strong {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+.kca-hero-meta p {
+  margin: 0;
+  line-height: 1.4;
+}
+/* ── 기존 .card 유지 (하위 호환) ── */
+
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -62,7 +158,7 @@
   padding: 14px 16px;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: linear-gradient(145deg, rgba(15, 107, 92, 0.1), transparent);
+  background: linear-gradient(145deg, color-mix(in oklab, var(--accent) 10%, transparent), transparent);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .fact-hero-cell:hover {
@@ -132,7 +228,7 @@
   transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
 }
 .theme-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
-.hero { display: grid; gap: 24px; grid-template-columns: 1.35fr 1fr; align-items: stretch; padding-bottom: 32px; }
+.hero, .kca-hero { display: grid; gap: 24px; grid-template-columns: 1.35fr 1fr; align-items: stretch; padding-bottom: 32px; }
 h1 { margin: 0; font-size: clamp(28px, 4.2vw, 48px); line-height: 1.08; letter-spacing: -0.04em; font-weight: 850; }
 .room-title {
   margin: 10px 0 0;

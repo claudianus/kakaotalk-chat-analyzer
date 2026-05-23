@@ -185,17 +185,20 @@
   font-weight: 650;
   line-height: 1.35;
   white-space: nowrap;
-  color: #fff;
-  background: #24292f;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  color: var(--ink);
+  background: var(--panel-solid);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.12s ease;
 }
 .gh-contrib.gh-tip-on .gh-cal-tooltip { opacity: 1; }
-:root[data-theme="dark"] .gh-cal-tooltip { background: #f0f6fc; color: #0d1117; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .gh-cal-tooltip { background: #f0f6fc; color: #0d1117; }
+.calendar-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 .gh-contrib-summary {
   margin: 0 0 12px;

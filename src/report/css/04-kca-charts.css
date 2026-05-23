@@ -88,6 +88,13 @@
       color: var(--muted);
       line-height: 1.45;
     }
+    .viz-sub-title {
+      margin: 14px 0 4px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
     .chart-box {
       width: 100%;
       min-height: 280px;
@@ -190,3 +197,132 @@
     .kw-bar-fill--rank1 { background: var(--kw-bar-rank1); }
     .kw-bar-fill--rank2 { background: var(--kw-bar-rank2); }
     .kw-bar-fill--rank3 { background: var(--kw-bar-rank3); }
+
+    /* ── 응답 관계 네트워크 ── */
+    .network-insight {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 6px 12px;
+      padding: 8px 12px;
+      margin: 0 0 12px;
+      border-radius: 10px;
+      background: var(--panel-solid);
+      border: 1px solid var(--line);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .network-insight-label {
+      font-weight: 700;
+      color: var(--accent);
+      margin-right: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .network-insight-item {
+      white-space: nowrap;
+      color: var(--ink);
+    }
+    .network-insight-item strong {
+      font-weight: 700;
+    }
+    .network-arrow {
+      color: var(--accent);
+      margin: 0 3px;
+      font-weight: 700;
+    }
+    .network-count {
+      margin-left: 3px;
+      font-weight: 650;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .network-insight-sep {
+      color: var(--line);
+      margin: 0 2px;
+    }
+    .network-controls {
+      display: flex;
+      align-items: center;
+      margin: 0 0 10px;
+    }
+    .network-filter-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      user-select: none;
+    }
+    .network-threshold-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 120px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--line);
+      outline: none;
+      cursor: pointer;
+    }
+    .network-threshold-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .network-threshold-value {
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      min-width: 1.5rem;
+      text-align: center;
+    }
+    .network-threshold-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .network-insight-note {
+      font-size: 10px;
+      color: var(--muted);
+      font-style: italic;
+      margin-left: 2px;
+    }
+    .chart-box--network {
+      height: min(52vh, 480px);
+      min-height: 320px;
+    }
+    .network-empty {
+      text-align: center;
+      padding: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    @container kca-viz (max-width: 22rem) {
+      .chart-box--network {
+        height: min(44vh, 340px);
+        min-height: 260px;
+      }
+      .network-insight {
+        flex-direction: column;
+        gap: 4px;
+        font-size: 11px;
+      }
+      .network-filter-label {
+        gap: 4px;
+        font-size: 11px;
+      }
+      .network-threshold-slider {
+        width: 80px;
+      }
+    }

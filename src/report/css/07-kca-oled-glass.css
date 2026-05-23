@@ -5,7 +5,15 @@ body.kca-oled .card,
 body.kca-oled .viz-card,
 body.kca-oled .viz-hero,
 body.kca-oled .kw-css-fold,
-body.kca-oled .toolbar {
+body.kca-oled .toolbar,
+body.kca-oled .kca-card,
+body.kca-oled .kca-card--glass,
+body.kca-oled .kca-card--chart,
+body.kca-oled .kca-card--story,
+body.kca-oled .kca-card--fact,
+body.kca-oled .kca-card--insight,
+body.kca-oled .kca-card--data,
+body.kca-oled .kca-hero {
   position: relative;
   background: var(--glass);
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
@@ -19,7 +27,15 @@ body.kca-oled .toolbar {
 }
 
 body.kca-oled .card::before,
-body.kca-oled .viz-card::before {
+body.kca-oled .viz-card::before,
+body.kca-oled .kca-card::before,
+body.kca-oled .kca-card--glass::before,
+body.kca-oled .kca-card--chart::before,
+body.kca-oled .kca-card--story::before,
+body.kca-oled .kca-card--fact::before,
+body.kca-oled .kca-card--insight::before,
+body.kca-oled .kca-card--data::before,
+body.kca-oled .kca-hero::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -41,7 +57,15 @@ body.kca-oled .viz-card::before {
 body.kca-oled .card::after,
 body.kca-oled .wrapped-card::after,
 body.kca-oled .viz-card::after,
-body.kca-oled .insight-hero::after {
+body.kca-oled .insight-hero::after,
+body.kca-oled .kca-card::after,
+body.kca-oled .kca-card--glass::after,
+body.kca-oled .kca-card--chart::after,
+body.kca-oled .kca-card--story::after,
+body.kca-oled .kca-card--fact::after,
+body.kca-oled .kca-card--insight::after,
+body.kca-oled .kca-card--data::after,
+body.kca-oled .kca-hero::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -58,19 +82,35 @@ body.kca-oled .insight-hero::after {
 
 body.kca-oled .card:hover::after,
 body.kca-oled .wrapped-card:hover::after,
-body.kca-oled .viz-card:hover::after {
+body.kca-oled .viz-card:hover::after,
+body.kca-oled .kca-card:hover::after,
+body.kca-oled .kca-card--glass:hover::after,
+body.kca-oled .kca-card--chart:hover::after,
+body.kca-oled .kca-card--story:hover::after,
+body.kca-oled .kca-card--fact:hover::after,
+body.kca-oled .kca-card--insight:hover::after,
+body.kca-oled .kca-card--data:hover::after,
+body.kca-oled .kca-hero:hover::after {
   opacity: 0.85;
 }
 
 body.kca-oled .card:hover,
-body.kca-oled .viz-card:hover {
+body.kca-oled .viz-card:hover,
+body.kca-oled .kca-card:hover,
+body.kca-oled .kca-card--glass:hover,
+body.kca-oled .kca-card--chart:hover,
+body.kca-oled .kca-card--story:hover,
+body.kca-oled .kca-card--fact:hover,
+body.kca-oled .kca-card--insight:hover,
+body.kca-oled .kca-card--data:hover {
   transform: translateY(-4px) scale(1.005);
   border-color: color-mix(in oklab, var(--accent) 45%, var(--glass-border));
   box-shadow: var(--shadow), var(--shadow-glow);
 }
 
 /* —— 히어로 —— */
-body.kca-oled .hero h1 {
+body.kca-oled .hero h1,
+body.kca-oled .kca-hero h1 {
   background: var(--accent-grad);
   background-size: 200% auto;
   -webkit-background-clip: text;

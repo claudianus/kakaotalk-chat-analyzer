@@ -38,8 +38,8 @@ export function renderReportHtml(data) {
   <a class="skip-link" href="#s-wrapped" data-kca-jump="s-wrapped">Wrapped로 건너뛰기</a>
   <main>
     ${renderTopChrome(data, renderSectionNav(data))}
-    <header id="s-story" class="hero anim-enter" style="--enter-delay:0.03s;margin-bottom:16px">
-      <div>
+    <header id="s-story" class="kca-section kca-hero anim-enter" style="--enter-delay:0.03s">
+      <div class="kca-hero-main">
         <h1>카카오톡 대화 리포트</h1>
         <p class="room-title" aria-label="채팅방 이름">${escapeHtml(data.source.chatRoomName)}</p>
         ${renderStoryHeadline(data)}
@@ -51,7 +51,7 @@ export function renderReportHtml(data) {
           <span class="badge">경고: ${data.source.warnings}건</span>
         </div>
       </div>
-      <div class="card side-card">
+      <aside class="kca-hero-meta">
         <p><strong>채팅방</strong><br>${escapeHtml(data.source.chatRoomName)}</p>
         <p><strong>생성 시각</strong><br>${escapeHtml(formatTimestamp(data.generatedAt))}</p>
         ${data.buildTiming ? `<p><strong>생성 소요</strong><br>${escapeHtml(formatBuildTiming(data.buildTiming))}</p>` : ""}
@@ -59,7 +59,7 @@ export function renderReportHtml(data) {
         <p><strong>첫 메시지</strong><br>${escapeHtml(data.summary.firstMessage ?? "—")}</p>
         <p><strong>마지막 메시지</strong><br>${escapeHtml(data.summary.lastMessage ?? "—")}</p>
         ${renderProvenanceDetailsBlock(data)}
-      </div>
+      </aside>
     </header>
     ${renderLlmArchetypeBanner(data)}
     ${renderStorySections(data)}
@@ -84,27 +84,27 @@ export function renderReportHtml(data) {
 
     ${renderChartDeck(data)}
 
-    <div id="s-charts" class="chart-stack anim-enter" style="--enter-delay:0.07s">
+    <div id="s-charts" class="kca-section anim-enter" style="--enter-delay:0.07s">
     ${hasCalendarHeatmap(data)
         ? ""
-        : `<section class="grid two" style="margin-bottom:14px">
+        : `<section class="kca-card--data kca-section" style="margin-bottom:var(--section-gap)">
       ${panel("일별 활동 (CSS)", "날짜 칸 색으로 본 일별 히트맵이에요.", renderDaily(data.daily, data.burstDays))}
     </section>`}
-    <section class="grid two" style="margin-bottom:14px">
+    <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
       ${renderParticipantsFold(data)}
       ${panel(`글자 수 랭킹 · 상위 ${formatNumber(Math.min(data.participantsByCharacters.length, 40))}`, "메시지 건수와 별도로, 보낸 글자 수·글자 비율로 봅니다.", renderParticipantsByCharacters(data.participantsByCharacters))}
     </section>
 
-    <section class="grid two" style="margin-bottom:14px">
+    <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
       ${panel("첨부 유형", "사진·동영상 등 메타 유형 비중이에요.", renderCountBars(data.attachments))}
       ${renderToneSignalsPanel(data)}
     </section>
 
-    <section style="margin-bottom:14px">
+    <section class="kca-section" style="margin-bottom:var(--section-gap)">
       ${panel("자주 나온 도메인", "공유 링크 호스트 상위", renderCountBars(data.domains.slice(0, 24)))}
     </section>
 
-    <section class="grid two" style="margin-bottom:14px">
+    <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
       ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구를 본문과 분리해 집계합니다. 아래 막대는 일별 운영·유입 펄스예요.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
       ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 똑같은 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
     </section>
@@ -298,7 +298,7 @@ function renderTopicTrendSection(data) {
         .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong>${formatNumber(topic.value)}</strong></span>`)
         .join("")}</td></tr>`)
         .join("");
-    return `<section id="s-topic-trend" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.054s">
+    return `<section id="s-topic-trend" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.054s">
     <h2>토픽 트랜드</h2>
     <p class="chart-hint">월별 상위 키워드의 등장 횟수 변화입니다. 아래 차트에서 추이를 확인하세요.</p>
     <table class="table">
@@ -310,7 +310,7 @@ function renderTopicTrendSection(data) {
 function renderHelpGlossary() {
     const gh = "https://github.com/claudianus/kakaotalk-chat-analyzer";
     const site = "https://claudianus.github.io/kakaotalk-chat-analyzer/";
-    return `<section id="s-help" class="glossary anim-enter" aria-label="용어 설명" style="--enter-delay:0.08s">
+    return `<section id="s-help" class="kca-section glossary anim-enter" aria-label="용어 설명" style="--enter-delay:0.08s">
     <p class="self-serve-footer-links">직접 만들기: <code>npx kcachat@latest "./파일.csv"</code> · ${externalLink(gh, "GitHub")} · ${externalLink(site, "소개")}</p>
     <details>
       <summary>용어가 낯설 때 — 한 번에 펼쳐보기</summary>
@@ -355,7 +355,7 @@ function renderFactMatrix(data) {
     <div class="fact-hero-cell"><b>총 메시지</b><span>${escapeHtml(formatNumber(s.totalMessages))}</span></div>
     <div class="fact-hero-cell"><b>참여자</b><span>${escapeHtml(formatNumber(s.participants))}</span></div>
   </div>`;
-    return `<section id="s-facts" class="card fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
+    return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>① 핵심 숫자</h2>
     ${renderSampleBadge(data)}
     ${strip}
@@ -413,7 +413,7 @@ function renderInsightDeck(data) {
     const scatter = renderParticipantScatter(data.participants);
     const pace = data.conversationPace;
     const richness = ins.lexicalTypeRichnessPercent === null ? "—" : `${ins.lexicalTypeRichnessPercent}%`;
-    return `<section id="s-ai" class="card insight-hero anim-enter" style="margin-bottom:14px;--enter-delay:0.05s">
+    return `<section id="s-ai" class="kca-section card kca-card--insight insight-hero anim-enter" style="--enter-delay:0.05s">
     <div class="pace-ribbon" role="note">
       <strong>${escapeHtml(pace.emoji)} ${escapeHtml(pace.label)}</strong>
       <span>${escapeHtml(pace.detail)}</span>
@@ -642,7 +642,7 @@ function privacyLabel(mode) {
     return mode;
 }
 function panel(title, hint, content) {
-    return `<div class="card"><h2>${escapeHtml(title)}</h2><p class="chart-hint" style="margin-top:-4px">${escapeHtml(hint)}</p>${content}</div>`;
+    return `<div class="card"><h3 class="panel-title">${escapeHtml(title)}</h3><p class="chart-hint" style="margin-top:-4px">${escapeHtml(hint)}</p>${content}</div>`;
 }
 function renderSelfServeCallout() {
     const gh = "https://github.com/claudianus/kakaotalk-chat-analyzer";
@@ -904,7 +904,7 @@ function renderTopicMap(data) {
     const hint = shortSpan
         ? "짧은 기간 보내기는 <strong>월 메시지 비중</strong>이 주제처럼 보일 수 있어, 월별 카드는 숨기고 「기간 비교」를 봐 주세요."
         : `그래프·키워드·임베딩 신호를 합쳐 뽑았어요. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
-    return `<section id="s-topics" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.052s">
+    return `<section id="s-topics" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.052s">
     <h2>이 방의 주제 맵</h2>
     <p class="chart-hint">${hint}</p>
     ${themeBlock}
@@ -925,7 +925,7 @@ function renderOpenChatInsightCard(data) {
             .map((t) => escapeHtml(t.label))
             .join(" · ")}</p>`
         : "";
-    return `<section id="s-openchat" class="card openchat-card anim-enter" style="margin-bottom:14px;--enter-delay:0.038s" aria-label="오픈채팅 추정 인사이트">
+    return `<section id="s-openchat" class="kca-section card kca-card--data openchat-card anim-enter" style="--enter-delay:0.038s" aria-label="오픈채팅 추정 인사이트">
     <h2 class="section-glow">오픈채팅 <span class="bench-estimate-tag">추정</span></h2>
     <p class="chart-hint">입·퇴장 비중·운영 알림 패턴으로 <strong>오픈채팅형</strong> 방일 가능성이 있습니다(자동 추정).</p>
     <ul class="openchat-stats">
@@ -952,7 +952,7 @@ function renderShopSearchSection(data, promoted = false) {
     if (promoted === false && openChatProfileFromReport(data).likely)
         return "";
     if (topics.length === 0) {
-        return `<section style="margin-bottom:14px">${panel("샵검색 키워드", `시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건이 있으나, <code>샵검색:</code> 형식에서 #주제를 추출하지 못했습니다. 보내기 형식이 바뀌었을 수 있습니다.`, '<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>')}</section>`;
+        return `<section class="kca-section">${panel("샵검색 키워드", `시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건이 있으나, <code>샵검색:</code> 형식에서 #주제를 추출하지 못했습니다. 보내기 형식이 바뀌었을 수 있습니다.`, '<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>')}</section>`;
     }
     const extractions = ev.shopSearchTagExtractions;
     const unique = ev.shopSearchUniqueTags;
@@ -962,7 +962,7 @@ function renderShopSearchSection(data, promoted = false) {
         ? `<details class="kca-debug-shop"><summary>미추출 샘플 (디버그)</summary><ul>${data.shopSearchMissSamples.map((s) => `<li><code>${escapeHtml(s)}</code></li>`).join("")}</ul></details>`
         : "";
     const title = promoted ? "샵검색 키워드 (오픈채팅)" : "샵검색 키워드";
-    return `<section id="s-shopsearch" style="margin-bottom:14px">${panel(title, "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote + debug)}</section>`;
+    return `<section id="s-shopsearch" class="kca-section">${panel(title, "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote + debug)}</section>`;
 }
 function renderKeywordCssFold(data) {
     const topN = keywordSummaryTop();
