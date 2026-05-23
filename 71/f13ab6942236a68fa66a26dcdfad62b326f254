@@ -1,0 +1,26 @@
+src/kiwi-keyword-pool.ts
+  s_ccaebc1732a494::t_d951bc5cc44670 13-73,75-83,85-87,143-155,157-158,160
+src/kiwi-tokenize-worker.ts
+  s_ccaebc1732a494::t_47a72f965c5a9f 15
+  s_ccaebc1732a494::t_b32b4a8d1a0d95 52-53,55,57-58,60,62-64,66
+  s_ccaebc1732a494::t_0bbf9b49131342 17-19,22-23,28,35,43,51,54,56,59,61
+  s_ccaebc1732a494::t_3414174404af1b 21,50
+  s_ccaebc1732a494::t_1173c3cfe55f81 27,30-34,37,49,65
+  s_ccaebc1732a494::t_608d9134a343df 7-8,11-14,24-26,29,36,38-42,44-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "71f13ab6942236a68fa66a26dcdfad62b326f254",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
