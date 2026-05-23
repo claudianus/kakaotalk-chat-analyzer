@@ -64,8 +64,8 @@ export class GapStreamStats {
   }
 
   coeffVariation(): number | null {
-    if (this.welfordN < 2 || this.welfordMean <= 0) return null;
-    const variance = this.welfordM2 / this.welfordN;
+    if (this.welfordN < 2 || this.welfordM2 <= 0) return null;
+    const variance = this.welfordM2 / (this.welfordN - 1);
     return round(Math.sqrt(variance) / this.welfordMean, 2);
   }
 
