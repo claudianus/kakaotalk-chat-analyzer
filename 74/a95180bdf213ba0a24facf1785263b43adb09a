@@ -1,0 +1,21 @@
+src/analyze-pool.ts
+  s_ccaebc1732a494::t_9ddd800d6ed07b 58-65
+  s_ccaebc1732a494::t_74eeb468a553a1 69
+  s_ccaebc1732a494::t_df29388faa0b8a 81-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "74a95180bdf213ba0a24facf1785263b43adb09a",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
