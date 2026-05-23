@@ -66,6 +66,18 @@
   --bubble-pct-c: 72%;
   --bubble-mobile-bg-l: 35%;
   --bubble-mobile-bg-c: 20%;
+  /* ── v3 통합 토큰 ── */
+  --card: var(--panel);
+  --surface: var(--panel-solid);
+  --card-bg: var(--panel);
+  --card-border: var(--line);
+  --card-shadow: var(--shadow);
+  --card-radius: var(--radius-card);
+  --card-pad: clamp(16px, 2.6vw, 22px);
+  --card-pad-sm: clamp(10px, 1.8vw, 16px);
+  --section-gap: clamp(14px, 2vw, 22px);
+  --heading-gap: clamp(6px, 1.2vw, 12px);
+  --content-pad: clamp(12px, 2vw, 20px);
   font-family: var(--kca-font-sans);
 }
 
@@ -115,8 +127,17 @@
     --bubble-border-c: 40%;
     --bubble-pct-l: 55%;
     --bubble-pct-c: 32%;
-    --bubble-mobile-bg-l: 48%;
-    --bubble-mobile-bg-c: 96%;
+  --bubble-mobile-bg-l: 48%;
+  --bubble-mobile-bg-c: 96%;
+  /* ── v3 통합 토큰 (light) ── */
+  --card: rgba(255,255,255,0.72);
+  --surface: #ffffff;
+  --card-bg: rgba(255,255,255,0.72);
+  --card-border: rgba(15,20,30,0.12);
+  --card-shadow: 0 20px 56px rgba(15,23,42,0.1);
+  --section-gap: clamp(14px, 2vw, 22px);
+  --card-pad: clamp(16px, 2.6vw, 22px);
+  --card-pad-sm: clamp(10px, 1.8vw, 16px);
   }
 }
 
@@ -162,6 +183,15 @@
   --bubble-pct-c: 72%;
   --bubble-mobile-bg-l: 35%;
   --bubble-mobile-bg-c: 20%;
+  /* ── v3 통합 토큰 (dark explicit) ── */
+  --card: var(--panel);
+  --surface: var(--panel-solid);
+  --card-bg: var(--panel);
+  --card-border: var(--line);
+  --card-shadow: var(--shadow);
+  --section-gap: clamp(14px, 2vw, 22px);
+  --card-pad: clamp(16px, 2.6vw, 22px);
+  --card-pad-sm: clamp(10px, 1.8vw, 16px);
 }
 
 :root[data-theme="light"] {
@@ -218,4 +248,13 @@
   --bubble-pct-c: 32%;
   --bubble-mobile-bg-l: 48%;
   --bubble-mobile-bg-c: 96%;
+  /* ── v3 통합 토큰 (light explicit) ── */
+  --card: rgba(255,255,255,0.72);
+  --surface: #ffffff;
+  --card-bg: rgba(255,255,255,0.72);
+  --card-border: rgba(15,20,30,0.12);
+  --card-shadow: 0 20px 56px rgba(15,23,42,0.1);
+  --section-gap: clamp(14px, 2vw, 22px);
+  --card-pad: clamp(16px, 2.6vw, 22px);
+  --card-pad-sm: clamp(10px, 1.8vw, 16px);
 }

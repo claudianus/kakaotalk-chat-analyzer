@@ -168,8 +168,8 @@ export const REPORT_EXPLORER_SCRIPT = `
 export function renderHeroQuickJumps(): string {
   return `<div class="hero-jumps" aria-label="바로가기">
     <a class="hero-jump" href="#s-wrapped" data-kca-jump="s-wrapped"><strong>⓪</strong> Wrapped</a>
-    <a class="hero-jump" href="#s-viz" data-kca-jump="s-viz"><strong>④</strong> 차트</a>
     <a class="hero-jump" href="#s-facts" data-kca-jump="s-facts"><strong>①</strong> 숫자</a>
+    <a class="hero-jump" href="#s-viz" data-kca-jump="s-viz">차트</a>
     <a class="hero-jump" href="#s-help" data-kca-jump="s-help">용어 설명</a>
   </div>`;
 }

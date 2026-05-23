@@ -112,7 +112,7 @@ export function renderStorySections(data: ReportData): string {
   const s = data.story;
   const parts: string[] = [];
 
-  parts.push(`<section id="s-wrapped" class="wrapped-section anim-enter" style="--enter-delay:0.02s" aria-label="대화 Wrapped">
+  parts.push(`<section id="s-wrapped" class="kca-section wrapped-section anim-enter" style="--enter-delay:0.02s" aria-label="대화 Wrapped">
     <h2>⓪ ${escapeHtml(data.source.chatRoomName)} Wrapped</h2>
     <p class="wrapped-lede">핵심 장면 카드가 화면 너비에 맞게 배열됩니다. 원문 메시지는 없습니다.</p>
     <div class="wrapped-deck" role="list">
@@ -129,7 +129,7 @@ export function renderStorySections(data: ReportData): string {
   </section>`);
 
   if (s.chapters.length > 1) {
-    parts.push(`<section id="s-chapters" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.045s">
+    parts.push(`<section id="s-chapters" class="kca-section card kca-card--story anim-enter" style="--enter-delay:0.045s">
       <h2>대화 챕터</h2>
       <p class="chart-hint"><strong>${CHAPTER_GAP_DAYS}일 이상</strong> 쉬면 새 챕터로 나눴어요. 각 구간의 주인공과 메시지 비중만 보여 줍니다.</p>
       <ul class="chapter-list">
@@ -152,9 +152,9 @@ export function renderStorySections(data: ReportData): string {
   if (s.calendarWeeks.length > 0) {
     const calWeeks = s.calendarWeeks.length;
     const calTitle = calWeeks <= 14 ? "활동 기간 그리드" : "연간 활동 그리드";
-    parts.push(`<section id="s-calendar" class="anim-enter" style="margin-bottom:14px;--enter-delay:0.05s">
-      <h2 style="margin:0 0 6px;font-size:20px;font-weight:800;letter-spacing:-0.02em">${calTitle}</h2>
-      <p class="chart-hint" style="margin-bottom:12px">GitHub 프로필 <strong>Contributions</strong>와 같은 레이아웃·색 단계예요. 셀에 마우스를 올리거나 탭하면 날짜와 건수가 표시됩니다.</p>
+    parts.push(`<section id="s-calendar" class="kca-section anim-enter" style="--enter-delay:0.05s">
+      <h2 class="calendar-title">${calTitle}</h2>
+      <p class="chart-hint" style="margin-bottom:var(--heading-gap)">GitHub 프로필 <strong>Contributions</strong>와 같은 레이아웃·색 단계예요. 셀에 마우스를 올리거나 탭하면 날짜와 건수가 표시됩니다.</p>
       ${renderGitHubCalendar(data)}
     </section>`);
   }

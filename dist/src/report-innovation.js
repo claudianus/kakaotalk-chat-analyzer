@@ -30,7 +30,7 @@ function renderTimelineBlock(data) {
     const rangeLine = range
         ? `활동 <strong>${escapeHtml(range.first)}</strong>~<strong>${escapeHtml(range.last)}</strong> · 이벤트 <strong>${data.timeline.length}</strong>건 — `
         : "";
-    return `<section id="s-timeline" class="card spine-card anim-enter" style="margin-bottom:14px;--enter-delay:0.045s" aria-label="이벤트 타임라인">
+    return `<section id="s-timeline" class="kca-section card kca-card--story spine-card anim-enter" style="--enter-delay:0.045s" aria-label="이벤트 타임라인">
     <h2 class="section-glow">이벤트 스파인</h2>
     <p class="chart-hint">${rangeLine}급증·침묵·입퇴장·링크·약속 신호 등 <strong>임계값을 넘은 날</strong>만 나열합니다(전 기간 달력 아님).</p>
     <ol class="spine-list">${items}</ol>
@@ -44,7 +44,7 @@ function renderDyadBlock(data) {
         .slice(0, 6)
         .map((p) => `<li><strong>${escapeHtml(p.fromAlias)}</strong> → ${escapeHtml(p.toAlias)} · <span class="num">${formatNumber(p.replies)}</span>회</li>`)
         .join("");
-    return `<section id="s-dyad" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.048s" aria-label="상호작용">
+    return `<section id="s-dyad" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.048s" aria-label="상호작용">
     <h2 class="section-glow">누가 누구에게 답하는가</h2>
     <p class="chart-hint">연속 메시지에서 화자가 바뀔 때 <strong>직전 화자 → 현재 화자</strong>로 응답 엣지를 셉니다(상위 ${m.aliases.length}명).</p>
     ${renderLlmRelationshipBeats(data)}
@@ -65,7 +65,7 @@ function renderPeriodCompareBlock(data) {
       <div><h4>후반에만 두드러짐</h4><p>${pc.keywordShift.onlyTail.map((k) => escapeHtml(k)).join(" · ") || "—"}</p></div>
     </div>`
         : "";
-    return `<section id="s-compare" class="card anim-enter" style="margin-bottom:14px;--enter-delay:0.05s" aria-label="기간 비교">
+    return `<section id="s-compare" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.05s" aria-label="기간 비교">
     <h2 class="section-glow">기간 비교</h2>
     <p class="chart-hint">처음 7일·마지막 7일·전체와, 월별 키워드 <strong>전반/후반</strong> 차이입니다.</p>
     ${renderLlmEraLabels(data)}
@@ -79,7 +79,7 @@ function renderBenchmarkBlock(data) {
     const rows = data.benchmarks
         .map((b) => `<tr><td>${escapeHtml(b.label)}</td><td class="num">${b.value}</td><td class="num">${b.percentile}%</td><td><span class="bench-band">${escapeHtml(b.band)}</span></td></tr>`)
         .join("");
-    return `<section id="s-bench" class="card bench-card anim-enter" style="margin-bottom:14px;--enter-delay:0.052s" aria-label="참고 벤치마크">
+    return `<section id="s-bench" class="kca-section card kca-card--data bench-card anim-enter" style="--enter-delay:0.052s" aria-label="참고 벤치마크">
     <h2>참고 밴드 <span class="bench-estimate-tag">추정·표본 기반</span></h2>
     <p class="chart-hint bench-disclaimer">합성·공개 fixture만으로 만든 <strong>상대 분위 추정</strong>입니다. 실제 업로드 방과 직접 비교·순위 확정 용도로 쓰지 마세요.</p>
     <table class="bench-table"><thead><tr><th>지표</th><th>값</th><th>분위</th><th>밴드</th></tr></thead><tbody>${rows}</tbody></table>
@@ -88,7 +88,7 @@ function renderBenchmarkBlock(data) {
 function renderExplorerBlock(data) {
     if (data.explorer.daily.length < 3)
         return "";
-    return `<section id="s-explorer" class="card explorer-card anim-enter" style="margin-bottom:14px;--enter-delay:0.055s" aria-label="기간 탐색">
+    return `<section id="s-explorer" class="kca-section card kca-card--data explorer-card anim-enter" style="--enter-delay:0.055s" aria-label="기간 탐색">
     <h2 class="section-glow">기간 탐색</h2>
     <p class="chart-hint">날짜를 좁히면 아래 숫자가 <strong>선택 기간만</strong> 다시 집계됩니다(브라우저 내, 원문 없음).</p>
     <div class="explorer-controls">

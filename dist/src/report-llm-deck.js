@@ -24,7 +24,7 @@ export function renderLlmArchetypeBanner(data) {
     const fallbackHtml = !hasTraits
         ? `<div class="llm-trait-row llm-trait-row--fallback"><span class="llm-trait-chip llm-trait-chip--fallback">${escapeHtml(arch.name)}의 특징적인 대화 패턴</span></div>`
         : "";
-    return `<section id="s-archetype" class="llm-archetype-banner anim-enter" style="--enter-delay:0.025s" aria-label="방 아키타입">
+    return `<section id="s-archetype" class="kca-section llm-archetype-banner anim-enter" style="--enter-delay:0.025s" aria-label="방 아키타입">
     <p class="llm-archetype-kicker">이 방의 얼굴</p>
     <h2 class="llm-archetype-name">${escapeHtml(arch.name)}</h2>
     <p class="llm-archetype-desc">${renderHighlightLine(arch.description)}</p>
@@ -43,7 +43,7 @@ export function renderLlmEpisodeStrip(data) {
       <p class="llm-episode-tagline">${escapeHtml(c.tagline)}</p>
     </article>`)
         .join("");
-    return `<section id="s-episodes" class="llm-episode-strip anim-enter" style="--enter-delay:0.035s" aria-label="시즌 에피소드">
+    return `<section id="s-episodes" class="kca-section llm-episode-strip anim-enter" style="--enter-delay:0.035s" aria-label="시즌 에피소드">
     <h2 class="llm-strip-title">시즌 에피소드</h2>
     <div class="llm-episode-scroll" role="list">${inner}</div>
   </section>`;
@@ -66,7 +66,7 @@ export function renderLlmMomentsBlock(data) {
     const hint = data.summary.usedLlmAnalysis
         ? "통계·키워드만 입력한 <strong>로컬 LLM</strong>이 서사·순간을 보강했습니다(원문 미포함)."
         : "규칙·통계만으로 만든 <strong>재현 가능</strong>한 요약이에요.";
-    return `<section id="s-narrative" class="card narrative-card anim-enter" style="margin-bottom:14px;--enter-delay:0.04s" aria-label="방 이야기">
+    return `<section id="s-narrative" class="kca-section card kca-card--story narrative-card anim-enter" style="--enter-delay:0.04s" aria-label="방 이야기">
     <h2 class="section-glow">② 방 이야기</h2>
     <p class="chart-hint">${hint}</p>
     <div class="narrative-body">${paras}</div>
@@ -122,7 +122,7 @@ export function renderLlmCharacterCards(data) {
       <span class="llm-char-stat">${escapeHtml(c.statHook)}</span>
     </article>`)
         .join("");
-    return `<section id="s-characters" class="llm-char-grid anim-enter" style="margin-bottom:14px;--enter-delay:0.042s" aria-label="캐릭터 카드">
+    return `<section id="s-characters" class="kca-section llm-char-grid anim-enter" style="--enter-delay:0.042s" aria-label="캐릭터 카드">
     <h2 class="llm-strip-title">캐릭터 카드</h2>
     <div class="llm-char-row" role="list">${inner}</div>
   </section>`;
@@ -176,7 +176,7 @@ export function renderDailyHotTopics(data) {
       </article>`;
     })
         .join("");
-    return `<section id="s-hot-topics" class="hot-topics-section anim-enter" style="--enter-delay:0.045s" aria-label="이 날의 핫토픽">
+    return `<section id="s-hot-topics" class="kca-section hot-topics-section anim-enter" style="--enter-delay:0.045s" aria-label="이 날의 핫토픽">
     <h2 class="llm-strip-title">이 날의 핫토픽</h2>
     <div class="hot-topics-grid" role="list">${rows}</div>
   </section>`;
@@ -232,7 +232,7 @@ export function renderParticipantRoles(data) {
       </article>`;
     })
         .join("");
-    return `<section id="s-participant-roles" class="participant-roles-section anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할">
+    return `<section id="s-participant-roles" class="kca-section participant-roles-section anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할">
     <h2 class="llm-strip-title">참여자 역할</h2>
     <div class="participant-roles-grid" role="list">${cards}</div>
   </section>`;
@@ -266,7 +266,7 @@ export function renderMemorableMoments(data) {
       </li>`;
     })
         .join("");
-    return `<section id="s-memorable-moments" class="memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간">
+    return `<section id="s-memorable-moments" class="kca-section memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간">
     <h2 class="llm-strip-title">기억에 남는 순간</h2>
     <ul class="moments-list">${items}</ul>
   </section>`;
