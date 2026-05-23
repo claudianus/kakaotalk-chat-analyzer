@@ -387,10 +387,6 @@ export class ReportAggregator {
       this.consumeKeywords(record);
       return;
     }
-    if (this.prevSender !== null && record.sender !== this.prevSender) {
-      this.speakerSwitches += 1;
-    }
-
     const dayKey = formatDate(record.date);
     const stat = getParticipantStat(this.senderStats, record.sender);
     if (!this.sendersRegistered.has(record.sender)) {
@@ -475,6 +471,7 @@ export class ReportAggregator {
       this.prevMs = ms;
 
       if (this.prevSender !== null && record.sender !== this.prevSender) {
+        this.speakerSwitches += 1;
         this.dyads.addReply(this.prevSender, record.sender);
       }
 
