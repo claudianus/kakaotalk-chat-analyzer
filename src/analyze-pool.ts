@@ -55,9 +55,18 @@ export function runAnalyzeWorker(filePath: string, options?: BuildReportOptions)
       workerData: { filePath, options },
     });
 
+    const timeout = setTimeout(() => {
+      if (!settled) finish(new Error("analyze worker timed out after 30s"));
+    }, 30_000);
+
+    const cleanup = () => {
+      clearTimeout(timeout);
+    };
+
     const finish = (error?: Error, data?: ReportData) => {
       if (settled) return;
       settled = true;
+      cleanup();
       void worker.terminate();
       if (error) reject(error);
       else resolve(data!);
@@ -69,8 +78,13 @@ export function runAnalyzeWorker(filePath: string, options?: BuildReportOptions)
     });
     worker.once("error", (error) => finish(error));
     worker.once("exit", (code) => {
-      if (!settled && code !== 0) {
-        finish(new Error(`analyze worker exited with code ${code}`));
+      if (!settled) {
+        cleanup();
+        finish(new Error(
+          code !== 0
+            ? `analyze worker exited with code ${code}`
+            : `analyze worker exited without sending result`
+        ));
       }
     });
   });
