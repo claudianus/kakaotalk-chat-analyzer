@@ -25,6 +25,7 @@ jobs:
     if: github.repository == 'claudianus/kakaotalk-chat-analyzer'
     permissions:
       contents: read
+      id-token: write  # Trusted Publishing via OIDC
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,21 +71,15 @@ jobs:
         run: npm ci && npm test
 
       - name: Publish kakaotalk-chat-analyzer if version is new
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
-            echo "NPM_TOKEN secret is not set; skipping npm publish. See AGENTS.md."
-            exit 0
-          fi
           LOCAL="$(node -p "require('./package.json').version")"
           REMOTE="$(npm view kakaotalk-chat-analyzer version 2>/dev/null || true)"
           if [ "$LOCAL" = "$REMOTE" ]; then
             echo "kakaotalk-chat-analyzer@$LOCAL already on registry; skip."
           else
             echo "Publishing kakaotalk-chat-analyzer@$LOCAL (registry had: ${REMOTE:-none})"
-            npm publish --access public
+            npm publish --access public --provenance
           fi
 
   publish-kcachat:
@@ -93,6 +88,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write  # Trusted Publishing via OIDC
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -104,14 +100,8 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Publish kcachat if version is new
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
-            echo "NPM_TOKEN not set; skip kcachat."
-            exit 0
-          fi
           cd kcachat
           WANT="$(node -p "require('../package.json').version")"
           for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
@@ -128,5 +118,5 @@ jobs:
             echo "kcachat@$LOCAL already on registry; skip."
           else
             echo "Publishing kcachat@$LOCAL (registry had: ${REMOTE:-none})"
-            npm publish --access public
+            npm publish --access public --provenance
           fi
