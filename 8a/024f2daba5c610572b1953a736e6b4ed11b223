@@ -1,0 +1,19 @@
+src/report-charts.ts
+  s_ccaebc1732a494::t_81c31a302b5d2a 826-890,893,896-897,904-905
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "8a024f2daba5c610572b1953a736e6b4ed11b223",
+  "prompts": {},
+  "sessions": {
+    "s_ccaebc1732a494": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1aad84386ffedTMGVDEoI1z4um",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "ryan.h.park <claudianus@engineer.com>"
+    }
+  }
+}
