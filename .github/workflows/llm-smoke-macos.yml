@@ -16,10 +16,13 @@ jobs:
       - run: npm ci
       - run: npm test
       - name: LLM mock enrichment
-        run: KCA_LLM_MOCK=1 npm run build && node -e "
+        shell: bash
+        run: |
+          KCA_LLM_MOCK=1 npm run build
+          node --input-type=module <<'NODE'
           import { applyLlmEnrichment } from './dist/src/llm-summarize.js';
           import { emptyReportData } from './dist/src/report-empty.js';
           const r = await applyLlmEnrichment(emptyReportData(), { preset: 'quality' }, 1000);
           if (!r.used) throw new Error('mock LLM should succeed');
           console.log('ok');
-        "
+          NODE
