@@ -46,7 +46,9 @@ test("applyLlmEnrichment skips gracefully on invalid mock JSON without throw", a
   process.env.KCA_LLM = "1";
   try {
     const data = emptyReportData();
-    const result = await applyLlmEnrichment(data, { preset: "custom" }, 10_000);
+    const result = await applyLlmEnrichment(data, { preset: "custom" }, 10_000, {
+      llmPlan: { enabled: true, size: "0.8B", reason: "test invalid JSON" },
+    });
     assert.equal(result.used, false);
     assert.ok(result.skipReason?.includes("JSON 파싱 실패"));
   } finally {
