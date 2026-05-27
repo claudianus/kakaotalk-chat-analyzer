@@ -198,12 +198,20 @@ export function renderDailyHotTopics(data: ReportData): string {
       const keywords = t.keywords
         .map((k) => `<span class="hot-topic-kw">${escapeHtml(k)}</span>`)
         .join("");
+      const evidence = (t.evidence ?? [])
+        .map((item) => `<li>${escapeHtml(item)}</li>`)
+        .join("");
+      const lift = typeof t.lift === "number" ? ` · 평균 ${t.lift}배` : "";
       return `<article class="hot-topic-card${burstCls}" role="listitem">
-        <time class="hot-topic-date" datetime="${escapeHtml(t.date)}">${escapeHtml(t.date)}</time>
-        ${burstBadge}
-        <div class="hot-topic-kws">${keywords}</div>
+        <div class="hot-topic-meta">
+          <time class="hot-topic-date" datetime="${escapeHtml(t.date)}">${escapeHtml(t.date)}</time>
+          ${burstBadge}
+        </div>
+        <h3 class="hot-topic-title">${escapeHtml(t.title ?? "대화 흐름")}</h3>
+        ${keywords ? `<div class="hot-topic-kws">${keywords}</div>` : ""}
         <p class="hot-topic-summary">${escapeHtml(t.summary)}</p>
-        <span class="hot-topic-count">${t.messageCount}건</span>
+        ${evidence ? `<ul class="hot-topic-evidence">${evidence}</ul>` : ""}
+        <span class="hot-topic-count">${t.messageCount}건${lift}</span>
       </article>`;
     })
     .join("");
@@ -235,19 +243,25 @@ export function renderParticipantRoles(data: ReportData): string {
   if (!roles || roles.length === 0) return "";
 
   const roleEmoji: Record<string, string> = {
-    리더: "👑",
-    조력자: "🤝",
-    방관자: "👁️",
-    유머메이커: "😂",
-    조용한기여자: "📝",
+    주도형: "👑",
+    긴글러: "✍️",
+    "분위기 메이커": "😂",
+    리액션러: "⚡",
+    "자료 공유자": "🔗",
+    "첨부 장인": "🖼️",
+    "심야 상주자": "🌙",
+    "연속 발화자": "📣",
   };
 
   const roleDesc: Record<string, string> = {
-    리더: "주도형",
-    조력자: "조력형",
-    방관자: "관찰형",
-    유머메이커: "분위기형",
-    조용한기여자: "깊이형",
+    주도형: "흐름 주도",
+    긴글러: "맥락 설명",
+    "분위기 메이커": "웃음 신호",
+    리액션러: "빠른 반응",
+    "자료 공유자": "링크 큐레이터",
+    "첨부 장인": "시각 자료",
+    "심야 상주자": "늦은 시간 활동",
+    "연속 발화자": "긴 흐름 유지",
   };
 
   const cards = roles
@@ -295,12 +309,20 @@ export function renderMemorableMoments(data: ReportData): string {
             .map((k) => `<span class="tag">${escapeHtml(k)}</span>`)
             .join("")}</div>`
         : "";
+      const evidenceHtml = m.evidence && m.evidence.length > 0
+        ? `<ul class="moment-evidence">${m.evidence
+            .map((item) => `<li>${escapeHtml(item)}</li>`)
+            .join("")}</ul>`
+        : "";
       return `<li class="moment-item">
         <time datetime="${escapeHtml(m.date)}">${escapeHtml(m.date)}</time>
         <span class="moment-icon" aria-hidden="true">${icon}</span>
-        <strong class="moment-title">${escapeHtml(m.title)}</strong>
-        <span class="moment-desc">${escapeHtml(m.description)}</span>
-        ${keywordsHtml}
+        <div class="moment-body">
+          <strong class="moment-title">${escapeHtml(m.title)}</strong>
+          <span class="moment-desc">${escapeHtml(m.description)}</span>
+          ${evidenceHtml}
+          ${keywordsHtml}
+        </div>
       </li>`;
     })
     .join("");

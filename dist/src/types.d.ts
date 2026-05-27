@@ -54,6 +54,8 @@ export interface ParticipantHonorific {
     alias: string;
     honorificRatio: number;
     casualRatio: number;
+    neutralRatio?: number;
+    sampleCount?: number;
     dominantStyle: string;
 }
 export interface HonorificInsight {
@@ -401,9 +403,13 @@ export interface TopicTrendItem {
 }
 export interface DailyHotTopic {
     date: string;
+    title: string;
     keywords: string[];
     summary: string;
+    evidence: string[];
     messageCount: number;
+    lift?: number;
+    participants?: string[];
 }
 export interface TopicTrendItem {
     period: string;
@@ -424,6 +430,7 @@ export interface MemorableMoment {
     type: "peak_activity" | "emotional_spike" | "milestone" | "conflict_resolution" | "shared_joy";
     title: string;
     description: string;
+    evidence?: string[];
     messageCount: number;
     participants: string[];
     keywords: string[];

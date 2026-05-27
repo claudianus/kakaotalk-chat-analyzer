@@ -26,7 +26,9 @@ export class DyadAccumulator {
         const aliases = ranked.map((p) => p.alias);
         const messageCounts = ranked.map((p) => p.messages);
         const index = new Map(senders.map((s, i) => [s, i]));
+        const visibleSenders = new Set(senders);
         const matrix = aliases.map(() => aliases.map(() => 0));
+        let visibleReplies = 0;
         for (const [k, count] of this.edges) {
             const [from, to] = k.split("\t");
             const fi = index.get(from);
@@ -34,8 +36,15 @@ export class DyadAccumulator {
             if (fi === undefined || ti === undefined)
                 continue;
             matrix[fi][ti] += count;
+            visibleReplies += count;
         }
+        if (visibleReplies === 0)
+            return null;
         const topPairs = [...this.edges.entries()]
+            .filter(([k]) => {
+            const [from, to] = k.split("\t");
+            return visibleSenders.has(from) && visibleSenders.has(to);
+        })
             .map(([k, replies]) => {
             const [from, to] = k.split("\t");
             return {
@@ -46,7 +55,7 @@ export class DyadAccumulator {
         })
             .sort((a, b) => b.replies - a.replies)
             .slice(0, 8);
-        return { aliases, matrix, topPairs, totalReplies: this.totalReplies, messageCounts };
+        return { aliases, matrix, topPairs, totalReplies: visibleReplies, messageCounts };
     }
 }
 //# sourceMappingURL=dyad-matrix.js.map

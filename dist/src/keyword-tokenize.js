@@ -45,9 +45,11 @@ function mergeTokens(...lists) {
     }
     return out;
 }
-/** 공백·접미사 휴리스틱만 (비교·KCA_NO_KIWI용) */
-export function tokenizeHeuristicOnly(raw) {
-    const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
+/** 공백·접미사 휴리스틱만 (비교·KCA_NO_KIWI용).
+ *  doc가 주어지면 정규화를 건너뛰고 바로 토크나이즈합니다. */
+export function tokenizeHeuristicOnly(raw, doc) {
+    if (doc === undefined)
+        doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
     if (!doc)
         return [];
     const out = [];
@@ -70,10 +72,10 @@ function shouldRunKiwiMorph(doc) {
 }
 /** 본문 키워드: 공백 어절 + (한글 있으면) Kiwi 형태소 병합 */
 export function tokenizeForKeywords(raw) {
-    const heur = tokenizeHeuristicOnly(raw);
+    const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
+    const heur = tokenizeHeuristicOnly(raw, doc);
     if (process.env.KCA_NO_KIWI === "1")
         return heur;
-    const doc = normalizeKoreanText(raw, { keepEnglish: true, keepNumbers: true });
     if (!doc)
         return heur;
     const kiwi = getKiwiRuntime();

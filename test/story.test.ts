@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { buildParticipantRoles } from "../src/accumulator/aggregator-helpers.js";
+import { extractMemorableMoments } from "../src/memorable-moments.js";
 import { buildReportStory } from "../src/story.js";
 import type { ParticipantStat, ReportInsights } from "../src/types.js";
 
@@ -203,6 +205,61 @@ test("buildReportStory limits duplicate persona titles", () => {
   const titles = story.personas.map((p) => p.title);
   const dup = titles.filter((t, i) => titles.indexOf(t) !== i);
   assert.ok(dup.length <= 2, `too many duplicate personas: ${dup.join(", ")}`);
+});
+
+test("buildParticipantRoles returns only distinctive premium role cards", () => {
+  const many: ParticipantStat[] = Array.from({ length: 18 }, (_, i) => ({
+    alias: `U${i}`,
+    messages: 200 - i * 5,
+    characters: i === 0 ? 9000 : 1800,
+    averageLength: i === 0 ? 45 : 9,
+    attachmentMessages: i === 2 ? 45 : 1,
+    linkMessages: i === 3 ? 35 : 0,
+    sharePercent: i === 0 ? 24 : 4,
+    characterSharePercent: i === 0 ? 30 : 3,
+    nightMessages: i === 4 ? 80 : 1,
+    maxConsecutive: i === 5 ? 14 : 2,
+  }));
+  const aliases = new Map(many.map((p) => [p.alias, p.alias]));
+  const roles = buildParticipantRoles(
+    many,
+    new Map([["U6", 80]]),
+    new Map([["U7", 90]]),
+    aliases,
+  );
+  assert.ok(roles.length <= 6);
+  assert.equal(roles.some((r) => r.role === "조력형"), false);
+  assert.equal(new Set(roles.map((r) => r.role)).size, roles.length);
+});
+
+test("extractMemorableMoments avoids milestone walls and keeps topic evidence", () => {
+  const daily = [
+    { date: "2026-04-13", count: 1000 },
+    { date: "2026-04-14", count: 1200 },
+    { date: "2026-04-15", count: 9000 },
+    { date: "2026-04-16", count: 800 },
+    { date: "2026-05-14", count: 6000 },
+  ];
+  const moments = extractMemorableMoments({
+    daily,
+    dailySentiment: daily.map((d) => ({ date: d.date, positive: 0, negative: 0, neutral: 100, energy: 0 })),
+    totalMessages: 116_492,
+    firstMessageDate: "2026-04-13 00:00:00",
+    lastMessageDate: "2026-05-27 06:00:00",
+    dailyHotTopics: [
+      {
+        date: "2026-04-15",
+        title: "클로드·코드 이야기",
+        keywords: ["클로드", "코드"],
+        summary: "클로드와 코드 이야기가 집중됨",
+        evidence: ["주요 언급: 클로드 · 코드", "대표 흐름: 클로드 코드 리뷰"],
+        messageCount: 9000,
+      },
+    ],
+  });
+  assert.ok(moments.length <= 8);
+  assert.ok(moments.filter((m) => m.type === "milestone").length <= 2);
+  assert.ok(moments.some((m) => m.keywords.includes("클로드")));
 });
 
 test("buildReportStory uses Korean compact stats not k suffix", () => {

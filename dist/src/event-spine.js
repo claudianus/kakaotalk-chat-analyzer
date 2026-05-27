@@ -15,26 +15,34 @@ export function buildEventSpine(input) {
     const silenceResume = findSilenceResume(input.daily, input.maxSilenceBetweenActiveDays);
     if (silenceResume)
         events.push(silenceResume);
-    for (const p of input.roomPulse) {
-        const churn = p.join + p.leave + p.kick;
-        if (churn >= 5) {
-            events.push({
-                date: p.date,
-                kind: "room",
-                title: "입·퇴장 활발",
-                detail: `입장 ${p.join} · 퇴장 ${p.leave} · 강퇴 ${p.kick}`,
-                metric: churn,
-            });
-        }
-        if (p.newSenders >= 3) {
-            events.push({
-                date: p.date,
-                kind: "newcomer",
-                title: "신규 참여자 유입",
-                detail: `처음 말한 사람 ${p.newSenders}명`,
-                metric: p.newSenders,
-            });
-        }
+    const roomPulseByChurn = input.roomPulse
+        .map((p) => ({ pulse: p, churn: p.join + p.leave + p.kick }))
+        .filter((p) => p.churn >= 5)
+        .sort((a, b) => b.churn - a.churn || a.pulse.date.localeCompare(b.pulse.date))
+        .slice(0, 4)
+        .sort((a, b) => a.pulse.date.localeCompare(b.pulse.date));
+    for (const { pulse: p, churn } of roomPulseByChurn) {
+        events.push({
+            date: p.date,
+            kind: "room",
+            title: "입·퇴장 활발",
+            detail: `입장 ${p.join} · 퇴장 ${p.leave} · 강퇴 ${p.kick}`,
+            metric: churn,
+        });
+    }
+    const newcomerPulses = input.roomPulse
+        .filter((p) => p.newSenders >= 3)
+        .sort((a, b) => b.newSenders - a.newSenders || a.date.localeCompare(b.date))
+        .slice(0, 4)
+        .sort((a, b) => a.date.localeCompare(b.date));
+    for (const p of newcomerPulses) {
+        events.push({
+            date: p.date,
+            kind: "newcomer",
+            title: "신규 참여자 유입",
+            detail: `처음 말한 사람 ${p.newSenders}명`,
+            metric: p.newSenders,
+        });
     }
     for (const s of input.dailyLinkSpikes.slice(0, 4)) {
         events.push({
@@ -68,9 +76,7 @@ export function buildEventSpine(input) {
     if (merged.length < MIN_EVENTS_BEFORE_ENRICH) {
         merged = enrichSparseTimeline(merged, input);
     }
-    return merged
-        .sort((a, b) => a.date.localeCompare(b.date) || kindOrder(a.kind) - kindOrder(b.kind))
-        .slice(0, MAX_EVENTS);
+    return limitEventsPerDate(merged.sort((a, b) => a.date.localeCompare(b.date) || kindOrder(a.kind) - kindOrder(b.kind))).slice(0, MAX_EVENTS);
 }
 /** 타임라인 힌트용 활동 범위 */
 export function timelineActivityRange(daily) {
@@ -132,6 +138,18 @@ function enrichSparseTimeline(existing, input) {
     }
     return dedupeByDateKind(out);
 }
+function limitEventsPerDate(events, maxPerDate = 2) {
+    const counts = new Map();
+    const out = [];
+    for (const event of events) {
+        const used = counts.get(event.date) ?? 0;
+        if (used >= maxPerDate)
+            continue;
+        counts.set(event.date, used + 1);
+        out.push(event);
+    }
+    return out;
+}
 function dedupeByDateKind(events) {
     const best = new Map();
     for (const e of events) {
@@ -150,13 +168,13 @@ function kindOrder(kind) {
     const o = {
         milestone: -1,
         burst: 0,
-        peak: 1,
-        silence: 2,
+        meme: 1,
+        peak: 2,
+        silence: 3,
         room: 3,
         newcomer: 4,
         links: 5,
         plan: 6,
-        meme: 7,
     };
     return o[kind] ?? 9;
 }

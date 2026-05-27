@@ -9,10 +9,23 @@ export function isShortActivitySpan(daily: DailyCount[]): boolean {
 }
 
 export function topicsForDisplay(topics: ReportTopic[], daily: DailyCount[]): ReportTopic[] {
-  if (!isShortActivitySpan(daily)) return topics;
-  return topics.filter((t) => t.kind === "theme");
+  const normalized = normalizeTopicPercents(topics);
+  if (!isShortActivitySpan(daily)) return normalized;
+  return normalized.filter((t) => t.kind === "theme");
 }
 
 export function topicsThemesOnly(topics: ReportTopic[]): ReportTopic[] {
-  return topics.filter((t) => t.kind === "theme");
+  return normalizeTopicPercents(topics).filter((t) => t.kind === "theme");
+}
+
+function normalizeTopicPercents(topics: ReportTopic[]): ReportTopic[] {
+  return topics.map((t) => ({
+    ...t,
+    messagePercent: clampPercent(t.messagePercent),
+  }));
+}
+
+function clampPercent(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(100, Math.max(0, Math.round(value * 10) / 10));
 }

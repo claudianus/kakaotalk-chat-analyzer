@@ -7,11 +7,23 @@ export function isShortActivitySpan(daily) {
     return months.size <= 2;
 }
 export function topicsForDisplay(topics, daily) {
+    const normalized = normalizeTopicPercents(topics);
     if (!isShortActivitySpan(daily))
-        return topics;
-    return topics.filter((t) => t.kind === "theme");
+        return normalized;
+    return normalized.filter((t) => t.kind === "theme");
 }
 export function topicsThemesOnly(topics) {
-    return topics.filter((t) => t.kind === "theme");
+    return normalizeTopicPercents(topics).filter((t) => t.kind === "theme");
+}
+function normalizeTopicPercents(topics) {
+    return topics.map((t) => ({
+        ...t,
+        messagePercent: clampPercent(t.messagePercent),
+    }));
+}
+function clampPercent(value) {
+    if (!Number.isFinite(value))
+        return 0;
+    return Math.min(100, Math.max(0, Math.round(value * 10) / 10));
 }
 //# sourceMappingURL=report-chart-util.js.map

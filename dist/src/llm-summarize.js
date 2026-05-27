@@ -9,7 +9,7 @@ import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import { parseLlmJsonResponse } from "./llm-json.js";
 import { mergeTopicProposals } from "./topic-merge.js";
-import { sanitizeLlmDeck, isLlmGarbageText } from "./llm-deck-validate.js";
+import { isLlmGarbageText, sanitizeLlmDeck, sanitizeLlmParagraphs } from "./llm-deck-validate.js";
 import { buildKcaLlmJsonSchema } from "./llm-schema.js";
 import { resolveLlmGpuForInfer } from "./llm-gpu-policy.js";
 import { runLlamaPrompt, LlmInferProcessError } from "./llm-runtime.js";
@@ -214,9 +214,7 @@ function mergeTopics(data, parsed) {
     return topics;
 }
 function mergeNarrative(data, parsed, base) {
-    const llmParas = (parsed.paragraphs ?? [])
-        .filter((p) => p.trim().length > 8 && !isLlmGarbageText(p))
-        .slice(0, 3);
+    const llmParas = sanitizeLlmParagraphs(parsed.paragraphs, data);
     if (llmParas.length === 0)
         return base;
     const merged = [...llmParas, ...base.paragraphs.slice(0, 2)];

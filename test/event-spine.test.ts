@@ -71,4 +71,25 @@ describe("buildEventSpine", () => {
     const meme = events.find((e) => e.kind === "meme");
     assert.equal(meme?.date, "2024-04-15");
   });
+
+  it("caps repetitive room pulse events while preserving variety", () => {
+    const daily = Array.from({ length: 12 }, (_, i) => ({
+      date: `2024-04-${String(i + 1).padStart(2, "0")}`,
+      count: 100 + i,
+    }));
+    const events = buildEventSpine({
+      burstDays: [],
+      daily,
+      roomPulse: daily.map((d) => ({ date: d.date, join: 10, leave: 5, hidden: 0, kick: 0, newSenders: 8 })),
+      repeatedPhrases: [],
+      maxSilenceBetweenActiveDays: null,
+      dailyLinkSpikes: [],
+      dailyPlanSignals: [],
+    });
+    assert.ok(events.filter((e) => e.kind === "room").length <= 4);
+    assert.ok(events.filter((e) => e.kind === "newcomer").length <= 4);
+    for (const d of daily.map((x) => x.date)) {
+      assert.ok(events.filter((e) => e.date === d).length <= 2, `too many events on ${d}`);
+    }
+  });
 });

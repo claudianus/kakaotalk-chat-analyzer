@@ -1,5 +1,5 @@
 import { formatDate, formatDateTime, partsToUtcMs, weekdayIndex } from "./date.js";
-import { maskPartialDisplayName, parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
+import { parseChatRoomNameFromExportPath, safeInputName } from "./analysis-labels.js";
 import { GapStreamStats, SessionGapStats } from "./gap-stats.js";
 import { keywordTokensForRecord } from "./keyword-record-tokens.js";
 import { tokenizeForKeywords } from "./keyword-tokenize.js";
@@ -18,7 +18,6 @@ import { getAttachmentMarkers, shouldExtractKeywords } from "./keyword-eligibili
 import { mergeDualLaneKeywords } from "./keyword-rank-dual.js";
 import { shopSearchDisplayTop } from "./report-config.js";
 import { isNoiseKeyword } from "./keyword-quality.js";
-import { formatCompactNumber, formatReplyGapMinutes } from "./report-util.js";
 import { KeywordCounter } from "./keyword-counter.js";
 import { RepeatPhraseCounter } from "./repeat-phrase-counter.js";
 import { extractEmojis, classifyEmoji } from "./emoji-sentiment.js";
@@ -34,6 +33,7 @@ import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
 import { semanticItemsToTopics } from "./embedding-topics.js";
 import { buildKeywordSeedTopics } from "./keyword-seed-topics.js";
 import { mergeTopicLanes } from "./topic-merge.js";
+import { buildHighlights, buildParticipantRoles, buildRoomEventStats, buildSenderLabels, computeDaypartPercents, computeDensityFromSpan, computeGini, computeRhythmScore, computeTop3Share, domainEntropyBits, getDomains, getParticipantStat, increment, inferRoomRelationship, longestDateStreak, maxSilenceGapDays, medianSorted, normalizeToken, pad2, round, splitMonthlyKeywordBuckets, top1ShareFromCounts, topCounts, topDailyLinkSpikes, typeRichnessFromKeywords, } from "./accumulator/aggregator-helpers.js";
 const ATTACHMENT_MARKERS = [
     "사진",
     "동영상",
@@ -47,25 +47,125 @@ const ATTACHMENT_MARKERS = [
     "삭제된 메시지",
 ];
 const KEYWORD_EXCLUDE = new Set([...ATTACHMENT_MARKERS, ...SYSTEM_NOTICE_KEYWORD_STOP]);
-const PHOTO_BUNDLE_RE = /^사진\s+\d+\s*장$/;
 const PURE_LAUGH_RE = /^[ㅋㅎㅠㅜ]+$/u;
 const PLAN_SIGNAL_RE = /(?:\d{1,2}\s*월|\d{1,2}\s*일|내일|모레|다음\s*주|오전|오후|저녁|점심|몇\s*시|\d{1,2}:\d{2})/u;
 const WEEKDAY_LABELS_KO = ["일", "월", "화", "수", "목", "금", "토"];
-const URL_RE = /\bhttps?:\/\/[^\s<>"']+|www\.[^\s<>"']+/gi;
-const EMAIL_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
-const PHONE_RE = /\b(?:\+?\d[\d\s().-]{7,}\d)\b/g;
 const NIGHT_HOURS = new Set([23, 0, 1, 2, 3, 4, 5]);
 const EMOJI_RE = /\p{Extended_Pictographic}/u;
 const LAUGH_RE = /(?:ㅋ{2,}|ㅎ{2,}|ㅠ+|ㅜ+|ㅇㅇ|ㅋㅋ|ㅎㅎ|ㅋㅎ|ㅎㅋ)/;
 const LINK_HINT_RE = /https?:\/\/|www\./i;
 const HAS_TOKEN_CHAR_RE = /[가-힣A-Za-z]/;
+const DAILY_CONTEXT_SAMPLE_LIMIT = 18;
+const DAILY_EVIDENCE_LIMIT = 5;
+const CONTEXT_TOPIC_STOPWORDS = new Set([
+    "오늘", "내일", "지금", "방금", "저거", "이거", "그거", "저도", "제가", "혹시", "그냥", "진짜", "약간", "관련",
+    "http", "https", "링크", "사진", "영상", "이모티콘",
+]);
+function cleanContextText(text) {
+    return text
+        .replace(/https?:\/\/\S+|www\.\S+/gi, "링크")
+        .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, "이메일")
+        .replace(/\d{5,}/g, "숫자")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+function trimEvidenceText(text, limit = 56) {
+    const cleaned = cleanContextText(text);
+    return cleaned.length > limit ? `${cleaned.slice(0, limit - 1)}…` : cleaned;
+}
+function scoreContextSample(text, flags) {
+    const lengthScore = Math.min(40, Math.max(0, text.length));
+    return lengthScore
+        + (flags.hasPlan ? 18 : 0)
+        + (flags.hasQuestion ? 10 : 0)
+        + (flags.hasAttachment ? 10 : 0)
+        + (flags.hasLink ? 8 : 0)
+        + (flags.hasLaugh ? 5 : 0);
+}
+function topicTitleFromKeywords(keywords) {
+    if (keywords.length >= 2)
+        return `${keywords.slice(0, 2).join("·")} 이야기`;
+    if (keywords.length === 1)
+        return `${keywords[0]} 이야기`;
+    return "대화 흐름";
+}
+function deriveKeywordsFromSamples(samples) {
+    const counts = new Map();
+    for (const sample of samples.slice(0, 10)) {
+        for (const token of tokenizeForKeywords(sample.text).slice(0, 12)) {
+            const normalized = normalizeToken(token);
+            if (normalized.length < 2 || CONTEXT_TOPIC_STOPWORDS.has(normalized) || isNoiseKeyword(normalized))
+                continue;
+            counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+        }
+    }
+    return [...counts.entries()]
+        .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length || a[0].localeCompare(b[0]))
+        .slice(0, 4)
+        .map(([label]) => label);
+}
+function countContextSignals(samples) {
+    const counts = [
+        { label: "일정 조율", count: samples.filter((s) => s.hasPlan).length },
+        { label: "질문·답변", count: samples.filter((s) => s.hasQuestion).length },
+        { label: "자료 공유", count: samples.filter((s) => s.hasAttachment || s.hasLink).length },
+        { label: "웃음·반응", count: samples.filter((s) => s.hasLaugh).length },
+    ];
+    return counts.filter((item) => item.count > 0).sort((a, b) => b.count - a.count);
+}
+function representativeEvidence(samples, keywords) {
+    const lowered = keywords.map((k) => k.toLowerCase());
+    const ranked = [...samples]
+        .sort((a, b) => {
+        const aHit = lowered.some((k) => a.text.toLowerCase().includes(k)) ? 1 : 0;
+        const bHit = lowered.some((k) => b.text.toLowerCase().includes(k)) ? 1 : 0;
+        return bHit - aHit || b.score - a.score;
+    })
+        .slice(0, 2)
+        .map((s) => trimEvidenceText(s.text))
+        .filter(Boolean);
+    return [...new Set(ranked)].map((s) => `대표 흐름: ${s}`);
+}
+function buildDailyHotTopic(args) {
+    const lift = round(args.messageCount / Math.max(args.avgDailyMessages, 1), 1);
+    const keywords = args.keywords.length > 0 ? args.keywords : deriveKeywordsFromSamples(args.samples);
+    const signals = countContextSignals(args.samples);
+    const signalText = signals.slice(0, 3).map((s) => `${s.label} ${s.count}건`).join(" · ");
+    const keywordText = keywords.slice(0, 4).join(" · ");
+    const title = keywords.length > 0
+        ? topicTitleFromKeywords(keywords)
+        : signals[0]
+            ? `${signals[0].label} 중심 대화`
+            : "대화 급증일";
+    const summary = keywords.length > 0
+        ? `${keywordText} 관련 언급이 모였고${signalText ? `, ${signalText} 흐름이 함께 보입니다` : " 그 주제가 반복됐습니다"}.`
+        : args.isBurst
+            ? `평소보다 ${lift}배 많은 메시지가 오갔지만, 뚜렷한 키워드보다 ${signalText || "짧은 반응"}이 중심이었습니다.`
+            : `${signalText || "짧은 대화"} 중심으로 이어진 날입니다.`;
+    const evidence = [
+        keywordText ? `주요 언급: ${keywordText}` : "",
+        args.participantAliases.length > 0 ? `주도 참여자: ${args.participantAliases.slice(0, 3).join(" · ")}` : "",
+        signalText ? `대화 단서: ${signalText}` : "",
+        ...representativeEvidence(args.samples, keywords),
+    ].filter(Boolean).slice(0, DAILY_EVIDENCE_LIMIT);
+    return {
+        date: args.date,
+        title,
+        keywords,
+        summary,
+        evidence,
+        messageCount: args.messageCount,
+        lift,
+        participants: args.participantAliases,
+    };
+}
 /** 규칙 기반 감정 키워드 — 긍정/부정/중립 분류 */
 const POSITIVE_PATTERNS = [
-    /(?:\b|[^가-힣A-Za-z])(ㅋㅋ|ㅎㅎ|ㅋㅎ|ㅎㅋ)(?:\b|[^가-힣A-Za-z])/u,
-    /(?:좋아요|고마워|감사|축하|대박|신나|기쁘|행복|재미|재밌|웃겨|웃기|ㅇㅋ|ㅇㅇ|넵|예|굿|좋|최고|멋|잘했|잘하|사랑|귀엽|예쁘|잘생|대단|훌륭|완벽|만세|ㅊㅋ|파이팅|화이팅|감동|행복|신난다|대단|베스트|예쁘다|멋지|잘한다|고마워|ㅋㅋㅋ|ㅎㅎㅎ)/u,
+    /(?:\b|[^가-힣A-Za-z])(ㅋㅋ|ㅎㅎ|ㅋㅎ|ㅎㅋ)(?:\b|[^가-힣A-Za-z])/gu,
+    /(?:좋아요|고마워|감사|축하|대박|신나|기쁘|행복|재미|재밌|웃겨|웃기|ㅇㅋ|ㅇㅇ|넵|예|굿|좋|최고|멋|잘했|잘하|사랑|귀엽|예쁘|잘생|대단|훌륭|완벽|만세|ㅊㅋ|파이팅|화이팅|감동|행복|신난다|대단|베스트|예쁘다|멋지|잘한다|고마워|ㅋㅋㅋ|ㅎㅎㅎ)/gu,
 ];
 const NEGATIVE_PATTERNS = [
-    /(?:싫어|짜증|화나|분노|슬퍼|우울|걱정|불안|화가|엽나|빡|ㅅㅂ|ㅆㅂ|졌나|씨발|시발|지랄|미친|병신|개같|극혐|싫|나쁘|별로|안돼|큰일|문제|실패|어렵|힘들|짜증|귀찮|쓸데없|헛소리|비아냥|까|디스|따져|몰라|관심없|지겹|답답|후회|실망|분통|개빡|열|지치|괴롭|울고|눈물|죽겠|죽음)/u,
+    /(?:싫어|짜증|화나|분노|슬퍼|우울|걱정|불안|화가|엽나|빡|ㅅㅂ|ㅆㅂ|졌나|씨발|시발|지랄|미친|병신|개같|극혐|싫|나쁘|별로|안돼|큰일|문제|실패|어렵|힘들|짜증|귀찮|쓸데없|헛소리|비아냥|까|디스|따져|몰라|관심없|지겹|답답|후회|실망|분통|개빡|열|지치|괴롭|울고|눈물|죽겠|죽음)/gu,
 ];
 function classifySentiment(text) {
     let positive = 0;
@@ -129,6 +229,7 @@ export class ReportAggregator {
     dailyPlanSignals = new Map();
     monthlyKeywordBuckets = new Map();
     dailyKeywordBuckets = new Map();
+    dailyContextSamples = new Map();
     dyads = new DyadAccumulator();
     dailySentimentCounters = new Map();
     senderHonorificCounts = new Map();
@@ -294,13 +395,27 @@ export class ReportAggregator {
             this.keywordSupplement.addHits(item.label, corpusHits);
         }
     }
+    collectDailyContextSample(dayKey, msg, sender, flags) {
+        const text = cleanContextText(msg);
+        if (text.length < 4 || PURE_LAUGH_RE.test(text))
+            return;
+        const sample = {
+            text,
+            sender,
+            score: scoreContextSample(text, flags),
+            ...flags,
+        };
+        const samples = this.dailyContextSamples.get(dayKey) ?? [];
+        samples.push(sample);
+        samples.sort((a, b) => b.score - a.score || b.text.length - a.text.length);
+        if (samples.length > DAILY_CONTEXT_SAMPLE_LIMIT)
+            samples.length = DAILY_CONTEXT_SAMPLE_LIMIT;
+        this.dailyContextSamples.set(dayKey, samples);
+    }
     consume(record, opts) {
         if (opts?.keywordsOnly) {
             this.consumeKeywords(record);
             return;
-        }
-        if (this.prevSender !== null && record.sender !== this.prevSender) {
-            this.speakerSwitches += 1;
         }
         const dayKey = formatDate(record.date);
         const stat = getParticipantStat(this.senderStats, record.sender);
@@ -334,6 +449,13 @@ export class ReportAggregator {
         this.total += 1;
         const wi = weekdayIndex(record.date);
         if (!isPureSystem) {
+            this.collectDailyContextSample(dayKey, msg, record.sender, {
+                hasAttachment: foundAttachments.length > 0,
+                hasLink: foundDomains.length > 0,
+                hasPlan: PLAN_SIGNAL_RE.test(msg),
+                hasQuestion: msg.includes("?") || msg.includes("？"),
+                hasLaugh: LAUGH_RE.test(msg),
+            });
             if (messageLength > 0 && EMOJI_RE.test(msg)) {
                 this.emojiMessages += 1;
                 const emojis = extractEmojis(msg);
@@ -378,6 +500,7 @@ export class ReportAggregator {
             this.sessionGapStats.addMessage(ms);
             this.prevMs = ms;
             if (this.prevSender !== null && record.sender !== this.prevSender) {
+                this.speakerSwitches += 1;
                 this.dyads.addReply(this.prevSender, record.sender);
             }
             if (PLAN_SIGNAL_RE.test(msg)) {
@@ -835,27 +958,35 @@ export class ReportAggregator {
             const energy = computeEnergy(counters.positive, counters.negative, counters.neutral);
             return { date: d.date, positive, negative, neutral, energy };
         });
+        const burstDateSet = new Set(burstDays.map((d) => d.date));
+        const avgDailyMessages = dailySorted.length > 0 ? total / dailySorted.length : 0;
         const dailyHotTopics = dailySorted
             .map((d) => {
             const bucket = this.dailyKeywordBuckets.get(d.date);
-            const topKeywords = bucket ? bucket.topCounts(3).map((item) => item.label) : [];
-            const summary = topKeywords.length > 0
-                ? `${topKeywords.join("·")} 언급이 많았어요`
-                : "활발한 대화가 이어졌어요";
-            return {
+            const topKeywords = bucket ? bucket.topCounts(4).map((item) => item.label) : [];
+            const participantAliases = topCounts(this.dailySenderCounts.get(d.date) ?? new Map(), 3)
+                .map((item) => aliases.get(item.label) ?? item.label);
+            return buildDailyHotTopic({
                 date: d.date,
                 keywords: topKeywords,
-                summary,
                 messageCount: d.count,
-            };
+                avgDailyMessages,
+                samples: this.dailyContextSamples.get(d.date) ?? [],
+                participantAliases,
+                isBurst: burstDateSet.has(d.date),
+            });
         })
-            .filter((d) => d.keywords.length > 0 || d.messageCount > 0);
+            .filter((d) => d.keywords.length > 0 || d.evidence.length > 0 || burstDateSet.has(d.date))
+            .sort((a, b) => b.messageCount - a.messageCount)
+            .slice(0, 10)
+            .sort((a, b) => a.date.localeCompare(b.date));
         const memorableMoments = extractMemorableMoments({
             daily: dailySorted,
             dailySentiment,
             totalMessages: total,
             firstMessageDate: this.firstDate ? formatDateTime(this.firstDate) : null,
             lastMessageDate: this.lastDate ? formatDateTime(this.lastDate) : null,
+            dailyHotTopics,
         });
         const emojiInsight = {
             totalEmojis: this.emojiMessages,
@@ -894,19 +1025,31 @@ export class ReportAggregator {
             const alias = aliases.get(rawSender);
             if (!alias)
                 continue;
-            const total = counts.honorific + counts.casual;
-            const honorificRatio = total > 0 ? counts.honorific / total : 0;
-            const casualRatio = total > 0 ? counts.casual / total : 0;
+            const styledTotal = counts.honorific + counts.casual;
+            const observedTotal = styledTotal + counts.neutral;
+            const honorificRatio = styledTotal > 0 ? counts.honorific / styledTotal : 0;
+            const casualRatio = styledTotal > 0 ? counts.casual / styledTotal : 0;
+            const neutralRatio = observedTotal > 0 ? counts.neutral / observedTotal : 1;
+            const styledCoverage = observedTotal > 0 ? styledTotal / observedTotal : 0;
             let dominantStyle = "mixed";
-            if (honorificRatio >= 0.7)
+            if (styledTotal < 3 || styledCoverage < 0.25)
+                dominantStyle = "insufficient";
+            else if (honorificRatio >= 0.7)
                 dominantStyle = "honorific";
             else if (casualRatio >= 0.7)
                 dominantStyle = "casual";
-            participantHonorifics.push({ alias, honorificRatio, casualRatio, dominantStyle });
+            participantHonorifics.push({
+                alias,
+                honorificRatio,
+                casualRatio,
+                neutralRatio,
+                sampleCount: observedTotal,
+                dominantStyle,
+            });
             roomHonorificCount += counts.honorific;
             roomCasualCount += counts.casual;
         }
-        participantHonorifics.sort((a, b) => b.honorificRatio - a.honorificRatio);
+        participantHonorifics.sort((a, b) => (b.sampleCount ?? 0) - (a.sampleCount ?? 0) || b.honorificRatio - a.honorificRatio);
         let roomStyle = "mixed";
         const roomTotal = roomHonorificCount + roomCasualCount;
         if (roomTotal > 0) {
@@ -1017,475 +1160,5 @@ export class ReportAggregator {
             memorableMoments,
         };
     }
-}
-function splitMonthlyKeywordBuckets(buckets) {
-    const months = [...buckets.keys()].sort();
-    if (months.length < 2) {
-        return { headKeywords: [], tailKeywords: [] };
-    }
-    const mid = Math.floor(months.length / 2);
-    const mergeMonths = (keys) => {
-        const acc = new KeywordCounter();
-        for (const k of keys) {
-            const b = buckets.get(k);
-            if (!b)
-                continue;
-            for (const item of b.topCounts(40))
-                acc.addHits(item.label, item.count);
-        }
-        return acc.topCounts(12);
-    };
-    return {
-        headKeywords: mergeMonths(months.slice(0, mid)),
-        tailKeywords: mergeMonths(months.slice(mid)),
-    };
-}
-function topDailyLinkSpikes(dailyLinks) {
-    return [...dailyLinks.entries()]
-        .filter(([, c]) => c >= 3)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 6)
-        .map(([date, links]) => ({ date, links }));
-}
-function buildSenderLabels(senders, privacy) {
-    const unique = [...new Set(senders)];
-    if (privacy === "public-anonymous") {
-        const map = new Map();
-        unique.forEach((sender, i) => map.set(sender, `User ${String(i + 1).padStart(3, "0")}`));
-        return map;
-    }
-    const map = new Map();
-    const used = new Map();
-    for (const raw of unique) {
-        let base = maskPartialDisplayName(raw);
-        const n = (used.get(base) ?? 0) + 1;
-        used.set(base, n);
-        if (n > 1)
-            base = `${base}·${n}`;
-        map.set(raw, base);
-    }
-    return map;
-}
-function getParticipantStat(stats, sender) {
-    const existing = stats.get(sender);
-    if (existing)
-        return existing;
-    const created = {
-        messages: 0,
-        characters: 0,
-        attachmentMessages: 0,
-        linkMessages: 0,
-        nightMessages: 0,
-        maxConsecutive: 0,
-    };
-    stats.set(sender, created);
-    return created;
-}
-function buildRoomEventStats(total, c, shopExtra) {
-    const sum = c.join +
-        c.leave +
-        c.deleted +
-        c.hidden +
-        c.kick +
-        c.slowModeOn +
-        c.slowModeOff +
-        c.subManager +
-        c.manager +
-        c.shopSearch +
-        c.photoBundle;
-    const pct = (n) => (total > 0 ? round((n / total) * 100, 2) : 0);
-    return {
-        joinCount: c.join,
-        leaveCount: c.leave,
-        deletedCount: c.deleted,
-        hiddenCount: c.hidden,
-        kickCount: c.kick,
-        slowModeOnCount: c.slowModeOn,
-        slowModeOffCount: c.slowModeOff,
-        subManagerCount: c.subManager,
-        managerCount: c.manager,
-        shopSearchCount: c.shopSearch,
-        shopSearchTagExtractions: shopExtra?.tagExtractions ?? 0,
-        shopSearchUniqueTags: shopExtra?.uniqueTags ?? 0,
-        shopSearchUntaggedNotices: shopExtra?.untaggedNotices ?? 0,
-        photoBundleCount: c.photoBundle,
-        total: sum,
-        joinSharePercent: pct(c.join),
-        leaveSharePercent: pct(c.leave),
-        deletedSharePercent: pct(c.deleted),
-        hiddenSharePercent: pct(c.hidden),
-        kickSharePercent: pct(c.kick),
-    };
-}
-function getDomains(message) {
-    const matches = message.match(URL_RE) ?? [];
-    const domains = [];
-    for (const match of matches) {
-        const urlText = match.startsWith("http") ? match : `https://${match}`;
-        try {
-            const url = new URL(urlText);
-            domains.push(url.hostname.toLowerCase().replace(/^www\./, ""));
-        }
-        catch {
-            continue;
-        }
-    }
-    return domains;
-}
-function normalizeToken(token) {
-    return /^[A-Za-z0-9_+-]+$/.test(token) ? token.toLowerCase() : token.trim();
-}
-function top1ShareFromCounts(keywords, totalMessages) {
-    if (keywords.length === 0 || totalMessages === 0)
-        return null;
-    const sum = keywords.reduce((a, k) => a + k.count, 0);
-    if (sum === 0)
-        return null;
-    return round((keywords[0].count / sum) * 100, 1);
-}
-function typeRichnessFromKeywords(keywords, totalMessages) {
-    if (totalMessages === 0 || keywords.length === 0)
-        return null;
-    const tokenSum = keywords.reduce((a, k) => a + k.count, 0);
-    if (tokenSum === 0)
-        return null;
-    return round((keywords.length / tokenSum) * 100, 1);
-}
-function increment(map, key, amount = 1) {
-    map.set(key, (map.get(key) ?? 0) + amount);
-}
-function topCounts(map, limit) {
-    return [...map.entries()]
-        .map(([label, count]) => ({ label, count }))
-        .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
-        .slice(0, limit);
-}
-function round(value, decimals) {
-    const factor = 10 ** decimals;
-    return Math.round(value * factor) / factor;
-}
-function pad2(value) {
-    return value.toString().padStart(2, "0");
-}
-function medianSorted(sorted) {
-    if (sorted.length === 0)
-        return 0;
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-}
-function longestDateStreak(sortedYmd) {
-    if (sortedYmd.length === 0)
-        return 0;
-    let best = 1;
-    let cur = 1;
-    for (let i = 1; i < sortedYmd.length; i += 1) {
-        const a = new Date(`${sortedYmd[i - 1]}T12:00:00Z`).getTime();
-        const b = new Date(`${sortedYmd[i]}T12:00:00Z`).getTime();
-        const diffDays = Math.round((b - a) / 86_400_000);
-        if (diffDays === 1) {
-            cur += 1;
-            best = Math.max(best, cur);
-        }
-        else {
-            cur = 1;
-        }
-    }
-    return best;
-}
-function computeGini(counts) {
-    if (counts.length === 0)
-        return null;
-    const sorted = [...counts].sort((a, b) => a - b);
-    const n = sorted.length;
-    let sum = 0;
-    for (const x of sorted)
-        sum += x;
-    if (sum === 0)
-        return null;
-    let num = 0;
-    for (let i = 0; i < n; i += 1) {
-        num += (2 * i - n + 1) * sorted[i];
-    }
-    return round(num / (n * sum), 3);
-}
-function maxSilenceGapDays(sortedYmd) {
-    if (sortedYmd.length < 2)
-        return null;
-    let best = 0;
-    for (let i = 1; i < sortedYmd.length; i += 1) {
-        const a = new Date(`${sortedYmd[i - 1]}T12:00:00Z`).getTime();
-        const b = new Date(`${sortedYmd[i]}T12:00:00Z`).getTime();
-        const diffDays = Math.round((b - a) / 86_400_000);
-        best = Math.max(best, Math.max(0, diffDays - 1));
-    }
-    return best;
-}
-function computeTop3Share(stats, total) {
-    if (total === 0)
-        return 0;
-    const top3 = [...stats.values()]
-        .map((s) => s.messages)
-        .sort((a, b) => b - a)
-        .slice(0, 3)
-        .reduce((a, c) => a + c, 0);
-    return round((top3 / total) * 100, 1);
-}
-function domainEntropyBits(domains) {
-    let sum = 0;
-    for (const c of domains.values())
-        sum += c;
-    if (sum === 0)
-        return null;
-    let h = 0;
-    for (const c of domains.values()) {
-        if (c <= 0)
-            continue;
-        const p = c / sum;
-        h -= p * Math.log2(p);
-    }
-    return round(h, 2);
-}
-function computeDensityFromSpan(first, last, total) {
-    if (total === 0 || !first || !last)
-        return null;
-    const spanDays = Math.max(1, Math.floor((partsToUtcMs(last) - partsToUtcMs(first)) / 86_400_000) + 1);
-    return round(total / spanDays, 2);
-}
-function computeDaypartPercents(hourly, total) {
-    const bands = [
-        { key: "dawn", label: "새벽(0~5시)", lo: 0, hi: 5 },
-        { key: "morning", label: "오전(6~11시)", lo: 6, hi: 11 },
-        { key: "afternoon", label: "오후(12~17시)", lo: 12, hi: 17 },
-        { key: "evening", label: "저녁(18~23시)", lo: 18, hi: 23 },
-    ];
-    if (total === 0) {
-        return bands.map((b) => ({ key: b.key, label: b.label, percent: 0 }));
-    }
-    const raw = bands.map((b) => {
-        let c = 0;
-        for (let h = b.lo; h <= b.hi; h += 1)
-            c += hourly[h] ?? 0;
-        return { key: b.key, label: b.label, count: c };
-    });
-    const sum = raw.reduce((a, x) => a + x.count, 0) || 1;
-    let rounded = raw.map((x) => ({
-        key: x.key,
-        label: x.label,
-        percent: round((x.count / sum) * 100, 1),
-    }));
-    const drift = 100 - rounded.reduce((a, x) => a + x.percent, 0);
-    if (Math.abs(drift) >= 0.05 && rounded.length > 0) {
-        const idx = rounded.reduce((best, x, i, arr) => (x.percent >= arr[best].percent ? i : best), 0);
-        rounded = rounded.map((x, i) => (i === idx ? { ...x, percent: round(x.percent + drift, 1) } : x));
-    }
-    return rounded;
-}
-function buildParticipantRoles(participants, laughBySender, shortBySender, aliases) {
-    if (participants.length === 0)
-        return [];
-    const sortedByMessages = [...participants].sort((a, b) => b.messages - a.messages);
-    const totalMessages = participants.reduce((sum, p) => sum + p.messages, 0);
-    const avgLengthOverall = participants.reduce((sum, p) => sum + p.averageLength, 0) / participants.length;
-    const top25Threshold = Math.ceil(participants.length * 0.25);
-    const top50Threshold = Math.ceil(participants.length * 0.5);
-    const results = [];
-    for (const p of participants) {
-        const rawAlias = [...aliases.entries()].find(([, a]) => a === p.alias)?.[0];
-        const laughCount = rawAlias ? (laughBySender.get(rawAlias) ?? 0) : 0;
-        const shortCount = rawAlias ? (shortBySender.get(rawAlias) ?? 0) : 0;
-        const laughRate = p.messages > 0 ? (laughCount / p.messages) : 0;
-        const shortRate = p.messages > 0 ? (shortCount / p.messages) : 0;
-        const rankByMessages = sortedByMessages.findIndex((x) => x.alias === p.alias);
-        const isTop25 = rankByMessages < top25Threshold;
-        const isBottom50 = rankByMessages >= top50Threshold;
-        const isLong = p.averageLength >= avgLengthOverall * 1.2;
-        const isShort = p.averageLength <= avgLengthOverall * 0.7;
-        const isVeryLong = p.averageLength >= avgLengthOverall * 1.5;
-        let role;
-        let confidence;
-        let reason;
-        if (isTop25 && isLong) {
-            role = "리더";
-            confidence = 0.9;
-            reason = `메시지 수 상위(${p.messages}건)에 평균 길이(${p.averageLength}자)가 전체 평균(${avgLengthOverall.toFixed(1)}자)보다 긴 주도형 참여자`;
-        }
-        else if (laughRate > 0.15 || (isBottom50 && shortRate > 0.3)) {
-            role = "유머메이커";
-            confidence = 0.8;
-            reason = `웃음 표현 비율(${Math.round(laughRate * 100)}%)이 높거나 짧은 반응 메시지가 많은 분위기 메이커`;
-        }
-        else if (isBottom50 && isVeryLong) {
-            role = "조용한기여자";
-            confidence = 0.85;
-            reason = `메시지 수는 적지만 평균 길이(${p.averageLength}자)가 전체 평균(${avgLengthOverall.toFixed(1)}자)의 1.5배 이상인 깊이 있는 기여자`;
-        }
-        else if (isBottom50 && isShort) {
-            role = "방관자";
-            confidence = 0.8;
-            reason = `메시지 수가 적고 짧은 메시지(${p.averageLength}자) 위주로 주로 관찰하는 참여자`;
-        }
-        else {
-            role = "조력자";
-            confidence = 0.75;
-            reason = `균형 잡힌 메시지 수(${p.messages}건)와 길이(${p.averageLength}자)로 대화를 돕는 조력자`;
-        }
-        results.push({ alias: p.alias, role, confidence, reason });
-    }
-    return results;
-}
-function computeRhythmScore(input) {
-    const g = input.gini ?? 0.45;
-    const streakN = Math.min(1, input.longestStreak / 28);
-    const densityN = input.density != null ? Math.min(1, input.density / 40) : 0.25;
-    const score = 48 * (1 - Math.min(0.95, g)) + 32 * streakN + 20 * densityN;
-    return Math.max(0, Math.min(100, Math.round(score)));
-}
-function buildHighlights(input) {
-    const out = [];
-    if (input.topAlias && input.topShare !== null && input.total > 0) {
-        out.push(`가장 말이 많았던 분은 **${input.topAlias}** (전체의 **${input.topShare}%**).`);
-    }
-    if (input.busiestWeekdayLabel) {
-        out.push(`요일별로는 **${input.busiestWeekdayLabel}**에 활동이 가장 활발했어요.`);
-    }
-    if (input.peakHour !== null) {
-        out.push(`시간대는 **${input.peakHour}시**대에 메시지가 가장 몰렸습니다.`);
-    }
-    if (input.medianReplyGapMinutes !== null) {
-        out.push(`연속 메시지 사이 간격의 중앙값은 **${formatReplyGapMinutes(input.medianReplyGapMinutes)}** 정도예요.`);
-    }
-    if (input.nightSharePercent > 0) {
-        out.push(`심야(23~05시) 메시지 비중은 **${input.nightSharePercent}%**입니다.`);
-    }
-    if (input.longestStreak > 1) {
-        out.push(`하루도 빠짐없이 이어진 최장 **${input.longestStreak}일** 연속 활동 기록이 있어요.`);
-    }
-    if (input.emojiMessages > 0) {
-        out.push(`이모지·스티커 느낌의 메시지는 **${input.emojiMessages}**건 정도 감지됐어요.`);
-    }
-    if (input.messagesWithAttachments > 0) {
-        out.push(`사진·파일·동영상 등 첨부가 들어간 메시지는 **${input.messagesWithAttachments}**건입니다.`);
-    }
-    if (input.total > 0 && input.weekendSharePercent > 0) {
-        out.push(`주말(토·일) 메시지 비중은 **${input.weekendSharePercent}%**예요.`);
-    }
-    if (input.participantGini !== null && input.participantGini >= 0.35) {
-        out.push(`참여도는 소수에게 조금 몰린 편이에요(지니 **${input.participantGini}** — 1에 가까울수록 쏠림).`);
-    }
-    if (input.replyGapP90Minutes !== null && input.replyGapP90Minutes >= 30) {
-        out.push(`가끔 긴 침묵도 있어요 — 응답 간격 **상위 10%**가 약 **${input.replyGapP90Minutes}분** 이상입니다.`);
-    }
-    if (input.maxSilenceBetweenActiveDays !== null && input.maxSilenceBetweenActiveDays >= 7) {
-        out.push(`활동일 사이 최대 **${input.maxSilenceBetweenActiveDays}일** 동안은 메시지가 끊긴 구간이 있었어요.`);
-    }
-    if (input.rhythmScore >= 65) {
-        out.push(`종합 **리듬 점수**는 **${input.rhythmScore}/100** — 꾸준하고 균형 잡힌 페이스에 가깝습니다.`);
-    }
-    if (input.burstGapUnder1mPercent !== null && input.burstGapUnder1mPercent >= 40) {
-        out.push(`응답 간격의 **${input.burstGapUnder1mPercent}%**가 1분 이내로, 실시간 대화 톤이 강해요.`);
-    }
-    if (input.monologueMessagesPercent >= 25) {
-        out.push(`같은 사람 **3연속 이상** 메시지가 전체의 **${input.monologueMessagesPercent}%** — 긴 설명·정리 구간이 잦을 수 있어요.`);
-    }
-    const sysTotal = input.roomJoinMessages +
-        input.roomLeaveMessages +
-        input.roomDeletedMessages +
-        input.roomHiddenMessages +
-        input.roomKickMessages;
-    if (sysTotal > 0) {
-        const parts = [
-            input.roomJoinMessages > 0 ? `들어옴 ${input.roomJoinMessages}` : "",
-            input.roomLeaveMessages > 0 ? `나감 ${input.roomLeaveMessages}` : "",
-            input.roomDeletedMessages > 0 ? `삭제 ${input.roomDeletedMessages}` : "",
-            input.roomHiddenMessages > 0 ? `가림 ${input.roomHiddenMessages}` : "",
-            input.roomKickMessages > 0 ? `강퇴 ${input.roomKickMessages}` : "",
-        ].filter(Boolean);
-        out.push(`카카오톡 **시스템·운영 알림** **${sysTotal}**건(${parts.join(" · ")}) — 본문 키워드와 분리했어요.`);
-    }
-    if (input.pureLaughMessages > 0) {
-        out.push(`**ㅋㅋ만** 보낸 리액션 메시지는 **${input.pureLaughMessages}**건이에요.`);
-    }
-    if (input.repeatedPhraseCount >= 10) {
-        out.push(`똑같은 문장이 **${input.repeatedPhraseCount}회** 반복된 복붙·환영 문구도 있어요.`);
-    }
-    if (input.burstDays.length > 0) {
-        const top = input.burstDays[0];
-        const labels = input.burstDays
-            .slice(0, 3)
-            .map((d) => formatDayMdHighlight(d.date))
-            .join(" · ");
-        out.push(`메시지가 평소보다 몰린 날 **${input.burstDays.length}일** — 최고는 **${formatDayMdHighlight(top.date)}**(${formatCompactNumber(top.count)}건). ${labels}`);
-    }
-    const head = input.activityArc.find((a) => a.id === "head");
-    const tail = input.activityArc.find((a) => a.id === "tail");
-    if (head && tail && head.messages > 0 && tail.messages > 0) {
-        const ratio = round(tail.messages / head.messages, 2);
-        if (ratio >= 1.25) {
-            out.push(`마지막 7일이 처음 7일보다 **${ratio}배** 활발 — 대화가 뜨거워지는 구간이 있었어요.`);
-        }
-        else if (ratio <= 0.8) {
-            out.push(`처음 7일이 마지막보다 더 붐볐어요(후반은 처음의 **${Math.round(ratio * 100)}%** 수준).`);
-        }
-    }
-    if (input.lexicalTypeRichnessPercent !== null && input.lexicalTypeRichnessPercent >= 18) {
-        out.push(`본문 단어는 **${input.lexicalTypeRichnessPercent}%** 정도로 서로 다른 표현이 많이 섞였어요.`);
-    }
-    const pace = input.conversationPace;
-    out.push(`대화 템포는 **${pace.emoji} ${pace.label}** — ${pace.detail}`);
-    const peakHidden = [...input.roomPulse].sort((a, b) => b.hidden - a.hidden)[0];
-    if (peakHidden && peakHidden.hidden >= 5) {
-        out.push(`가림 알림이 가장 많았던 날은 **${formatDayMdHighlight(peakHidden.date)}**(${peakHidden.hidden}건)이에요.`);
-    }
-    const peakJoin = [...input.roomPulse].sort((a, b) => b.join - a.join)[0];
-    if (peakJoin && peakJoin.join >= 20) {
-        out.push(`입장이 가장 몰린 날은 **${formatDayMdHighlight(peakJoin.date)}** — **${peakJoin.join}**명 들어왔어요.`);
-    }
-    return out.slice(0, 14);
-}
-function formatDayMdHighlight(ymd) {
-    const p = ymd.split("-");
-    if (p.length === 3)
-        return `${Number(p[1])}/${Number(p[2])}`;
-    return ymd;
-}
-function inferRoomRelationship(honorific) {
-    const honorificCount = honorific.participants.filter((p) => p.dominantStyle === "honorific").length;
-    const casualCount = honorific.participants.filter((p) => p.dominantStyle === "casual").length;
-    const total = honorific.participants.length;
-    if (total === 0) {
-        return { type: "mixed", description: "높임법 분석 데이터가 부족합니다.", evidence: [] };
-    }
-    const honorificRatio = honorificCount / total;
-    const casualRatio = casualCount / total;
-    if (honorificRatio >= 0.7) {
-        return {
-            type: "formal",
-            description: "대부분 존칭을 사용하는 격식 있는 방입니다.",
-            evidence: [`${honorificCount}명 중 ${Math.round(honorificRatio * 100)}%가 존칭 사용`],
-        };
-    }
-    if (casualRatio >= 0.7) {
-        return {
-            type: "friendly",
-            description: "친구나 동료처럼 편안한 반말을 주로 사용합니다.",
-            evidence: [`${casualCount}명 중 ${Math.round(casualRatio * 100)}%가 반말 사용`],
-        };
-    }
-    // 일부는 존칙, 일부는 반말
-    if (honorificCount > 0 && casualCount > 0) {
-        return {
-            type: "hierarchical",
-            description: "존칭과 반말이 혼용되어 선후배/상하 관계가 있을 수 있습니다.",
-            evidence: [
-                `존칭 사용자: ${honorificCount}명`,
-                `반말 사용자: ${casualCount}명`,
-            ],
-        };
-    }
-    return {
-        type: "mixed",
-        description: "다양한 높임법 스타일이 혼재되어 있습니다.",
-        evidence: ["명확한 패턴을 찾을 수 없음"],
-    };
 }
 //# sourceMappingURL=aggregator.js.map

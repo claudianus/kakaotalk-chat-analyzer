@@ -1,4 +1,4 @@
-import type { DailyCount, DailySentiment, LlmInsights, MemorableMoment } from "./types.js";
+import type { DailyCount, DailyHotTopic, DailySentiment, LlmInsights, MemorableMoment } from "./types.js";
 
 const TYPE_ICONS: Record<MemorableMoment["type"], string> = {
   peak_activity: "📈",
@@ -93,8 +93,10 @@ export function extractMemorableMoments(params: {
   totalMessages: number;
   firstMessageDate: string | null;
   lastMessageDate: string | null;
+  dailyHotTopics?: DailyHotTopic[];
 }): MemorableMoment[] {
   const { daily, dailySentiment, totalMessages, firstMessageDate, lastMessageDate } = params;
+  const topicByDate = new Map((params.dailyHotTopics ?? []).map((t) => [t.date, t]));
   const moments: MemorableMoment[] = [];
 
   moments.push(...extractPeakDays(daily));
@@ -103,16 +105,61 @@ export function extractMemorableMoments(params: {
   moments.push(...extractSharedJoy(daily));
   moments.push(...extractConflictResolution(dailySentiment));
 
-  // 중복 제거 및 정렬
   const seen = new Set<string>();
-  const unique = moments.filter((m) => {
-    const key = `${m.date}|${m.type}|${m.title}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const unique = moments
+    .filter((m) => {
+      const key = `${m.date}|${m.type}|${m.title}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map((m) => contextualizeMoment(m, topicByDate.get(m.date)));
 
-  return unique.sort((a, b) => a.date.localeCompare(b.date)).slice(0, 20);
+  return selectMemorableMoments(unique);
+}
+
+function contextualizeMoment(moment: MemorableMoment, topic: DailyHotTopic | undefined): MemorableMoment {
+  if (!topic) return moment;
+  const topicKeywords = topic.keywords.slice(0, 3);
+  const mergedKeywords = moment.keywords.length > 0 ? moment.keywords : topicKeywords;
+  const participants = moment.participants.length > 0 ? moment.participants : (topic.participants ?? []);
+  const title = moment.type === "milestone"
+    ? `${moment.title} · ${topic.title}`
+    : `${moment.title} · ${topic.title}`;
+  return {
+    ...moment,
+    title,
+    description: topic.summary,
+    evidence: topic.evidence,
+    participants,
+    keywords: mergedKeywords,
+  };
+}
+
+function selectMemorableMoments(moments: MemorableMoment[]): MemorableMoment[] {
+  const typeLimit = new Map<MemorableMoment["type"], number>();
+  const ranked = [...moments].sort((a, b) => momentScore(b) - momentScore(a) || a.date.localeCompare(b.date));
+  const picked: MemorableMoment[] = [];
+  for (const m of ranked) {
+    const used = typeLimit.get(m.type) ?? 0;
+    if (used >= 2) continue;
+    typeLimit.set(m.type, used + 1);
+    picked.push(m);
+    if (picked.length >= 8) break;
+  }
+  return picked.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function momentScore(moment: MemorableMoment): number {
+  const typeWeight: Record<MemorableMoment["type"], number> = {
+    peak_activity: 50,
+    emotional_spike: 44,
+    shared_joy: 38,
+    conflict_resolution: 36,
+    milestone: 22,
+  };
+  const keywordBonus = moment.keywords.length > 0 ? 12 : 0;
+  return typeWeight[moment.type] + keywordBonus + Math.log10(Math.max(moment.messageCount, 1));
 }
 
 function extractPeakDays(daily: DailyCount[]): MemorableMoment[] {

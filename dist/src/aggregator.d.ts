@@ -57,6 +57,7 @@ export declare class ReportAggregator {
     private readonly dailyPlanSignals;
     private readonly monthlyKeywordBuckets;
     private readonly dailyKeywordBuckets;
+    private readonly dailyContextSamples;
     private readonly dyads;
     private readonly dailySentimentCounters;
     private readonly senderHonorificCounts;
@@ -132,6 +133,7 @@ export declare class ReportAggregator {
         label: string;
         messageHits: number;
     }[]): void;
+    private collectDailyContextSample;
     consume(record: ChatRecord, opts?: {
         keywordsOnly?: boolean;
         skipKeywords?: boolean;

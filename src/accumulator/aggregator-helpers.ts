@@ -300,47 +300,58 @@ export function buildParticipantRoles(
 ): ParticipantRole[] {
   if (participants.length === 0) return [];
   const sortedByMessages = [...participants].sort((a, b) => b.messages - a.messages);
-  const avgLengthOverall = participants.reduce((s, p) => s + p.averageLength, 0) / participants.length;
-  const top25 = Math.ceil(participants.length * 0.25);
-  const top50 = Math.ceil(participants.length * 0.5);
+  const avgLengthOverall = participants.reduce((sum, p) => sum + p.averageLength, 0) / participants.length;
+  const pickedRoles = new Set<string>();
   const results: ParticipantRole[] = [];
 
   for (const p of participants) {
     const rawAlias = [...aliases.entries()].find(([, a]) => a === p.alias)?.[0];
     const laughCount = rawAlias ? (laughBySender.get(rawAlias) ?? 0) : 0;
     const shortCount = rawAlias ? (shortBySender.get(rawAlias) ?? 0) : 0;
-    const laughRate = p.messages > 0 ? (laughCount / p.messages) : 0;
-    const shortRate = p.messages > 0 ? (shortCount / p.messages) : 0;
+    const msg = Math.max(p.messages, 1);
+    const laughRate = laughCount / msg;
+    const shortRate = shortCount / msg;
+    const nightRate = p.nightMessages / msg;
+    const attachRate = p.attachmentMessages / msg;
+    const linkRate = p.linkMessages / msg;
     const rank = sortedByMessages.findIndex((x) => x.alias === p.alias);
-    const isTop25 = rank < top25;
-    const isBottom50 = rank >= top50;
-    const isLong = p.averageLength >= avgLengthOverall * 1.2;
-    const isShort = p.averageLength <= avgLengthOverall * 0.7;
-    const isVeryLong = p.averageLength >= avgLengthOverall * 1.5;
+    const candidates: { role: string; confidence: number; reason: string; score: number }[] = [];
 
-    let role: string; let confidence: number; let reason: string;
-    if (isTop25 && isLong) {
-      role = "리더"; confidence = 0.9;
-      reason = `메시지 수 상위(${p.messages}건)에 평균 길이(${p.averageLength}자)가 전체 평균(${avgLengthOverall.toFixed(1)}자)보다 긴 주도형 참여자`;
-    } else if (laughRate > 0.15 || (isBottom50 && shortRate > 0.3)) {
-      role = "유머메이커"; confidence = 0.8;
-      reason = `웃음 표현 비율(${Math.round(laughRate * 100)}%)이 높거나 짧은 반응 메시지가 많은 분위기 메이커`;
-    } else if (isBottom50 && isVeryLong) {
-      role = "조용한기여자"; confidence = 0.85;
-      reason = `메시지 수는 적지만 평균 길이(${p.averageLength}자)가 전체 평균(${avgLengthOverall.toFixed(1)}자)의 1.5배 이상인 깊이 있는 기여자`;
-    } else if (isBottom50 && isShort) {
-      role = "방관자"; confidence = 0.8;
-      reason = `메시지 수가 적고 짧은 메시지(${p.averageLength}자) 위주로 주로 관찰하는 참여자`;
-    } else {
-      role = "조력자"; confidence = 0.75;
-      reason = `균형 잡힌 메시지 수(${p.messages}건)와 길이(${p.averageLength}자)로 대화를 돕는 조력자`;
+    if (rank === 0 && p.sharePercent >= 18) {
+      candidates.push({ role: "주도형", confidence: 0.92, reason: `메시지 비중 ${p.sharePercent}%로 대화 흐름을 가장 많이 만든 참여자`, score: p.sharePercent + 30 });
     }
-    results.push({ alias: p.alias, role, confidence, reason });
+    if (p.averageLength >= Math.max(28, avgLengthOverall * 1.45)) {
+      candidates.push({ role: "긴글러", confidence: 0.88, reason: `평균 ${p.averageLength}자로 긴 설명을 남기는 편`, score: p.averageLength });
+    }
+    if (laughRate >= 0.12 && laughCount >= 8) {
+      candidates.push({ role: "분위기 메이커", confidence: 0.86, reason: `웃음 반응이 ${Math.round(laughRate * 100)}%로 뚜렷함`, score: laughRate * 100 });
+    }
+    if (shortRate >= 0.22 && shortCount >= 12) {
+      candidates.push({ role: "리액션러", confidence: 0.84, reason: `짧은 응답 비중 ${Math.round(shortRate * 100)}%로 빠른 반응이 많음`, score: shortRate * 100 });
+    }
+    if (linkRate >= 0.08 && p.linkMessages >= 8) {
+      candidates.push({ role: "자료 공유자", confidence: 0.84, reason: `링크 포함 메시지 ${p.linkMessages}건으로 자료 공유 신호가 강함`, score: linkRate * 100 });
+    }
+    if (attachRate >= 0.1 && p.attachmentMessages >= 8) {
+      candidates.push({ role: "첨부 장인", confidence: 0.82, reason: `사진·파일 첨부 ${p.attachmentMessages}건으로 시각 자료 기여가 큼`, score: attachRate * 100 });
+    }
+    if (nightRate >= 0.25 && p.nightMessages >= 10) {
+      candidates.push({ role: "심야 상주자", confidence: 0.82, reason: `심야 메시지 ${p.nightMessages}건으로 늦은 시간 활동이 두드러짐`, score: nightRate * 100 });
+    }
+    if (p.maxConsecutive >= 10) {
+      candidates.push({ role: "연속 발화자", confidence: 0.82, reason: `최대 ${p.maxConsecutive}연속 발화로 한 번에 흐름을 길게 이어감`, score: p.maxConsecutive * 3 });
+    }
+
+    candidates.sort((a, b) => b.score - a.score);
+    const picked = candidates.find((c) => !pickedRoles.has(c.role));
+    if (!picked) continue;
+    pickedRoles.add(picked.role);
+    results.push({ alias: p.alias, role: picked.role, confidence: picked.confidence, reason: picked.reason });
+    if (results.length >= 6) break;
   }
+
   return results;
 }
-
-/* ── 하이라이트 ── */
 
 export function formatDayMdHighlight(ymd: string): string {
   const p = ymd.split("-");
