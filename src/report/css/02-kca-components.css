@@ -400,12 +400,12 @@ h2 { margin: 0 0 12px; font-size: 18px; font-weight: 750; letter-spacing: -0.02e
   margin-top: 0;
 }
 .topic-card {
-  border: none;
-  border-radius: 14px;
-  padding: 14px 16px;
-  background: color-mix(in srgb, var(--panel) 88%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 45%, transparent);
-  transition: box-shadow 0.2s ease;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .topic-card:hover {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), 0 4px 16px rgba(0, 0, 0, 0.2);

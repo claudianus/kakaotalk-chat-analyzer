@@ -101,4 +101,50 @@ describe("DyadAccumulator", () => {
     assert.deepEqual(m!.aliases, ["High", "Mid", "Low"]);
     assert.deepEqual(m!.messageCounts, [100, 40, 5]);
   });
+
+  it("keeps top pairs inside the displayed matrix participants", () => {
+    const d = new DyadAccumulator();
+    d.addReply("alice", "bob");
+    d.addReply("alice", "bob");
+    d.addReply("outside", "ghost");
+    d.addReply("outside", "ghost");
+    d.addReply("outside", "ghost");
+    const participants: ParticipantStat[] = [
+      {
+        alias: "A",
+        messages: 10,
+        characters: 100,
+        averageLength: 10,
+        attachmentMessages: 0,
+        linkMessages: 0,
+        sharePercent: 50,
+        characterSharePercent: 55,
+        nightMessages: 0,
+        maxConsecutive: 1,
+      },
+      {
+        alias: "B",
+        messages: 8,
+        characters: 80,
+        averageLength: 10,
+        attachmentMessages: 0,
+        linkMessages: 0,
+        sharePercent: 40,
+        characterSharePercent: 45,
+        nightMessages: 0,
+        maxConsecutive: 1,
+      },
+    ];
+    const aliases = new Map<string, string>([
+      ["alice", "A"],
+      ["bob", "B"],
+      ["outside", "Outside"],
+      ["ghost", "Ghost"],
+    ]);
+    const m = d.buildMatrix(participants, aliases);
+    assert.ok(m);
+    assert.deepEqual(m!.topPairs.map((p) => `${p.fromAlias}->${p.toAlias}`), ["A->B"]);
+    const visibleReplies = m!.matrix.flat().reduce((sum, n) => sum + n, 0);
+    assert.equal(m!.totalReplies, visibleReplies);
+  });
 });

@@ -1,4 +1,15 @@
 const KEYWORD_POOL_MAX = 80;
+const GENERIC_ARCHETYPE_NAMES = new Set([
+    "chatroom",
+    "chatroom(이름 미전송)",
+    "general",
+    "no focus",
+    "lack of keywords",
+    "대화방",
+    "일반 대화방",
+    "잡담방",
+]);
+const LLM_FAILURE_TEXT_RE = /(?:messages are too general|specific archetype|more specific topic keywords|lack of keywords|no focus|cannot define|insufficient keywords|not enough context|이름 미전송)/i;
 /** LLM 출력의 템플릿 잔여물·오류 메시지·JSON 키 필터링 */
 export function isLlmGarbageText(value) {
     const v = value.trim();
@@ -9,6 +20,8 @@ export function isLlmGarbageText(value) {
         return true;
     // 오류/메타 메시지
     if (/this is not correct|please wait|json|schema|format|template/i.test(v))
+        return true;
+    if (LLM_FAILURE_TEXT_RE.test(v))
         return true;
     // 통계 숫자만 나열 (쉼표·공백·%·숫자 외 문자 없음)
     if (/^[\d\s,%\.]+$/.test(v))
@@ -26,10 +39,22 @@ export function isLlmGarbageText(value) {
 }
 function keywordPool(data) {
     const pool = new Set();
-    for (const k of data.keywords.slice(0, KEYWORD_POOL_MAX)) {
-        const label = k.label?.trim();
-        if (label)
+    const add = (value) => {
+        const label = value?.trim();
+        if (label && label.length >= 2)
             pool.add(label);
+    };
+    for (const k of data.keywords.slice(0, KEYWORD_POOL_MAX))
+        add(k.label);
+    for (const t of data.topics.slice(0, 12)) {
+        add(t.title);
+        for (const term of t.terms.slice(0, 8))
+            add(term);
+    }
+    for (const t of data.dailyHotTopics.slice(0, 10)) {
+        add(t.title);
+        for (const term of t.keywords.slice(0, 6))
+            add(term);
     }
     for (const h of data.highlights) {
         for (const m of h.match(/[\p{L}\p{N}_#]+/gu) ?? []) {
@@ -71,16 +96,108 @@ function statRefOk(ref, data) {
     }
     return data.highlights.some((h) => h.includes(t.slice(0, Math.min(24, t.length))));
 }
+function normalized(value) {
+    return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+function textHasEvidence(value, data, kw = keywordPool(data)) {
+    const text = normalized(value);
+    if (text.length < 4 || isLlmGarbageText(value))
+        return false;
+    for (const token of kw) {
+        const t = normalized(token);
+        if (t.length >= 2 && text.includes(t))
+            return true;
+    }
+    for (const tok of text.match(/\d+(?:\.\d+)?/g) ?? []) {
+        if (statTokens(data).has(tok) || statTokens(data).has(tok.split(".")[0]))
+            return true;
+    }
+    return data.summary.totalMessages < 100 && kw.size === 0;
+}
+function sanitizeTrait(value, data, kw) {
+    const trait = value.trim().slice(0, 32);
+    if (!trait || /[\]}{]/.test(trait) || LLM_FAILURE_TEXT_RE.test(trait))
+        return null;
+    if (GENERIC_ARCHETYPE_NAMES.has(normalized(trait)))
+        return null;
+    if (kw.size > 0 && !textHasEvidence(trait, data, kw))
+        return null;
+    return trait;
+}
+function roomArchetypeIsUsable(arch, data, kw) {
+    const name = arch.name?.trim() ?? "";
+    const description = arch.description?.trim() ?? "";
+    if (!name || !description)
+        return false;
+    if (isLlmGarbageText(name) || isLlmGarbageText(description))
+        return false;
+    if (GENERIC_ARCHETYPE_NAMES.has(normalized(name)))
+        return false;
+    if (kw.size === 0)
+        return true;
+    const traits = (arch.traits ?? []).join(" ");
+    return textHasEvidence(`${name} ${description} ${traits}`, data, kw);
+}
+function topEvidenceTerms(data, limit = 4) {
+    const terms = [];
+    for (const t of data.topics)
+        terms.push(...t.terms.slice(0, 3));
+    terms.push(...data.keywords.slice(0, limit * 2).map((k) => k.label));
+    for (const t of data.dailyHotTopics)
+        terms.push(...t.keywords.slice(0, 2));
+    const seen = new Set();
+    return terms
+        .map((t) => t.trim())
+        .filter((t) => {
+        const key = normalized(t);
+        if (t.length < 2 || seen.has(key))
+            return false;
+        seen.add(key);
+        return true;
+    })
+        .slice(0, limit);
+}
+function fallbackRoomArchetype(data) {
+    const terms = topEvidenceTerms(data, 4);
+    if (terms.length < 2)
+        return undefined;
+    const firstTopic = data.topics.find((t) => t.kind === "theme") ?? data.topics[0];
+    const name = terms.some((t) => /클로드|코덱스|cursor|커서|code|코드|개발|프롬프트/i.test(t))
+        ? "AI 코딩 실험실"
+        : `${terms[0]}·${terms[1]} 라운지`;
+    const topicPart = firstTopic ? `${firstTopic.title} 흐름` : `${terms.slice(0, 2).join("·")} 언급`;
+    return {
+        name,
+        description: `${terms.slice(0, 4).join(" · ")} 키워드와 ${topicPart}이 반복되는 방입니다.`,
+        traits: terms.slice(0, 3),
+    };
+}
+export function sanitizeLlmParagraphs(paragraphs, data) {
+    const kw = keywordPool(data);
+    return (paragraphs ?? [])
+        .map((p) => p.trim().slice(0, 180))
+        .filter((p) => p.length > 8 && textHasEvidence(p, data, kw))
+        .slice(0, 3);
+}
 export function sanitizeLlmDeck(parsed, data) {
     const kw = keywordPool(data);
     const out = {};
     const arch = parsed.roomArchetype;
-    if (arch?.name?.trim() && arch.description?.trim()) {
+    if (arch && roomArchetypeIsUsable(arch, data, kw)) {
+        const traits = (arch.traits ?? [])
+            .map((t) => sanitizeTrait(t, data, kw))
+            .filter((t) => Boolean(t))
+            .slice(0, 4);
         out.roomArchetype = {
             name: arch.name.trim().slice(0, 40),
             description: arch.description.trim().slice(0, 200),
-            traits: (arch.traits ?? []).map((t) => t.trim().slice(0, 32)).filter(Boolean).slice(0, 4),
+            traits,
         };
+    }
+    else {
+        const fallback = fallbackRoomArchetype(data);
+        if (fallback)
+            out.roomArchetype = fallback;
     }
     const moments = (parsed.moments ?? [])
         .filter((m) => m.headline?.trim() && m.statRef?.trim() && statRefOk(m.statRef, data))

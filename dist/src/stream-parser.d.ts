@@ -15,7 +15,8 @@ export type StreamParseEvent = {
     record: ChatRecord;
 };
 export declare function streamKakaoExport(filePath: string, options?: StreamParseOptions): AsyncGenerator<StreamParseEvent>;
-/** DATE 줄만 세어 메시지 건수 추정(진행률 %용, CSV 2회 읽기) */
+/** DATE 줄만 세어 메시지 건수 추정(진행률 %용).
+ * 512KB 초과 파일은 파일 크기 기반 휴리스틱으로 빠르게 추정합니다. */
 export declare function estimateKakaoMessageCount(filePath: string): Promise<number>;
 export declare function describeStreamedExport(filePath: string): Promise<{
     text: string;

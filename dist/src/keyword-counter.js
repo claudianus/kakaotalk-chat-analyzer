@@ -43,10 +43,12 @@ export class KeywordCounter {
             .slice(0, PRUNE_TO);
         this.map.clear();
         this.maxCount = 0;
+        this.totalHits = 0;
         for (const [label, count] of kept) {
             this.map.set(label, count);
             if (count > this.maxCount)
                 this.maxCount = count;
+            this.totalHits += count;
         }
     }
 }

@@ -115,5 +115,5 @@ test("KCA_LLM=0 disables all presets", () => {
 test("parseQwen35Size and gguf paths use size folders", () => {
   assert.equal(parseQwen35Size("qwen3.5-4b"), "4B");
   assert.equal(parseQwen35Size("9B"), "9B");
-  assert.ok(ggufPathForSize("9B").includes("/9B/"));
+  assert.ok(ggufPathForSize("9B").replace(/\\/g, "/").includes("/9B/"));
 });

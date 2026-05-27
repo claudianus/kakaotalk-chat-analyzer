@@ -430,28 +430,11 @@ function renderFactMatrix(data: ReportData): string {
 function renderParticipantsFold(data: ReportData): string {
   const n = data.participants.length;
   if (n === 0) return "";
-  const top10 = data.participants.slice(0, 10);
-  const rest = data.participants.slice(10);
-  const topBody = renderParticipants(top10);
-
-  let html = `<details class="panel-fold" open>
-    <summary>참여자 랭킹 · 상위 ${formatNumber(Math.min(n, 10))} / 전체 ${formatNumber(n)}${rest.length > 0 ? " (더 보기)" : ""}</summary>
-    <p class="chart-hint">말풍선 맵(③)과 함께 본면 비중·길이가 잡혀요.</p>
-    ${topBody}`;
-
-  if (rest.length > 0) {
-    const restBody = renderParticipants(rest);
-    html += `
-    <details class="panel-fold panel-fold--nested" style="margin-top:16px">
-      <summary>나머지 ${formatNumber(rest.length)}명 더 보기</summary>
-      ${restBody}
-    </details>`;
-  }
-
-  html += `
-  </details>`;
-
-  return html;
+  return panel(
+    `참여자 랭킹 · 전체 ${formatNumber(n)}`,
+    "접힌 목록 없이 메시지 수 기준 참여자를 한 번에 보여줍니다.",
+    renderParticipants(data.participants),
+  );
 }
 
 function linkEntropyMetric(data: ReportData, ins: ReportData["insights"]): string {
@@ -603,16 +586,21 @@ function renderEmojiInsight(emojiInsight: ReportData["emojiInsight"]): string {
 function renderHonorificInsight(honorific: ReportData["honorificInsight"]): string {
   if (!honorific || honorific.participants.length === 0) return "";
   const styleLabels: Record<string, string> = {
+    formal: "존칭",
     honorific: "존칭",
     casual: "반말",
     mixed: "혼합",
+    insufficient: "표본 부족",
   };
   const roomLabel = styleLabels[honorific.roomStyle] ?? honorific.roomStyle;
   const participantHtml = honorific.participants
     .slice(0, 5)
     .map((p) => {
       const style = styleLabels[p.dominantStyle] ?? p.dominantStyle;
-      return `<span class="honorific-stat">${escapeHtml(p.alias)}: ${style} (존칙 ${Math.round(p.honorificRatio * 100)}%)</span>`;
+      const sample = p.sampleCount ? ` · 표본 ${formatNumber(p.sampleCount)}건` : "";
+      const neutral = p.neutralRatio !== undefined ? ` · 중립 ${Math.round(p.neutralRatio * 100)}%` : "";
+      const ratio = p.dominantStyle === "insufficient" ? "판단 보류" : `존칭 ${Math.round(p.honorificRatio * 100)}%`;
+      return `<span class="honorific-stat">${escapeHtml(p.alias)}: ${escapeHtml(style)} (${escapeHtml(ratio)}${escapeHtml(sample)}${escapeHtml(neutral)})</span>`;
     })
     .join(" ");
   return `<div class="honorific-insight-card" style="margin-top:14px">
@@ -880,11 +868,15 @@ function renderParticipantsByCharacters(participants: ParticipantStat[]): string
 
 function renderToneSignalsPanel(data: ReportData): string {
   const blocks: string[] = [];
+  const hasExpressionRisk =
+    data.profanity.messagesWithProfanity > 0 ||
+    data.profanity.totalHits > 0 ||
+    Boolean(data.toxicity && data.toxicity.messagesWithToxicity > 0);
   if (data.profanity.messagesWithProfanity > 0 || data.profanity.totalHits > 0) {
     blocks.push(renderProfanityInline(data.profanity, data.summary.totalMessages));
   }
   if (data.sentiment && data.sentiment.sampleSize > 0) {
-    blocks.push(renderSentimentInline(data.sentiment));
+    blocks.push(renderSentimentInline(data.sentiment, hasExpressionRisk));
   }
   if (data.toxicity && data.toxicity.sampleSize > 0) {
     blocks.push(renderToxicityInline(data.toxicity));
@@ -893,10 +885,10 @@ function renderToneSignalsPanel(data: ReportData): string {
     return panel(
       "톤·감정 신호",
       "비속어 패턴·감정 분석(선택) 요약입니다.",
-      `<p style="margin:0;color:var(--muted);font-size:13px">이 방에서는 감지된 비속 패턴이 없거나, 감정 분석 샘플이 부족합니다.</p>`,
+      `<p style="margin:0;color:var(--muted);font-size:13px">감지된 비속 패턴이 없거나, 감정 분석 샘플이 부족합니다.</p>`,
     );
   }
-  return panel("톤·감정 신호", "건수만 표시하며 원문 욕설·문장은 노출하지 않습니다.", blocks.join(""));
+  return panel("톤·감정 신호", "감정 분류와 표현 위험을 분리해서 보여줍니다.", blocks.join(""));
 }
 
 function renderProfanityInline(
@@ -918,16 +910,20 @@ function renderToxicityInline(toxicity: NonNullable<ReportData["toxicity"]>): st
   const tierLabel = toxicity.usedMlModel ? "ML" : "사전";
   return `<div id="s-toxicity" class="tone-block">
     <h3 class="insight-sub">공격·거친 톤(${tierLabel}, 샘플 ${formatNumber(toxicity.sampleSize)}건)</h3>
-    <p class="chart-hint">독성 추정 <strong>${toxicity.toxicPercent}%</strong> · 중립 <strong>${toxicity.neutralPercent}%</strong> · 해당 샘플 <strong>${formatNumber(toxicity.messagesWithToxicity)}</strong>건</p>
+    <p class="chart-hint">거친 톤 위험 점수 <strong>${toxicity.toxicPercent}</strong>/100 · 기준 초과 추정 샘플 <strong>${formatNumber(toxicity.messagesWithToxicity)}</strong>건</p>
   </div>`;
 }
 
-function renderSentimentInline(sentiment: NonNullable<ReportData["sentiment"]>): string {
+function renderSentimentInline(sentiment: NonNullable<ReportData["sentiment"]>, hasExpressionRisk = false): string {
   const compoundLabel =
-    sentiment.compoundScore > 15 ? "전반적으로 긍정적" : sentiment.compoundScore < -15 ? "전반적으로 부정적" : "중립에 가까움";
+    sentiment.compoundScore > 15 ? "전반적으로 긍정적" : sentiment.compoundScore < -15 ? "전반적으로 부정적" : "명시 감정어는 중립에 가까움";
+  const neutralCaveat = hasExpressionRisk && sentiment.neutralPercent >= 90
+    ? `<p class="chart-hint tone-caveat">감정 분류의 중립은 명시적인 긍정·부정 감정어가 적다는 뜻입니다. 비속·공격 표현은 아래 별도 지표에 반영했습니다.</p>`
+    : "";
   return `<div id="s-sentiment" class="tone-block">
-    <h3 class="insight-sub">감정 톤(샘플 ${formatNumber(sentiment.sampleSize)}건)</h3>
+    <h3 class="insight-sub">감정 분류(샘플 ${formatNumber(sentiment.sampleSize)}건)</h3>
     <p class="chart-hint">긍정 <strong>${sentiment.positivePercent}%</strong> · 중립 <strong>${sentiment.neutralPercent}%</strong> · 부정 <strong>${sentiment.negativePercent}%</strong> · compound <strong>${sentiment.compoundScore}</strong> (${compoundLabel})</p>
+    ${neutralCaveat}
     <div id="chart-sentiment" class="chart-box compact" role="img" aria-label="감정 분포 차트"></div>
   </div>`;
 }
@@ -1018,7 +1014,7 @@ function renderTopicMap(data: ReportData): string {
       const sizeClass =
         t.messagePercent >= 18 ? " topic-card--lg" : t.messagePercent >= 8 ? " topic-card--md" : "";
       return `<article class="topic-card${sizeClass}">
-        <header>${kind}<strong>${escapeHtml(t.title)}</strong><span class="topic-pct">~${t.messagePercent}%</span></header>
+        <header>${kind}<strong>${escapeHtml(t.title)}</strong><span class="topic-pct">비중 약 ${t.messagePercent}%</span></header>
         <div class="topic-chips">${chips}</div>
       </article>`;
     })

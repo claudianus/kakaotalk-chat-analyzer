@@ -161,6 +161,7 @@ export async function analyzeToxicityFromSamples(
     const batchSize = resolveSentimentBatchSize();
     let toxicSum = 0;
     let count = 0;
+    let toxicMessages = 0;
     for (let i = 0; i < samples.length; i += batchSize) {
       const batch = samples.slice(i, i + batchSize).map((s) => s.text.slice(0, 512));
       const out = await pipe(batch.length === 1 ? batch[0]! : batch);
@@ -168,12 +169,13 @@ export async function analyzeToxicityFromSamples(
       for (const row of rows) {
         const pct = scoreToToxicPercent(row.score, row.label);
         toxicSum += pct;
+        if (pct >= 50) toxicMessages += 1;
         count += 1;
       }
     }
     const avgToxic = count > 0 ? toxicSum / count : 0;
     const toxicPercent = Math.round(avgToxic * 10) / 10;
-    const messagesWithToxicity = Math.round((toxicPercent / 100) * samples.length);
+    const messagesWithToxicity = toxicMessages;
     return {
       sampleSize: samples.length,
       toxicPercent,

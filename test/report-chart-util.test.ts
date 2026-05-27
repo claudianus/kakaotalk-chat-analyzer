@@ -31,6 +31,16 @@ describe("report-chart-util", () => {
     assert.equal(out.length, 1);
     assert.equal(out[0]!.kind, "theme");
   });
+
+  it("normalizes impossible topic percentages before display", () => {
+    const topics: ReportTopic[] = [
+      { id: "neg", kind: "theme", title: "음수", terms: ["a"], messagePercent: -1.8 },
+      { id: "huge", kind: "theme", title: "초과", terms: ["b"], messagePercent: 140 },
+    ];
+    const out = topicsForDisplay(topics, [{ date: "2026-04-13", count: 10 }]);
+    assert.equal(out[0]!.messagePercent, 0);
+    assert.equal(out[1]!.messagePercent, 100);
+  });
 });
 
 describe("escapeHtml (chart tooltip XSS prevention)", () => {

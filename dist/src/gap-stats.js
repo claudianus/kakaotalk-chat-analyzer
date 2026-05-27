@@ -55,9 +55,9 @@ export class GapStreamStats {
         return round((this.gapOver60m / this.count) * 100, 1);
     }
     coeffVariation() {
-        if (this.welfordN < 2 || this.welfordMean <= 0)
+        if (this.welfordN < 2 || this.welfordM2 <= 0)
             return null;
-        const variance = this.welfordM2 / this.welfordN;
+        const variance = this.welfordM2 / (this.welfordN - 1);
         return round(Math.sqrt(variance) / this.welfordMean, 2);
     }
     quantileMs(p) {

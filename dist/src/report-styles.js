@@ -883,12 +883,12 @@ h2 { margin: 0 0 12px; font-size: 18px; font-weight: 750; letter-spacing: -0.02e
   margin-top: 0;
 }
 .topic-card {
-  border: none;
-  border-radius: 14px;
-  padding: 14px 16px;
-  background: color-mix(in srgb, var(--panel) 88%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 45%, transparent);
-  transition: box-shadow 0.2s ease;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .topic-card:hover {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), 0 4px 16px rgba(0, 0, 0, 0.2);
@@ -2255,10 +2255,11 @@ main {
 }
 
 .rank-card {
-  padding: 12px 14px;
+  padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 
 .rank-card strong {
@@ -2289,7 +2290,10 @@ main {
 
 .kca-topbar,
 #s-story,
-#s-wrapped {
+#s-wrapped,
+#s-facts,
+#s-viz,
+#s-archetype {
   content-visibility: visible;
 }
 
@@ -3483,6 +3487,73 @@ body.kca-oled .theme-btn.kca-ripple {
 
 
 /* 10-kca-insight-cards.css */
+.hot-topics-section,
+.participant-roles-section,
+.memorable-moments-section {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  background: var(--glass);
+  box-shadow: var(--shadow);
+  padding: var(--card-pad);
+  margin-bottom: var(--section-gap);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+.hot-topics-section h2,
+.participant-roles-section h2,
+.memorable-moments-section h2 {
+  margin: 0 0 8px;
+  font-size: clamp(20px, 2.4vw, 28px);
+  letter-spacing: -0.04em;
+}
+.hot-topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.hot-topic-card {
+  position: relative;
+  min-height: 156px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+.hot-topic--burst { border-color: color-mix(in oklab, var(--warm) 45%, var(--line)); }
+.hot-topic-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.hot-topic-date,
+.hot-topic-count { color: var(--muted); font-size: 12px; font-weight: 750; }
+.hot-topic-title { margin: 0; color: var(--ink); font-size: 16px; line-height: 1.35; letter-spacing: -0.02em; }
+.hot-topic-kws { display: flex; flex-wrap: wrap; gap: 6px; }
+.hot-topic-kw {
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  color: var(--accent);
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.hot-topic-summary { margin: 0; color: var(--ink); line-height: 1.55; font-size: 14px; }
+.hot-topic-evidence,
+.moment-evidence {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.hot-topic-evidence li,
+.moment-evidence li { margin: 2px 0; }
+.hot-topic-badge {
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--warm) 18%, transparent);
+  color: var(--warm);
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 850;
+}
+
 /* 이모지 인사이트 · 기억에 남는 순간 · 참여자 역할 · 높임법 분석 */
 
 /* 이모지 인사이트 */
@@ -3510,10 +3581,11 @@ body.kca-oled .theme-btn.kca-ripple {
   margin: 0;
 }
 .moment-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: 92px auto 1fr;
   align-items: flex-start;
   gap: 12px;
-  padding: 12px 0;
+  padding: 14px 0;
   border-bottom: 1px solid var(--line);
 }
 .moment-item:last-child {
@@ -3529,14 +3601,18 @@ body.kca-oled .theme-btn.kca-ripple {
   font-size: 20px;
   flex-shrink: 0;
 }
+.moment-body {
+  display: grid;
+  gap: 6px;
+}
 .moment-title {
-  font-weight: 600;
-  margin-right: 8px;
+  font-weight: 700;
   color: var(--ink);
 }
 .moment-desc {
   color: var(--muted);
   font-size: 14px;
+  line-height: 1.55;
 }
 
 /* 참여자 역할 */
@@ -3549,10 +3625,11 @@ body.kca-oled .theme-btn.kca-ripple {
   gap: 12px;
 }
 .participant-role-card {
-  background: var(--panel);
-  border-radius: 12px;
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  border-radius: 16px;
   padding: 16px;
   border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 .role-card-header {
   display: flex;
@@ -3639,6 +3716,53 @@ body.kca-oled .theme-btn.kca-ripple {
   }
   .participant-roles-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* 11-kca-safari-fallback.css */
+/* Safari <16.4 color-mix() 폴백 — rgba() 대체 */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  /* ── Dark theme ── */
+  :root[data-theme="dark"] {
+    --glow: rgba(46, 242, 208, 0.24);
+    --glow-violet: rgba(184, 169, 255, 0.20);
+    --glow-warm: rgba(255, 154, 69, 0.18);
+    --spot-glow: rgba(46, 242, 208, 0.45);
+    --accent-grad-soft: linear-gradient(
+      120deg,
+      rgba(46, 242, 208, 0.40),
+      rgba(184, 169, 255, 0.28)
+    );
+  }
+
+  /* ── Light theme ── */
+  :root[data-theme="light"] {
+    --glow: rgba(13, 148, 136, 0.14);
+    --glow-violet: rgba(124, 58, 237, 0.12);
+    --spot-glow: rgba(13, 148, 136, 0.28);
+    --accent-grad-soft: linear-gradient(
+      120deg,
+      rgba(13, 148, 136, 0.18),
+      rgba(124, 58, 237, 0.14)
+    );
+  }
+
+  /* ── Auto dark (prefers-color-scheme) ── */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --glow: rgba(46, 242, 208, 0.24);
+      --glow-violet: rgba(184, 169, 255, 0.20);
+      --glow-warm: rgba(255, 154, 69, 0.18);
+      --spot-glow: rgba(46, 242, 208, 0.45);
+    }
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --glow: rgba(13, 148, 136, 0.14);
+      --glow-violet: rgba(124, 58, 237, 0.12);
+      --spot-glow: rgba(13, 148, 136, 0.28);
+    }
   }
 }
 

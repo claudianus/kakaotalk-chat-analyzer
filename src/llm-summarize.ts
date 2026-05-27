@@ -24,7 +24,7 @@ import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import type { AnalysisBudgetTracker } from "./analysis-budget.js";
 import { extractLlmJsonObject, parseLlmJsonResponse, type LlmJsonShape } from "./llm-json.js";
 import { mergeTopicProposals, type LlmTopicProposal } from "./topic-merge.js";
-import { sanitizeLlmDeck, isLlmGarbageText } from "./llm-deck-validate.js";
+import { isLlmGarbageText, sanitizeLlmDeck, sanitizeLlmParagraphs } from "./llm-deck-validate.js";
 import { buildKcaLlmJsonSchema } from "./llm-schema.js";
 import type { LlmInsights, ReportData, ReportTopic } from "./types.js";
 import type { RoomNarrative } from "./room-narrative.js";
@@ -301,9 +301,7 @@ function mergeTopics(data: ReportData, parsed: LlmJsonShape): ReportTopic[] {
 }
 
 function mergeNarrative(data: ReportData, parsed: LlmJsonShape, base: RoomNarrative): RoomNarrative {
-  const llmParas = (parsed.paragraphs ?? [])
-    .filter((p) => p.trim().length > 8 && !isLlmGarbageText(p))
-    .slice(0, 3);
+  const llmParas = sanitizeLlmParagraphs(parsed.paragraphs, data);
   if (llmParas.length === 0) return base;
   const merged = [...llmParas, ...base.paragraphs.slice(0, 2)];
   return {
