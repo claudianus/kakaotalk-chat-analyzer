@@ -7,8 +7,6 @@
 | `kakaotalk-chat-analyzer` | 본체 CLI (`kca`) |
 | `kcachat` | 짧은 `npx` 이름 래퍼(본체 의존) |
 
-**컨텍스트 우선순위:** `AGENTS.md` > [`.cursor/rules/cubic-pr-workflow.mdc`](.cursor/rules/cubic-pr-workflow.mdc) > glob 규칙 > [`.cursor/skills/`](.cursor/skills/)
-
 ## 0. 최초 세팅: `NPM_TOKEN`을 GitHub에 넣기
 
 1. npmjs.com → **Access Tokens** 에서 **Automation**(또는 Granular: **Publish packages**, 새 패키지까지 올릴 거면 정책상 **bypass 2FA** 허용이 필요할 수 있음) 토큰을 만든다.
@@ -22,7 +20,12 @@
 ## 1. PR·Cubic·머지·배포
 
 배포 가치 있는 변경(소스·`dist/`·`package.json`·`kcachat/` 등)은 **`main`에 직접 푸시하지 않는다.**  
-PR → cubic 리뷰 → 이슈 0 + CI pass → `gh pr merge`만 허용. 상세·금지·MCP 도구: [`.cursor/rules/cubic-pr-workflow.mdc`](.cursor/rules/cubic-pr-workflow.mdc)
+PR → cubic 리뷰 → 이슈 0 + CI pass → `gh pr merge`만 허용.
+
+**금지 사항:**
+- `main`에 직접 푸시 금지
+- 리뷰 이슈 미해결 상태에서 병합 금지
+- CI 실패 상태에서 병합 금지
 
 **머지 후 npm (필수):** “머지만 하고 끝” 금지.
 
@@ -52,8 +55,12 @@ PR → cubic 리뷰 → 이슈 0 + CI pass → `gh pr merge`만 허용. 상세·
 
 리포트 HTML·차트·Wrapped·키워드·테마·레이아웃을 **조금이라도** 손댄 뒤 `main` 반영 전, 에이전트가 **직접** 시각 QA한다. “`npm test`만 통과”로 끝내지 않는다. 사용자에게 브라우저 확인만 넘기는 것도 금지.
 
-**절차·체크리스트·완료 보고:** [`.cursor/skills/visual-qa-testing/SKILL.md`](.cursor/skills/visual-qa-testing/SKILL.md)  
-**리포트 UI/UX 변경 시 비판·P0/P1:** [`.cursor/skills/kca-report-ux/SKILL.md`](.cursor/skills/kca-report-ux/SKILL.md)
+**체크리스트:**
+1. 리포트를 브라우저에서 열어 전체 스크롤 확인
+2. 차트·Wrapped·키워드 섹션 렌더링 확인
+3. 다크/라이트 테마 모두 확인
+4. 모바일 뷰포트 확인
+5. 이상 발견 시 즉시 수정 후 재확인
 
 ## 6. 사용자 문서 동기화 (배포 가치 있는 UI/CLI 변경 후)
 
