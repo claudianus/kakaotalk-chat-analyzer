@@ -46,7 +46,7 @@ function pickHeadlineTheme(topics) {
     return fallback ?? null;
 }
 function topicHeadlinePrefix(activeDays) {
-    return activeDays < 90 ? "자주 나온 화제는" : "요즘 화제는";
+    return activeDays < 90 ? "화제는" : "요즘 화제";
 }
 function buildTopicLine(topics, activeDays) {
     const theme = pickHeadlineTheme(topics);
@@ -60,24 +60,21 @@ function buildTopicLine(topics, activeDays) {
 function buildHeadline(input) {
     const room = input.chatRoomName;
     const n = formatCompactNumber(input.totalMessages);
-    const parts = [`「${room}」에서 ${n} 개의 메시지가 오갔어요.`];
+    const parts = [`「${room}」 — ${n}건의 메시지.`];
     const topicLine = buildTopicLine(input.topics, input.activeDays);
     if (topicLine)
         parts.push(topicLine);
     if (input.longestStreak >= 3) {
-        parts.push(`최장 **${input.longestStreak}일** 연속 대화`);
+        parts.push(`최장 **${input.longestStreak}일** 연속 대화.`);
     }
     if (input.peakHour !== null) {
-        parts.push(`**${input.peakHour}시**가 가장 뜨거웠고`);
+        parts.push(`**${input.peakHour}시**에 가장 활발했고`);
     }
     if (input.insights.rhythmScore >= 60) {
-        parts.push(`리듬 점수 **${input.insights.rhythmScore}**점 — 꾸준한 방이에요.`);
+        parts.push(`리듬 **${input.insights.rhythmScore}**점.`);
     }
     else if (input.participants[0]) {
         parts.push(`**${input.participants[0].alias}**님이 대화를 이끌었어요.`);
-    }
-    else {
-        parts.push("아래 카드에서 한 장면씩 펼쳐 보세요.");
     }
     return parts.slice(0, 3).join(" ");
 }
@@ -113,7 +110,7 @@ function buildWrappedCards(input, tone) {
         cards.push({
             id: "peak-hour",
             emoji: "⏰",
-            title: "제2의 거실",
+            title: "피크 시간",
             stat: `${input.peakHour}시`,
             sub: "메시지가 가장 몰린 시간대",
         });
@@ -130,7 +127,7 @@ function buildWrappedCards(input, tone) {
     cards.push({
         id: "rhythm",
         emoji: "🎵",
-        title: "방 리듬 점수",
+        title: "리듬 점수",
         stat: `${input.insights.rhythmScore}`,
         sub: "참여 균형 · 연속 활동 · 밀도를 합친 0~100점",
     });

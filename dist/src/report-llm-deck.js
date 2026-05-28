@@ -64,8 +64,8 @@ export function renderLlmMomentsBlock(data) {
     </article>`)
         .join("");
     const hint = data.summary.usedLlmAnalysis
-        ? "통계·키워드만 입력한 <strong>로컬 LLM</strong>이 서사·순간을 보강했습니다(원문 미포함)."
-        : "규칙·통계만으로 만든 <strong>재현 가능</strong>한 요약이에요.";
+        ? "통계·키워드를 입력한 <strong>로컬 LLM</strong>이 보강(원문 미포함)."
+        : "규칙·통계만으로 만든 요약.";
     return `<section id="s-narrative" class="kca-section card kca-card--story narrative-card anim-enter" style="--enter-delay:0.04s" aria-label="방 이야기">
     <h2 class="section-glow">② 방 이야기</h2>
     <p class="chart-hint">${hint}</p>

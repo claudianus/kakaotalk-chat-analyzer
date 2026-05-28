@@ -6,44 +6,37 @@ const TYPE_ICONS = {
     shared_joy: "🎉",
 };
 const PEAK_DESCRIPTIONS = [
-    "평소보다 훨씬 활발했던 날이에요! {count}건의 메시지가 쏟아졌어요.",
-    "이날은 무슨 일이 있었나요? {count}건으로 평소의 2배 이상이에요.",
-    "대화의 불꽃이 튀었던 날! 총 {count}건의 메시지가 오갔어요.",
-    "평범하지 않은 하루였어요. {count}건이나 주고받았네요!",
-    "우와, {count}건! 이 날만큼은 말문이 트였던 것 같아요.",
+    "{count}건. 평소의 2배 이상이 쏟아진 날.",
+    "{count}건이 오간 하루.",
+    "메시지 {count}건 — 이 방에서 가장 붐볐던 날 중 하나.",
 ];
 const EMOTIONAL_SPIKE_UP_DESCRIPTIONS = [
-    "긍정 에너지가 급등했어요. 에너지 지수 {curr}(전날 {prev}).",
-    "기분 좋은 날이었나 봐요! 긍정 지수가 {prev}에서 {curr}로 치솟았어요.",
-    "활기 넘치는 대화였어요. 에너지가 {prev} → {curr}로 상승!",
+    "에너지 지수 {prev} → {curr}. 하루 만에 급등.",
+    "긍정 톤이 {prev}에서 {curr}로 뛰어올랐어요.",
 ];
 const EMOTIONAL_SPIKE_DOWN_DESCRIPTIONS = [
-    "부정 에너지가 급등했어요. 에너지 지수 {curr}(전날 {prev}).",
-    "조금 무거운 날이었나 봐요. 에너지 지수가 {prev}에서 {curr}로 하락했어요.",
-    "대화 톤이 가라앉았어요. 에너지 {prev} → {curr}.",
+    "에너지 지수 {prev} → {curr}. 하루 만에 급락.",
+    "대화 톤이 {prev}에서 {curr}로 내려앉았어요.",
 ];
 const MILESTONE_FIRST_DESCRIPTIONS = [
-    "대화가 시작되었어요. 첫 메시지가 별냈네요!",
-    "첫 인사가 오갔던 날, 이야기의 시작이에요.",
+    "첫 메시지가 오간 날.",
+    "이 방의 첫 대화.",
 ];
 const MILESTONE_LAST_DESCRIPTIONS = [
-    "마지막 메시지가 별냈어요.",
-    "이날이 기록상 마지막 대화예요.",
+    "기록상 마지막 메시지가 오간 날.",
+    "이 방의 마지막 대화.",
 ];
 const MILESTONE_NUMBER_DESCRIPTIONS = [
-    "{n}번째 메시지가 별냈어요! 🎉",
-    "대화가 {n}건을 돌파했어요. 기념할 만한 순간!",
-    "벌써 {n}번째 메시지라니, 놀라워요!",
+    "{n}번째 메시지가 이날 오갔어요.",
+    "누적 {n}건을 넘긴 날.",
 ];
 const SHARED_JOY_DESCRIPTIONS = [
-    "{count}건의 메시지가 오갔어요. 웃음 가득한 날이었나 봐요!",
-    "활기찬 대화의 날! {count}건이나 나눴어요.",
-    "이날은 특별했어요. {count}건의 메시지로 가득 찼네요.",
+    "메시지 {count}건. 대화가 집중된 날.",
+    "{count}건이 오간 활발한 하루.",
 ];
 const CONFLICT_RESOLUTION_DESCRIPTIONS = [
-    "부정적 분위기에서 긍정적으로 전환했어요. 부정 {prevNeg}% → {currNeg}%, 긍정 {prevPos}% → {currPos}%.",
-    "갈등이 해소된 듯해요. 부정 {prevNeg}% → {currNeg}%, 긍정 {prevPos}% → {currPos}%.",
-    "다시 화해의 미소를 찾은 날! 부정 {prevNeg}% → {currNeg}%, 긍정 {prevPos}% → {currPos}%.",
+    "부정 {prevNeg}% → {currNeg}%, 긍정 {prevPos}% → {currPos}%. 분위기가 반전된 날.",
+    "톤이 부정 {prevNeg}%에서 {currNeg}%로 내려가고 긍정 {currPos}%로 올랐어요.",
 ];
 export function getTypeIcon(type) {
     return TYPE_ICONS[type] ?? "💬";

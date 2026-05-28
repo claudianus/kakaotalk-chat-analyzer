@@ -96,7 +96,7 @@ export function renderReportHtml(data: ReportData): string {
         <h1>카카오톡 대화 리포트</h1>
         <p class="room-title" aria-label="채팅방 이름">${escapeHtml(data.source.chatRoomName)}</p>
         ${renderStoryHeadline(data)}
-        <p class="sub">원문·전체 URL은 저장하지 않아요. <strong>⓪ Wrapped</strong>로 한 장면씩 보거나, 아래 숫자·차트로 깊게 들어가면 됩니다.</p>
+        <p class="sub">원문·전체 URL은 저장하지 않아요. <strong>⓪ Wrapped</strong>부터 시작하세요.</p>
         ${renderHeroQuickJumps()}
         <div class="badge-row">
           <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
@@ -142,16 +142,16 @@ export function renderReportHtml(data: ReportData): string {
       hasCalendarHeatmap(data)
         ? ""
         : `<section class="kca-card--data kca-section" style="margin-bottom:var(--section-gap)">
-      ${panel("일별 활동 (CSS)", "날짜 칸 색으로 본 일별 히트맵이에요.", renderDaily(data.daily, data.burstDays))}
+      ${panel("일별 활동 (CSS)", "칸 색 = 메시지 밀도.", renderDaily(data.daily, data.burstDays))}
     </section>`
     }
     <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
       ${renderParticipantsFold(data)}
-      ${panel(`글자 수 랭킹 · 상위 ${formatNumber(Math.min(data.participantsByCharacters.length, 40))}`, "메시지 건수와 별도로, 보낸 글자 수·글자 비율로 봅니다.", renderParticipantsByCharacters(data.participantsByCharacters))}
+      ${panel(`글자 수 랭킹 · 상위 ${formatNumber(Math.min(data.participantsByCharacters.length, 40))}`, "건수가 아닌 글자 수 기준 랭킹.", renderParticipantsByCharacters(data.participantsByCharacters))}
     </section>
 
     <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
-      ${panel("첨부 유형", "사진·동영상 등 메타 유형 비중이에요.", renderCountBars(data.attachments))}
+      ${panel("첨부 유형", "사진·동영상 등 유형별 비중.", renderCountBars(data.attachments))}
       ${renderToneSignalsPanel(data)}
     </section>
 
@@ -160,8 +160,8 @@ export function renderReportHtml(data: ReportData): string {
     </section>
 
     <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
-      ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구를 본문과 분리해 집계합니다. 아래 막대는 일별 운영·유입 펄스예요.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
-      ${panel("리액션·반복 문구", "ㅋㅋ만 보낸 메시지와 똑같은 문장 반복(3회 이상)입니다.", renderReactionsPanel(data))}
+      ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구 집계.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
+      ${panel("리액션·반복 문구", "ㅋㅋ 전용 메시지 + 3회 이상 반복 문장.", renderReactionsPanel(data))}
     </section>
     ${renderShopSearchSection(data, false)}
     </div>
@@ -360,7 +360,7 @@ function renderTopicTrendSection(data: ReportData): string {
     .join("");
   return `<section id="s-topic-trend" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.054s">
     <h2>토픽 트랜드</h2>
-    <p class="chart-hint">월별 상위 키워드의 등장 횟수 변화입니다. 아래 차트에서 추이를 확인하세요.</p>
+    <p class="chart-hint">월별 상위 키워드 등장 횟수 변화.</p>
     <table class="table">
       <thead><tr><th>기간</th><th>상위 키워드</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -374,7 +374,7 @@ function renderHelpGlossary(): string {
   return `<section id="s-help" class="kca-section glossary anim-enter" aria-label="용어 설명" style="--enter-delay:0.08s">
     <p class="self-serve-footer-links">직접 만들기: <code>npx kcachat@latest "./파일.csv"</code> · ${externalLink(gh, "GitHub")} · ${externalLink(site, "소개")}</p>
     <details>
-      <summary>용어가 낯설 때 — 한 번에 펼쳐보기</summary>
+      <summary>용어 설명</summary>
       <dl>
         <dt>지니 계수</dt><dd>참여가 얼마나 한쪽에 쏠렸는지 0~1에 가까운 숫자예요. 0에 가까우면 비슷하게 나눠 말하고, 높을수록 소수가 더 많이 말한 편이에요.</dd>
         <dt>응답 상위 10%</dt><dd>메시지 사이 시간 간격을 작은 순으로 줄 세웠을 때, 느린 쪽 10% 지점 값이에요. “가끔 아주 느린 응답”이 있는지 볼 때 씁니다.</dd>
@@ -421,7 +421,7 @@ function renderFactMatrix(data: ReportData): string {
     <h2>① 핵심 숫자</h2>
     ${renderSampleBadge(data)}
     ${strip}
-    <p class="fact-hint"><strong>보낸 CSV 숫자만</strong>으로 만든 요약이에요. 쏠림·리듬은 아래 ③에서 패턴으로 봅니다.</p>
+    <p class="fact-hint"><strong>CSV 숫자만</strong>으로 만든 요약이에요.</p>
     <div class="fact-grid fact-grid--core">${coreInner}</div>
     <details class="fact-more"><summary>더 많은 지표</summary><div class="fact-grid">${extraInner}</div></details>
   </section>`;
@@ -432,7 +432,7 @@ function renderParticipantsFold(data: ReportData): string {
   if (n === 0) return "";
   return panel(
     `참여자 랭킹 · 전체 ${formatNumber(n)}`,
-    "접힌 목록 없이 메시지 수 기준 참여자를 한 번에 보여줍니다.",
+    "메시지 수 기준 참여자 랭킹.",
     renderParticipants(data.participants),
   );
 }
@@ -475,7 +475,7 @@ function renderInsightDeck(data: ReportData): string {
     <div class="insight-head">
       <div>
         <h2>③ 분위기·리듬 (고급 인사이트)</h2>
-        <p class="insight-lede">참여가 고르지 않은지, 응답이 한번에 몰리는지, 링크가 여러 사이트로 퍼지는지 같은 <strong>패턴 지표</strong>예요. 낯선 말은 맨 아래 <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑥ 용어 설명</a>을 펼쳐 보세요.</p>
+        <p class="insight-lede">참여·응답·링크 분포를 한눈에 보여주는 <strong>패턴 지표</strong>예요. <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑥ 용어 설명</a></p>
       </div>
       <div class="rh-wrap anim-ring" aria-label="리듬 점수">
         <div class="rh-ring" style="--p:${ins.rhythmScore}"><span></span></div>
@@ -730,14 +730,14 @@ function renderSelfServeCallout(): string {
   const npmFull = "https://www.npmjs.com/package/kakaotalk-chat-analyzer";
   return `<section class="card self-serve" aria-label="리포트 직접 만들기">
     <h2>비슷한 리포트, 다른 대화에도 만들어보기</h2>
-    <p>이 페이지는 <strong>KakaoTalk Chat Analyzer</strong>(CLI 이름 <strong>kca</strong>)로 만든 <strong>집계 전용</strong> 리포트예요. 카카오톡에서 CSV로 보낸 뒤 같은 방식으로 돌려볼 수 있습니다.</p>
+    <p><strong>kca</strong>로 만든 집계 리포트입니다. 카카오톡 CSV로 같은 리포트를 만들 수 있어요.</p>
     <ol>
-      <li>카카오톡에서 채팅방 → <strong>더보기(≡)</strong> → <strong>대화보내기</strong> → <strong>CSV 보내기</strong>로 파일 저장</li>
-      <li><strong>Node.js 22+</strong>가 있는 Mac/Windows/Linux에서 터미널을 열고, 보낸 파일 경로를 넣어 실행해 보세요.</li>
+      <li>카카오톡 채팅방 → <strong>더보기(≡)</strong> → <strong>대화보내기</strong> → <strong>CSV 보내기</strong></li>
+      <li><strong>Node.js 22+</strong>에서 실행:</li>
     </ol>
     <div class="cmd">npx kcachat@latest "./KakaoTalk_Chat_보낸파일.csv"</div>
-    <p>기본은 리포트를 만든 뒤 <strong>BrewPage에 자동 업로드</strong>해 공유 링크를 출력합니다. PC에만 저장하려면 <code>--local</code> 을 붙이세요(업로드 생략, <code>index.html</code> 만 생성).</p>
-    <p>짧은 이름이 부담스럽다면: <code>npx kakaotalk-chat-analyzer@latest "./파일.csv"</code> · 로컬만: <code>… --local</code></p>
+    <p>기본은 <strong>BrewPage에 자동 업로드</strong>해 공유 링크를 줍니다. <code>--local</code> 붙이면 PC에만 저장해요.</p>
+    <p>긴 이름: <code>npx kakaotalk-chat-analyzer@latest "./파일.csv"</code> · 로컬만: <code>… --local</code></p>
     <p class="links">
       ${externalLink(gh, "GitHub 소스")}
       · ${externalLink(npmShort, "npm · kcachat")}
@@ -884,11 +884,11 @@ function renderToneSignalsPanel(data: ReportData): string {
   if (blocks.length === 0) {
     return panel(
       "톤·감정 신호",
-      "비속어 패턴·감정 분석(선택) 요약입니다.",
+      "비속어·감정 분석 요약.",
       `<p style="margin:0;color:var(--muted);font-size:13px">감지된 비속 패턴이 없거나, 감정 분석 샘플이 부족합니다.</p>`,
     );
   }
-  return panel("톤·감정 신호", "감정 분류와 표현 위험을 분리해서 보여줍니다.", blocks.join(""));
+  return panel("톤·감정 신호", "감정 분류와 표현 위험을 분리해서 표시.", blocks.join(""));
 }
 
 function renderProfanityInline(
@@ -1032,8 +1032,8 @@ function renderTopicMap(data: ReportData): string {
       ? ' <span class="chart-hint-warn">테마가 적으면 <strong>키워드</strong>·<strong>④ 차트</strong>·<strong>기간 비교</strong>를 함께 보세요.</span>'
       : "";
   const hint = shortSpan
-    ? "짧은 기간 보내기는 <strong>월 메시지 비중</strong>이 주제처럼 보일 수 있어, 월별 카드는 숨기고 「기간 비교」를 봐 주세요."
-    : `그래프·키워드·임베딩 신호를 합쳐 뽑았어요. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
+    ? "짧은 기간은 <strong>월 비중</strong>이 주제로 보일 수 있어요. 「기간 비교」를 확인하세요."
+    : `그래프·키워드·임베딩 신호로 추출. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
   return `<section id="s-topics" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.052s">
     <h2>이 방의 주제 맵</h2>
     <p class="chart-hint">${hint}</p>
