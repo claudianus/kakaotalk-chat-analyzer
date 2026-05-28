@@ -18,3 +18,9 @@ dist/test/
 # 로컬 벤치·프로파일 (제품 CLI에 노출하지 않음)
 scripts/deep-profile.mjs
 scripts/explore-export.mjs
+.playwright-mcp/
+.cursor/
+.agents/
+.codebase-memory/
+.agent-context-credits.md
+*.png
