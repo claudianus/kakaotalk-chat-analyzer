@@ -21,7 +21,7 @@ test("resolveLlamaGpuMode parses env", () => {
   }
 });
 
-test("applyGgmlMetalCompatibilityEnv sets tensor disable on darwin auto", () => {
+test("applyGgmlMetalCompatibilityEnv sets tensor disable on darwin (auto and metal)", () => {
   const prevGpu = process.env.KCA_LLM_GPU;
   const prevTensor = process.env.GGML_METAL_TENSOR_DISABLE;
   try {
@@ -31,10 +31,13 @@ test("applyGgmlMetalCompatibilityEnv sets tensor disable on darwin auto", () => 
     if (process.platform === "darwin") {
       assert.equal(process.env.GGML_METAL_TENSOR_DISABLE, "1");
     }
+    // explicit metal 모드도 tensor API 미지원 환경 segfault 방지를 위해 워크어라운드 적용
     process.env.KCA_LLM_GPU = "metal";
     delete process.env.GGML_METAL_TENSOR_DISABLE;
     applyGgmlMetalCompatibilityEnv();
-    assert.equal(process.env.GGML_METAL_TENSOR_DISABLE, undefined);
+    if (process.platform === "darwin") {
+      assert.equal(process.env.GGML_METAL_TENSOR_DISABLE, "1");
+    }
   } finally {
     if (prevGpu === undefined) delete process.env.KCA_LLM_GPU;
     else process.env.KCA_LLM_GPU = prevGpu;
