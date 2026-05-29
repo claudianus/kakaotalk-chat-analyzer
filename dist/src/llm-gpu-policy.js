@@ -7,6 +7,10 @@ export function resolveLlmGpuForInfer(profile, size) {
         return "metal";
     if (raw === "auto")
         return "auto";
+    // macOS는 통합 메모리 + Metal — os.freemem() 과소보고로 CPU 강제 시
+    // 추론이 느려 타임아웃하거나 네이티브 크래시. Metal(auto) 유지.
+    if (profile.platform === "darwin")
+        return "auto";
     if (profile.freeMemGb < 4)
         return "none";
     if (profile.freeMemGb < 6 && (size === "9B" || size === "4B"))

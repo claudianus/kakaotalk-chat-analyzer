@@ -13,7 +13,6 @@ export function resolveLlamaGpuMode(): LlamaGpuMode {
 
 /** macOS Metal tensor 프로브 실패 시 stderr·비활성 완화 */
 export function applyGgmlMetalCompatibilityEnv(): void {
-  if (resolveLlamaGpuMode() === "metal") return;
   if (platform() !== "darwin") return;
   if (process.env.GGML_METAL_TENSOR_DISABLE != null) return;
   process.env.GGML_METAL_TENSOR_DISABLE = "1";
