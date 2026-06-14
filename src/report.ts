@@ -525,12 +525,12 @@ function renderInsightDeck(data: ReportData): string {
         <h2>③ 분위기·리듬 (고급 인사이트)</h2>
         <p class="insight-lede">참여·응답·링크 분포를 한눈에 보여주는 <strong>패턴 지표</strong>예요. <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑥ 용어 설명</a></p>
       </div>
-      <div class="rh-wrap anim-ring" aria-label="리듬 점수">
+      <div class="rh-wrap anim-ring" aria-label="리듬 점수" data-observe>
         <div class="rh-ring" style="--p:${ins.rhythmScore}"><span></span></div>
         <div class="rh-cap"><strong>리듬</strong><span>${ins.rhythmScore}<small>/100</small></span></div>
       </div>
     </div>
-    <div class="insight-grid">
+    <div class="insight-grid" data-observe>
       ${insMetric("주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
       ${insMetric("참여 지니", giniStr, giniMetricSub(ins.participantGini, data.summary.participants))}
       ${insMetric("응답 상위10%", p90, "느린 쪽 10% 구간")}
@@ -548,7 +548,7 @@ function renderInsightDeck(data: ReportData): string {
     ${renderEmojiInsight(data.emojiInsight)}
     ${renderParticipantEmojiStats(data.participantEmojiStats)}
     ${renderHonorificInsight(data.honorificInsight)}
-    <div class="insight-split">
+    <div class="insight-split" data-observe>
       <div>
         <h3 class="insight-sub">하루 시간대 비중</h3>
         <p class="chart-hint">새벽·아침·낮·저녁 네 덩어리로 나눈 <strong>메시지 비율</strong>이에요.</p>
