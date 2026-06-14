@@ -232,6 +232,7 @@ export class ReportAggregator {
     dailyContextSamples = new Map();
     dyads = new DyadAccumulator();
     dailySentimentCounters = new Map();
+    dailyHourly = new Map();
     senderHonorificCounts = new Map();
     senderEmojiCounts = new Map();
     total = 0;
@@ -609,6 +610,14 @@ export class ReportAggregator {
             }
         }
         increment(this.daily, dayKey);
+        {
+            let dayHours = this.dailyHourly.get(dayKey);
+            if (!dayHours) {
+                dayHours = Array(24).fill(0);
+                this.dailyHourly.set(dayKey, dayHours);
+            }
+            dayHours[record.date.hour] += 1;
+        }
         if (!isPureSystem) {
             let perDay = this.dailySenderCounts.get(dayKey);
             if (!perDay) {
@@ -980,6 +989,96 @@ export class ReportAggregator {
             .sort((a, b) => b.messageCount - a.messageCount)
             .slice(0, 10)
             .sort((a, b) => a.date.localeCompare(b.date));
+        // ── 최근 7일 + 리포트 당일 스냅샷 ──
+        let recentSnapshot;
+        if (dailySorted.length > 0) {
+            const lastDate = dailySorted[dailySorted.length - 1].date;
+            const recentDays = [];
+            const weekDateSet = new Set();
+            const weekSenderSet = new Set();
+            const weekKeywordCounts = new Map();
+            let weekTotal = 0;
+            // 최근 7일 (lastDate 포함, 역순으로 7일)
+            const [ly, lm, ld] = lastDate.split("-").map(Number);
+            const lastUtcMs = Date.UTC(ly, lm - 1, ld);
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(lastUtcMs - (6 - i) * 86_400_000);
+                const dateStr = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+                weekDateSet.add(dateStr);
+                const dayCount = this.daily.get(dateStr) ?? 0;
+                const senderMap = this.dailySenderCounts.get(dateStr);
+                const topSenders = senderMap
+                    ? topCounts(senderMap, 3).map((item) => ({
+                        alias: aliases.get(item.label) ?? item.label,
+                        count: item.count,
+                    }))
+                    : [];
+                if (senderMap) {
+                    for (const raw of senderMap.keys())
+                        weekSenderSet.add(aliases.get(raw) ?? raw);
+                }
+                const bucket = this.dailyKeywordBuckets.get(dateStr);
+                const keywords = bucket ? bucket.topCounts(4).map((item) => item.label) : [];
+                for (const kw of keywords)
+                    weekKeywordCounts.set(kw, (weekKeywordCounts.get(kw) ?? 0) + 1);
+                const sentCounters = this.dailySentimentCounters.get(dateStr) ?? { positive: 0, negative: 0, neutral: 0 };
+                const totalSent = sentCounters.positive + sentCounters.negative + sentCounters.neutral;
+                const sentiment = totalSent > 0
+                    ? {
+                        positive: round((sentCounters.positive / totalSent) * 100, 1),
+                        negative: round((sentCounters.negative / totalSent) * 100, 1),
+                        neutral: round(100 - round((sentCounters.positive / totalSent) * 100, 1) - round((sentCounters.negative / totalSent) * 100, 1), 1),
+                    }
+                    : { positive: 0, negative: 0, neutral: 100 };
+                const hourly = this.dailyHourly.get(dateStr) ?? Array(24).fill(0);
+                let peakHour = null;
+                let peakCount = -1;
+                for (let h = 0; h < 24; h++) {
+                    if ((hourly[h] ?? 0) > peakCount) {
+                        peakCount = hourly[h] ?? 0;
+                        peakHour = h;
+                    }
+                }
+                if (peakCount <= 0)
+                    peakHour = null;
+                const vsAvg = avgDailyMessages > 0 ? round(dayCount / avgDailyMessages, 1) : 0;
+                // 해당 일의 핫토픽 요약 (기존 dailyHotTopics에서 찾기)
+                const hotTopic = dailyHotTopics.find((t) => t.date === dateStr);
+                recentDays.push({
+                    date: dateStr,
+                    messageCount: dayCount,
+                    activeParticipants: senderMap?.size ?? 0,
+                    topSenders,
+                    keywords,
+                    sentiment,
+                    hourly: [...hourly],
+                    peakHour,
+                    vsAvg,
+                    hotTopicSummary: hotTopic?.summary,
+                    evidence: hotTopic?.evidence,
+                });
+                weekTotal += dayCount;
+            }
+            // 리포트 당일 — lastDate와 동일한 날짜의 데이터
+            const todaySnapshot = recentDays.length > 0 ? recentDays[recentDays.length - 1] : null;
+            // today가 week에 포함되어 있으므로 weekTotal은 이미 포함
+            // 주간 상위 키워드
+            const weekKeywords = [...weekKeywordCounts.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8)
+                .map(([kw]) => kw);
+            const weekVsOverall = avgDailyMessages > 0 ? round((weekTotal / 7) / avgDailyMessages, 1) : 0;
+            recentSnapshot = {
+                lastDate,
+                reportDay: lastDate,
+                week: recentDays,
+                today: todaySnapshot,
+                weekTotal,
+                weekVsOverall,
+                weekParticipants: weekSenderSet.size,
+                weekKeywords,
+            };
+        }
         const memorableMoments = extractMemorableMoments({
             daily: dailySorted,
             dailySentiment,
@@ -1158,6 +1257,7 @@ export class ReportAggregator {
             honorificInsight,
             roomRelationship,
             memorableMoments,
+            recentSnapshot,
         };
     }
 }

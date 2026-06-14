@@ -1,5 +1,5 @@
-import type { ParticipantRole, ReportData } from "./types.js";
-import { escapeHtml, renderHighlightLine } from "./report-util.js";
+import type { DailySnapshot, ParticipantRole, RecentSnapshot, ReportData } from "./types.js";
+import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
 
 export function hasLlmStoryDeck(data: ReportData): boolean {
   const ins = data.llmInsights;
@@ -330,5 +330,88 @@ export function renderMemorableMoments(data: ReportData): string {
   return `<section id="s-memorable-moments" class="kca-section memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간">
     <h2 class="llm-strip-title">기억에 남는 순간</h2>
     <ul class="moments-list">${items}</ul>
+  </section>`;
+}
+
+// ── 최근 7일 + 리포트 당일 스냅샷 ──
+
+/** 0~23시간 분포를 CSS 전용 미니 바 차트로 렌더링 */
+function renderMiniHourlyBar(hourly: number[], highlightHour: number | null): string {
+  const max = Math.max(...hourly, 1);
+  const bars = hourly
+    .map((count, h) => {
+      const pct = Math.round((count / max) * 100);
+      const hl = h === highlightHour ? " recent-hourly-bar__seg--peak" : "";
+      return `<span class="recent-hourly-bar__seg${hl}" style="--h:${pct}%" title="${h}시: ${count}건"></span>`;
+    })
+    .join("");
+  return `<div class="recent-hourly-bar" aria-label="시간대 분포">${bars}</div>`;
+}
+
+/** 감정 비율을 인라인 바로 렌더링 */
+function renderSentimentInlineSmall(s: { positive: number; negative: number; neutral: number }): string {
+  return `<span class="recent-sentiment-bar" title="긍정 ${s.positive}% · 부정 ${s.negative}% · 중립 ${s.neutral}%">
+    <span class="recent-sentiment-bar__pos" style="width:${s.positive}%"></span>
+    <span class="recent-sentiment-bar__neg" style="width:${s.negative}%"></span>
+  </span>`;
+}
+
+/** 하루 스냅샷 카드 */
+function renderDaySnapshotCard(day: DailySnapshot, isToday: boolean): string {
+  const cls = isToday ? "recent-day-card recent-day-card--today" : "recent-day-card";
+  const label = isToday ? "📍 리포트 당일" : day.date;
+  const kws = day.keywords.slice(0, 4).map((k) => `<span class="recent-day-kw">${escapeHtml(k)}</span>`).join("");
+  const senders = day.topSenders.slice(0, 3).map((s) => `${escapeHtml(s.alias)}(${s.count})`).join(" · ");
+  const evidence = (day.evidence ?? []).slice(0, 2).map((e) => `<li>${escapeHtml(e)}</li>`).join("");
+  return `<article class="${cls}">
+    <div class="recent-day-header">
+      <time datetime="${escapeHtml(day.date)}">${escapeHtml(label)}</time>
+      <span class="recent-day-count">${formatNumber(day.messageCount)}건</span>
+      ${day.vsAvg >= 1.5 ? '<span class="recent-day-burst">🔥</span>' : ""}
+    </div>
+    <div class="recent-day-meta">
+      <span>참여 ${day.activeParticipants}명</span>
+      ${day.peakHour !== null ? `<span>피크 ${day.peakHour}시</span>` : ""}
+      <span>평균 대비 ${day.vsAvg}배</span>
+    </div>
+    ${kws ? `<div class="recent-day-kws">${kws}</div>` : ""}
+    ${senders ? `<p class="recent-day-senders">주도: ${senders}</p>` : ""}
+    ${renderSentimentInlineSmall(day.sentiment)}
+    ${renderMiniHourlyBar(day.hourly, day.peakHour)}
+    ${day.hotTopicSummary ? `<p class="recent-day-summary">${escapeHtml(day.hotTopicSummary)}</p>` : ""}
+    ${evidence ? `<ul class="recent-day-evidence">${evidence}</ul>` : ""}
+  </article>`;
+}
+
+export function renderRecentSnapshot(data: ReportData): string {
+  const snap = data.recentSnapshot;
+  if (!snap || snap.week.length === 0) return "";
+
+  // 주간 요약
+  const weekKws = snap.weekKeywords.slice(0, 6).map((k) => `<span class="recent-day-kw">${escapeHtml(k)}</span>`).join("");
+  const summaryHtml = `<div class="recent-week-summary">
+    <div class="recent-week-stats">
+      <span class="recent-week-stat"><strong>${formatNumber(snap.weekTotal)}</strong>건 <small>7일간</small></span>
+      <span class="recent-week-stat"><strong>${Math.round(snap.weekTotal / 7)}</strong>건 <small>일평균</small></span>
+      <span class="recent-week-stat"><strong>${snap.weekVsOverall}x</strong> <small>전체 대비</small></span>
+      <span class="recent-week-stat"><strong>${snap.weekParticipants}</strong>명 <small>참여자</small></span>
+    </div>
+    ${weekKws ? `<div class="recent-week-kws">주간 키워드: ${weekKws}</div>` : ""}
+  </div>`;
+
+  // 리포트 당일 카드 (크게)
+  const todayHtml = snap.today ? renderDaySnapshotCard(snap.today, true) : "";
+
+  // 7일 일별 카드 (오늘 제외한 6일)
+  const weekDays = snap.today ? snap.week.slice(0, 6) : snap.week;
+  const dayCardsHtml = weekDays.map((d) => renderDaySnapshotCard(d, false)).join("");
+
+  return `<section id="s-recent" class="kca-section recent-snapshot-section anim-enter" style="--enter-delay:0.035s" aria-label="최근 활동 스냅샷">
+    <h2 class="llm-strip-title">⏰ 최근 활동 스냅샷</h2>
+    <p class="recent-section-hint">리포트 기준 최근 7일간 활동이에요. 최근일수록 기억에 많이 남으니 자세히 봐요.</p>
+    ${summaryHtml}
+    ${todayHtml ? `<h3 class="recent-today-heading">리포트 당일 (24h)</h3>${todayHtml}` : ""}
+    <h3 class="recent-week-heading">최근 7일</h3>
+    <div class="recent-days-grid">${dayCardsHtml}</div>
   </section>`;
 }

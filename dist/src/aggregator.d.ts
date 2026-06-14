@@ -60,6 +60,7 @@ export declare class ReportAggregator {
     private readonly dailyContextSamples;
     private readonly dyads;
     private readonly dailySentimentCounters;
+    private readonly dailyHourly;
     private readonly senderHonorificCounts;
     private readonly senderEmojiCounts;
     private total;

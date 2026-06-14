@@ -8,7 +8,7 @@ import { REPORT_STYLES } from "./report-styles.js";
 import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderHeroQuickJumps, renderTopChrome, topicNavLink, } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
-import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderMemorableMoments, renderParticipantRoles, } from "./report-llm-deck.js";
+import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderMemorableMoments, renderParticipantRoles, renderRecentSnapshot, } from "./report-llm-deck.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
 import { hasBenchmarkSection, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasTimelineSection, hasCalendarHeatmap, } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
@@ -74,6 +74,7 @@ export function renderReportHtml(data) {
     ${renderLlmMomentsBlock(data)}
     ${renderLlmDayMicroStories(data)}
     ${renderDailyHotTopics(data)}
+    ${renderRecentSnapshot(data)}
     ${renderMemorableMoments(data)}
     ${renderInnovationDeck(data)}
 
@@ -277,6 +278,7 @@ function renderSectionNav(data) {
     ${archetype}
     ${storyNavLinks(data)}
     <a href="#s-facts" data-kca-jump="s-facts">① 핵심 숫자</a>
+    <a href="#s-recent" data-kca-jump="s-recent">⏰ 최근 활동</a>
     ${narrative}
     ${timeline}
     ${dyad}

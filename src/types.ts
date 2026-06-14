@@ -438,6 +438,43 @@ export interface DailyHotTopic {
   participants?: string[];
 }
 
+/** 하루 단위 스냅샷 (최근 기간 통계용) */
+export interface DailySnapshot {
+  date: string;
+  messageCount: number;
+  activeParticipants: number;
+  topSenders: { alias: string; count: number }[];
+  keywords: string[];
+  sentiment: { positive: number; negative: number; neutral: number };
+  /** 0~23시 메시지 분포 */
+  hourly: number[];
+  peakHour: number | null;
+  /** 전체 일평균 대비 배수 */
+  vsAvg: number;
+  hotTopicSummary?: string;
+  evidence?: string[];
+}
+
+/** 최근 7일 + 리포트 당일(24h) 스냅샷 */
+export interface RecentSnapshot {
+  /** 스냅샷 기준 마지막 날짜 (YYYY-MM-DD) */
+  lastDate: string;
+  /** 리포트 생성 시각 기준 "오늘" 날짜 */
+  reportDay: string;
+  /** 최근 7일 일별 스냅샷 (오래된→최신 순) */
+  week: DailySnapshot[];
+  /** 리포트 당일(24h) 스냅샷 — 당일 데이터 없으면 null */
+  today: DailySnapshot | null;
+  /** 주간 총 메시지 수 */
+  weekTotal: number;
+  /** 전체 일평균 대비 주간 일평균 배수 */
+  weekVsOverall: number;
+  /** 주간 고유 참여자 수 */
+  weekParticipants: number;
+  /** 주간 상위 키워드 */
+  weekKeywords: string[];
+}
+
 export interface TopicTrendItem {
   period: string;
   topics: { name: string; value: number }[];
@@ -712,4 +749,6 @@ export interface ReportData {
   roomRelationship?: RoomRelationship;
   /** 기억에 남는 순간 (규칙 기반 추출) */
   memorableMoments: MemorableMoment[];
+  /** 최근 7일 + 리포트 당일 상세 스냅샷 */
+  recentSnapshot?: RecentSnapshot;
 }
