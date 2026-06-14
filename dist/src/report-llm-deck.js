@@ -159,19 +159,24 @@ export function renderDailyHotTopics(data) {
     if (!topics?.length)
         return "";
     const burstSet = new Set(data.burstDays.map((d) => d.date));
+    const maxMsg = Math.max(...topics.map((t) => t.messageCount), 1);
     const rows = topics
         .map((t) => {
         const isBurst = burstSet.has(t.date);
         const burstCls = isBurst ? " hot-topic--burst" : "";
         const burstBadge = isBurst ? '<span class="hot-topic-badge">🔥 급증일</span>' : "";
         const keywords = t.keywords
+            .slice(0, 4)
             .map((k) => `<span class="hot-topic-kw">${escapeHtml(k)}</span>`)
             .join("");
         const evidence = (t.evidence ?? [])
+            .slice(0, 2)
             .map((item) => `<li>${escapeHtml(item)}</li>`)
             .join("");
         const lift = typeof t.lift === "number" ? ` · 평균 ${t.lift}배` : "";
-        return `<article class="hot-topic-card${burstCls}" role="listitem">
+        const barW = Math.round((t.messageCount / maxMsg) * 100);
+        const participants = (t.participants ?? []).slice(0, 3).join(" · ");
+        return `<article class="hot-topic-card${burstCls}" role="listitem" data-observe>
         <div class="hot-topic-meta">
           <time class="hot-topic-date" datetime="${escapeHtml(t.date)}">${escapeHtml(t.date)}</time>
           ${burstBadge}
@@ -180,7 +185,11 @@ export function renderDailyHotTopics(data) {
         ${keywords ? `<div class="hot-topic-kws">${keywords}</div>` : ""}
         <p class="hot-topic-summary">${escapeHtml(t.summary)}</p>
         ${evidence ? `<ul class="hot-topic-evidence">${evidence}</ul>` : ""}
-        <span class="hot-topic-count">${t.messageCount}건${lift}</span>
+        <div class="hot-topic-bar"><div class="hot-topic-bar-fill" style="width:${barW}%"></div></div>
+        <div class="hot-topic-footer">
+          <span class="hot-topic-count">${t.messageCount}건${lift}</span>
+          ${participants ? `<span class="hot-topic-participants">주도: ${escapeHtml(participants)}</span>` : ""}
+        </div>
       </article>`;
     })
         .join("");

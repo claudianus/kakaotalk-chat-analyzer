@@ -62,6 +62,31 @@
   color: var(--warm);
   padding: 3px 8px;
   font-size: 11px;
+  font-weight: 700;
+}
+.hot-topic-bar {
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--bar-bg);
+  overflow: hidden;
+  margin: 6px 0;
+}
+.hot-topic-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent-grad-soft);
+  transition: width 0.8s var(--ease-out);
+}
+.hot-topic-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.hot-topic-participants {
+  font-size: 11px;
+  color: var(--muted);
+}
   font-weight: 850;
 }
 
