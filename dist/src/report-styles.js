@@ -679,10 +679,10 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   gap: 6px;
   align-items: center;
   padding: 10px 14px;
-  background: var(--glass);
+  background: var(--glass-strong);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur-heavy));
   position: sticky;
   top: 8px;
   z-index: 100;
@@ -690,6 +690,7 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
 }
 .deck-nav::-webkit-scrollbar { display: none; }
 .deck-nav-h {
