@@ -840,7 +840,15 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 .ins-metric .ins-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
 /* ── Section Cards ── */
-.kca-section { margin-bottom: var(--section-gap); }
+.kca-section { margin-bottom: var(--section-gap); position: relative; }
+.kca-section + .kca-section::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 0 auto var(--section-gap);
+  max-width: 200px;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 20%, transparent), transparent);
+}
 .kca-section h2 { font-size: var(--font-size-h2); margin-bottom: var(--heading-gap); }
 
 /* ── Panel helper ── */
