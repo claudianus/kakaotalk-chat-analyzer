@@ -414,13 +414,49 @@
 
 /* ── Section Cards ── */
 .kca-section { margin-bottom: var(--section-gap); position: relative; }
-.kca-section + .kca-section::before {
-  content: "";
-  display: block;
-  height: 1px;
-  margin: 0 auto var(--section-gap);
-  max-width: 200px;
-  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 20%, transparent), transparent);
+
+/* ── Dashboard Zone ── */
+.kca-dashboard-zone {
+  margin-bottom: calc(var(--section-gap) * 1.5);
+  padding: var(--card-pad);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card-lg);
+  box-shadow: var(--card-shadow);
+}
+.zone-title {
+  font-size: var(--font-size-h2);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.kca-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 16px;
+}
+.kca-dashboard-main { min-width: 0; }
+.kca-dashboard-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .kca-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .kca-dashboard-side {
+    order: -1;
+  }
+}
+@media (max-width: 480px) {
+  .kca-dashboard-zone {
+    padding: 12px;
+    border-radius: 14px;
+  }
 }
 .kca-section h2 {
   font-size: var(--font-size-h2);

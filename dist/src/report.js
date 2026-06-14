@@ -83,6 +83,35 @@ export function renderReportHtml(data) {
       </div>
     </header>
     ${renderLlmArchetypeBanner(data)}
+
+    <!-- ZONE 1: 최근 활동 대시보드 -->
+    <section class="kca-dashboard-zone" data-observe>
+      <h2 class="zone-title">⏰ 최근 활동</h2>
+      <div class="kca-dashboard-grid">
+        <div class="kca-dashboard-main">
+          ${renderRecentSnapshot(data)}
+        </div>
+        <div class="kca-dashboard-side">
+          ${renderDailyHotTopics(data)}
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 2: 핵심 인사이트 -->
+    <section class="kca-dashboard-zone" data-observe>
+      <h2 class="zone-title">📊 핵심 인사이트</h2>
+      <div class="kca-dashboard-grid">
+        <div class="kca-dashboard-main">
+          ${renderInsightDeck(data)}
+        </div>
+        <div class="kca-dashboard-side">
+          ${renderTopicMap(data)}
+          ${renderTopicTrendSection(data)}
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 3: Wrapped + 스토리 -->
     ${renderStorySections(data)}
     ${renderLlmEpisodeStrip(data)}
     ${renderLlmCharacterCards(data)}
@@ -90,25 +119,18 @@ export function renderReportHtml(data) {
     ${renderLlmRelationshipBeats(data)}
     ${renderLlmEraLabels(data)}
 
-    ${renderRecentSnapshot(data)}
+    <!-- ZONE 4: 상세 데이터 -->
+    <section class="kca-dashboard-zone" data-observe>
+      <h2 class="zone-title">📈 상세 데이터</h2>
+      ${renderChartDeck(data)}
+    </section>
 
-    <div data-observe>${renderDailyHotTopics(data)}</div>
-    <div data-observe>${renderFactMatrix(data)}</div>
-
-    <div class="kca-bento-grid kca-bento-grid--2" data-observe>
-      ${renderTopicMap(data)}
-      ${renderInsightDeck(data)}
-    </div>
-
-    ${renderTopicTrendSection(data)}
     ${renderOpenChatInsightCard(data)}
     ${renderShopSearchPromoted(data)}
     ${renderLlmMomentsBlock(data)}
     ${renderLlmDayMicroStories(data)}
     ${renderMemorableMoments(data)}
     ${renderInnovationDeck(data)}
-
-    ${renderChartDeck(data)}
 
     <div id="s-charts" class="kca-section anim-enter" data-observe style="--enter-delay:0.07s">
     ${hasCalendarHeatmap(data)
