@@ -1,65 +1,105 @@
-/* kca OLED 글라스 v2 — 정제된 시맨틱 토큰 + 네온 팔레트 */
+/* kca Design System v3 — Premium OLED Glass 2026 */
 :root {
   color-scheme: light dark;
-  --oled-void: #080b10;
-  --oled-deep: #030508;
-  --bg: #0b0e14;
+  /* ── Surface ── */
+  --oled-void: #060910;
+  --oled-deep: #020408;
+  --bg: #0a0d14;
   --bg2: #000000;
-  --ink: #f1f5fb;
-  --muted: #8896aa;
-  --line: rgba(255, 255, 255, 0.09);
-  --border-hover: rgba(255, 255, 255, 0.16);
-  --panel: rgba(255, 255, 255, 0.048);
-  --panel-solid: #11151d;
+  --ink: #f0f4fa;
+  --muted: #7e8da4;
+  --line: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --panel: rgba(255, 255, 255, 0.04);
+  --panel-solid: #0f1219;
+
+  /* ── Accent palette ── */
   --accent: #2ef2d0;
   --accent2: #b8a9ff;
   --warm: #ff9a45;
   --gold: #fde047;
   --rose: #ff6b9d;
-  --amber: #f59e0b;
-  --amber-glow: color-mix(in oklab, var(--amber) 20%, transparent);
-  --shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  --shadow-glow: 0 0 56px color-mix(in oklab, var(--accent) 32%, transparent);
-  --bar-bg: rgba(255, 255, 255, 0.06);
-  --glow: color-mix(in oklab, var(--accent) 24%, transparent);
-  --glow-violet: color-mix(in oklab, var(--accent2) 20%, transparent);
-  --glow-warm: color-mix(in oklab, var(--warm) 18%, transparent);
-  --glass: rgba(12, 16, 22, 0.64);
-  --glass-strong: rgba(6, 8, 14, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-highlight: rgba(255, 255, 255, 0.2);
-  --glass-blur: 24px;
-  --glass-saturate: 1.6;
-  --spot-glow: color-mix(in oklab, var(--accent) 45%, transparent);
+  --amber: #d97706;
+  --teal: #14b8a6;
+  --sky: #38bdf8;
+
+  /* ── Glow system ── */
+  --glow: color-mix(in oklab, var(--accent) 20%, transparent);
+  --glow-violet: color-mix(in oklab, var(--accent2) 16%, transparent);
+  --glow-warm: color-mix(in oklab, var(--warm) 14%, transparent);
+  --glow-amber: color-mix(in oklab, var(--amber) 16%, transparent);
+  --spot-glow: color-mix(in oklab, var(--accent) 40%, transparent);
+
+  /* ── Shadow system ── */
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  --shadow-glow: 0 0 48px color-mix(in oklab, var(--accent) 28%, transparent);
+  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px color-mix(in oklab, var(--accent) 20%, transparent);
+
+  /* ── Bar & viz ── */
+  --bar-bg: rgba(255, 255, 255, 0.05);
+
+  /* ── Glass system ── */
+  --glass: rgba(10, 14, 22, 0.6);
+  --glass-strong: rgba(6, 8, 14, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glass-blur: 20px;
+  --glass-blur-heavy: 32px;
+  --glass-saturate: 1.5;
+
+  /* ── Gradients ── */
   --accent-grad: linear-gradient(130deg, var(--accent) 0%, var(--accent2) 45%, var(--warm) 100%);
-  --accent-grad-soft: linear-gradient(120deg, color-mix(in oklab, var(--accent) 40%, transparent), color-mix(in oklab, var(--accent2) 28%, transparent));
-  --border-shine: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.32) 0%,
-    rgba(255, 255, 255, 0.03) 40%,
-    rgba(255, 255, 255, 0.15) 100%
-  );
+  --accent-grad-soft: linear-gradient(120deg, color-mix(in oklab, var(--accent) 35%, transparent), color-mix(in oklab, var(--accent2) 22%, transparent));
+  --gradient-hero: linear-gradient(135deg, color-mix(in oklab, var(--accent) 12%, transparent) 0%, color-mix(in oklab, var(--accent2) 8%, transparent) 50%, color-mix(in oklab, var(--warm) 6%, transparent) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent), var(--accent2));
+  --gradient-warm: linear-gradient(135deg, var(--warm), var(--amber));
+  --border-shine: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.12) 100%);
+
+  /* ── Radius ── */
   --radius-card: 18px;
+  --radius-card-lg: 24px;
   --radius-pill: 999px;
+
+  /* ── Typography ── */
   --kca-font-sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", var(--font-sans, system-ui, sans-serif);
+  --font-size-hero: clamp(36px, 6vw, 64px);
+  --font-size-display: clamp(28px, 4.5vw, 48px);
+  --font-size-h2: clamp(20px, 2.5vw, 28px);
+  --font-size-h3: clamp(16px, 2vw, 22px);
+  --font-size-body: clamp(14px, 1.6vw, 16px);
+  --font-size-small: clamp(11px, 1.2vw, 13px);
+
+  /* ── Animation ── */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring: cubic-bezier(0.34, 1.5, 0.64, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+  --card-hover-lift: -4px;
+
+  /* ── Viz palette ── */
   --viz-dawn: #8b9cf7;
   --viz-morning: #2dd4bf;
   --viz-afternoon: #4ade80;
   --viz-evening: #f59e0b;
   --hours-am-fg: #7dd3fc;
-  --hours-am-bg: rgba(8, 145, 178, 0.24);
+  --hours-am-bg: rgba(8, 145, 178, 0.2);
   --hours-pm-fg: #fdba74;
-  --hours-pm-bg: rgba(234, 88, 12, 0.22);
-  --table-stripe: rgba(255, 255, 255, 0.025);
+  --hours-pm-bg: rgba(234, 88, 12, 0.18);
+  --table-stripe: rgba(255, 255, 255, 0.02);
   --topic-chip-bg: rgba(255, 255, 255, 0.05);
-  --kw-bar-fill: rgba(139, 148, 255, 0.58);
+  --kw-bar-fill: rgba(139, 148, 255, 0.5);
   --kw-bar-rank1: #a78bfa;
   --kw-bar-rank2: #818cf8;
   --kw-bar-rank3: #5b9bd5;
   --day-fg-low: #e9eef5;
   --day-fg-high: #f4f8f7;
+
+  /* ── Bubble chart ── */
   --bubble-surface-l: 35%;
   --bubble-surface-c: 22%;
   --bubble-border-l: 55%;
@@ -68,21 +108,23 @@
   --bubble-pct-c: 72%;
   --bubble-mobile-bg-l: 35%;
   --bubble-mobile-bg-c: 20%;
-  /* ── v3 통합 토큰 ── */
+
+  /* ── Unified card tokens ── */
   --card: var(--panel);
   --surface: var(--panel-solid);
   --card-bg: var(--panel);
   --card-border: var(--line);
   --card-shadow: var(--shadow);
   --card-radius: var(--radius-card);
-  --card-pad: clamp(16px, 2.6vw, 22px);
+  --card-pad: clamp(16px, 2.6vw, 24px);
   --card-pad-sm: clamp(10px, 1.8vw, 16px);
-  --section-gap: clamp(14px, 2vw, 22px);
-  --heading-gap: clamp(6px, 1.2vw, 12px);
+  --section-gap: clamp(16px, 2.5vw, 28px);
+  --heading-gap: clamp(8px, 1.4vw, 14px);
   --content-pad: clamp(12px, 2vw, 20px);
   font-family: var(--kca-font-sans);
 }
 
+/* ── Light mode ── */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     --oled-void: #e8ecf4;
@@ -91,172 +133,104 @@
     --bg2: #e2e7f2;
     --ink: #0b0f16;
     --muted: #5a6578;
-    --line: rgba(15, 20, 30, 0.12);
-    --panel: rgba(255, 255, 255, 0.72);
+    --line: rgba(15, 20, 30, 0.1);
+    --panel: rgba(255, 255, 255, 0.7);
     --panel-solid: #ffffff;
     --accent: #0d9488;
     --accent2: #7c3aed;
     --warm: #ea580c;
     --gold: #ca8a04;
     --rose: #e11d48;
-    --shadow: 0 20px 56px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-    --shadow-glow: 0 0 40px color-mix(in oklab, var(--accent) 18%, transparent);
-    --bar-bg: rgba(15, 23, 42, 0.08);
-    --glow: color-mix(in oklab, var(--accent) 14%, transparent);
-    --glow-violet: color-mix(in oklab, var(--accent2) 12%, transparent);
-    --glass: rgba(255, 255, 255, 0.78);
-    --glass-strong: rgba(255, 255, 255, 0.92);
-    --glass-border: rgba(255, 255, 255, 0.65);
-    --glass-highlight: rgba(255, 255, 255, 0.95);
+    --amber: #b45309;
+    --shadow: 0 20px 56px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.06);
+    --shadow-lg: 0 32px 72px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+    --shadow-glow: 0 0 36px color-mix(in oklab, var(--accent) 14%, transparent);
+    --shadow-card-hover: 0 16px 40px rgba(15, 23, 42, 0.08), 0 0 0 1px color-mix(in oklab, var(--accent) 15%, transparent);
+    --bar-bg: rgba(15, 23, 42, 0.06);
+    --glow: color-mix(in oklab, var(--accent) 12%, transparent);
+    --glow-violet: color-mix(in oklab, var(--accent2) 10%, transparent);
+    --glow-warm: color-mix(in oklab, var(--warm) 8%, transparent);
+    --glow-amber: color-mix(in oklab, var(--amber) 10%, transparent);
+    --glass: rgba(255, 255, 255, 0.75);
+    --glass-strong: rgba(255, 255, 255, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-highlight: rgba(255, 255, 255, 0.92);
     --glass-saturate: 1.2;
-    --spot-glow: color-mix(in oklab, var(--accent) 28%, transparent);
+    --spot-glow: color-mix(in oklab, var(--accent) 24%, transparent);
     --accent-grad: linear-gradient(125deg, #0d9488, #7c3aed 55%, #ea580c);
+    --gradient-hero: linear-gradient(135deg, color-mix(in oklab, var(--accent) 8%, var(--bg)), color-mix(in oklab, var(--accent2) 5%, var(--bg)));
     --hours-am-fg: #0c4a6e;
-    --hours-am-bg: rgba(8, 145, 178, 0.14);
+    --hours-am-bg: rgba(8, 145, 178, 0.12);
     --hours-pm-fg: #9a3412;
-    --hours-pm-bg: rgba(234, 88, 12, 0.14);
-    --table-stripe: rgba(15, 107, 92, 0.04);
-    --topic-chip-bg: color-mix(in srgb, var(--accent) 12%, var(--panel));
-    --kw-bar-fill: rgba(79, 70, 229, 0.45);
+    --hours-pm-bg: rgba(234, 88, 12, 0.12);
+    --table-stripe: rgba(15, 107, 92, 0.03);
+    --topic-chip-bg: color-mix(in srgb, var(--accent) 10%, var(--panel));
+    --kw-bar-fill: rgba(79, 70, 229, 0.4);
     --kw-bar-rank1: #6366f1;
-    --kw-bar-rank2: #4f46e5;
-    --kw-bar-rank3: #3b82f6;
-    --day-fg-low: #0c2a24;
-    --day-fg-high: #f4f8f7;
-    --bubble-surface-l: 48%;
-    --bubble-surface-c: 94%;
-    --bubble-border-l: 58%;
-    --bubble-border-c: 40%;
-    --bubble-pct-l: 55%;
-    --bubble-pct-c: 32%;
-  --bubble-mobile-bg-l: 48%;
-  --bubble-mobile-bg-c: 96%;
-  /* ── v3 통합 토큰 (light) ── */
-  --card: rgba(255,255,255,0.72);
-  --surface: #ffffff;
-  --card-bg: rgba(255,255,255,0.72);
-  --card-border: rgba(15,20,30,0.12);
-  --card-shadow: 0 20px 56px rgba(15,23,42,0.1);
-  --section-gap: clamp(14px, 2vw, 22px);
-  --card-pad: clamp(16px, 2.6vw, 22px);
-  --card-pad-sm: clamp(10px, 1.8vw, 16px);
+    --kw-bar-rank2: #818cf8;
+    --kw-bar-rank3: #5b9bd5;
   }
 }
 
+/* ── Forced dark ── */
 :root[data-theme="dark"] {
-  --oled-void: #080b10;
-  --oled-deep: #000000;
-  --bg: #0b0e14;
+  --bg: #0a0d14;
   --bg2: #000000;
-  --ink: #f1f5fb;
-  --muted: #8896aa;
-  --line: rgba(255, 255, 255, 0.09);
-  --border-hover: rgba(255, 255, 255, 0.16);
-  --panel: rgba(255, 255, 255, 0.048);
-  --panel-solid: #11151d;
+  --ink: #f0f4fa;
+  --muted: #7e8da4;
+  --line: rgba(255, 255, 255, 0.08);
+  --panel: rgba(255, 255, 255, 0.04);
+  --panel-solid: #0f1219;
   --accent: #2ef2d0;
   --accent2: #b8a9ff;
   --warm: #ff9a45;
-  --shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-  --bar-bg: rgba(255, 255, 255, 0.06);
-  --glow: color-mix(in oklab, #2ef2d0 24%, transparent);
-  --glass: rgba(12, 16, 22, 0.64);
-  --glass-strong: rgba(6, 8, 14, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --spot-glow: color-mix(in oklab, #2ef2d0 45%, transparent);
-  --accent-grad: linear-gradient(130deg, #2ef2d0, #b8a9ff 50%, #ff9a45);
+  --gold: #fde047;
+  --rose: #ff6b9d;
+  --amber: #d97706;
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  --shadow-glow: 0 0 48px color-mix(in oklab, var(--accent) 28%, transparent);
+  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px color-mix(in oklab, var(--accent) 20%, transparent);
+  --bar-bg: rgba(255, 255, 255, 0.05);
+  --glow: color-mix(in oklab, var(--accent) 20%, transparent);
+  --glow-violet: color-mix(in oklab, var(--accent2) 16%, transparent);
+  --glow-warm: color-mix(in oklab, var(--warm) 14%, transparent);
+  --glow-amber: color-mix(in oklab, var(--amber) 16%, transparent);
+  --glass: rgba(10, 14, 22, 0.6);
+  --glass-strong: rgba(6, 8, 14, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glass-saturate: 1.5;
+  --spot-glow: color-mix(in oklab, var(--accent) 40%, transparent);
+  --accent-grad: linear-gradient(130deg, var(--accent) 0%, var(--accent2) 45%, var(--warm) 100%);
+  --gradient-hero: linear-gradient(135deg, color-mix(in oklab, var(--accent) 12%, transparent), color-mix(in oklab, var(--accent2) 8%, transparent));
   --hours-am-fg: #7dd3fc;
-  --hours-am-bg: rgba(8, 145, 178, 0.24);
+  --hours-am-bg: rgba(8, 145, 178, 0.2);
   --hours-pm-fg: #fdba74;
-  --hours-pm-bg: rgba(234, 88, 12, 0.22);
-  --table-stripe: rgba(255, 255, 255, 0.025);
+  --hours-pm-bg: rgba(234, 88, 12, 0.18);
+  --table-stripe: rgba(255, 255, 255, 0.02);
   --topic-chip-bg: rgba(255, 255, 255, 0.05);
-  --kw-bar-fill: rgba(139, 148, 255, 0.58);
+  --kw-bar-fill: rgba(139, 148, 255, 0.5);
   --kw-bar-rank1: #a78bfa;
   --kw-bar-rank2: #818cf8;
   --kw-bar-rank3: #5b9bd5;
-  --day-fg-low: #e9eef5;
-  --day-fg-high: #f4f8f7;
-  --bubble-surface-l: 35%;
-  --bubble-surface-c: 22%;
-  --bubble-border-l: 55%;
-  --bubble-border-c: 48%;
-  --bubble-pct-l: 70%;
-  --bubble-pct-c: 72%;
-  --bubble-mobile-bg-l: 35%;
-  --bubble-mobile-bg-c: 20%;
-  /* ── v3 통합 토큰 (dark explicit) ── */
-  --card: var(--panel);
-  --surface: var(--panel-solid);
-  --card-bg: var(--panel);
-  --card-border: var(--line);
-  --card-shadow: var(--shadow);
-  --section-gap: clamp(14px, 2vw, 22px);
-  --card-pad: clamp(16px, 2.6vw, 22px);
-  --card-pad-sm: clamp(10px, 1.8vw, 16px);
 }
 
+/* ── Forced light ── */
 :root[data-theme="light"] {
-  --oled-void: #e8ecf4;
-  --oled-deep: #dfe4ee;
   --bg: #eef1f8;
   --bg2: #e2e7f2;
   --ink: #0b0f16;
   --muted: #5a6578;
-  --line: rgba(15, 20, 30, 0.12);
-  --border-hover: rgba(15, 20, 30, 0.18);
-  --panel: rgba(255, 255, 255, 0.72);
+  --line: rgba(15, 20, 30, 0.1);
+  --panel: rgba(255, 255, 255, 0.7);
   --panel-solid: #ffffff;
   --accent: #0d9488;
   --accent2: #7c3aed;
   --warm: #ea580c;
   --gold: #ca8a04;
   --rose: #e11d48;
-  --shadow: 0 20px 56px rgba(15, 23, 42, 0.1);
-  --bar-bg: rgba(15, 23, 42, 0.08);
-  --glow: color-mix(in oklab, #0d9488 14%, transparent);
-  --glass: rgba(255, 255, 255, 0.78);
-  --glass-strong: rgba(255, 255, 255, 0.92);
-  --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-highlight: rgba(255, 255, 255, 0.95);
-  --glass-blur: 18px;
-  --glass-saturate: 1.2;
-  --spot-glow: color-mix(in oklab, #0d9488 28%, transparent);
-  --accent-grad: linear-gradient(125deg, #0d9488, #7c3aed 55%, #ea580c);
-  --accent-grad-soft: linear-gradient(120deg, color-mix(in oklab, #0d9488 18%, transparent), color-mix(in oklab, #7c3aed 14%, transparent));
-  --border-shine: linear-gradient(
-    135deg,
-    rgba(15, 20, 30, 0.18) 0%,
-    rgba(15, 20, 30, 0.03) 40%,
-    rgba(15, 20, 30, 0.08) 100%
-  );
-  --hours-am-fg: #0c4a6e;
-  --hours-am-bg: rgba(8, 145, 178, 0.14);
-  --hours-pm-fg: #9a3412;
-  --hours-pm-bg: rgba(234, 88, 12, 0.14);
-  --table-stripe: rgba(15, 107, 92, 0.04);
-  --topic-chip-bg: color-mix(in srgb, var(--accent) 12%, var(--panel));
-  --kw-bar-fill: rgba(79, 70, 229, 0.45);
-  --kw-bar-rank1: #6366f1;
-  --kw-bar-rank2: #4f46e5;
-  --kw-bar-rank3: #3b82f6;
-  --day-fg-low: #0c2a24;
-  --day-fg-high: #f4f8f7;
-  --bubble-surface-l: 48%;
-  --bubble-surface-c: 94%;
-  --bubble-border-l: 58%;
-  --bubble-border-c: 40%;
-  --bubble-pct-l: 55%;
-  --bubble-pct-c: 32%;
-  --bubble-mobile-bg-l: 48%;
-  --bubble-mobile-bg-c: 96%;
-  /* ── v3 통합 토큰 (light explicit) ── */
-  --card: rgba(255,255,255,0.72);
-  --surface: #ffffff;
-  --card-bg: rgba(255,255,255,0.72);
-  --card-border: rgba(15,20,30,0.12);
-  --card-shadow: 0 20px 56px rgba(15,23,42,0.1);
-  --section-gap: clamp(14px, 2vw, 22px);
-  --card-pad: clamp(16px, 2.6vw, 22px);
-  --card-pad-sm: clamp(10px, 1.8vw, 16px);
+  --amber: #b45309;
 }

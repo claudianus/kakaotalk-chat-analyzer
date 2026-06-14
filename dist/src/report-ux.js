@@ -115,6 +115,76 @@ export const REPORT_UX_SCRIPT = `
           });
         });
       }
+
+      // ── IntersectionObserver: scroll-triggered reveals ──
+      (function () {
+        var reduce = false;
+        try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+        if (reduce) {
+          document.querySelectorAll("[data-observe]").forEach(function (el) { el.classList.add("is-visible"); });
+          return;
+        }
+        var obs = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              obs.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+        document.querySelectorAll("[data-observe]").forEach(function (el) { obs.observe(el); });
+      })();
+
+      // ── CountUp animation for hero numbers ──
+      (function () {
+        var reduce = false;
+        try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+        function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+        function countUp(el) {
+          var text = el.textContent.replace(/[^0-9.]/g, "");
+          var target = parseFloat(text);
+          if (isNaN(target) || target <= 0) return;
+          var duration = 1500;
+          var start = null;
+          var prefix = el.textContent.match(/^[^0-9]*/)[0] || "";
+          var suffix = el.textContent.match(/[^0-9]*$/)[0] || "";
+          function step(ts) {
+            if (!start) start = ts;
+            var progress = Math.min((ts - start) / duration, 1);
+            var value = Math.round(target * easeOutExpo(progress));
+            el.textContent = prefix + value.toLocaleString("ko-KR") + suffix;
+            if (progress < 1) requestAnimationFrame(step);
+            else el.classList.add("counted");
+          }
+          if (reduce) {
+            el.textContent = prefix + Math.round(target).toLocaleString("ko-KR") + suffix;
+            return;
+          }
+          el.textContent = prefix + "0" + suffix;
+          requestAnimationFrame(step);
+        }
+        var obs = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              countUp(entry.target);
+              obs.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.3 });
+        document.querySelectorAll(".fact-hero-cell span, .ins-metric .ins-value").forEach(function (el) {
+          obs.observe(el);
+        });
+      })();
+
+      // ── Staggered section reveal ──
+      (function () {
+        var reduce = false;
+        try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+        if (reduce) return;
+        document.querySelectorAll(".kca-section.anim-enter").forEach(function (section, i) {
+          section.style.setProperty("--enter-delay", (i * 0.04) + "s");
+        });
+      })();
     })();
 `;
 export const REPORT_EXPLORER_SCRIPT = `
