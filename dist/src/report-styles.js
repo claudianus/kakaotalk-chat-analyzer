@@ -21,6 +21,8 @@ export const REPORT_STYLES = `/* open-props — https://open-props.style/ (MIT) 
   --warm: #ff9a45;
   --gold: #fde047;
   --rose: #ff6b9d;
+  --amber: #f59e0b;
+  --amber-glow: color-mix(in oklab, var(--amber) 20%, transparent);
   --shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
   --shadow-glow: 0 0 56px color-mix(in oklab, var(--accent) 32%, transparent);
   --bar-bg: rgba(255, 255, 255, 0.06);
@@ -638,30 +640,36 @@ a:hover {
   .fact-hero-strip--duo { grid-template-columns: 1fr; }
 }
 .fact-hero-cell {
-  padding: 14px 16px;
-  border-radius: 14px;
+  padding: 18px 20px;
+  border-radius: 16px;
   border: 1px solid var(--line);
   background: linear-gradient(145deg, color-mix(in oklab, var(--accent) 10%, transparent), transparent);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s var(--ease-out);
 }
 .fact-hero-cell:hover {
-  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-  box-shadow: 0 4px 20px rgba(46, 242, 208, 0.06);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: 0 8px 32px color-mix(in oklab, var(--accent) 12%, transparent);
+  transform: translateY(-2px);
 }
 .fact-hero-cell b {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 750;
   color: var(--muted);
-  margin-bottom: 4px;
-  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 .fact-hero-cell span {
-  font-size: clamp(24px, 4vw, 30px);
+  font-size: clamp(28px, 5vw, 38px);
   font-weight: 900;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .glossary {
   margin-top: 18px;
@@ -3773,10 +3781,10 @@ body.kca-oled .theme-btn.kca-ripple {
 .recent-snapshot-section { margin-bottom: var(--section-gap); }
 .recent-section-hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
 .recent-week-summary {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 14px 16px;
+  background: linear-gradient(135deg, color-mix(in oklab, var(--amber) 8%, var(--panel)), color-mix(in oklab, var(--warm) 5%, var(--panel)));
+  border: 1px solid color-mix(in oklab, var(--amber) 20%, var(--line));
+  border-radius: 16px;
+  padding: 18px 20px;
   margin-bottom: 16px;
 }
 .recent-week-stats {
@@ -3816,8 +3824,10 @@ body.kca-oled .theme-btn.kca-ripple {
   gap: 6px;
 }
 .recent-day-card--today {
-  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-  background: color-mix(in oklab, var(--accent) 5%, var(--panel));
+  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 8%, var(--panel)), color-mix(in oklab, var(--accent2) 5%, var(--panel)));
+  box-shadow: 0 8px 32px color-mix(in oklab, var(--accent) 10%, transparent);
+  padding: 16px 18px;
 }
 .recent-day-header {
   display: flex;
@@ -3897,6 +3907,21 @@ body.kca-oled .theme-btn.kca-ripple {
   .recent-week-stats { gap: 10px; }
   .recent-week-stat strong { font-size: 16px; }
 }
+
+/* 월간 트렌드 접기 */
+.trend-monthly-fold {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.trend-monthly-fold summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 4px 0;
+}
+.trend-monthly-fold summary:hover { color: var(--ink); }
 
 `;
 //# sourceMappingURL=report-styles.js.map

@@ -155,30 +155,36 @@
   .fact-hero-strip--duo { grid-template-columns: 1fr; }
 }
 .fact-hero-cell {
-  padding: 14px 16px;
-  border-radius: 14px;
+  padding: 18px 20px;
+  border-radius: 16px;
   border: 1px solid var(--line);
   background: linear-gradient(145deg, color-mix(in oklab, var(--accent) 10%, transparent), transparent);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s var(--ease-out);
 }
 .fact-hero-cell:hover {
-  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-  box-shadow: 0 4px 20px rgba(46, 242, 208, 0.06);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: 0 8px 32px color-mix(in oklab, var(--accent) 12%, transparent);
+  transform: translateY(-2px);
 }
 .fact-hero-cell b {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 750;
   color: var(--muted);
-  margin-bottom: 4px;
-  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 .fact-hero-cell span {
-  font-size: clamp(24px, 4vw, 30px);
+  font-size: clamp(28px, 5vw, 38px);
   font-weight: 900;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .glossary {
   margin-top: 18px;

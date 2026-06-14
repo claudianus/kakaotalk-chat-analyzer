@@ -16,6 +16,8 @@
   --warm: #ff9a45;
   --gold: #fde047;
   --rose: #ff6b9d;
+  --amber: #f59e0b;
+  --amber-glow: color-mix(in oklab, var(--amber) 20%, transparent);
   --shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
   --shadow-glow: 0 0 56px color-mix(in oklab, var(--accent) 32%, transparent);
   --bar-bg: rgba(255, 255, 255, 0.06);

@@ -740,6 +740,8 @@ export interface ReportData {
   dailyHotTopics: DailyHotTopic[];
   /** 월별 토픽 트랜드 (근사적 — 상위 키워드 기반) */
   topicTrend: TopicTrendItem[];
+  /** 주간 토픽 트랜드 (일별 키워드 버킷 → ISO 주차 집계) */
+  weeklyTopicTrend: TopicTrendItem[];
   /** 일별 감정 점수 (긍정/부정/중립/에너지) */
   dailySentiment: DailySentiment[];
   participantRoles: ParticipantRole[];

@@ -20,6 +20,7 @@ export function keywordTokensForRecord(record) {
     }
     const tokens = tokenizeForKeywords(msg);
     const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
-    return { tokens, monthKey };
+    const dayKey = `${record.date.year}-${pad2(record.date.month)}-${pad2(record.date.day)}`;
+    return { tokens, monthKey, dayKey };
 }
 //# sourceMappingURL=keyword-record-tokens.js.map

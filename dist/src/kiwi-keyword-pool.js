@@ -80,7 +80,7 @@ function applyTokenResults(agg, results) {
     for (const row of results) {
         if (!row)
             continue;
-        agg.applyKeywordTokens(row.tokens, row.monthKey);
+        agg.applyKeywordTokens(row.tokens, row.monthKey, row.dayKey);
     }
 }
 async function runKeywordPassSequential(records, agg, opts) {
@@ -90,7 +90,7 @@ async function runKeywordPassSequential(records, agg, opts) {
     for (const record of records) {
         const row = keywordTokensForRecord(record);
         if (row)
-            agg.applyKeywordTokens(row.tokens, row.monthKey);
+            agg.applyKeywordTokens(row.tokens, row.monthKey, row.dayKey);
         count += 1;
         if (onProgress && count % progressEvery === 0)
             onProgress(count);
