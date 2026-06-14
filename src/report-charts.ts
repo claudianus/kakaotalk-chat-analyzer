@@ -285,7 +285,16 @@ export const CHARTS_INIT_SCRIPT = `
       function baseOpt() {
         return {
           textStyle: { color: text, fontFamily: "Pretendard, Apple SD Gothic Neo, sans-serif" },
-          tooltip: { trigger: "axis", backgroundColor: dark ? "#1c2128" : "#fff", borderColor: "transparent" },
+          tooltip: {
+            trigger: "axis",
+            backgroundColor: dark ? "rgba(15, 18, 25, 0.95)" : "rgba(255, 255, 255, 0.95)",
+            borderColor: dark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+            borderWidth: 1,
+            textStyle: { color: text, fontSize: 12, fontFamily: "Pretendard, sans-serif" },
+            extraCssText: "backdrop-filter: blur(12px); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);",
+          },
+          animationDuration: 800,
+          animationEasing: "cubicOut",
         };
       }
 
