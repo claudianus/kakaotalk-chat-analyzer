@@ -800,15 +800,29 @@ function renderParticipantsByCharacters(participants) {
     if (participants.length === 0) {
         return `<p style="margin:0;color:var(--muted);font-size:13px">글자 수 랭킹 데이터가 없습니다.</p>`;
     }
+    const maxChars = participants[0]?.characters ?? 1;
+    const rankBadge = (i) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `<span class="participant-rank">${i + 1}</span>`;
+    const cards = participants
+        .slice(0, 20)
+        .map((p, i) => {
+        const barW = Math.round((p.characters / maxChars) * 100);
+        return `<div class="participant-row" data-observe>
+        ${rankBadge(i)}
+        <span class="participant-name">${escapeHtml(p.alias)}</span>
+        <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%"></div></div></div>
+        <span class="participant-count">${formatNumber(p.characters)}자</span>
+        <span class="participant-pct">${p.characterSharePercent}%</span>
+      </div>`;
+    })
+        .join("");
     const rows = participants
         .map((p) => `<tr><td>${escapeHtml(p.alias)}</td><td class="num">${formatNumber(p.characters)}</td><td class="num">${p.characterSharePercent}%</td><td class="num">${formatNumber(p.messages)}</td><td class="num">${p.averageLength}</td></tr>`)
         .join("");
-    const cards = participants
-        .map((p) => `<li class="rank-card"><strong>${escapeHtml(p.alias)}</strong><span class="rank-card-stat">${formatNumber(p.characters)}자 · ${p.characterSharePercent}%</span><span class="rank-card-meta">메시지 ${formatNumber(p.messages)}건 · 평균 ${p.averageLength}자</span></li>`)
-        .join("");
     return `<div id="s-rank-chars" class="rank-participants">
-    <ul class="rank-card-list" aria-label="글자 수 랭킹 카드">${cards}</ul>
-    <table class="table table-rank rank-table-desktop"><thead><tr><th>표시명</th><th class="num">총 글자</th><th class="num">글자 비율</th><th class="num">메시지</th><th class="num">평균 길이</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="participant-card-list" aria-label="글자 수 랭킹">${cards}</div>
+    <details class="rank-table-fold"><summary>상세 테이블 보기</summary>
+      <table class="table table-rank"><thead><tr><th>표시명</th><th class="num">총 글자</th><th class="num">글자 비율</th><th class="num">메시지</th><th class="num">평균 길이</th></tr></thead><tbody>${rows}</tbody></table>
+    </details>
   </div>`;
 }
 function renderToneSignalsPanel(data) {
