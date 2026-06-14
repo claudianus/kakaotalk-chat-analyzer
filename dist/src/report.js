@@ -394,7 +394,7 @@ function renderFactMatrix(data) {
     const extraInner = extra
         .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
         .join("");
-    return `<section id="s-facts" class="kca-section anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
+    return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>① 핵심 숫자</h2>
     ${renderSampleBadge(data)}
     <div class="fact-hero-strip" aria-label="핵심 KPI">${heroHtml}</div>
@@ -956,7 +956,7 @@ function renderTopicMap(data) {
     const hint = shortSpan
         ? "짧은 기간은 <strong>월 비중</strong>이 주제로 보일 수 있어요. 「기간 비교」를 확인하세요."
         : `그래프·키워드·임베딩 신호로 추출. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
-    return `<section id="s-topics" class="kca-section anim-enter" style="--enter-delay:0.052s">
+    return `<section id="s-topics" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.052s">
     <h2>🗺️ 이 방의 주제 맵</h2>
     <p class="chart-hint">${hint}</p>
     ${themeBlock}
