@@ -90,7 +90,7 @@ class KiwiWorkerPool {
 function applyTokenResults(agg: ReportAggregator, results: (KeywordTokenResult | null)[]): void {
   for (const row of results) {
     if (!row) continue;
-    agg.applyKeywordTokens(row.tokens, row.monthKey);
+    agg.applyKeywordTokens(row.tokens, row.monthKey, row.dayKey);
   }
 }
 
@@ -104,7 +104,7 @@ async function runKeywordPassSequential(
   let count = 0;
   for (const record of records) {
     const row = keywordTokensForRecord(record);
-    if (row) agg.applyKeywordTokens(row.tokens, row.monthKey);
+    if (row) agg.applyKeywordTokens(row.tokens, row.monthKey, row.dayKey);
     count += 1;
     if (onProgress && count % progressEvery === 0) onProgress(count);
   }

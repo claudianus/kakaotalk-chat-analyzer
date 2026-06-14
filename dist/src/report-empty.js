@@ -146,6 +146,7 @@ export function emptyReportData() {
         burstDetectionMethod: "heuristic",
         dailyHotTopics: [],
         topicTrend: [],
+        weeklyTopicTrend: [],
         dailySentiment: [],
         participantRoles: [],
         emojiInsight: {

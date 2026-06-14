@@ -12,6 +12,7 @@ function pad2(value: number): string {
 export interface KeywordTokenResult {
   tokens: string[];
   monthKey: string;
+  dayKey: string;
 }
 
 /** consumeKeywords와 동일 필터·토큰화 (worker pool·단일 스레드 공용) */
@@ -27,5 +28,6 @@ export function keywordTokensForRecord(record: ChatRecord): KeywordTokenResult |
   }
   const tokens = tokenizeForKeywords(msg);
   const monthKey = `${record.date.year}-${pad2(record.date.month)}`;
-  return { tokens, monthKey };
+  const dayKey = `${record.date.year}-${pad2(record.date.month)}-${pad2(record.date.day)}`;
+  return { tokens, monthKey, dayKey };
 }

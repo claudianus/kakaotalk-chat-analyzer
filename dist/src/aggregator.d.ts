@@ -120,7 +120,7 @@ export declare class ReportAggregator {
     messageCount(): number;
     resetKeywordPipeline(): void;
     markSamplesCollectedInStatsPass(): void;
-    applyKeywordTokens(kwTokens: string[], monthKey: string): void;
+    applyKeywordTokens(kwTokens: string[], monthKey: string, dayKey?: string): void;
     private pushAnalysisSamples;
     private pushSemanticSample;
     private consumeKeywords;

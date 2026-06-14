@@ -3,10 +3,10 @@
 .recent-snapshot-section { margin-bottom: var(--section-gap); }
 .recent-section-hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
 .recent-week-summary {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 14px 16px;
+  background: linear-gradient(135deg, color-mix(in oklab, var(--amber) 8%, var(--panel)), color-mix(in oklab, var(--warm) 5%, var(--panel)));
+  border: 1px solid color-mix(in oklab, var(--amber) 20%, var(--line));
+  border-radius: 16px;
+  padding: 18px 20px;
   margin-bottom: 16px;
 }
 .recent-week-stats {
@@ -46,8 +46,10 @@
   gap: 6px;
 }
 .recent-day-card--today {
-  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-  background: color-mix(in oklab, var(--accent) 5%, var(--panel));
+  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 8%, var(--panel)), color-mix(in oklab, var(--accent2) 5%, var(--panel)));
+  box-shadow: 0 8px 32px color-mix(in oklab, var(--accent) 10%, transparent);
+  padding: 16px 18px;
 }
 .recent-day-header {
   display: flex;
@@ -127,3 +129,18 @@
   .recent-week-stats { gap: 10px; }
   .recent-week-stat strong { font-size: 16px; }
 }
+
+/* 월간 트렌드 접기 */
+.trend-monthly-fold {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.trend-monthly-fold summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 4px 0;
+}
+.trend-monthly-fold summary:hover { color: var(--ink); }

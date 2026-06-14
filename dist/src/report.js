@@ -68,13 +68,13 @@ export function renderReportHtml(data) {
     ${renderParticipantRoles(data)}
     ${renderLlmRelationshipBeats(data)}
     ${renderLlmEraLabels(data)}
+    ${renderRecentSnapshot(data)}
+    ${renderDailyHotTopics(data)}
     ${renderFactMatrix(data)}
     ${renderOpenChatInsightCard(data)}
     ${renderShopSearchPromoted(data)}
     ${renderLlmMomentsBlock(data)}
     ${renderLlmDayMicroStories(data)}
-    ${renderDailyHotTopics(data)}
-    ${renderRecentSnapshot(data)}
     ${renderMemorableMoments(data)}
     ${renderInnovationDeck(data)}
 
@@ -277,8 +277,8 @@ function renderSectionNav(data) {
     <a href="#s-story" data-kca-jump="s-story">⓪ Wrapped</a>
     ${archetype}
     ${storyNavLinks(data)}
-    <a href="#s-facts" data-kca-jump="s-facts">① 핵심 숫자</a>
     <a href="#s-recent" data-kca-jump="s-recent">⏰ 최근 활동</a>
+    <a href="#s-facts" data-kca-jump="s-facts">① 핵심 숫자</a>
     ${narrative}
     ${timeline}
     ${dyad}
@@ -293,20 +293,42 @@ function renderSectionNav(data) {
   </nav>`;
 }
 function renderTopicTrendSection(data) {
-    if (data.topicTrend.length < 2)
+    const hasWeekly = data.weeklyTopicTrend.length >= 2;
+    const hasMonthly = data.topicTrend.length >= 2;
+    if (!hasWeekly && !hasMonthly)
         return "";
-    const rows = data.topicTrend
-        .map((t) => `<tr><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
-        .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong>${formatNumber(topic.value)}</strong></span>`)
-        .join("")}</td></tr>`)
-        .join("");
+    let weeklyHtml = "";
+    if (hasWeekly) {
+        const rows = data.weeklyTopicTrend
+            .map((t) => `<tr><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
+            .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong>${formatNumber(topic.value)}</strong></span>`)
+            .join("")}</td></tr>`)
+            .join("");
+        weeklyHtml = `<h3>주간 토픽 트렌드</h3>
+      <p class="chart-hint">주차별 상위 키워드 등장 횟수 변화.</p>
+      <table class="table">
+        <thead><tr><th>주차</th><th>상위 키워드</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+    let monthlyHtml = "";
+    if (hasMonthly) {
+        const rows = data.topicTrend
+            .map((t) => `<tr><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
+            .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong>${formatNumber(topic.value)}</strong></span>`)
+            .join("")}</td></tr>`)
+            .join("");
+        monthlyHtml = `<details class="trend-monthly-fold"><summary>월별 토픽 트랜드 (접기)</summary>
+      <table class="table">
+        <thead><tr><th>기간</th><th>상위 키워드</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </details>`;
+    }
     return `<section id="s-topic-trend" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.054s">
-    <h2>토픽 트랜드</h2>
-    <p class="chart-hint">월별 상위 키워드 등장 횟수 변화.</p>
-    <table class="table">
-      <thead><tr><th>기간</th><th>상위 키워드</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
+    <h2>토픽 트렌드</h2>
+    ${weeklyHtml}
+    ${monthlyHtml}
   </section>`;
 }
 function renderHelpGlossary() {

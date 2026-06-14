@@ -340,7 +340,7 @@ export class ReportAggregator {
     markSamplesCollectedInStatsPass() {
         this.samplesCollectedInStatsPass = true;
     }
-    applyKeywordTokens(kwTokens, monthKey) {
+    applyKeywordTokens(kwTokens, monthKey, dayKey) {
         this.keywordStream.addDocumentTokens(kwTokens);
         this.topicMap.addMessage(kwTokens, monthKey);
         let monthBucket = this.monthlyKeywordBuckets.get(monthKey);
@@ -350,6 +350,16 @@ export class ReportAggregator {
         }
         for (const t of kwTokens)
             monthBucket.add(t);
+        // 일별 키워드 버킷 (dayKey가 제공된 경우)
+        if (dayKey) {
+            let dayBucket = this.dailyKeywordBuckets.get(dayKey);
+            if (!dayBucket) {
+                dayBucket = new KeywordCounter();
+                this.dailyKeywordBuckets.set(dayKey, dayBucket);
+            }
+            for (const t of kwTokens)
+                dayBucket.add(t);
+        }
     }
     pushAnalysisSamples(msg, sender, messageLength, isPureSystem) {
         if (isPureSystem || isOpenChatBoilerplate(msg))
@@ -371,7 +381,7 @@ export class ReportAggregator {
                 this.openChatBoilerplateExcluded += 1;
             return;
         }
-        this.applyKeywordTokens(row.tokens, row.monthKey);
+        this.applyKeywordTokens(row.tokens, row.monthKey, row.dayKey);
         if (!this.samplesCollectedInStatsPass) {
             const split = splitMessageForAnalysis(record.message);
             const msg = split.userText.length > 0 ? split.userText : record.message;
@@ -578,14 +588,7 @@ export class ReportAggregator {
                 shouldExtractKeywords(msg, foundAttachments)) {
                 if (!opts?.skipKeywords) {
                     const kwTokens = tokenizeForKeywords(msg);
-                    this.applyKeywordTokens(kwTokens, `${record.date.year}-${pad2(record.date.month)}`);
-                    let dayBucket = this.dailyKeywordBuckets.get(dayKey);
-                    if (!dayBucket) {
-                        dayBucket = new KeywordCounter();
-                        this.dailyKeywordBuckets.set(dayKey, dayBucket);
-                    }
-                    for (const t of kwTokens)
-                        dayBucket.add(t);
+                    this.applyKeywordTokens(kwTokens, `${record.date.year}-${pad2(record.date.month)}`, dayKey);
                 }
                 if (!opts?.keywordsOnly) {
                     const kwOpts = {
@@ -969,6 +972,17 @@ export class ReportAggregator {
         });
         const burstDateSet = new Set(burstDays.map((d) => d.date));
         const avgDailyMessages = dailySorted.length > 0 ? total / dailySorted.length : 0;
+        // 최근 7일은 키워드/증거가 없어도 무조건 포함
+        const lastDateStr = dailySorted[dailySorted.length - 1]?.date ?? "";
+        const recentDateSet = new Set();
+        if (lastDateStr) {
+            const [ly2, lm2, ld2] = lastDateStr.split("-").map(Number);
+            const lastMs2 = Date.UTC(ly2, lm2 - 1, ld2);
+            for (let i = 0; i < 7; i++) {
+                const dd = new Date(lastMs2 - i * 86_400_000);
+                recentDateSet.add(`${dd.getUTCFullYear()}-${pad2(dd.getUTCMonth() + 1)}-${dd.getUTCDate()}`);
+            }
+        }
         const dailyHotTopics = dailySorted
             .map((d) => {
             const bucket = this.dailyKeywordBuckets.get(d.date);
@@ -985,9 +999,9 @@ export class ReportAggregator {
                 isBurst: burstDateSet.has(d.date),
             });
         })
-            .filter((d) => d.keywords.length > 0 || d.evidence.length > 0 || burstDateSet.has(d.date))
+            .filter((d) => recentDateSet.has(d.date) || d.keywords.length > 0 || d.evidence.length > 0 || burstDateSet.has(d.date))
             .sort((a, b) => b.messageCount - a.messageCount)
-            .slice(0, 10)
+            .slice(0, 14)
             .sort((a, b) => a.date.localeCompare(b.date));
         // ── 최근 7일 + 리포트 당일 스냅샷 ──
         let recentSnapshot;
@@ -1250,6 +1264,34 @@ export class ReportAggregator {
             burstDetectionMethod,
             dailyHotTopics,
             topicTrend: [],
+            weeklyTopicTrend: (() => {
+                // 일별 키워드 버킷 → ISO 주차별 집계
+                const weekBuckets = new Map();
+                for (const [dateStr, bucket] of this.dailyKeywordBuckets) {
+                    const [dy, dm, dd] = dateStr.split("-").map(Number);
+                    const d = new Date(Date.UTC(dy, dm - 1, dd));
+                    // ISO 주차: 목요일이 속한 연도의 주차
+                    d.setUTCDate(d.getUTCDate() + 3 - ((d.getUTCDay() + 6) % 7));
+                    const weekYear = d.getUTCFullYear();
+                    const jan1 = new Date(Date.UTC(weekYear, 0, 1));
+                    const weekNum = Math.ceil((((d.getTime() - jan1.getTime()) / 86_400_000) + 1) / 7);
+                    const weekKey = `${weekYear}-W${pad2(weekNum)}`;
+                    let wb = weekBuckets.get(weekKey);
+                    if (!wb) {
+                        wb = new KeywordCounter();
+                        weekBuckets.set(weekKey, wb);
+                    }
+                    for (const item of bucket.topCounts(20))
+                        wb.addHits(item.label, item.count);
+                }
+                return [...weekBuckets.entries()]
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([period, bucket]) => ({
+                    period,
+                    topics: bucket.topCounts(6).map((item) => ({ name: item.label, value: item.count })),
+                }))
+                    .filter((t) => t.topics.length > 0);
+            })(),
             dailySentiment,
             participantRoles,
             emojiInsight,
