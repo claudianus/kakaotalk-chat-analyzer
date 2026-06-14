@@ -169,6 +169,7 @@ export function emptyReportData(): ReportData {
       roomStyle: "mixed",
     },
     memorableMoments: [],
+    recentSnapshot: undefined,
     explorer: { daily: [], hourly: [], monthly: [], range: { min: "", max: "" } },
   };
 }

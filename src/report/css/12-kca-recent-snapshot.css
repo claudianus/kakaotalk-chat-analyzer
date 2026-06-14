@@ -1,0 +1,129 @@
+/* ── 최근 7일 + 리포트 당일 스냅샷 ── */
+
+.recent-snapshot-section { margin-bottom: var(--section-gap); }
+.recent-section-hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+.recent-week-summary {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.recent-week-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.recent-week-stat { font-size: 14px; color: var(--ink); }
+.recent-week-stat strong { font-size: 18px; font-weight: 800; margin-right: 2px; }
+.recent-week-stat small { color: var(--muted); font-size: 12px; }
+.recent-week-kws { color: var(--muted); font-size: 13px; }
+.recent-week-kws .recent-day-kw { margin-left: 4px; }
+
+.recent-today-heading,
+.recent-week-heading {
+  font-size: 15px;
+  font-weight: 750;
+  color: var(--ink);
+  margin: 18px 0 10px;
+  letter-spacing: -0.01em;
+}
+
+.recent-days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.recent-day-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.recent-day-card--today {
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+  background: color-mix(in oklab, var(--accent) 5%, var(--panel));
+}
+.recent-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.recent-day-header time { font-size: 13px; font-weight: 750; color: var(--ink); }
+.recent-day-count { font-size: 13px; font-weight: 800; color: var(--accent); }
+.recent-day-burst { font-size: 14px; }
+.recent-day-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.recent-day-kws { display: flex; flex-wrap: wrap; gap: 4px; }
+.recent-day-kw {
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border-radius: var(--radius-pill);
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.recent-day-senders { font-size: 12px; color: var(--muted); margin: 0; }
+.recent-day-summary { font-size: 12px; color: var(--ink); margin: 0; line-height: 1.5; }
+.recent-day-evidence {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.recent-day-evidence li { padding: 0; }
+
+/* 감정 인라인 바로 */
+.recent-sentiment-bar {
+  display: flex;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--line);
+  width: 100%;
+}
+.recent-sentiment-bar__pos {
+  background: color-mix(in oklab, #4caf50 70%, transparent);
+  height: 100%;
+}
+.recent-sentiment-bar__neg {
+  background: color-mix(in oklab, #ef5350 70%, transparent);
+  height: 100%;
+}
+
+/* 시간대 미니 바로 */
+.recent-hourly-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 28px;
+}
+.recent-hourly-bar__seg {
+  flex: 1;
+  background: color-mix(in oklab, var(--accent) 30%, transparent);
+  border-radius: 1px 1px 0 0;
+  height: var(--h, 0%);
+  min-height: 1px;
+  transition: height 0.2s;
+}
+.recent-hourly-bar__seg--peak {
+  background: color-mix(in oklab, var(--warm) 60%, transparent);
+}
+
+@media (max-width: 600px) {
+  .recent-days-grid { grid-template-columns: 1fr; }
+  .recent-week-stats { gap: 10px; }
+  .recent-week-stat strong { font-size: 16px; }
+}

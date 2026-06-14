@@ -12,3 +12,4 @@ export declare function renderDailyHotTopics(data: ReportData): string;
 export declare function renderLlmShareFooter(data: ReportData): string;
 export declare function renderParticipantRoles(data: ReportData): string;
 export declare function renderMemorableMoments(data: ReportData): string;
+export declare function renderRecentSnapshot(data: ReportData): string;

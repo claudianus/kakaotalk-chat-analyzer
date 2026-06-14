@@ -48,6 +48,7 @@ import {
   renderLlmShareFooter,
   renderMemorableMoments,
   renderParticipantRoles,
+  renderRecentSnapshot,
 } from "./report-llm-deck.js";
 import {
   formatGeneratorLine,
@@ -127,6 +128,7 @@ export function renderReportHtml(data: ReportData): string {
     ${renderLlmMomentsBlock(data)}
     ${renderLlmDayMicroStories(data)}
     ${renderDailyHotTopics(data)}
+    ${renderRecentSnapshot(data)}
     ${renderMemorableMoments(data)}
     ${renderInnovationDeck(data)}
 
@@ -334,6 +336,7 @@ function renderSectionNav(data: ReportData): string {
     ${archetype}
     ${storyNavLinks(data)}
     <a href="#s-facts" data-kca-jump="s-facts">① 핵심 숫자</a>
+    <a href="#s-recent" data-kca-jump="s-recent">⏰ 최근 활동</a>
     ${narrative}
     ${timeline}
     ${dyad}
