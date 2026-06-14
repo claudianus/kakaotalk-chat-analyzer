@@ -426,40 +426,51 @@ function renderHelpGlossary(): string {
 function renderFactMatrix(data: ReportData): string {
   const s = data.summary;
   const ins = data.insights;
+  // Bento-style hero KPIs with icons
+  const heroKpis: [string, string, string][] = [
+    ["💬", "총 메시지", formatNumber(s.totalMessages)],
+    ["👥", "참여자", formatNumber(s.participants)],
+    ["📅", "활동일", formatNumber(s.activeDays)],
+    ["⚡", "일평균", String(s.messagesPerActiveDay)],
+  ];
+  const heroHtml = heroKpis
+    .map(([icon, label, value]) => `<div class="fact-hero-cell" data-observe>
+      <b>${icon} ${escapeHtml(label)}</b>
+      <span>${escapeHtml(value)}</span>
+    </div>`)
+    .join("");
+
   const core: [string, string][] = [
-    ["총 메시지", formatNumber(s.totalMessages)],
-    ["참여자", formatNumber(s.participants)],
-    ["활동일", formatNumber(s.activeDays)],
-    ["일평균(활동일)", String(s.messagesPerActiveDay)],
+    ["피크 시각", s.peakHour === null ? "—" : `${s.peakHour}시`],
+    ["최장 연속일", `${s.longestActiveStreakDays}일`],
     ["상위3 점유", `${ins.top3ParticipantSharePercent}%`],
     ["참여 지니", ins.participantGini === null ? "—" : String(ins.participantGini)],
-    ["피크 시각", s.peakHour === null ? "—" : `${s.peakHour}시`],
-    ["최장 연속일", String(s.longestActiveStreakDays)],
-  ];
-  const extra: [string, string][] = [
     ["주말%", `${ins.weekendSharePercent}%`],
     ["심야%", `${s.nightSharePercent}%`],
-    ["응답 간격 중앙", formatReplyGapMinutes(s.medianReplyGapMinutes)],
-    ["응답 상위10%", ins.replyGapP90Minutes === null ? "—" : formatReplyGapMinutes(ins.replyGapP90Minutes)],
+    ["응답 간격", formatReplyGapMinutes(s.medianReplyGapMinutes)],
     ["화자전환·100", String(ins.speakerSwitchRatePer100)],
-    ["평균 길이", String(s.averageMessageLength)],
   ];
   const coreInner = core
     .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
     .join("");
+
+  const extra: [string, string][] = [
+    ["응답 상위10%", ins.replyGapP90Minutes === null ? "—" : formatReplyGapMinutes(ins.replyGapP90Minutes)],
+    ["평균 길이", `${s.averageMessageLength}자`],
+    ["링크 메시지", formatNumber(s.messagesWithLinks)],
+    ["첨부 메시지", formatNumber(s.messagesWithAttachments)],
+    ["이모지 메시지", formatNumber(s.emojiMessages)],
+    ["최장 무활동", `${ins.maxSilenceBetweenActiveDays ?? 0}일`],
+  ];
   const extraInner = extra
     .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
     .join("");
-  const strip = `<div class="fact-hero-strip fact-hero-strip--duo" aria-label="핵심 숫자">
-    <div class="fact-hero-cell"><b>총 메시지</b><span>${escapeHtml(formatNumber(s.totalMessages))}</span></div>
-    <div class="fact-hero-cell"><b>참여자</b><span>${escapeHtml(formatNumber(s.participants))}</span></div>
-  </div>`;
-  return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
+
+  return `<section id="s-facts" class="kca-section anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>① 핵심 숫자</h2>
     ${renderSampleBadge(data)}
-    ${strip}
-    <p class="fact-hint"><strong>CSV 숫자만</strong>으로 만든 요약이에요.</p>
-    <div class="fact-grid fact-grid--core">${coreInner}</div>
+    <div class="fact-hero-strip" aria-label="핵심 KPI">${heroHtml}</div>
+    <div class="fact-grid">${coreInner}</div>
     <details class="fact-more"><summary>더 많은 지표</summary><div class="fact-grid">${extraInner}</div></details>
   </section>`;
 }
@@ -863,21 +874,33 @@ function renderParticipants(participants: ParticipantStat[]): string {
   if (participants.length === 0) {
     return `<p style="margin:0;color:var(--muted);font-size:13px">참여자 데이터가 없습니다.</p>`;
   }
+  const maxMsg = participants[0]?.messages ?? 1;
+  const rankBadge = (i: number) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `<span class="participant-rank">${i + 1}</span>`;
+  const cards = participants
+    .slice(0, 20)
+    .map((p, i) => {
+      const barW = Math.round((p.messages / maxMsg) * 100);
+      return `<div class="participant-row" data-observe>
+        ${rankBadge(i)}
+        <span class="participant-name">${escapeHtml(p.alias)}</span>
+        <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%"></div></div></div>
+        <span class="participant-count">${formatNumber(p.messages)}</span>
+        <span class="participant-pct">${p.sharePercent}%</span>
+      </div>`;
+    })
+    .join("");
+  // Desktop table (hidden on mobile via CSS)
   const rows = participants
     .map(
       (p) =>
         `<tr><td>${escapeHtml(p.alias)}</td><td class="num">${formatNumber(p.messages)}</td><td class="num">${p.sharePercent}%</td><td class="num">${p.averageLength}</td><td class="num">${formatNumber(p.linkMessages)}</td><td class="num">${formatNumber(p.attachmentMessages)}</td><td class="num">${formatNumber(p.nightMessages)}</td><td class="num">${formatNumber(p.maxConsecutive)}</td></tr>`,
     )
     .join("");
-  const cards = participants
-    .map(
-      (p) =>
-        `<li class="rank-card"><strong>${escapeHtml(p.alias)}</strong><span class="rank-card-stat">${formatNumber(p.messages)}건 · ${p.sharePercent}%</span><span class="rank-card-meta">평균 ${p.averageLength}자 · URL ${formatNumber(p.linkMessages)} · 첨부 ${formatNumber(p.attachmentMessages)}</span></li>`,
-    )
-    .join("");
   return `<div class="rank-participants">
-    <ul class="rank-card-list" aria-label="참여자 랭킹 카드">${cards}</ul>
-    <table class="table table-rank rank-table-desktop"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="participant-card-list" aria-label="참여자 랭킹">${cards}</div>
+    <details class="rank-table-fold"><summary>상세 테이블 보기</summary>
+      <table class="table table-rank"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${rows}</tbody></table>
+    </details>
   </div>`;
 }
 

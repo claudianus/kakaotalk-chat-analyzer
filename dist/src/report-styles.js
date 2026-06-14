@@ -707,6 +707,36 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 }
 .count-bar-count { flex: 0 0 auto; font-size: var(--font-size-small); color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; min-width: 40px; text-align: right; }
 
+/* ── Participant Card List ── */
+.participant-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.participant-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid transparent;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+.participant-row:hover {
+  background: color-mix(in oklab, var(--accent) 4%, var(--panel));
+  border-color: var(--line);
+}
+.rank-table-fold { margin-top: 12px; }
+.rank-table-fold summary {
+  cursor: pointer;
+  font-size: var(--font-size-small);
+  color: var(--muted);
+  font-weight: 600;
+  padding: 6px 0;
+}
+.rank-table-fold summary:hover { color: var(--accent); }
+
 /* ── Insight Metrics ── */
 .ins-deck {
   display: grid;
