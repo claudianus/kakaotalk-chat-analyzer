@@ -858,6 +858,10 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   margin: 0 0 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--line);
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .kca-dashboard-grid {
   display: grid;
