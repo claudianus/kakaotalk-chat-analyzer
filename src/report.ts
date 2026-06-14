@@ -143,7 +143,7 @@ export function renderReportHtml(data: ReportData): string {
 
     ${renderChartDeck(data)}
 
-    <div id="s-charts" class="kca-section anim-enter" style="--enter-delay:0.07s">
+    <div id="s-charts" class="kca-section anim-enter" data-observe style="--enter-delay:0.07s">
     ${
       hasCalendarHeatmap(data)
         ? ""
@@ -396,7 +396,7 @@ function renderTopicTrendSection(data: ReportData): string {
     </details>`;
   }
 
-  return `<section id="s-topic-trend" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.054s">
+  return `<section id="s-topic-trend" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.054s">
     <h2>토픽 트렌드</h2>
     ${weeklyHtml}
     ${monthlyHtml}
@@ -840,12 +840,15 @@ function renderMonthly(months: DailyCount[]): string {
 function renderHoursBand(hours: number[], start: number, bandClass: string, bandLabel: string): string {
   const slice = hours.slice(start, start + 12);
   const max = Math.max(...hours, 1);
+  const peakHour = hours.indexOf(Math.max(...hours));
   const bars = slice
     .map((count, i) => {
       const hour = start + i;
-      const height = Math.max(2, Math.round((count / max) * 100));
+      const height = Math.max(3, Math.round((count / max) * 100));
       const tone = bandClass === "hours-band-am" ? "hour-am" : "hour-pm";
-      return `<div class="hour ${tone}" title="${hour}시 · ${formatNumber(count)}건" style="height:${height}%"></div>`;
+      const isPeak = hour === peakHour;
+      const peakCls = isPeak ? " hour--peak" : "";
+      return `<div class="hour ${tone}${peakCls}" title="${hour}시 · ${formatNumber(count)}건${isPeak ? " · 피크" : ""}" style="height:${height}%"></div>`;
     })
     .join("");
   const labels = slice.map((_, i) => `<span title="${start + i}시">${start + i}</span>`).join("");
@@ -853,7 +856,10 @@ function renderHoursBand(hours: number[], start: number, bandClass: string, band
 }
 
 function renderHours(hours: number[]): string {
+  const total = hours.reduce((a, b) => a + b, 0);
+  const peakHour = hours.indexOf(Math.max(...hours));
   return `<div class="hours-wrap">
+    <p class="chart-hint">피크: <strong>${peakHour}시</strong> · 총 ${formatNumber(total)}건</p>
     <div class="hours-split">
       ${renderHoursBand(hours, 0, "hours-band-am", "오전 · 0–11시")}
       ${renderHoursBand(hours, 12, "hours-band-pm", "오후 · 12–23시")}
