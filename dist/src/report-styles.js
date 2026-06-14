@@ -851,6 +851,12 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   border-radius: var(--radius-card-lg);
   box-shadow: var(--card-shadow);
 }
+.kca-dashboard-zone:nth-child(2) {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 3%, var(--card-bg)), var(--card-bg));
+}
+.kca-dashboard-zone:nth-child(3) {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent2) 3%, var(--card-bg)), var(--card-bg));
+}
 .zone-title {
   font-size: var(--font-size-h2);
   font-weight: 800;
