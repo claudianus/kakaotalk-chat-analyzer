@@ -849,7 +849,11 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   max-width: 200px;
   background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 20%, transparent), transparent);
 }
-.kca-section h2 { font-size: var(--font-size-h2); margin-bottom: var(--heading-gap); }
+.kca-section h2 {
+  font-size: var(--font-size-h2);
+  margin-bottom: var(--heading-gap);
+  letter-spacing: -0.03em;
+}
 
 /* ── Panel helper ── */
 .panel-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
