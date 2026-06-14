@@ -122,20 +122,26 @@ export function renderReportHtml(data: ReportData): string {
     ${renderParticipantRoles(data)}
     ${renderLlmRelationshipBeats(data)}
     ${renderLlmEraLabels(data)}
-    ${renderRecentSnapshot(data)}
+
+    <div class="kca-bento-grid" data-observe>
+      ${renderRecentSnapshot(data)}
+    </div>
+
     ${renderDailyHotTopics(data)}
     ${renderFactMatrix(data)}
+
+    <div class="kca-bento-grid kca-bento-grid--2" data-observe>
+      ${renderTopicMap(data)}
+      ${renderInsightDeck(data)}
+    </div>
+
+    ${renderTopicTrendSection(data)}
     ${renderOpenChatInsightCard(data)}
     ${renderShopSearchPromoted(data)}
     ${renderLlmMomentsBlock(data)}
     ${renderLlmDayMicroStories(data)}
     ${renderMemorableMoments(data)}
     ${renderInnovationDeck(data)}
-
-    ${renderInsightDeck(data)}
-
-    ${renderTopicMap(data)}
-    ${renderTopicTrendSection(data)}
 
     ${renderChartDeck(data)}
 

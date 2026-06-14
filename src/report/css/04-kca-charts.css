@@ -70,6 +70,12 @@
       -webkit-backdrop-filter: blur(12px);
       padding: 16px 16px 12px;
       box-shadow: var(--shadow);
+      transition: box-shadow var(--duration-normal) var(--ease-smooth), transform var(--duration-normal) var(--ease-spring), border-color var(--duration-fast) var(--ease-smooth);
+    }
+    .viz-card:hover {
+      border-color: color-mix(in oklab, var(--accent) 25%, transparent);
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-3px);
     }
     @media (min-width: 900px) {
       .viz-card.span-6 { grid-column: span 6; }
