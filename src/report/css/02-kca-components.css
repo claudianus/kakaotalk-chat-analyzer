@@ -435,6 +435,146 @@ footer {
   line-height: 1.6;
 }
 
+/* ── Insight Deck ── */
+.insight-hero { position: relative; }
+.insight-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.insight-lede { font-size: var(--font-size-small); color: var(--muted); margin: 4px 0 0; }
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.insight-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (max-width: 600px) {
+  .insight-split { grid-template-columns: 1fr; }
+  .insight-head { flex-direction: column; }
+}
+.insight-sub {
+  font-size: 14px;
+  font-weight: 750;
+  color: var(--ink);
+  margin: 0 0 6px;
+}
+
+/* ── Pace Ribbon ── */
+.pace-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--accent) 10%, var(--panel));
+  border: 1px solid color-mix(in oklab, var(--accent) 20%, var(--line));
+  font-size: var(--font-size-small);
+  margin-bottom: 12px;
+}
+.pace-ribbon strong { color: var(--ink); }
+
+/* ── Arc Strip ── */
+.arc-strip {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.arc-chip {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  font-size: var(--font-size-small);
+  text-align: center;
+  transition: border-color var(--duration-fast) var(--ease-smooth);
+}
+.arc-chip:hover { border-color: color-mix(in oklab, var(--accent) 30%, transparent); }
+.arc-chip b { display: block; font-size: 16px; font-weight: 800; color: var(--ink); }
+.arc-chip small { color: var(--muted); }
+
+/* ── Rhythm Ring ── */
+.rh-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+}
+.rh-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) calc(var(--p, 0) * 3.6deg), var(--bar-bg) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rh-ring span {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--panel-solid);
+}
+.rh-cap {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+.rh-cap strong { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+.rh-cap span { font-size: 18px; font-weight: 900; color: var(--ink); }
+
+/* ── Tone Blocks ── */
+.tone-block {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+
+/* ── Daypart ── */
+.daypart-bar {
+  display: flex;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  gap: 2px;
+  margin: 8px 0;
+}
+.daypart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: var(--font-size-small);
+  color: var(--muted);
+}
+.daypart-legend li { display: flex; align-items: center; gap: 4px; }
+.daypart-legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* ── Rank Card (legacy) ── */
+.rank-card-list { list-style: none; padding: 0; margin: 0; display: none; }
+.rank-card { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.rank-card strong { display: block; font-weight: 700; }
+.rank-card-stat { font-size: var(--font-size-small); color: var(--accent); font-weight: 600; }
+.rank-card-meta { font-size: 11px; color: var(--muted); }
+.rank-table-fold { margin-top: 12px; }
+.rank-table-fold summary { cursor: pointer; font-size: var(--font-size-small); color: var(--muted); font-weight: 600; padding: 6px 0; }
+.rank-table-fold summary:hover { color: var(--accent); }
+
 /* ── Topic Map ── */
 .topic-group { margin-bottom: 16px; }
 .topic-group-title { font-size: 14px; font-weight: 750; color: var(--ink); margin-bottom: 10px; }
