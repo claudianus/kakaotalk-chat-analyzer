@@ -1629,6 +1629,54 @@ footer {
       }
     }
 
+    /* ── Hourly Chart ── */
+    .hours-wrap { margin: 8px 0; }
+    .hours-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .hours-half { display: flex; flex-direction: column; gap: 6px; }
+    .hours-band { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.02em; }
+    .hours-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 60px;
+    }
+    .hour {
+      flex: 1;
+      border-radius: 2px 2px 0 0;
+      min-height: 3px;
+      transition: opacity var(--duration-fast) var(--ease-smooth);
+    }
+    .hour:hover { opacity: 0.8; filter: brightness(1.2); }
+    .hour-am { background: var(--hours-am-bg); }
+    .hour-pm { background: var(--hours-pm-bg); }
+    .hour--peak {
+      background: color-mix(in oklab, var(--warm) 50%, transparent) !important;
+      box-shadow: 0 0 8px color-mix(in oklab, var(--warm) 30%, transparent);
+    }
+    .hours-labels {
+      display: flex;
+      gap: 2px;
+      font-size: 9px;
+      color: var(--muted);
+    }
+    .hours-labels span { flex: 1; text-align: center; }
+
+    /* ── Pulse Mini ── */
+    .pulse-mini { margin: 12px 0; }
+    .pulse-mini h4 { font-size: 12px; font-weight: 700; color: var(--muted); margin: 0 0 6px; }
+    .pulse-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 1px;
+      height: 40px;
+    }
+    .pulse-bar {
+      flex: 1;
+      background: color-mix(in oklab, var(--rose) 40%, transparent);
+      border-radius: 1px 1px 0 0;
+      min-height: 2px;
+    }
+
 
 /* 05-kca-ux.css */
 /* 섹션 네비 v2 — 개선된 글라스 내비게이션 */
