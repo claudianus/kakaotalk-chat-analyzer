@@ -464,12 +464,12 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   will-change: transform;
 }
 .kca-card:hover, .card:hover {
-  border-color: color-mix(in oklab, var(--accent) 30%, transparent);
-  box-shadow: var(--shadow-card-hover);
+  border-color: color-mix(in oklab, var(--accent) 35%, transparent);
+  box-shadow: var(--shadow-card-hover), 0 0 0 1px color-mix(in oklab, var(--accent) 8%, transparent);
   transform: translateY(var(--card-hover-lift));
 }
 .kca-card:active, .card:active {
-  transform: scale(0.985);
+  transform: scale(0.985) translateY(0);
   transition-duration: 80ms;
 }
 
@@ -576,9 +576,9 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   transition: border-color var(--duration-normal) var(--ease-smooth), box-shadow var(--duration-normal) var(--ease-smooth), transform var(--duration-normal) var(--ease-spring);
 }
 .fact-hero-cell:hover {
-  border-color: color-mix(in oklab, var(--accent) 35%, transparent);
-  box-shadow: var(--shadow-glow);
-  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--accent) 40%, transparent);
+  box-shadow: var(--shadow-glow), 0 0 40px color-mix(in oklab, var(--accent) 15%, transparent);
+  transform: translateY(-4px);
 }
 .fact-hero-cell b {
   display: block;
