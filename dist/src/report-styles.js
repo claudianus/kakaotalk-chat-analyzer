@@ -844,6 +844,120 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 .event-label { color: var(--muted); min-width: 80px; }
 .event-count { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
 
+/* ── Rank Participants ── */
+.rank-participants { margin: 0; }
+.rank-table-desktop { display: none; }
+@media (min-width: 768px) {
+  .rank-table-desktop { display: table; }
+  .participant-card-list { display: none; }
+}
+
+/* ── Calendar ── */
+.calendar-wrap { margin: 8px 0; }
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 2px;
+}
+.day {
+  padding: 4px 6px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.3;
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+.day:hover { transform: scale(1.1); }
+.day-k { display: block; font-weight: 600; color: var(--muted); }
+.day-n { display: block; font-weight: 800; color: var(--ink); }
+.day--lvl0 { background: var(--bar-bg); }
+.day--lvl1 { background: color-mix(in oklab, var(--accent) 10%, var(--bar-bg)); }
+.day--lvl2 { background: color-mix(in oklab, var(--accent) 20%, var(--bar-bg)); }
+.day--lvl3 { background: color-mix(in oklab, var(--accent) 35%, var(--bar-bg)); }
+.day--lvl4 { background: color-mix(in oklab, var(--accent) 50%, var(--bar-bg)); }
+.day-burst { border: 2px solid var(--warm); }
+
+/* ── Bars ── */
+.bars { display: flex; flex-direction: column; gap: 4px; }
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+.bar-label {
+  flex: 0 0 auto;
+  min-width: 60px;
+  max-width: 120px;
+  font-size: var(--font-size-small);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bar-track {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--bar-bg);
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--kw-bar-fill);
+  transition: width 0.6s var(--ease-out);
+}
+.bar-value {
+  flex: 0 0 auto;
+  min-width: 36px;
+  font-size: var(--font-size-small);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ── Chart Hint ── */
+.chart-hint {
+  font-size: var(--font-size-small);
+  color: var(--muted);
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+.chart-hint strong { color: var(--ink); font-weight: 700; }
+.chart-hint-warn {
+  color: var(--warm);
+  font-size: var(--font-size-small);
+}
+.kw-note {
+  font-size: var(--font-size-small);
+  color: var(--muted);
+}
+
+/* ── Open Chat ── */
+.openchat-card { }
+.openchat-stats {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+  font-size: var(--font-size-small);
+}
+.openchat-stats li { padding: 3px 0; }
+.openchat-stats strong { color: var(--ink); }
+
+/* ── Self-serve Footer Links ── */
+.self-serve-footer-links {
+  font-size: var(--font-size-small);
+  color: var(--muted);
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+/* ── Debug ── */
+.kca-debug-shop summary { cursor: pointer; font-size: var(--font-size-small); color: var(--muted); }
+.kca-debug-shop code { font-size: 11px; }
+
 /* ── Footer ── */
 footer {
   padding: 24px 0;
