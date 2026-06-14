@@ -127,8 +127,8 @@ export function renderReportHtml(data: ReportData): string {
       ${renderRecentSnapshot(data)}
     </div>
 
-    ${renderDailyHotTopics(data)}
-    ${renderFactMatrix(data)}
+    <div data-observe>${renderDailyHotTopics(data)}</div>
+    <div data-observe>${renderFactMatrix(data)}</div>
 
     <div class="kca-bento-grid kca-bento-grid--2" data-observe>
       ${renderTopicMap(data)}
