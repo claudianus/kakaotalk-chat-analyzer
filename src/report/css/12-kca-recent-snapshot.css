@@ -1,6 +1,13 @@
 /* ── 최근 7일 + 리포트 당일 스냅샷 ── */
 
-.recent-snapshot-section { margin-bottom: var(--section-gap); }
+.recent-snapshot-section {
+  margin-bottom: var(--section-gap);
+  padding: var(--card-pad);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
 .recent-section-hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
 .recent-week-summary {
   background: linear-gradient(135deg, color-mix(in oklab, var(--amber) 8%, var(--panel)), color-mix(in oklab, var(--warm) 5%, var(--panel)));

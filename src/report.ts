@@ -123,9 +123,7 @@ export function renderReportHtml(data: ReportData): string {
     ${renderLlmRelationshipBeats(data)}
     ${renderLlmEraLabels(data)}
 
-    <div class="kca-bento-grid" data-observe>
-      ${renderRecentSnapshot(data)}
-    </div>
+    ${renderRecentSnapshot(data)}
 
     <div data-observe>${renderDailyHotTopics(data)}</div>
     <div data-observe>${renderFactMatrix(data)}</div>
