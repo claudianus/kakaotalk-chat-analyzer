@@ -995,7 +995,7 @@ function renderOpenChatInsightCard(data) {
             .map((t) => escapeHtml(t.label))
             .join(" · ")}</p>`
         : "";
-    return `<section id="s-openchat" class="kca-section card kca-card--data openchat-card anim-enter" style="--enter-delay:0.038s" aria-label="오픈채팅 추정 인사이트">
+    return `<section id="s-openchat" class="kca-section card kca-card--data openchat-card anim-enter" data-observe style="--enter-delay:0.038s" aria-label="오픈채팅 추정 인사이트">
     <h2 class="section-glow">오픈채팅 <span class="bench-estimate-tag">추정</span></h2>
     <p class="chart-hint">입·퇴장 비중·운영 알림 패턴으로 <strong>오픈채팅형</strong> 방일 가능성이 있습니다(자동 추정).</p>
     <ul class="openchat-stats">
