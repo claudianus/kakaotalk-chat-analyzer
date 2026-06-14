@@ -855,6 +855,45 @@ footer {
   line-height: 1.6;
 }
 
+/* ── Topic Map ── */
+.topic-group { margin-bottom: 16px; }
+.topic-group-title { font-size: 14px; font-weight: 750; color: var(--ink); margin-bottom: 10px; }
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+.topic-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+.topic-card:hover {
+  border-color: color-mix(in oklab, var(--accent) 25%, transparent);
+  box-shadow: 0 4px 20px color-mix(in oklab, var(--accent) 8%, transparent);
+  transform: translateY(-2px);
+}
+.topic-card header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.topic-card header strong { font-size: 14px; font-weight: 750; color: var(--ink); flex: 1; }
+.topic-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.topic-badge.theme { background: color-mix(in oklab, var(--accent) 15%, transparent); color: var(--accent); }
+.topic-badge.period { background: color-mix(in oklab, var(--accent2) 15%, transparent); color: var(--accent2); }
+.topic-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.topic-bar { height: 4px; border-radius: var(--radius-pill); background: var(--bar-bg); overflow: hidden; margin-bottom: 4px; }
+.topic-bar-fill { height: 100%; border-radius: var(--radius-pill); background: var(--accent-grad-soft); transition: width 0.8s var(--ease-out); }
+.topic-pct { font-size: 11px; color: var(--muted); font-weight: 600; }
+.topic-card--lg { grid-column: span 2; }
+@media (max-width: 600px) { .topic-card--lg { grid-column: span 1; } }
+
 /* ── Shop search ── */
 .shop-search-section { margin-top: var(--section-gap); }
 

@@ -1061,6 +1061,7 @@ function renderTopicMap(data: ReportData): string {
   const shortSpan = displayTopics.length < data.topics.length;
   const themes = displayTopics.filter((t) => t.kind === "theme");
   const periods = displayTopics.filter((t) => t.kind === "period");
+  const maxPct = Math.max(...displayTopics.map((t) => t.messagePercent), 1);
   const renderCards = (items: typeof displayTopics) =>
     items
     .map((t) => {
@@ -1069,23 +1070,25 @@ function renderTopicMap(data: ReportData): string {
           ? `<span class="topic-badge period">${escapeHtml(t.periodLabel ?? "기간")}</span>`
           : `<span class="topic-badge theme">주제</span>`;
       const chips = t.terms
+        .slice(0, 5)
         .map((term) => `<span class="topic-chip">${escapeHtml(term)}</span>`)
         .join("");
-      const sizeClass =
-        t.messagePercent >= 18 ? " topic-card--lg" : t.messagePercent >= 8 ? " topic-card--md" : "";
-      return `<article class="topic-card${sizeClass}">
-        <header>${kind}<strong>${escapeHtml(t.title)}</strong><span class="topic-pct">비중 약 ${t.messagePercent}%</span></header>
+      const barW = Math.round((t.messagePercent / maxPct) * 100);
+      return `<article class="topic-card" data-observe>
+        <header>${kind}<strong>${escapeHtml(t.title)}</strong></header>
         <div class="topic-chips">${chips}</div>
+        <div class="topic-bar"><div class="topic-bar-fill" style="width:${barW}%"></div></div>
+        <span class="topic-pct">약 ${t.messagePercent}%</span>
       </article>`;
     })
     .join("");
   const periodBlock =
     periods.length > 0
-      ? `<div class="topic-group"><h3 class="topic-group-title">월별 화제</h3><div class="topic-grid topic-grid--periods">${renderCards(periods)}</div></div>`
+      ? `<div class="topic-group"><h3 class="topic-group-title">📅 기간별 화제</h3><div class="topic-grid">${renderCards(periods)}</div></div>`
       : "";
   const themeBlock =
     themes.length > 0
-      ? `<div class="topic-group"><h3 class="topic-group-title">의미 테마</h3><div class="topic-grid topic-grid--themes">${renderCards(themes)}</div></div>`
+      ? `<div class="topic-group"><h3 class="topic-group-title">💡 의미 테마</h3><div class="topic-grid">${renderCards(themes)}</div></div>`
       : "";
   const sparseThemes =
     themes.length <= 1 && data.summary.totalMessages >= 5000
@@ -1094,8 +1097,8 @@ function renderTopicMap(data: ReportData): string {
   const hint = shortSpan
     ? "짧은 기간은 <strong>월 비중</strong>이 주제로 보일 수 있어요. 「기간 비교」를 확인하세요."
     : `그래프·키워드·임베딩 신호로 추출. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
-  return `<section id="s-topics" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.052s">
-    <h2>이 방의 주제 맵</h2>
+  return `<section id="s-topics" class="kca-section anim-enter" style="--enter-delay:0.052s">
+    <h2>🗺️ 이 방의 주제 맵</h2>
     <p class="chart-hint">${hint}</p>
     ${themeBlock}
     ${periodBlock}
