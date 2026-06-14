@@ -5,7 +5,7 @@ import { CHART_CDN_BODY, CHARTS_INIT_SCRIPT, renderChartDeck, serializeChartPayl
 import { escapeHtml, formatNumber, formatReplyGapMinutes } from "./report-util.js";
 import { REPORT_HEAD_LINKS } from "./report-head.js";
 import { REPORT_STYLES } from "./report-styles.js";
-import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderHeroQuickJumps, renderTopChrome, topicNavLink, } from "./report-ux.js";
+import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderTopChrome, topicNavLink, } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck } from "./report-innovation.js";
 import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderMemorableMoments, renderParticipantRoles, renderRecentSnapshot, } from "./report-llm-deck.js";
@@ -43,23 +43,44 @@ export function renderReportHtml(data) {
         <h1>카카오톡 대화 리포트</h1>
         <p class="room-title" aria-label="채팅방 이름">${escapeHtml(data.source.chatRoomName)}</p>
         ${renderStoryHeadline(data)}
-        <p class="sub">원문·전체 URL은 저장하지 않아요. <strong>⓪ Wrapped</strong>부터 시작하세요.</p>
-        ${renderHeroQuickJumps()}
+        <div class="kca-hero-kpis">
+          <div class="kca-hero-kpi">
+            <span class="kca-hero-kpi-icon">💬</span>
+            <span class="kca-hero-kpi-value">${formatNumber(data.summary.totalMessages)}</span>
+            <span class="kca-hero-kpi-label">메시지</span>
+          </div>
+          <div class="kca-hero-kpi">
+            <span class="kca-hero-kpi-icon">👥</span>
+            <span class="kca-hero-kpi-value">${formatNumber(data.summary.participants)}</span>
+            <span class="kca-hero-kpi-label">참여자</span>
+          </div>
+          <div class="kca-hero-kpi">
+            <span class="kca-hero-kpi-icon">📅</span>
+            <span class="kca-hero-kpi-value">${formatNumber(data.summary.activeDays)}</span>
+            <span class="kca-hero-kpi-label">활동일</span>
+          </div>
+          <div class="kca-hero-kpi">
+            <span class="kca-hero-kpi-icon">⚡</span>
+            <span class="kca-hero-kpi-value">${data.summary.messagesPerActiveDay}</span>
+            <span class="kca-hero-kpi-label">일평균</span>
+          </div>
+        </div>
         <div class="badge-row">
           <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
           <span class="badge">인코딩: ${escapeHtml(data.source.encoding)}</span>
           <span class="badge">경고: ${data.source.warnings}건</span>
         </div>
+        <details class="kca-hero-meta-fold">
+          <summary>리포트 상세 정보</summary>
+          <div class="kca-hero-meta">
+            <p><strong>생성 시각</strong> ${escapeHtml(formatTimestamp(data.generatedAt))}</p>
+            ${data.buildTiming ? `<p><strong>생성 소요</strong> ${escapeHtml(formatBuildTiming(data.buildTiming))}</p>` : ""}
+            <p><strong>첫 메시지</strong> ${escapeHtml(data.summary.firstMessage ?? "—")}</p>
+            <p><strong>마지막 메시지</strong> ${escapeHtml(data.summary.lastMessage ?? "—")}</p>
+            ${renderProvenanceDetailsBlock(data)}
+          </div>
+        </details>
       </div>
-      <aside class="kca-hero-meta">
-        <p><strong>채팅방</strong><br>${escapeHtml(data.source.chatRoomName)}</p>
-        <p><strong>생성 시각</strong><br>${escapeHtml(formatTimestamp(data.generatedAt))}</p>
-        ${data.buildTiming ? `<p><strong>생성 소요</strong><br>${escapeHtml(formatBuildTiming(data.buildTiming))}</p>` : ""}
-        ${renderProvenanceSideCard(data)}
-        <p><strong>첫 메시지</strong><br>${escapeHtml(data.summary.firstMessage ?? "—")}</p>
-        <p><strong>마지막 메시지</strong><br>${escapeHtml(data.summary.lastMessage ?? "—")}</p>
-        ${renderProvenanceDetailsBlock(data)}
-      </aside>
     </header>
     ${renderLlmArchetypeBanner(data)}
     ${renderStorySections(data)}
