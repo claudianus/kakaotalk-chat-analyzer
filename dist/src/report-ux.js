@@ -135,45 +135,94 @@ export const REPORT_UX_SCRIPT = `
         document.querySelectorAll("[data-observe]").forEach(function (el) { obs.observe(el); });
       })();
 
-      // ── CountUp animation for hero numbers ──
+      // ── CountUp animation via countUp.js library ──
       (function () {
         var reduce = false;
         try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
-        function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
-        function countUp(el) {
-          var text = el.textContent.replace(/[^0-9.]/g, "");
-          var target = parseFloat(text);
-          if (isNaN(target) || target <= 0) return;
-          var duration = 1500;
-          var start = null;
-          var prefix = el.textContent.match(/^[^0-9]*/)[0] || "";
-          var suffix = el.textContent.match(/[^0-9]*$/)[0] || "";
-          function step(ts) {
-            if (!start) start = ts;
-            var progress = Math.min((ts - start) / duration, 1);
-            var value = Math.round(target * easeOutExpo(progress));
-            el.textContent = prefix + value.toLocaleString("ko-KR") + suffix;
-            if (progress < 1) requestAnimationFrame(step);
-            else el.classList.add("counted");
+        var CountUpCtor = (typeof countUp !== "undefined" && countUp.CountUp) ? countUp.CountUp
+          : (typeof window !== "undefined" && window.countUp && window.countUp.CountUp) ? window.countUp.CountUp
+          : null;
+        function parseNum(el) {
+          var raw = el.getAttribute("data-countup");
+          if (raw) {
+            var n = parseFloat(raw);
+            if (!isNaN(n)) return n;
           }
+          var text = el.textContent.replace(/[^0-9.\\-]/g, "");
+          return parseFloat(text);
+        }
+        function extractParts(el) {
+          var m = el.textContent.match(/^([^0-9\\-]*)(.*)/);
+          return { prefix: m ? m[1] : "", suffix: "" };
+        }
+        function runCountUp(el) {
+          var target = parseNum(el);
+          if (isNaN(target) || target <= 0) return;
+          var parts = extractParts(el);
           if (reduce) {
-            el.textContent = prefix + Math.round(target).toLocaleString("ko-KR") + suffix;
+            el.textContent = parts.prefix + Math.round(target).toLocaleString("ko-KR");
+            el.classList.add("counted");
             return;
           }
-          el.textContent = prefix + "0" + suffix;
-          requestAnimationFrame(step);
+          if (!CountUpCtor) {
+            // Fallback: manual animation if library not loaded
+            var duration = 2000;
+            var start = null;
+            function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+            el.textContent = parts.prefix + "0";
+            function step(ts) {
+              if (!start) start = ts;
+              var progress = Math.min((ts - start) / duration, 1);
+              var value = Math.round(target * easeOutExpo(progress));
+              el.textContent = parts.prefix + value.toLocaleString("ko-KR");
+              if (progress < 1) requestAnimationFrame(step);
+              else el.classList.add("counted");
+            }
+            requestAnimationFrame(step);
+            return;
+          }
+          var cu = new CountUpCtor(el, target, {
+            startVal: 0,
+            duration: 2,
+            useEasing: true,
+            easingFn: function (t, b, c, d) {
+              // easeOutExpo
+              return c * (-Math.pow(2, -10 * t / d) + 1) + b;
+            },
+            separator: ",",
+            prefix: parts.prefix,
+            enableScrollSpy: false,
+          });
+          if (!cu.error) {
+            cu.start(function () { el.classList.add("counted"); });
+          } else {
+            el.textContent = parts.prefix + Math.round(target).toLocaleString("ko-KR");
+            el.classList.add("counted");
+          }
+        }
+        var selectors = ".fact-hero-cell span[data-countup], .ins-metric .ins-value[data-countup]";
+        var targets = document.querySelectorAll(selectors);
+        if (!targets.length) {
+          // Backwards compat: also pick up elements without data-countup attribute
+          targets = document.querySelectorAll(".fact-hero-cell span, .ins-metric .ins-value");
+        }
+        if (reduce) {
+          targets.forEach(function (el) { runCountUp(el); });
+          return;
+        }
+        if (typeof IntersectionObserver === "undefined") {
+          targets.forEach(function (el) { runCountUp(el); });
+          return;
         }
         var obs = new IntersectionObserver(function (entries) {
           entries.forEach(function (entry) {
             if (entry.isIntersecting) {
-              countUp(entry.target);
+              runCountUp(entry.target);
               obs.unobserve(entry.target);
             }
           });
         }, { threshold: 0.3 });
-        document.querySelectorAll(".fact-hero-cell span, .ins-metric .ins-value").forEach(function (el) {
-          obs.observe(el);
-        });
+        targets.forEach(function (el) { obs.observe(el); });
       })();
 
       // ── Staggered section reveal ──

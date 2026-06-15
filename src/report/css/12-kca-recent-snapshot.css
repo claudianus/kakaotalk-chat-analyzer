@@ -1,62 +1,104 @@
-/* ── 최근 7일 + 리포트 당일 스냅샷 ── */
+/* kca Recent Snapshot v5 — Premium Glassmorphism */
 
 .recent-snapshot-section {
   margin-bottom: var(--section-gap);
   padding: var(--card-pad);
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card-lg, 24px);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+  backdrop-filter: blur(var(--glass-blur-heavy, 32px)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy, 32px)) saturate(var(--glass-saturate));
 }
-.recent-section-hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+.recent-section-hint { color: var(--muted); font-size: 13px; margin: 0 0 16px; line-height: 1.6; }
+
+/* ── Week Summary ── */
 .recent-week-summary {
-  background: linear-gradient(135deg, color-mix(in oklab, var(--amber) 8%, var(--panel)), color-mix(in oklab, var(--warm) 5%, var(--panel)));
-  border: 1px solid color-mix(in oklab, var(--amber) 20%, var(--line));
-  border-radius: 16px;
-  padding: 18px 20px;
-  margin-bottom: 16px;
+  background: var(--glass);
+  border: 1px solid color-mix(in oklab, var(--amber) 22%, var(--glass-border));
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight), 0 0 32px color-mix(in oklab, var(--amber) 8%, transparent);
+}
+.recent-week-summary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--gradient-hero);
+  opacity: 0.4;
+  pointer-events: none;
 }
 .recent-week-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 8px;
+  gap: 18px;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
 }
 .recent-week-stat { font-size: 14px; color: var(--ink); }
-.recent-week-stat strong { font-size: 18px; font-weight: 800; margin-right: 2px; }
+.recent-week-stat strong { font-size: 22px; font-weight: 800; margin-right: 2px; background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .recent-week-stat small { color: var(--muted); font-size: 12px; }
-.recent-week-kws { color: var(--muted); font-size: 13px; }
+.recent-week-kws { color: var(--muted); font-size: 13px; position: relative; z-index: 1; }
 .recent-week-kws .recent-day-kw { margin-left: 4px; }
 
+/* ── Section Headings ── */
 .recent-today-heading,
 .recent-week-heading {
   font-size: 15px;
   font-weight: 750;
   color: var(--ink);
-  margin: 18px 0 10px;
+  margin: 20px 0 12px;
   letter-spacing: -0.01em;
 }
 
+/* ── Day Cards Grid ── */
 .recent-days-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
-
 .recent-day-card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 12px 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
+  transition: border-color var(--duration-normal) var(--ease-smooth), transform var(--duration-normal) var(--ease-spring), box-shadow var(--duration-normal);
+}
+.recent-day-card:hover {
+  border-color: color-mix(in oklab, var(--accent) 24%, transparent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px color-mix(in oklab, var(--accent) 12%, transparent), inset 0 1px 0 var(--glass-highlight);
 }
 .recent-day-card--today {
-  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
-  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 8%, var(--panel)), color-mix(in oklab, var(--accent2) 5%, var(--panel)));
-  box-shadow: 0 8px 32px color-mix(in oklab, var(--accent) 10%, transparent);
-  padding: 16px 18px;
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--glass-border));
+  background: color-mix(in oklab, var(--accent) 6%, var(--glass));
+  box-shadow: 0 8px 32px color-mix(in oklab, var(--accent) 14%, transparent), inset 0 1px 0 var(--glass-highlight), 0 0 48px color-mix(in oklab, var(--accent) 8%, transparent);
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+}
+.recent-day-card--today::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-grad);
+  border-radius: 16px 16px 0 0;
 }
 .recent-day-header {
   display: flex;
@@ -65,7 +107,7 @@
   gap: 8px;
 }
 .recent-day-header time { font-size: 13px; font-weight: 750; color: var(--ink); }
-.recent-day-count { font-size: 13px; font-weight: 800; color: var(--accent); }
+.recent-day-count { font-size: 14px; font-weight: 800; color: var(--accent); }
 .recent-day-burst { font-size: 14px; }
 .recent-day-meta {
   display: flex;
@@ -74,17 +116,19 @@
   font-size: 12px;
   color: var(--muted);
 }
-.recent-day-kws { display: flex; flex-wrap: wrap; gap: 4px; }
+.recent-day-kws { display: flex; flex-wrap: wrap; gap: 5px; }
 .recent-day-kw {
-  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
   color: var(--accent);
   border-radius: var(--radius-pill);
-  padding: 2px 7px;
+  padding: 3px 9px;
   font-size: 11px;
   font-weight: 700;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 .recent-day-senders { font-size: 12px; color: var(--muted); margin: 0; }
-.recent-day-summary { font-size: 12px; color: var(--ink); margin: 0; line-height: 1.5; }
+.recent-day-summary { font-size: 12px; color: var(--ink); margin: 0; line-height: 1.55; }
 .recent-day-evidence {
   list-style: none;
   padding: 0;
@@ -94,53 +138,47 @@
 }
 .recent-day-evidence li { padding: 0; }
 
-/* 감정 인라인 바로 */
+/* ── Sentiment Bar ── */
 .recent-sentiment-bar {
   display: flex;
-  height: 4px;
-  border-radius: 2px;
+  height: 5px;
+  border-radius: 3px;
   overflow: hidden;
   background: var(--line);
   width: 100%;
 }
 .recent-sentiment-bar__pos {
-  background: color-mix(in oklab, #4caf50 70%, transparent);
+  background: linear-gradient(90deg, color-mix(in oklab, #4caf50 80%, transparent), color-mix(in oklab, #66bb6a 70%, transparent));
   height: 100%;
 }
 .recent-sentiment-bar__neg {
-  background: color-mix(in oklab, #ef5350 70%, transparent);
+  background: linear-gradient(90deg, color-mix(in oklab, #ef5350 80%, transparent), color-mix(in oklab, #e57373 70%, transparent));
   height: 100%;
 }
 
-/* 시간대 미니 바로 */
+/* ── Hourly Mini Bar ── */
 .recent-hourly-bar {
   display: flex;
   align-items: flex-end;
   gap: 1px;
-  height: 28px;
+  height: 30px;
 }
 .recent-hourly-bar__seg {
   flex: 1;
   background: color-mix(in oklab, var(--accent) 30%, transparent);
-  border-radius: 1px 1px 0 0;
+  border-radius: 2px 2px 0 0;
   height: var(--h, 0%);
   min-height: 1px;
-  transition: height 0.2s;
+  transition: height 0.3s var(--ease-out);
 }
 .recent-hourly-bar__seg--peak {
-  background: color-mix(in oklab, var(--warm) 60%, transparent);
+  background: var(--accent-grad);
 }
 
-@media (max-width: 600px) {
-  .recent-days-grid { grid-template-columns: 1fr; }
-  .recent-week-stats { gap: 10px; }
-  .recent-week-stat strong { font-size: 16px; }
-}
-
-/* 월간 트렌드 접기 */
+/* ── Monthly Trend Fold ── */
 .trend-monthly-fold {
   margin-top: 12px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--glass-border);
   padding-top: 8px;
 }
 .trend-monthly-fold summary {
@@ -149,5 +187,13 @@
   color: var(--muted);
   font-weight: 600;
   padding: 4px 0;
+  transition: color var(--duration-fast);
 }
 .trend-monthly-fold summary:hover { color: var(--ink); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .recent-days-grid { grid-template-columns: 1fr; }
+  .recent-week-stats { gap: 10px; }
+  .recent-week-stat strong { font-size: 18px; }
+}

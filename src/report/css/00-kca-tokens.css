@@ -1,19 +1,18 @@
-/* kca Design System v3 — Premium OLED Glass 2026 */
+/* kca Design System v4 — Amber & Deep Navy Premium Glass */
 :root {
   color-scheme: light dark;
-  /* ── Surface ── */
-  --oled-void: #060910;
-  --oled-deep: #020408;
-  --bg: #0a0d14;
-  --bg2: #000000;
-  --ink: #f0f4fa;
-  --muted: #7e8da4;
-  --line: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.18);
-  --panel: rgba(255, 255, 255, 0.04);
-  --panel-solid: #0f1219;
 
-  /* ── Accent palette ── */
+  /* ── Surface ── */
+  --bg: #0a0a0f;
+  --bg2: #050508;
+  --ink: #f0f0f5;
+  --muted: #8a8fa6;
+  --line: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.16);
+  --panel: rgba(255, 255, 255, 0.035);
+  --panel-solid: #0e0f17;
+
+  /* ── Accent: Amber + Red ── */
   --accent: #f59e0b;
   --accent2: #ef4444;
   --warm: #f97316;
@@ -24,38 +23,39 @@
   --sky: #38bdf8;
 
   /* ── Glow system ── */
-  --glow: color-mix(in oklab, #f59e0b 20%, transparent);
-  --glow-violet: color-mix(in oklab, #ef4444 16%, transparent);
-  --glow-warm: color-mix(in oklab, #f97316 14%, transparent);
-  --glow-amber: color-mix(in oklab, #d97706 16%, transparent);
-  --spot-glow: color-mix(in oklab, #f59e0b 40%, transparent);
+  --glow: color-mix(in oklab, #f59e0b 18%, transparent);
+  --glow-red: color-mix(in oklab, #ef4444 14%, transparent);
+  --glow-warm: color-mix(in oklab, #f97316 12%, transparent);
+  --glow-amber: color-mix(in oklab, #d97706 14%, transparent);
+  --spot-glow: color-mix(in oklab, #f59e0b 36%, transparent);
 
   /* ── Shadow system ── */
-  --shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-  --shadow-glow: 0 0 48px color-mix(in oklab, var(--accent) 28%, transparent);
-  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px color-mix(in oklab, var(--accent) 20%, transparent);
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  --shadow-glow: 0 0 48px color-mix(in oklab, var(--accent) 25%, transparent);
+  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px color-mix(in oklab, var(--accent) 18%, transparent);
 
   /* ── Bar & viz ── */
   --bar-bg: rgba(255, 255, 255, 0.05);
 
   /* ── Glass system ── */
-  --glass: rgba(10, 14, 22, 0.6);
-  --glass-strong: rgba(6, 8, 14, 0.88);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glass: rgba(10, 10, 15, 0.55);
+  --glass-strong: rgba(6, 6, 10, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
   --glass-blur: 20px;
   --glass-blur-heavy: 32px;
   --glass-saturate: 1.5;
 
   /* ── Gradients ── */
-  --accent-grad: linear-gradient(130deg, #f59e0b 0%, #f97316 45%, #ef4444 100%);
-  --accent-grad-soft: linear-gradient(120deg, color-mix(in oklab, #f59e0b 35%, transparent), color-mix(in oklab, #f97316 22%, transparent));
-  --gradient-hero: linear-gradient(135deg, color-mix(in oklab, #f59e0b 12%, transparent) 0%, color-mix(in oklab, #f97316 8%, transparent) 50%, color-mix(in oklab, #ef4444 6%, transparent) 100%);
+  --accent-grad: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ef4444 100%);
+  --accent-grad-soft: linear-gradient(120deg, color-mix(in oklab, #f59e0b 32%, transparent), color-mix(in oklab, #f97316 20%, transparent));
+  --gradient-hero: linear-gradient(135deg, color-mix(in oklab, #f59e0b 10%, transparent) 0%, color-mix(in oklab, #f97316 7%, transparent) 50%, color-mix(in oklab, #ef4444 5%, transparent) 100%);
   --gradient-accent: linear-gradient(135deg, var(--accent), var(--accent2));
   --gradient-warm: linear-gradient(135deg, var(--warm), var(--amber));
-  --border-shine: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.12) 100%);
+  --gradient-border: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(239, 68, 68, 0.15) 50%, rgba(245, 158, 11, 0.1) 100%);
+  --border-shine: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.1) 100%);
 
   /* ── Radius ── */
   --radius-card: 18px;
@@ -92,10 +92,10 @@
   --hours-pm-bg: rgba(234, 88, 12, 0.18);
   --table-stripe: rgba(255, 255, 255, 0.02);
   --topic-chip-bg: rgba(255, 255, 255, 0.05);
-  --kw-bar-fill: rgba(139, 148, 255, 0.5);
-  --kw-bar-rank1: #a78bfa;
-  --kw-bar-rank2: #818cf8;
-  --kw-bar-rank3: #5b9bd5;
+  --kw-bar-fill: rgba(245, 158, 11, 0.45);
+  --kw-bar-rank1: #f59e0b;
+  --kw-bar-rank2: #f97316;
+  --kw-bar-rank3: #d97706;
   --day-fg-low: #e9eef5;
   --day-fg-high: #f4f8f7;
 
@@ -121,121 +121,115 @@
   --section-gap: clamp(16px, 2.5vw, 28px);
   --heading-gap: clamp(8px, 1.4vw, 14px);
   --content-pad: clamp(12px, 2vw, 20px);
+
   font-family: var(--kca-font-sans);
 }
 
 /* ── Light mode ── */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --oled-void: #e8ecf4;
-    --oled-deep: #dfe4ee;
-    --bg: #f0f2f8;
-    --bg2: #e6eaf4;
-    --ink: #0b0f16;
-    --muted: #5a6578;
-    --line: rgba(15, 20, 30, 0.08);
+    --bg: #f5f5f0;
+    --bg2: #edecea;
+    --ink: #1a1a2e;
+    --muted: #6b6d7a;
+    --line: rgba(20, 20, 40, 0.08);
     --panel: rgba(255, 255, 255, 0.85);
     --panel-solid: #ffffff;
-    --accent: #0d9488;
-    --accent2: #7c3aed;
+    --accent: #d97706;
+    --accent2: #dc2626;
     --warm: #ea580c;
     --gold: #ca8a04;
     --rose: #e11d48;
     --amber: #b45309;
-    --shadow: 0 8px 32px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.04);
-    --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
-    --shadow-lg: 0 16px 48px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05);
+    --shadow: 0 8px 32px rgba(15, 15, 30, 0.06), 0 0 0 1px rgba(15, 15, 30, 0.04);
+    --shadow-sm: 0 2px 8px rgba(15, 15, 30, 0.04);
+    --shadow-lg: 0 16px 48px rgba(15, 15, 30, 0.08), 0 0 0 1px rgba(15, 15, 30, 0.05);
     --shadow-glow: 0 0 24px color-mix(in oklab, var(--accent) 10%, transparent);
-    --shadow-card-hover: 0 12px 36px rgba(15, 23, 42, 0.08), 0 0 0 1px color-mix(in oklab, var(--accent) 12%, transparent);
-    --glass: rgba(255, 255, 255, 0.9);
-    --glass-strong: rgba(255, 255, 255, 0.95);
-    --glass-border: rgba(15, 23, 42, 0.08);
-    --glass-highlight: rgba(255, 255, 255, 0.98);
-    --glow: color-mix(in oklab, var(--accent) 8%, transparent);
-    --glow-violet: color-mix(in oklab, var(--accent2) 6%, transparent);
-    --glow-warm: color-mix(in oklab, var(--warm) 5%, transparent);
-    --bar-bg: rgba(15, 23, 42, 0.06);
-    --glow: color-mix(in oklab, var(--accent) 12%, transparent);
-    --glow-violet: color-mix(in oklab, var(--accent2) 10%, transparent);
-    --glow-warm: color-mix(in oklab, var(--warm) 8%, transparent);
-    --glow-amber: color-mix(in oklab, var(--amber) 10%, transparent);
-    --glass: rgba(255, 255, 255, 0.75);
+    --shadow-card-hover: 0 12px 36px rgba(15, 15, 30, 0.07), 0 0 0 1px color-mix(in oklab, var(--accent) 12%, transparent);
+    --glass: rgba(255, 255, 255, 0.72);
     --glass-strong: rgba(255, 255, 255, 0.9);
     --glass-border: rgba(255, 255, 255, 0.6);
     --glass-highlight: rgba(255, 255, 255, 0.92);
     --glass-saturate: 1.2;
-    --spot-glow: color-mix(in oklab, var(--accent) 24%, transparent);
-    --accent-grad: linear-gradient(125deg, #0d9488, #7c3aed 55%, #ea580c);
+    --glow: color-mix(in oklab, var(--accent) 10%, transparent);
+    --glow-red: color-mix(in oklab, var(--accent2) 8%, transparent);
+    --glow-warm: color-mix(in oklab, var(--warm) 7%, transparent);
+    --glow-amber: color-mix(in oklab, var(--amber) 9%, transparent);
+    --spot-glow: color-mix(in oklab, var(--accent) 22%, transparent);
+    --bar-bg: rgba(15, 15, 30, 0.06);
+    --accent-grad: linear-gradient(135deg, #d97706, #ea580c 50%, #dc2626);
     --gradient-hero: linear-gradient(135deg, color-mix(in oklab, var(--accent) 8%, var(--bg)), color-mix(in oklab, var(--accent2) 5%, var(--bg)));
+    --gradient-border: linear-gradient(135deg, rgba(217, 119, 6, 0.2) 0%, rgba(220, 38, 38, 0.1) 50%, rgba(217, 119, 6, 0.08) 100%);
     --hours-am-fg: #0c4a6e;
     --hours-am-bg: rgba(8, 145, 178, 0.12);
     --hours-pm-fg: #9a3412;
     --hours-pm-bg: rgba(234, 88, 12, 0.12);
-    --table-stripe: rgba(15, 107, 92, 0.03);
+    --table-stripe: rgba(217, 119, 6, 0.03);
     --topic-chip-bg: color-mix(in srgb, var(--accent) 10%, var(--panel));
-    --kw-bar-fill: rgba(79, 70, 229, 0.4);
-    --kw-bar-rank1: #6366f1;
-    --kw-bar-rank2: #818cf8;
-    --kw-bar-rank3: #5b9bd5;
+    --kw-bar-fill: rgba(217, 119, 6, 0.35);
+    --kw-bar-rank1: #d97706;
+    --kw-bar-rank2: #ea580c;
+    --kw-bar-rank3: #b45309;
   }
 }
 
 /* ── Forced dark ── */
 :root[data-theme="dark"] {
-  --bg: #0a0d14;
-  --bg2: #000000;
-  --ink: #f0f4fa;
-  --muted: #7e8da4;
-  --line: rgba(255, 255, 255, 0.08);
-  --panel: rgba(255, 255, 255, 0.04);
-  --panel-solid: #0f1219;
-  --accent: #2ef2d0;
-  --accent2: #b8a9ff;
-  --warm: #ff9a45;
-  --gold: #fde047;
-  --rose: #ff6b9d;
+  --bg: #0a0a0f;
+  --bg2: #050508;
+  --ink: #f0f0f5;
+  --muted: #8a8fa6;
+  --line: rgba(255, 255, 255, 0.07);
+  --panel: rgba(255, 255, 255, 0.035);
+  --panel-solid: #0e0f17;
+  --accent: #f59e0b;
+  --accent2: #ef4444;
+  --warm: #f97316;
+  --gold: #fbbf24;
+  --rose: #fb7185;
   --amber: #d97706;
-  --shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-  --shadow-glow: 0 0 48px color-mix(in oklab, var(--accent) 28%, transparent);
-  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px color-mix(in oklab, var(--accent) 20%, transparent);
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  --shadow-glow: 0 0 48px color-mix(in oklab, var(--accent) 25%, transparent);
+  --shadow-card-hover: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px color-mix(in oklab, var(--accent) 18%, transparent);
   --bar-bg: rgba(255, 255, 255, 0.05);
-  --glow: color-mix(in oklab, var(--accent) 20%, transparent);
-  --glow-violet: color-mix(in oklab, var(--accent2) 16%, transparent);
-  --glow-warm: color-mix(in oklab, var(--warm) 14%, transparent);
-  --glow-amber: color-mix(in oklab, var(--amber) 16%, transparent);
-  --glass: rgba(10, 14, 22, 0.6);
-  --glass-strong: rgba(6, 8, 14, 0.88);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glow: color-mix(in oklab, var(--accent) 18%, transparent);
+  --glow-red: color-mix(in oklab, var(--accent2) 14%, transparent);
+  --glow-warm: color-mix(in oklab, var(--warm) 12%, transparent);
+  --glow-amber: color-mix(in oklab, var(--amber) 14%, transparent);
+  --glass: rgba(10, 10, 15, 0.55);
+  --glass-strong: rgba(6, 6, 10, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
   --glass-saturate: 1.5;
-  --spot-glow: color-mix(in oklab, var(--accent) 40%, transparent);
-  --accent-grad: linear-gradient(130deg, var(--accent) 0%, var(--accent2) 45%, var(--warm) 100%);
-  --gradient-hero: linear-gradient(135deg, color-mix(in oklab, var(--accent) 12%, transparent), color-mix(in oklab, var(--accent2) 8%, transparent));
+  --spot-glow: color-mix(in oklab, var(--accent) 36%, transparent);
+  --accent-grad: linear-gradient(135deg, var(--accent) 0%, var(--warm) 50%, var(--accent2) 100%);
+  --gradient-hero: linear-gradient(135deg, color-mix(in oklab, var(--accent) 10%, transparent), color-mix(in oklab, var(--accent2) 7%, transparent));
+  --gradient-border: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(239, 68, 68, 0.15) 50%, rgba(245, 158, 11, 0.1) 100%);
   --hours-am-fg: #7dd3fc;
   --hours-am-bg: rgba(8, 145, 178, 0.2);
   --hours-pm-fg: #fdba74;
   --hours-pm-bg: rgba(234, 88, 12, 0.18);
   --table-stripe: rgba(255, 255, 255, 0.02);
   --topic-chip-bg: rgba(255, 255, 255, 0.05);
-  --kw-bar-fill: rgba(139, 148, 255, 0.5);
-  --kw-bar-rank1: #a78bfa;
-  --kw-bar-rank2: #818cf8;
-  --kw-bar-rank3: #5b9bd5;
+  --kw-bar-fill: rgba(245, 158, 11, 0.45);
+  --kw-bar-rank1: #f59e0b;
+  --kw-bar-rank2: #f97316;
+  --kw-bar-rank3: #d97706;
 }
 
 /* ── Forced light ── */
 :root[data-theme="light"] {
-  --bg: #eef1f8;
-  --bg2: #e2e7f2;
-  --ink: #0b0f16;
-  --muted: #5a6578;
-  --line: rgba(15, 20, 30, 0.1);
+  --bg: #f5f5f0;
+  --bg2: #edecea;
+  --ink: #1a1a2e;
+  --muted: #6b6d7a;
+  --line: rgba(20, 20, 40, 0.08);
   --panel: rgba(255, 255, 255, 0.7);
   --panel-solid: #ffffff;
-  --accent: #0d9488;
-  --accent2: #7c3aed;
+  --accent: #d97706;
+  --accent2: #dc2626;
   --warm: #ea580c;
   --gold: #ca8a04;
   --rose: #e11d48;

@@ -1,4 +1,5 @@
-/* kca Base v3 — Reset, Typography, Layout, Animations */
+/* kca Base v4 — Reset, Typography, Layout, Animations, Korean Optimized */
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
@@ -19,52 +20,57 @@ body.kca-oled {
   min-height: 100dvh;
   background-color: var(--bg2);
   background-image:
-    radial-gradient(ellipse 110% 70% at 50% -25%, var(--glow-violet), transparent 52%),
-    radial-gradient(ellipse 80% 55% at 95% 15%, var(--glow-warm), transparent 48%),
-    radial-gradient(ellipse 75% 45% at 5% 55%, var(--glow), transparent 45%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 38%, var(--oled-deep) 100%);
+    radial-gradient(ellipse 120% 60% at 50% -20%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 55%),
+    radial-gradient(ellipse 90% 50% at 100% 10%, color-mix(in oklab, var(--accent2) 6%, transparent), transparent 45%),
+    radial-gradient(ellipse 80% 40% at 0% 60%, color-mix(in oklab, var(--accent) 5%, transparent), transparent 40%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, #050508 100%);
   color: var(--ink);
   font-family: var(--kca-font-sans);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  word-break: keep-all;
   transition: background 0.5s var(--ease-out), color 0.3s var(--ease-out);
 }
 
+/* Aurora mesh background */
 body.kca-oled::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.28;
   background:
-    radial-gradient(circle at 25% 35%, var(--glow) 0%, transparent 40%),
-    radial-gradient(circle at 75% 15%, var(--glow-violet) 0%, transparent 36%),
-    radial-gradient(circle at 50% 80%, var(--glow-warm) 0%, transparent 42%);
+    radial-gradient(ellipse 600px 400px at 25% 25%, var(--glow) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 350px at 75% 15%, var(--glow-red) 0%, transparent 55%),
+    radial-gradient(ellipse 450px 300px at 50% 75%, var(--glow-warm) 0%, transparent 50%),
+    radial-gradient(ellipse 350px 250px at 85% 65%, var(--glow-amber) 0%, transparent 45%);
   animation: kca-aurora 20s ease-in-out infinite alternate;
 }
 
+/* Noise texture overlay */
 body.kca-oled::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 200px 200px;
+  mix-blend-mode: overlay;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--accent) 30%, transparent);
+  background: color-mix(in oklab, var(--accent) 28%, transparent);
   color: var(--ink);
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
   border-radius: 4px;
 }
 
@@ -73,11 +79,11 @@ main {
   margin: 0 auto;
   padding: 0 var(--content-pad);
 }
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
   main { padding: 0 clamp(20px, 3vw, 48px); }
 }
 
-/* ── Bento Grid System ── */
+/* ── Grid System ── */
 .kca-bento-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -89,25 +95,31 @@ main {
 .grid { display: grid; gap: var(--section-gap); }
 .grid.two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
 
-/* ── Typography ── */
-h1, h2, h3, h4 { margin: 0 0 var(--heading-gap); letter-spacing: -0.02em; line-height: 1.2; }
+/* ── Typography — Korean optimized ── */
+h1, h2, h3, h4 {
+  margin: 0 0 var(--heading-gap);
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
 h1 { font-size: var(--font-size-display); font-weight: 900; }
 h2 { font-size: var(--font-size-h2); font-weight: 800; }
 h3 { font-size: var(--font-size-h3); font-weight: 750; }
-p { margin: 0 0 0.6em; }
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
+p { margin: 0 0 0.65em; line-height: 1.7; }
+a { color: var(--accent); text-decoration: none; transition: color var(--duration-fast) var(--ease-smooth); }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
 strong { font-weight: 750; }
 small { font-size: var(--font-size-small); }
 code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-radius: 4px; }
 
-/* ── Scroll-triggered Animations ── */
+/* ── Keyframe Animations ── */
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(28px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.9); }
+  from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
 }
 @keyframes shimmer {
@@ -119,9 +131,10 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   50% { box-shadow: 0 0 24px 6px var(--glow); }
 }
 @keyframes kca-aurora {
-  0% { opacity: 0.3; transform: scale(1) rotate(0deg); }
-  50% { opacity: 0.22; transform: scale(1.04) rotate(1deg); }
-  100% { opacity: 0.3; transform: scale(1) rotate(-1deg); }
+  0% { opacity: 0.28; transform: scale(1) rotate(0deg); }
+  33% { opacity: 0.2; transform: scale(1.03) rotate(0.5deg); }
+  66% { opacity: 0.24; transform: scale(1.01) rotate(-0.5deg); }
+  100% { opacity: 0.28; transform: scale(1) rotate(0deg); }
 }
 @keyframes slide-in-right {
   from { opacity: 0; transform: translateX(24px); }
@@ -129,8 +142,13 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 }
 @keyframes count-pulse {
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  40% { transform: scale(1.06); }
   100% { transform: scale(1); }
+}
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Animation utility classes */
@@ -141,14 +159,14 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 }
 .anim-scale { animation: scale-in 0.5s var(--ease-spring) forwards; }
 .anim-slide-right { animation: slide-in-right 0.5s var(--ease-out) forwards; }
-.anim-stagger-1 { --enter-delay: 0.04s; }
-.anim-stagger-2 { --enter-delay: 0.08s; }
-.anim-stagger-3 { --enter-delay: 0.12s; }
-.anim-stagger-4 { --enter-delay: 0.16s; }
-.anim-stagger-5 { --enter-delay: 0.2s; }
-.anim-stagger-6 { --enter-delay: 0.24s; }
-.anim-stagger-7 { --enter-delay: 0.28s; }
-.anim-stagger-8 { --enter-delay: 0.32s; }
+.anim-stagger-1 { --enter-delay: 0.05s; }
+.anim-stagger-2 { --enter-delay: 0.1s; }
+.anim-stagger-3 { --enter-delay: 0.15s; }
+.anim-stagger-4 { --enter-delay: 0.2s; }
+.anim-stagger-5 { --enter-delay: 0.25s; }
+.anim-stagger-6 { --enter-delay: 0.3s; }
+.anim-stagger-7 { --enter-delay: 0.35s; }
+.anim-stagger-8 { --enter-delay: 0.4s; }
 
 /* IntersectionObserver trigger */
 [data-observe] {
@@ -166,7 +184,42 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   transition: transform 0.3s var(--ease-spring);
 }
 [data-countup].counted {
-  animation: count-pulse 0.4s var(--ease-spring);
+  animation: count-pulse 0.45s var(--ease-spring);
+}
+
+/* ProgressCircle container */
+.progress-circle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.progress-circle svg {
+  transform: rotate(-90deg);
+}
+.progress-circle__track {
+  fill: none;
+  stroke: var(--bar-bg);
+}
+.progress-circle__fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s var(--ease-out);
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+  body.kca-oled::before { animation: none; opacity: 0.2; }
+  [data-observe] { opacity: 1; transform: none; transition: none; }
+  .anim-enter { opacity: 1; animation: none; }
+  .anim-scale, .anim-slide-right { animation: none; }
 }
 
 /* ── Print ── */

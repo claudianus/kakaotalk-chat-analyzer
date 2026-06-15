@@ -1,48 +1,88 @@
-/* LLM Story Deck — archetype, episodes, moments, memes */
+/* LLM Story Deck v5 — Premium Glassmorphism */
+
+/* ── Shared scroll-margin ── */
 .llm-archetype-banner,
 .llm-episode-strip,
 .llm-char-grid {
   scroll-margin-top: var(--kca-topbar-offset, 104px);
 }
+
+/* ── Archetype Banner ── */
 .llm-archetype-banner {
   margin-bottom: var(--kca-section-gap, 16px);
-  padding: 18px 20px;
-  border-radius: var(--radius-lg, 16px);
-  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 18%, var(--card)) 0%, var(--card) 70%);
-  border: 1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  padding: 24px 26px;
+  border-radius: var(--radius-card-lg, 24px);
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 14%, var(--glass)) 0%, var(--glass) 60%, color-mix(in oklab, var(--accent2) 6%, var(--glass)) 100%);
+  border: 1px solid color-mix(in oklab, var(--accent) 28%, var(--glass-border));
+  backdrop-filter: blur(var(--glass-blur-heavy, 32px)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy, 32px)) saturate(var(--glass-saturate));
+  box-shadow:
+    var(--shadow),
+    inset 0 1px 0 var(--glass-highlight),
+    0 0 48px color-mix(in oklab, var(--accent) 8%, transparent);
+  position: relative;
+  overflow: hidden;
+}
+.llm-archetype-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--gradient-hero);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.llm-archetype-inner {
+  position: relative;
+  z-index: 1;
 }
 .llm-archetype-kicker {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--muted);
+  color: var(--accent);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 .llm-archetype-name {
-  margin: 0 0 8px;
-  font-size: 22px;
+  margin: 0 0 10px;
+  font-size: clamp(22px, 3.5vw, 30px);
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .llm-archetype-desc {
-  margin: 0 0 10px;
+  margin: 0 0 14px;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
+  color: var(--ink);
 }
 .llm-trait-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 .llm-trait-chip {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--bar-bg);
-  color: var(--ink);
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in oklab, var(--accent) 22%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform var(--duration-fast) var(--ease-spring), background var(--duration-fast);
 }
+.llm-trait-chip:hover {
+  transform: scale(1.05);
+  background: color-mix(in oklab, var(--accent) 20%, transparent);
+}
+
+/* ── Episode Strip ── */
 .llm-episode-strip {
   position: relative;
   margin-bottom: var(--kca-section-gap, 16px);
@@ -58,16 +98,17 @@
   background: linear-gradient(to left, var(--bg, var(--surface)) 0%, transparent 100%);
 }
 .llm-strip-title {
-  margin: 0 0 10px;
-  font-size: clamp(17px, 2.4vw, 20px);
+  margin: 0 0 12px;
+  font-size: clamp(17px, 2.4vw, 22px);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  color: var(--ink);
 }
 .llm-episode-scroll {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
-  padding: 2px 2px 10px;
+  padding: 4px 4px 12px;
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 4px;
   -webkit-overflow-scrolling: touch;
@@ -78,45 +119,64 @@
   height: 6px;
 }
 .llm-episode-scroll::-webkit-scrollbar-thumb {
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: color-mix(in oklab, var(--accent) 40%, var(--line));
 }
 .llm-episode-card {
-  flex: 0 0 min(248px, 82vw);
+  flex: 0 0 min(256px, 82vw);
   scroll-snap-align: start;
-  padding: 14px 16px;
-  min-height: 132px;
-  border-radius: 14px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow, 0 2px 12px rgba(0, 0, 0, 0.06));
+  padding: 18px 20px;
+  min-height: 140px;
+  border-radius: 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition:
+    border-color var(--duration-normal) var(--ease-smooth),
+    transform var(--duration-normal) var(--ease-spring),
+    box-shadow var(--duration-normal);
+}
+.llm-episode-card:hover {
+  border-color: color-mix(in oklab, var(--accent) 28%, transparent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px color-mix(in oklab, var(--accent) 12%, transparent), inset 0 1px 0 var(--glass-highlight);
 }
 .llm-episode-emoji {
-  font-size: 28px;
+  font-size: 32px;
   line-height: 1;
 }
 .llm-episode-period {
   margin: 6px 0 2px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--muted);
+  color: var(--accent);
+  letter-spacing: 0.02em;
 }
 .llm-episode-title {
   margin: 0 0 4px;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
 }
 .llm-episode-tagline {
   margin: 0;
   font-size: 12px;
   color: var(--muted);
-  line-height: 1.45;
+  line-height: 1.5;
 }
+
+/* ── Moments Grid ── */
 .llm-moments-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 @media (max-width: 559px) {
   .llm-moments-grid {
@@ -124,22 +184,33 @@
   }
 }
 .llm-moment-card {
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: var(--bar-bg);
-  border: 1px solid var(--line);
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
   min-height: 4.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+  transition: border-color var(--duration-normal) var(--ease-smooth), transform var(--duration-normal) var(--ease-spring);
+}
+.llm-moment-card:hover {
+  border-color: color-mix(in oklab, var(--accent) 22%, transparent);
+  transform: translateY(-2px);
 }
 .llm-moment-card h3 {
   margin: 0 0 6px;
   font-size: 14px;
   font-weight: 750;
+  color: var(--ink);
 }
 .llm-moment-ref {
   margin: 0;
   font-size: 11px;
   color: var(--muted);
 }
+
+/* ── Relationship Beats ── */
 .llm-beat-list {
   list-style: none;
   padding: 0;
@@ -148,53 +219,102 @@
   gap: 8px;
 }
 .llm-beat-card {
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--bar-bg);
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
   font-size: 13px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color var(--duration-normal) var(--ease-smooth);
+}
+.llm-beat-card:hover {
+  border-color: color-mix(in oklab, var(--rose, var(--accent)) 28%, transparent);
 }
 .llm-beat-card span {
   display: block;
   margin-top: 4px;
   color: var(--muted);
 }
+
+/* ── Character Cards ── */
 .llm-char-grid {
   margin-bottom: var(--kca-section-gap, 16px);
 }
 .llm-char-row {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 .llm-char-card {
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  min-height: 108px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  min-height: 112px;
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
+  transition:
+    border-color var(--duration-normal) var(--ease-smooth),
+    transform var(--duration-normal) var(--ease-spring),
+    box-shadow var(--duration-normal);
+  position: relative;
+  overflow: hidden;
+}
+.llm-char-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-grad);
+  opacity: 0.6;
+  border-radius: 16px 16px 0 0;
+}
+.llm-char-card:hover {
+  border-color: color-mix(in oklab, var(--accent) 28%, transparent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px color-mix(in oklab, var(--accent) 12%, transparent), inset 0 1px 0 var(--glass-highlight);
 }
 .llm-char-card h3 {
   margin: 0 0 6px;
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.llm-char-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
 }
 .llm-char-stat {
   display: block;
-  margin-top: 8px;
+  margin-top: auto;
+  padding-top: 10px;
   font-size: 12px;
   font-weight: 700;
   color: var(--accent);
 }
+
+/* ── Inside Jokes / Memes ── */
 .llm-meme-row {
-  margin: 14px 0 4px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px dashed color-mix(in oklab, var(--accent2, var(--accent)) 35%, var(--line));
-  background: color-mix(in oklab, var(--accent2, var(--accent)) 6%, var(--card));
+  margin: 16px 0 4px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--accent2, var(--accent)) 28%, var(--glass-border));
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 .llm-meme-row .insight-sub {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
 }
 .llm-meme-chips {
   display: flex;
@@ -204,40 +324,153 @@
 .llm-meme-chip {
   font-size: 13px;
   font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--accent2) 20%, var(--card));
-  border: 1px solid color-mix(in oklab, var(--accent2) 40%, transparent);
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--accent2) 14%, var(--glass));
+  border: 1px solid color-mix(in oklab, var(--accent2) 30%, transparent);
+  color: var(--ink);
   cursor: help;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform var(--duration-fast) var(--ease-spring), background var(--duration-fast), box-shadow var(--duration-fast);
+  box-shadow: 0 2px 8px color-mix(in oklab, var(--accent2) 8%, transparent);
 }
-.llm-era-labels ul,
+.llm-meme-chip:hover {
+  transform: scale(1.06) translateY(-1px);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--accent2) 16%, transparent);
+  background: color-mix(in oklab, var(--accent2) 22%, var(--glass));
+}
+
+/* ── Era Labels ── */
+.llm-era-labels {
+  margin: 16px 0;
+}
+.llm-era-labels ul {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.llm-era-labels li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 13px;
+  transition: border-color var(--duration-normal) var(--ease-smooth);
+}
+.llm-era-labels li:hover {
+  border-color: color-mix(in oklab, var(--accent) 22%, transparent);
+}
+.llm-era-labels li strong {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+.llm-era-labels li span {
+  color: var(--muted);
+}
+
+/* ── Day Micro Stories ── */
+.llm-day-stories {
+  margin: 16px 0;
+}
 .llm-day-stories ul {
   margin: 8px 0 0;
-  padding-left: 1.1rem;
-  font-size: 13px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
 }
-.llm-share-block {
-  margin: 16px 0;
-  padding: 14px 16px;
+.llm-day-stories li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px;
   border-radius: 12px;
-  background: var(--bar-bg);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 13px;
+  line-height: 1.5;
+  transition: border-color var(--duration-normal) var(--ease-smooth);
+}
+.llm-day-stories li:hover {
+  border-color: color-mix(in oklab, var(--accent) 22%, transparent);
+}
+.llm-day-stories li time {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+/* ── Share Footer ── */
+.llm-share-block {
+  margin: 20px 0;
+  padding: 20px 24px;
+  border-radius: 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.llm-share-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--gradient-hero);
+  opacity: 0.2;
+  pointer-events: none;
 }
 .llm-share-line {
-  margin: 0 0 8px;
-  font-size: 15px;
+  margin: 0 0 10px;
+  font-size: 16px;
   font-weight: 750;
+  color: var(--ink);
+  position: relative;
+  z-index: 1;
 }
 .llm-hash-row {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--accent);
+  position: relative;
+  z-index: 1;
+}
+.llm-hash {
+  display: inline-block;
+  padding: 3px 10px;
+  margin: 2px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+  font-weight: 700;
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+.llm-hash:hover {
+  transform: scale(1.05);
 }
 .llm-counterfactual {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   font-size: 12px;
   color: var(--muted);
+  position: relative;
+  z-index: 1;
 }
+
+/* ── Misc ── */
 .fact-more {
   margin-top: 12px;
 }

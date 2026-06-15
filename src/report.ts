@@ -416,17 +416,19 @@ function renderTopicTrendSection(data: ReportData): string {
     const rows = data.weeklyTopicTrend
       .map(
         (t) =>
-          `<tr><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
-            .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong>${formatNumber(topic.value)}</strong></span>`)
+          `<tr data-observe><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
+            .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong data-countup="${topic.value}">${formatNumber(topic.value)}</strong></span>`)
             .join("")}</td></tr>`,
       )
       .join("");
-    weeklyHtml = `<h3>주간 토픽 트렌드</h3>
+    weeklyHtml = `<h3>📈 주간 토픽 트렌드</h3>
       <p class="chart-hint">주차별 상위 키워드 등장 횟수 변화.</p>
-      <table class="table">
-        <thead><tr><th>주차</th><th>상위 키워드</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>`;
+      <div class="glass-table-wrap" data-observe>
+        <table class="table table-glass">
+          <thead><tr><th>주차</th><th>상위 키워드</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
   }
 
   let monthlyHtml = "";
@@ -434,21 +436,23 @@ function renderTopicTrendSection(data: ReportData): string {
     const rows = data.topicTrend
       .map(
         (t) =>
-          `<tr><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
-            .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong>${formatNumber(topic.value)}</strong></span>`)
+          `<tr data-observe><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
+            .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong data-countup="${topic.value}">${formatNumber(topic.value)}</strong></span>`)
             .join("")}</td></tr>`,
       )
       .join("");
-    monthlyHtml = `<details class="trend-monthly-fold"><summary>월별 토픽 트랜드 (접기)</summary>
-      <table class="table">
-        <thead><tr><th>기간</th><th>상위 키워드</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+    monthlyHtml = `<details class="trend-monthly-fold"><summary>📅 월별 토픽 트랜드 (접기)</summary>
+      <div class="glass-table-wrap">
+        <table class="table table-glass">
+          <thead><tr><th>기간</th><th>상위 키워드</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
     </details>`;
   }
 
   return `<section id="s-topic-trend" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.054s">
-    <h2>토픽 트렌드</h2>
+    <h2>📈 토픽 트렌드</h2>
     ${weeklyHtml}
     ${monthlyHtml}
   </section>`;
@@ -475,17 +479,17 @@ function renderHelpGlossary(): string {
 function renderFactMatrix(data: ReportData): string {
   const s = data.summary;
   const ins = data.insights;
-  // Bento-style hero KPIs with icons
-  const heroKpis: [string, string, string][] = [
-    ["💬", "총 메시지", formatNumber(s.totalMessages)],
-    ["👥", "참여자", formatNumber(s.participants)],
-    ["📅", "활동일", formatNumber(s.activeDays)],
-    ["⚡", "일평균", String(s.messagesPerActiveDay)],
+  // Bento-style hero KPIs with icons + CountUp animation targets
+  const heroKpis: [string, string, string, number | string][] = [
+    ["💬", "총 메시지", formatNumber(s.totalMessages), s.totalMessages],
+    ["👥", "참여자", formatNumber(s.participants), s.participants],
+    ["📅", "활동일", formatNumber(s.activeDays), s.activeDays],
+    ["⚡", "일평균", String(s.messagesPerActiveDay), s.messagesPerActiveDay],
   ];
   const heroHtml = heroKpis
-    .map(([icon, label, value]) => `<div class="fact-hero-cell" data-observe>
+    .map(([icon, label, value, raw]) => `<div class="fact-hero-cell" data-observe>
       <b>${icon} ${escapeHtml(label)}</b>
-      <span>${escapeHtml(value)}</span>
+      <span data-countup="${raw}">${escapeHtml(value)}</span>
     </div>`)
     .join("");
 
@@ -500,7 +504,7 @@ function renderFactMatrix(data: ReportData): string {
     ["화자전환·100", String(ins.speakerSwitchRatePer100)],
   ];
   const coreInner = core
-    .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
+    .map(([k, v]) => `<div class="fact-cell" data-observe><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
     .join("");
 
   const extra: [string, string][] = [
@@ -518,8 +522,8 @@ function renderFactMatrix(data: ReportData): string {
   return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>📊 핵심 숫자</h2>
     ${renderSampleBadge(data)}
-    <div class="fact-hero-strip" aria-label="핵심 KPI">${heroHtml}</div>
-    <div class="fact-grid">${coreInner}</div>
+    <div class="fact-hero-strip" aria-label="핵심 KPI" data-observe>${heroHtml}</div>
+    <div class="fact-grid" data-observe>${coreInner}</div>
     <details class="fact-more"><summary>더 많은 지표</summary><div class="fact-grid">${extraInner}</div></details>
   </section>`;
 }
@@ -572,62 +576,6 @@ function renderInsightDeck(data: ReportData): string {
     <div class="insight-head">
       <div>
         <h2>📊 분위기·리듬 (고급 인사이트)</h2>
-        <p class="insight-lede">참여·응답·링크 분포를 한눈에 보여주는 <strong>패턴 지표</strong>예요. <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑥ 용어 설명</a></p>
-      </div>
-      <div class="rh-wrap anim-ring" aria-label="리듬 점수" data-observe>
-        <div class="rh-ring" style="--p:${ins.rhythmScore}"><span></span></div>
-        <div class="rh-cap"><strong>리듬</strong><span>${ins.rhythmScore}<small>/100</small></span></div>
-      </div>
-    </div>
-    <div class="insight-grid" data-observe>
-      ${insMetric("📊 주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
-      ${insMetric("👥 참여 지니", giniStr, giniMetricSub(ins.participantGini, data.summary.participants))}
-      ${insMetric("⏱️ 응답 상위10%", p90, "느린 쪽 10% 구간")}
-      ${insMetric("⏸️ 최장 공백", silence, "활동일 사이 최대 휴지")}
-      ${insMetric("🏆 상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
-      ${insMetric("🔄 화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
-      ${linkEntropyMetric(data, ins)}
-      ${insMetric("❓ 질문 수", `${ins.questionLikeMessagesPer100}/100`, "100메시지당 물음표 포함")}
-      ${insMetric("💬 독백 비중", `${ins.monologueMessagesPercent}%`, "3연속 이상 동일인 메시지")}
-      ${sessionMetric}
-      ${insMetric("📈 최고 활동일", `${ins.peakDaySharePercent}%`, "전체 중 일별 최대 비중")}
-      ${insMetric("🔗 고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
-      ${insMetric("📝 평균 길이", `${data.summary.averageMessageLength}자`, "메시지당 평균 글자 수")}
-      ${insMetric("🌙 심야 비중", `${data.summary.nightSharePercent}%`, "23시~05시 메시지 비율")}
-    </div>
-    ${renderLlmInsideJokes(data)}
-    ${renderEmojiInsight(data.emojiInsight)}
-    ${renderParticipantEmojiStats(data.participantEmojiStats)}
-    ${renderHonorificInsight(data.honorificInsight)}
-    <div class="insight-split" data-observe>
-        <p class="insight-lede">참여·응답·링크 분포를 한눈에 보여주는 <strong>패턴 지표</strong>예요. <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑥ 용어 설명</a></p>
-      </div>
-      <div class="rh-wrap anim-ring" aria-label="리듬 점수" data-observe>
-        <div class="rh-ring" style="--p:${ins.rhythmScore}"><span></span></div>
-        <div class="rh-cap"><strong>리듬</strong><span>${ins.rhythmScore}<small>/100</small></span></div>
-      </div>
-    </div>
-    <div class="insight-grid" data-observe>
-      ${insMetric("📊 주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
-      ${insMetric("👥 참여 지니", giniStr, giniMetricSub(ins.participantGini, data.summary.participants))}
-      ${insMetric("⏱️ 응답 상위10%", p90, "느린 쪽 10% 구간")}
-      ${insMetric("⏸️ 최장 공백", silence, "활동일 사이 최대 휴지")}
-      ${insMetric("🏆 상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
-      ${insMetric("🔄 화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
-      ${linkEntropyMetric(data, ins)}
-      ${insMetric("❓ 질문 수", `${ins.questionLikeMessagesPer100}/100`, "100메시지당 물음표 포함")}
-      ${insMetric("💬 독백 비중", `${ins.monologueMessagesPercent}%`, "3연속 이상 동일인 메시지")}
-      ${sessionMetric}
-      ${insMetric("📈 최고 활동일", `${ins.peakDaySharePercent}%`, "전체 중 일별 최대 비중")}
-      ${insMetric("🔗 고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
-      ${insMetric("📝 평균 길이", `${data.summary.averageMessageLength}자`, "메시지당 평균 글자 수")}
-      ${insMetric("🌙 심야 비중", `${data.summary.nightSharePercent}%`, "23시~05시 메시지 비율")}
-    </div>
-    ${renderLlmInsideJokes(data)}
-    ${renderEmojiInsight(data.emojiInsight)}
-    ${renderParticipantEmojiStats(data.participantEmojiStats)}
-    ${renderHonorificInsight(data.honorificInsight)}
-    <div class="insight-split" data-observe>
         <p class="insight-lede">참여·응답·링크 분포를 한눈에 보여주는 <strong>패턴 지표</strong>예요. <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑥ 용어 설명</a></p>
       </div>
       <div class="rh-wrap anim-ring" aria-label="리듬 점수" data-observe>
@@ -922,10 +870,10 @@ function renderDaily(days: DailyCount[], burstDays: DailyCount[] = []): string {
       const burst = burstSet.has(day.date);
       const burstCls = burst ? " day-burst" : "";
       const burstMark = burst ? " 🔥" : "";
-      return `<div class="day day--lvl${lvl}${burstCls}" title="${escapeHtml(day.date)} · ${day.count}건${burst ? " · 급증일" : ""}"><span class="day-k">${escapeHtml(short)}${burstMark}</span><span class="day-n">${day.count}</span></div>`;
+      return `<div class="day day--lvl${lvl}${burstCls}" data-observe title="${escapeHtml(day.date)} · ${day.count}건${burst ? " · 급증일" : ""}"><span class="day-k">${escapeHtml(short)}${burstMark}</span><span class="day-n" data-countup="${day.count}">${day.count}</span></div>`;
     })
     .join("");
-  return `<div class="calendar-wrap">
+  return `<div class="calendar-wrap calendar-glass" data-observe>
     <p class="chart-hint">날짜 순으로 칸이 채워져요. <strong>월/일</strong>(위) · <strong>메시지 수</strong>(아래). 테두리·🔥는 급증일입니다.</p>
     <div class="calendar">${cells}</div>
   </div>`;
@@ -957,21 +905,21 @@ function renderHoursBand(hours: number[], start: number, bandClass: string, band
       const tone = bandClass === "hours-band-am" ? "hour-am" : "hour-pm";
       const isPeak = hour === peakHour;
       const peakCls = isPeak ? " hour--peak" : "";
-      return `<div class="hour ${tone}${peakCls}" title="${hour}시 · ${formatNumber(count)}건${isPeak ? " · 피크" : ""}" style="height:${height}%"></div>`;
+      return `<div class="hour ${tone}${peakCls}" data-observe title="${hour}시 · ${formatNumber(count)}건${isPeak ? " · 피크" : ""}" style="height:${height}%">${isPeak ? `<span class="hour-peak-label" data-countup="${count}">${formatNumber(count)}</span>` : ""}</div>`;
     })
     .join("");
   const labels = slice.map((_, i) => `<span title="${start + i}시">${start + i}</span>`).join("");
-  return `<div class="hours-half"><div class="hours-band ${bandClass}">${bandLabel}</div><div class="hours-bars">${bars}</div><div class="hours-labels">${labels}</div></div>`;
+  return `<div class="hours-half"><div class="hours-band ${bandClass}">${bandLabel}</div><div class="hours-bars" data-observe>${bars}</div><div class="hours-labels">${labels}</div></div>`;
 }
 
 function renderHours(hours: number[]): string {
   const total = hours.reduce((a, b) => a + b, 0);
   const peakHour = hours.indexOf(Math.max(...hours));
-  return `<div class="hours-wrap">
-    <p class="chart-hint">피크: <strong>${peakHour}시</strong> · 총 ${formatNumber(total)}건</p>
+  return `<div class="hours-wrap hours-glass" data-observe>
+    <p class="chart-hint">피크: <strong data-countup="${peakHour}">${peakHour}시</strong> · 총 <strong data-countup="${total}">${formatNumber(total)}</strong>건</p>
     <div class="hours-split">
-      ${renderHoursBand(hours, 0, "hours-band-am", "오전 · 0–11시")}
-      ${renderHoursBand(hours, 12, "hours-band-pm", "오후 · 12–23시")}
+      ${renderHoursBand(hours, 0, "hours-band-am", "☀️ 오전 · 0–11시")}
+      ${renderHoursBand(hours, 12, "hours-band-pm", "🌙 오후 · 12–23시")}
     </div>
   </div>`;
 }
@@ -988,17 +936,28 @@ function renderParticipants(participants: ParticipantStat[]): string {
     return `<p style="margin:0;color:var(--muted);font-size:13px">참여자 데이터가 없습니다.</p>`;
   }
   const maxMsg = participants[0]?.messages ?? 1;
-  const rankBadge = (i: number) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `<span class="participant-rank">${i + 1}</span>`;
+  const rankBadge = (i: number) => {
+    if (i === 0) return '<span class="rank-badge rank-gold">🥇</span>';
+    if (i === 1) return '<span class="rank-badge rank-silver">🥈</span>';
+    if (i === 2) return '<span class="rank-badge rank-bronze">🥉</span>';
+    return `<span class="rank-badge rank-default">${i + 1}</span>`;
+  };
   const cards = participants
     .slice(0, 20)
     .map((p, i) => {
       const barW = Math.round((p.messages / maxMsg) * 100);
-      return `<div class="participant-row" data-observe>
-        ${rankBadge(i)}
-        <span class="participant-name">${escapeHtml(p.alias)}</span>
-        <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%"></div></div></div>
-        <span class="participant-count">${formatNumber(p.messages)}</span>
-        <span class="participant-pct">${p.sharePercent}%</span>
+      return `<div class="participant-card" data-observe>
+        <div class="participant-card-header">
+          ${rankBadge(i)}
+          <span class="participant-name">${escapeHtml(p.alias)}</span>
+        </div>
+        <div class="participant-card-body">
+          <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%" data-observe></div></div></div>
+          <div class="participant-card-stats">
+            <span class="participant-count"><strong data-countup="${p.messages}">${formatNumber(p.messages)}</strong>건</span>
+            <span class="participant-pct">${p.sharePercent}%</span>
+          </div>
+        </div>
       </div>`;
     })
     .join("");
@@ -1012,7 +971,9 @@ function renderParticipants(participants: ParticipantStat[]): string {
   return `<div class="rank-participants">
     <div class="participant-card-list" aria-label="참여자 랭킹">${cards}</div>
     <details class="rank-table-fold"><summary>상세 테이블 보기</summary>
-      <table class="table table-rank"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="glass-table-wrap">
+        <table class="table table-rank table-glass"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${rows}</tbody></table>
+      </div>
     </details>
   </div>`;
 }
@@ -1022,17 +983,28 @@ function renderParticipantsByCharacters(participants: ParticipantStat[]): string
     return `<p style="margin:0;color:var(--muted);font-size:13px">글자 수 랭킹 데이터가 없습니다.</p>`;
   }
   const maxChars = participants[0]?.characters ?? 1;
-  const rankBadge = (i: number) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `<span class="participant-rank">${i + 1}</span>`;
+  const rankBadge = (i: number) => {
+    if (i === 0) return '<span class="rank-badge rank-gold">🥇</span>';
+    if (i === 1) return '<span class="rank-badge rank-silver">🥈</span>';
+    if (i === 2) return '<span class="rank-badge rank-bronze">🥉</span>';
+    return `<span class="rank-badge rank-default">${i + 1}</span>`;
+  };
   const cards = participants
     .slice(0, 20)
     .map((p, i) => {
       const barW = Math.round((p.characters / maxChars) * 100);
-      return `<div class="participant-row" data-observe>
-        ${rankBadge(i)}
-        <span class="participant-name">${escapeHtml(p.alias)}</span>
-        <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%"></div></div></div>
-        <span class="participant-count">${formatNumber(p.characters)}자</span>
-        <span class="participant-pct">${p.characterSharePercent}%</span>
+      return `<div class="participant-card" data-observe>
+        <div class="participant-card-header">
+          ${rankBadge(i)}
+          <span class="participant-name">${escapeHtml(p.alias)}</span>
+        </div>
+        <div class="participant-card-body">
+          <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%" data-observe></div></div></div>
+          <div class="participant-card-stats">
+            <span class="participant-count"><strong data-countup="${p.characters}">${formatNumber(p.characters)}</strong>자</span>
+            <span class="participant-pct">${p.characterSharePercent}%</span>
+          </div>
+        </div>
       </div>`;
     })
     .join("");
@@ -1045,7 +1017,9 @@ function renderParticipantsByCharacters(participants: ParticipantStat[]): string
   return `<div id="s-rank-chars" class="rank-participants">
     <div class="participant-card-list" aria-label="글자 수 랭킹">${cards}</div>
     <details class="rank-table-fold"><summary>상세 테이블 보기</summary>
-      <table class="table table-rank"><thead><tr><th>표시명</th><th class="num">총 글자</th><th class="num">글자 비율</th><th class="num">메시지</th><th class="num">평균 길이</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="glass-table-wrap">
+        <table class="table table-rank table-glass"><thead><tr><th>표시명</th><th class="num">총 글자</th><th class="num">글자 비율</th><th class="num">메시지</th><th class="num">평균 길이</th></tr></thead><tbody>${rows}</tbody></table>
+      </div>
     </details>
   </div>`;
 }
@@ -1139,9 +1113,9 @@ function renderRoomEvents(
     .filter((item) => item.count > 0);
   const ofAll =
     totalMessages > 0
-      ? `<p class="kw-note" style="margin-top:10px">전체 <strong>${formatNumber(totalMessages)}</strong>건 중 시스템·운영 알림 합계 <strong>${stats.total}</strong>건 (입장 ${stats.joinSharePercent}% · 퇴장 ${stats.leaveSharePercent}% · 가림 ${stats.hiddenSharePercent}% · 강퇴 ${stats.kickSharePercent}%).</p>`
+      ? `<div class="event-summary-card" data-observe><p class="kw-note" style="margin:0">전체 <strong data-countup="${totalMessages}">${formatNumber(totalMessages)}</strong>건 중 시스템·운영 알림 합계 <strong data-countup="${stats.total}">${stats.total}</strong>건 (입장 ${stats.joinSharePercent}% · 퇴장 ${stats.leaveSharePercent}% · 가림 ${stats.hiddenSharePercent}% · 강퇴 ${stats.kickSharePercent}%)</p></div>`
       : "";
-  return renderCountBars(items) + renderRoomPulseMini(pulse) + ofAll;
+  return `<div class="room-events-glass" data-observe>${renderCountBars(items)}</div>${renderRoomPulseMini(pulse)}${ofAll}`;
 }
 
 function renderRoomPulseMini(pulse: DailyRoomPulse[]): string {
@@ -1165,15 +1139,15 @@ function renderReactionsPanel(data: ReportData): string {
   if (data.pureLaughMessages > 0) {
     const pct = total > 0 ? Math.round((data.pureLaughMessages / total) * 1000) / 10 : 0;
     parts.push(
-      `<div class="reaction-stat"><span class="reaction-emoji">😂</span><span class="reaction-label">ㅋㅋ·ㅎㅎ만</span><span class="reaction-value">${formatNumber(data.pureLaughMessages)}건 (${pct}%)</span></div>`,
+      `<div class="reaction-card" data-observe><span class="reaction-emoji">😂</span><div class="reaction-card-body"><span class="reaction-label">ㅋㅋ·ㅎㅎ만</span><span class="reaction-value"><strong data-countup="${data.pureLaughMessages}">${formatNumber(data.pureLaughMessages)}</strong>건 (${pct}%)</span></div></div>`,
     );
   }
   if (data.story.tone.laughPer100 > 0) {
-    parts.push(`<div class="reaction-stat"><span class="reaction-emoji">😆</span><span class="reaction-label">웃음 패턴</span><span class="reaction-value">100건당 ${data.story.tone.laughPer100}건</span></div>`);
+    parts.push(`<div class="reaction-card" data-observe><span class="reaction-emoji">😆</span><div class="reaction-card-body"><span class="reaction-label">웃음 패턴</span><span class="reaction-value">100건당 <strong data-countup="${data.story.tone.laughPer100}">${data.story.tone.laughPer100}</strong>건</span></div></div>`);
   }
   if (data.repeatedPhrases.length > 0) {
-    parts.push(`<h4 class="reaction-subtitle">반복 문구</h4>`);
-    parts.push(renderCountBars(data.repeatedPhrases.map((r) => ({ label: r.label, count: r.count }))));
+    parts.push(`<h4 class="reaction-subtitle">🔁 반복 문구</h4>`);
+    parts.push(`<div class="room-events-glass" data-observe>${renderCountBars(data.repeatedPhrases.map((r) => ({ label: r.label, count: r.count })))}</div>`);
   } else if (parts.length === 0) {
     return '<p style="margin:0;color:var(--muted);font-size:13px">반복 문구·순수 ㅋㅋ 리액션이 거의 없습니다.</p>';
   }
@@ -1202,18 +1176,18 @@ function renderTopicMap(data: ReportData): string {
       return `<article class="topic-card" data-observe>
         <header>${kind}<strong>${escapeHtml(t.title)}</strong></header>
         <div class="topic-chips">${chips}</div>
-        <div class="topic-bar"><div class="topic-bar-fill" style="width:${barW}%"></div></div>
-        <span class="topic-pct">약 ${t.messagePercent}%</span>
+        <div class="topic-bar"><div class="topic-bar-fill" style="width:${barW}%" data-observe></div></div>
+        <span class="topic-pct">약 <span data-countup="${t.messagePercent}">${t.messagePercent}</span>%</span>
       </article>`;
     })
     .join("");
   const periodBlock =
     periods.length > 0
-      ? `<div class="topic-group"><h3 class="topic-group-title">📅 기간별 화제</h3><div class="topic-grid">${renderCards(periods)}</div></div>`
+      ? `<div class="topic-group" data-observe><h3 class="topic-group-title">📅 기간별 화제</h3><div class="topic-grid">${renderCards(periods)}</div></div>`
       : "";
   const themeBlock =
     themes.length > 0
-      ? `<div class="topic-group"><h3 class="topic-group-title">💡 의미 테마</h3><div class="topic-grid">${renderCards(themes)}</div></div>`
+      ? `<div class="topic-group" data-observe><h3 class="topic-group-title">💡 의미 테마</h3><div class="topic-grid">${renderCards(themes)}</div></div>`
       : "";
   const sparseThemes =
     themes.length <= 1 && data.summary.totalMessages >= 5000
@@ -1222,7 +1196,7 @@ function renderTopicMap(data: ReportData): string {
   const hint = shortSpan
     ? "짧은 기간은 <strong>월 비중</strong>이 주제로 보일 수 있어요. 「기간 비교」를 확인하세요."
     : `그래프·키워드·임베딩 신호로 추출. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
-  return `<section id="s-topics" class="kca-section card kca-card--data anim-enter" style="--enter-delay:0.052s">
+  return `<section id="s-topics" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.052s">
     <h2>🗺️ 이 방의 주제 맵</h2>
     <p class="chart-hint">${hint}</p>
     ${themeBlock}
@@ -1321,7 +1295,7 @@ function renderKeywordSnapshot(items: CountItem[], data: ReportData, topN = keyw
 function renderCountBars(items: CountItem[]): string {
   if (items.length === 0) return `<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>`;
   const max = Math.max(...items.map((item) => item.count), 1);
-  return `<div class="bars">${items
+  return `<div class="bars" data-observe>${items
     .map((item) => {
       const width = Math.max(2, Math.round((item.count / max) * 100));
       const laneTip =
@@ -1331,7 +1305,7 @@ function renderCountBars(items: CountItem[]): string {
             ? " · 빈도+특이어"
             : "";
       const title = `${item.label} — 메시지 ${formatNumber(item.count)}건${laneTip}`;
-      return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(title)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${width}%"></span></span><span class="bar-value">${formatNumber(item.count)}</span></div>`;
+      return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(title)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${width}%" data-observe></span></span><span class="bar-value" data-countup="${item.count}">${formatNumber(item.count)}</span></div>`;
     })
     .join("")}</div>`;
 }

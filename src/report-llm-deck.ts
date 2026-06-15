@@ -23,18 +23,20 @@ export function renderLlmArchetypeBanner(data: ReportData): string {
     ? arch.traits
         .map(
           (t) =>
-            `<span class="llm-trait-chip"><span class="llm-trait-dot" aria-hidden="true"></span>${escapeHtml(t)}</span>`,
+            `<span class="llm-trait-chip">${escapeHtml(t)}</span>`,
         )
         .join("")
     : "";
   const fallbackHtml = !hasTraits
     ? `<div class="llm-trait-row llm-trait-row--fallback"><span class="llm-trait-chip llm-trait-chip--fallback">${escapeHtml(arch.name)}의 특징적인 대화 패턴</span></div>`
     : "";
-  return `<section id="s-archetype" class="kca-section llm-archetype-banner anim-enter" style="--enter-delay:0.025s" aria-label="방 아키타입">
-    <p class="llm-archetype-kicker">🎭 이 방의 얼굴</p>
-    <h2 class="llm-archetype-name">${escapeHtml(arch.name)}</h2>
-    <p class="llm-archetype-desc">${renderHighlightLine(arch.description)}</p>
-    ${traitsHtml ? `<div class="llm-trait-row">${traitsHtml}</div>` : fallbackHtml}
+  return `<section id="s-archetype" class="kca-section llm-archetype-banner anim-enter" style="--enter-delay:0.025s" aria-label="방 아키타입" data-observe>
+    <div class="llm-archetype-inner">
+      <p class="llm-archetype-kicker">🎭 이 방의 얼굴</p>
+      <h2 class="llm-archetype-name">${escapeHtml(arch.name)}</h2>
+      <p class="llm-archetype-desc">${renderHighlightLine(arch.description)}</p>
+      ${traitsHtml ? `<div class="llm-trait-row">${traitsHtml}</div>` : fallbackHtml}
+    </div>
   </section>`;
 }
 
@@ -44,7 +46,7 @@ export function renderLlmEpisodeStrip(data: ReportData): string {
   const inner = cards
     .map(
       (c) =>
-        `<article class="llm-episode-card" role="listitem">
+        `<article class="llm-episode-card" role="listitem" data-observe>
       <span class="llm-episode-emoji" aria-hidden="true">${escapeHtml(c.emoji)}</span>
       <p class="llm-episode-period">${escapeHtml(c.period)}</p>
       <h3 class="llm-episode-title">${escapeHtml(c.title)}</h3>
@@ -52,7 +54,7 @@ export function renderLlmEpisodeStrip(data: ReportData): string {
     </article>`,
     )
     .join("");
-  return `<section id="s-episodes" class="kca-section llm-episode-strip anim-enter" style="--enter-delay:0.035s" aria-label="시즌 에피소드">
+  return `<section id="s-episodes" class="kca-section llm-episode-strip anim-enter" style="--enter-delay:0.035s" aria-label="시즌 에피소드" data-observe>
     <h2 class="llm-strip-title">🎬 시즌 에피소드</h2>
     <div class="llm-episode-scroll" role="list">${inner}</div>
   </section>`;
@@ -69,7 +71,7 @@ export function renderLlmMomentsBlock(data: ReportData): string {
   const momentCards = (moments ?? [])
     .map(
       (m) =>
-        `<article class="llm-moment-card" role="listitem">
+        `<article class="llm-moment-card" role="listitem" data-observe>
       <h3>${renderHighlightLine(m.headline)}</h3>
       <p class="llm-moment-ref">${escapeHtml(m.statRef)}</p>
     </article>`,
@@ -78,7 +80,7 @@ export function renderLlmMomentsBlock(data: ReportData): string {
   const hint = data.summary.usedLlmAnalysis
     ? "통계·키워드를 입력한 <strong>로컬 LLM</strong>이 보강(원문 미포함)."
     : "규칙·통계만으로 만든 요약.";
-  return `<section id="s-narrative" class="kca-section card kca-card--story narrative-card anim-enter" style="--enter-delay:0.04s" aria-label="방 이야기">
+  return `<section id="s-narrative" class="kca-section card kca-card--story narrative-card anim-enter" style="--enter-delay:0.04s" aria-label="방 이야기" data-observe>
     <h2 class="section-glow">② 방 이야기</h2>
     <p class="chart-hint">${hint}</p>
     <div class="narrative-body">${paras}</div>
@@ -123,7 +125,7 @@ export function renderLlmRelationshipBeats(data: ReportData): string {
   const rows = beats
     .map(
       (b) =>
-        `<li class="llm-beat-card"><strong>${escapeHtml(b.pair)}</strong>${b.role ? ` <em>${escapeHtml(b.role)}</em>` : ""}<span>${renderHighlightLine(b.beat)}</span></li>`,
+        `<li class="llm-beat-card" data-observe><strong>${escapeHtml(b.pair)}</strong>${b.role ? ` <em>${escapeHtml(b.role)}</em>` : ""}<span>${renderHighlightLine(b.beat)}</span></li>`,
     )
     .join("");
   return `<div class="llm-rel-beats"><h3 class="insight-sub">💕 관계 드라마</h3><ul class="llm-beat-list">${rows}</ul></div>`;
@@ -135,14 +137,14 @@ export function renderLlmCharacterCards(data: ReportData): string {
   const inner = cards
     .map(
       (c) =>
-        `<article class="llm-char-card" role="listitem">
+        `<article class="llm-char-card" role="listitem" data-observe>
       <h3>${escapeHtml(c.alias)}</h3>
       <p>${escapeHtml(c.tagline)}</p>
       <span class="llm-char-stat">${escapeHtml(c.statHook)}</span>
     </article>`,
     )
     .join("");
-  return `<section id="s-characters" class="kca-section llm-char-grid anim-enter" style="--enter-delay:0.042s" aria-label="캐릭터 카드">
+  return `<section id="s-characters" class="kca-section llm-char-grid anim-enter" style="--enter-delay:0.042s" aria-label="캐릭터 카드" data-observe>
     <h2 class="llm-strip-title">👥 캐릭터 카드</h2>
     <div class="llm-char-row" role="list">${inner}</div>
   </section>`;
@@ -154,10 +156,10 @@ export function renderLlmInsideJokes(data: ReportData): string {
   const chips = jokes
     .map(
       (j) =>
-        `<span class="llm-meme-chip" title="${escapeHtml(j.whyFunny)}">${escapeHtml(j.label)}</span>`,
+        `<span class="llm-meme-chip" title="${escapeHtml(j.whyFunny)}" data-observe>${escapeHtml(j.label)}</span>`,
     )
     .join("");
-  return `<div class="llm-meme-row" aria-label="방 밈"><h3 class="insight-sub">방 밈</h3><div class="llm-meme-chips">${chips}</div></div>`;
+  return `<div class="llm-meme-row" aria-label="방 밈" data-observe><h3 class="insight-sub">😂 방 밈</h3><div class="llm-meme-chips">${chips}</div></div>`;
 }
 
 export function renderLlmEraLabels(data: ReportData): string {
@@ -166,10 +168,10 @@ export function renderLlmEraLabels(data: ReportData): string {
   const rows = eras
     .map(
       (e) =>
-        `<li><strong>${escapeHtml(e.label)}</strong><span>${escapeHtml(e.detail)}</span></li>`,
+        `<li data-observe><strong>${escapeHtml(e.label)}</strong><span>${escapeHtml(e.detail)}</span></li>`,
     )
     .join("");
-  return `<div class="llm-era-labels"><h3 class="insight-sub">⏳ 키워드 시대</h3><ul>${rows}</ul></div>`;
+  return `<div class="llm-era-labels" data-observe><h3 class="insight-sub">⏳ 키워드 시대</h3><ul>${rows}</ul></div>`;
 }
 
 export function renderLlmDayMicroStories(data: ReportData): string {
@@ -178,10 +180,10 @@ export function renderLlmDayMicroStories(data: ReportData): string {
   const rows = days
     .map(
       (d) =>
-        `<li><time datetime="${escapeHtml(d.date)}">${escapeHtml(d.date)}</time> ${renderHighlightLine(d.line)}</li>`,
+        `<li data-observe><time datetime="${escapeHtml(d.date)}">${escapeHtml(d.date)}</time> ${renderHighlightLine(d.line)}</li>`,
     )
     .join("");
-  return `<div class="llm-day-stories"><h3 class="insight-sub">📅 그날의 방</h3><ul>${rows}</ul></div>`;
+  return `<div class="llm-day-stories" data-observe><h3 class="insight-sub">📅 그날의 방</h3><ul>${rows}</ul></div>`;
 }
 
 export function renderDailyHotTopics(data: ReportData): string {
@@ -225,8 +227,8 @@ export function renderDailyHotTopics(data: ReportData): string {
     })
     .join("");
 
-  return `<section id="s-hot-topics" class="kca-section hot-topics-section anim-enter" style="--enter-delay:0.045s" aria-label="이 날의 핫토픽">
-    <h2 class="llm-strip-title">이 날의 핫토픽</h2>
+  return `<section id="s-hot-topics" class="kca-section hot-topics-section anim-enter" style="--enter-delay:0.045s" aria-label="이 날의 핫토픽" data-observe>
+    <h2 class="llm-strip-title">🔥 이 날의 핫토픽</h2>
     <div class="hot-topics-grid" role="list">${rows}</div>
   </section>`;
 }
@@ -240,7 +242,7 @@ export function renderLlmShareFooter(data: ReportData): string {
   const cf = (ins.counterfactuals ?? [])
     .map((c) => `<p class="llm-counterfactual"><em>가상</em> ${escapeHtml(c.text)}</p>`)
     .join("");
-  return `<div class="llm-share-block">
+  return `<div class="llm-share-block" data-observe>
     ${ins.shareLine ? `<p class="llm-share-line">${renderHighlightLine(ins.shareLine)}</p>` : ""}
     ${tags ? `<p class="llm-hash-row">${tags}</p>` : ""}
     ${cf}
@@ -277,7 +279,7 @@ export function renderParticipantRoles(data: ReportData): string {
     .map((r: ParticipantRole) => {
       const emoji = roleEmoji[r.role] ?? "💬";
       const desc = roleDesc[r.role] ?? r.role;
-      return `<article class="participant-role-card" role="listitem" data-role="${escapeHtml(r.role)}">
+      return `<article class="participant-role-card" role="listitem" data-role="${escapeHtml(r.role)}" data-observe>
         <div class="role-card-header">
           <span class="role-emoji" aria-hidden="true">${emoji}</span>
           <div class="role-info">
@@ -291,8 +293,8 @@ export function renderParticipantRoles(data: ReportData): string {
     })
     .join("");
 
-  return `<section id="s-participant-roles" class="kca-section participant-roles-section anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할">
-    <h2 class="llm-strip-title">참여자 역할</h2>
+  return `<section id="s-participant-roles" class="kca-section participant-roles-section anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할" data-observe>
+    <h2 class="llm-strip-title">👥 참여자 역할</h2>
     <div class="participant-roles-grid" role="list">${cards}</div>
   </section>`;
 }
@@ -323,7 +325,7 @@ export function renderMemorableMoments(data: ReportData): string {
             .map((item) => `<li>${escapeHtml(item)}</li>`)
             .join("")}</ul>`
         : "";
-      return `<li class="moment-item">
+      return `<li class="moment-item" data-observe>
         <time datetime="${escapeHtml(m.date)}">${escapeHtml(m.date)}</time>
         <span class="moment-icon" aria-hidden="true">${icon}</span>
         <div class="moment-body">
@@ -336,7 +338,7 @@ export function renderMemorableMoments(data: ReportData): string {
     })
     .join("");
 
-  return `<section id="s-memorable-moments" class="kca-section memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간">
+  return `<section id="s-memorable-moments" class="kca-section memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간" data-observe>
     <h2 class="llm-strip-title">✨ 기억에 남는 순간</h2>
     <ul class="moments-list">${items}</ul>
   </section>`;
@@ -372,7 +374,7 @@ function renderDaySnapshotCard(day: DailySnapshot, isToday: boolean): string {
   const kws = day.keywords.slice(0, 4).map((k) => `<span class="recent-day-kw">${escapeHtml(k)}</span>`).join("");
   const senders = day.topSenders.slice(0, 3).map((s) => `${escapeHtml(s.alias)}(${s.count})`).join(" · ");
   const evidence = (day.evidence ?? []).slice(0, 2).map((e) => `<li>${escapeHtml(e)}</li>`).join("");
-  return `<article class="${cls}">
+  return `<article class="${cls}" data-observe>
     <div class="recent-day-header">
       <time datetime="${escapeHtml(day.date)}">${escapeHtml(label)}</time>
       <span class="recent-day-count">${formatNumber(day.messageCount)}건</span>
@@ -398,7 +400,7 @@ export function renderRecentSnapshot(data: ReportData): string {
 
   // 주간 요약
   const weekKws = snap.weekKeywords.slice(0, 6).map((k) => `<span class="recent-day-kw">${escapeHtml(k)}</span>`).join("");
-  const summaryHtml = `<div class="recent-week-summary">
+  const summaryHtml = `<div class="recent-week-summary" data-observe>
     <div class="recent-week-stats">
       <span class="recent-week-stat"><strong>${formatNumber(snap.weekTotal)}</strong>건 <small>7일간</small></span>
       <span class="recent-week-stat"><strong>${Math.round(snap.weekTotal / 7)}</strong>건 <small>일평균</small></span>
@@ -415,7 +417,7 @@ export function renderRecentSnapshot(data: ReportData): string {
   const weekDays = snap.today ? snap.week.slice(0, 6) : snap.week;
   const dayCardsHtml = weekDays.map((d) => renderDaySnapshotCard(d, false)).join("");
 
-  return `<section id="s-recent" class="kca-section recent-snapshot-section anim-enter" style="--enter-delay:0.035s" aria-label="최근 활동 스냅샷">
+  return `<section id="s-recent" class="kca-section recent-snapshot-section anim-enter" style="--enter-delay:0.035s" aria-label="최근 활동 스냅샷" data-observe>
     <h2 class="llm-strip-title">⏰ 최근 활동 스냅샷</h2>
     <p class="recent-section-hint">리포트 기준 최근 7일간 활동이에요. 최근일수록 기억에 많이 남으니 자세히 봐요.</p>
     ${summaryHtml}

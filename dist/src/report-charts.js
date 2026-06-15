@@ -7,6 +7,8 @@ export const CHART_CDN_HEAD = ``;
 export const CHART_CDN_BODY = `
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" crossorigin="anonymous" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" onerror="this.onerror=null;this.src='https://unpkg.com/echarts@5.6.0/dist/echarts.min.js'"></script>
   <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js" crossorigin="anonymous" integrity="sha384-U1KEY0DDCF4Dq6Yx1J+EZ5Hnj8X5bMn52OAcJB8C4OiAWeU4iJhJ/Tv5KhTqu8zZ" onerror="this.onerror=null;this.src='https://unpkg.com/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js'"></script>
+  <script src="https://cdn.jsdelivr.net/npm/countup.js@2.10.0/dist/countUp.umd.js" crossorigin="anonymous" onerror="this.onerror=null;this.src='https://unpkg.com/countup.js@2.10.0/dist/countUp.umd.js'"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/progressbar.js/1.1.1/progressbar.min.js" crossorigin="anonymous" onerror="this.onerror=null;this.src='https://unpkg.com/progressbar.js@1.1.1/dist/progressbar.min.js'"></script>
 `;
 export function serializeChartPayload(data) {
     return JSON.stringify(buildChartPayload(data))
@@ -93,11 +95,11 @@ export function renderChartDeck(data) {
       <div id="chart-topics" class="chart-box" role="img" aria-label="주제 테마 차트"></div>
     </article>`
         : "";
-    return `<section id="s-viz" class="kca-section viz-hero anim-enter" style="--enter-delay:0.055s" aria-label="인터랙티브 차트">
+    return `<section id="s-viz" class="kca-section viz-hero anim-enter" data-observe style="--enter-delay:0.055s" aria-label="인터랙티브 차트">
     <h2>📈 인터랙티브 차트</h2>
     <p>ECharts 기반 — 막대·히트맵·워드클라우드에 마우스를 올리면 수치를 확인할 수 있어요. 키워드 <strong>${formatNumber(kw)}</strong>개(메시지 등장 횟수 기준).</p>
   </section>
-  <div class="viz-grid anim-enter" style="--enter-delay:0.06s">
+  <div class="viz-grid anim-enter" data-observe style="--enter-delay:0.06s">
     <article class="viz-card kca-card--chart span-8">
       <h3>키워드 워드클라우드</h3>
       <p class="viz-hint">글자 크기 = 메시지 등장 빈도. Kiwi·BM25로 뽑은 본문 키워드입니다.</p>
