@@ -113,7 +113,7 @@ export function renderStorySections(data: ReportData): string {
   const parts: string[] = [];
 
   parts.push(`<section id="s-wrapped" class="kca-section wrapped-section anim-enter" style="--enter-delay:0.02s" aria-label="대화 Wrapped">
-    <h2>⓪ ${escapeHtml(data.source.chatRoomName)} Wrapped</h2>
+    <h2>🎉 ${escapeHtml(data.source.chatRoomName)} Wrapped</h2>
     <p class="wrapped-lede">핵심 장면 카드가 화면 너비에 맞게 배열됩니다. 원문 메시지는 없습니다.</p>
     <div class="wrapped-deck" role="list">
       ${s.wrapped
