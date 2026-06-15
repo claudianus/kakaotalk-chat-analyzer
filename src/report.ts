@@ -572,18 +572,18 @@ function renderInsightDeck(data: ReportData): string {
       </div>
     </div>
     <div class="insight-grid" data-observe>
-      ${insMetric("주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
-      ${insMetric("참여 지니", giniStr, giniMetricSub(ins.participantGini, data.summary.participants))}
-      ${insMetric("응답 상위10%", p90, "느린 쪽 10% 구간")}
-      ${insMetric("최장 공백", silence, "활동일 사이 최대 휴지")}
-      ${insMetric("상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
-      ${insMetric("화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
+      ${insMetric("📊 주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
+      ${insMetric("👥 참여 지니", giniStr, giniMetricSub(ins.participantGini, data.summary.participants))}
+      ${insMetric("⏱️ 응답 상위10%", p90, "느린 쪽 10% 구간")}
+      ${insMetric("⏸️ 최장 공백", silence, "활동일 사이 최대 휴지")}
+      ${insMetric("🏆 상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
+      ${insMetric("🔄 화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
       ${linkEntropyMetric(data, ins)}
-      ${insMetric("질문 수", `${ins.questionLikeMessagesPer100}/100`, "100메시지당 물음표 포함")}
-      ${insMetric("독백 비중", `${ins.monologueMessagesPercent}%`, "3연속 이상 동일인 메시지")}
+      ${insMetric("❓ 질문 수", `${ins.questionLikeMessagesPer100}/100`, "100메시지당 물음표 포함")}
+      ${insMetric("💬 독백 비중", `${ins.monologueMessagesPercent}%`, "3연속 이상 동일인 메시지")}
       ${sessionMetric}
-      ${insMetric("최고 활동일", `${ins.peakDaySharePercent}%`, "전체 중 일별 최대 비중")}
-      ${insMetric("고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
+      ${insMetric("📈 최고 활동일", `${ins.peakDaySharePercent}%`, "전체 중 일별 최대 비중")}
+      ${insMetric("🔗 고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
     </div>
     ${renderLlmInsideJokes(data)}
     ${renderEmojiInsight(data.emojiInsight)}
