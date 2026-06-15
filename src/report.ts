@@ -1099,13 +1099,14 @@ function renderReactionsPanel(data: ReportData): string {
   if (data.pureLaughMessages > 0) {
     const pct = total > 0 ? Math.round((data.pureLaughMessages / total) * 1000) / 10 : 0;
     parts.push(
-      `<p style="margin:0 0 8px"><strong>ㅋㅋ·ㅎㅎ만</strong> · ${formatNumber(data.pureLaughMessages)}건 (${pct}%)</p>`,
+      `<div class="reaction-stat"><span class="reaction-emoji">😂</span><span class="reaction-label">ㅋㅋ·ㅎㅎ만</span><span class="reaction-value">${formatNumber(data.pureLaughMessages)}건 (${pct}%)</span></div>`,
     );
   }
   if (data.story.tone.laughPer100 > 0) {
-    parts.push(`<p style="margin:0 0 8px">웃음 패턴 포함 · 100건당 ${data.story.tone.laughPer100}건</p>`);
+    parts.push(`<div class="reaction-stat"><span class="reaction-emoji">😆</span><span class="reaction-label">웃음 패턴</span><span class="reaction-value">100건당 ${data.story.tone.laughPer100}건</span></div>`);
   }
   if (data.repeatedPhrases.length > 0) {
+    parts.push(`<h4 class="reaction-subtitle">반복 문구</h4>`);
     parts.push(renderCountBars(data.repeatedPhrases.map((r) => ({ label: r.label, count: r.count }))));
   } else if (parts.length === 0) {
     return '<p style="margin:0;color:var(--muted);font-size:13px">반복 문구·순수 ㅋㅋ 리액션이 거의 없습니다.</p>';

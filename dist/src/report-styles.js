@@ -1097,6 +1097,22 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 .kca-debug-shop summary { cursor: pointer; font-size: var(--font-size-small); color: var(--muted); }
 .kca-debug-shop code { font-size: 11px; }
 
+/* ── Reactions ── */
+.reaction-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  margin-bottom: 6px;
+}
+.reaction-emoji { font-size: 18px; }
+.reaction-label { flex: 1; font-size: var(--font-size-small); color: var(--ink); font-weight: 600; }
+.reaction-value { font-size: var(--font-size-small); color: var(--accent); font-weight: 700; }
+.reaction-subtitle { font-size: 13px; font-weight: 700; color: var(--muted); margin: 12px 0 6px; }
+
 /* ── Footer ── */
 footer {
   padding: 24px 0;
