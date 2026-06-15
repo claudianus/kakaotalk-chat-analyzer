@@ -337,7 +337,7 @@ export function renderMemorableMoments(data: ReportData): string {
     .join("");
 
   return `<section id="s-memorable-moments" class="kca-section memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간">
-    <h2 class="llm-strip-title">기억에 남는 순간</h2>
+    <h2 class="llm-strip-title">✨ 기억에 남는 순간</h2>
     <ul class="moments-list">${items}</ul>
   </section>`;
 }
