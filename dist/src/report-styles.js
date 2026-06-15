@@ -320,15 +320,12 @@ body.kca-oled::after {
 }
 
 main {
-  max-width: min(1200px, 100% - 2 * var(--content-pad));
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 var(--content-pad);
 }
-@media (min-width: 1400px) {
-  main { max-width: 1320px; }
-}
-@media (min-width: 1800px) {
-  main { max-width: 1500px; }
+@media (min-width: 1200px) {
+  main { padding: 0 clamp(20px, 3vw, 48px); }
 }
 
 /* ── Bento Grid System ── */
@@ -880,13 +877,19 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 }
 .kca-dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 400px;
   gap: 20px;
 }
 @media (min-width: 1400px) {
   .kca-dashboard-grid {
-    grid-template-columns: 1fr 420px;
+    grid-template-columns: 1fr 450px;
     gap: 24px;
+  }
+}
+@media (min-width: 1800px) {
+  .kca-dashboard-grid {
+    grid-template-columns: 1fr 500px;
+    gap: 28px;
   }
 }
 .kca-dashboard-main { min-width: 0; }
