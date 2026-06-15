@@ -725,7 +725,7 @@ function renderSelfServeCallout() {
     const npmShort = "https://www.npmjs.com/package/kcachat";
     const npmFull = "https://www.npmjs.com/package/kakaotalk-chat-analyzer";
     return `<section class="card self-serve" aria-label="리포트 직접 만들기">
-    <h2>비슷한 리포트, 다른 대화에도 만들어보기</h2>
+    <h2>🚀 비슷한 리포트, 다른 대화에도 만들어보기</h2>
     <p><strong>kca</strong>로 만든 집계 리포트입니다. 카카오톡 CSV로 같은 리포트를 만들 수 있어요.</p>
     <ol>
       <li>카카오톡 채팅방 → <strong>더보기(≡)</strong> → <strong>대화보내기</strong> → <strong>CSV 보내기</strong></li>
