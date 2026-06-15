@@ -512,6 +512,8 @@ function renderInsightDeck(data) {
       ${sessionMetric}
       ${insMetric("📈 최고 활동일", `${ins.peakDaySharePercent}%`, "전체 중 일별 최대 비중")}
       ${insMetric("🔗 고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
+      ${insMetric("📝 평균 길이", `${data.summary.averageMessageLength}자`, "메시지당 평균 글자 수")}
+      ${insMetric("🌙 심야 비중", `${data.summary.nightSharePercent}%`, "23시~05시 메시지 비율")}
     </div>
     ${renderLlmInsideJokes(data)}
     ${renderEmojiInsight(data.emojiInsight)}
