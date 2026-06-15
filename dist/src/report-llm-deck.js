@@ -123,7 +123,7 @@ export function renderLlmCharacterCards(data) {
     </article>`)
         .join("");
     return `<section id="s-characters" class="kca-section llm-char-grid anim-enter" style="--enter-delay:0.042s" aria-label="캐릭터 카드">
-    <h2 class="llm-strip-title">캐릭터 카드</h2>
+    <h2 class="llm-strip-title">👥 캐릭터 카드</h2>
     <div class="llm-char-row" role="list">${inner}</div>
   </section>`;
 }
