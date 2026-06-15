@@ -491,7 +491,7 @@ function renderInsightDeck(data) {
     ${renderActivityArcStrip(data.activityArc)}
     <div class="insight-head">
       <div>
-        <h2>③ 분위기·리듬 (고급 인사이트)</h2>
+        <h2>📊 분위기·리듬 (고급 인사이트)</h2>
         <p class="insight-lede">참여·응답·링크 분포를 한눈에 보여주는 <strong>패턴 지표</strong>예요. <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑥ 용어 설명</a></p>
       </div>
       <div class="rh-wrap anim-ring" aria-label="리듬 점수" data-observe>
