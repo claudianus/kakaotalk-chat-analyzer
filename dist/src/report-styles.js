@@ -900,6 +900,10 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   font-size: var(--font-size-h2);
   margin-bottom: var(--heading-gap);
   letter-spacing: -0.03em;
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ── Panel helper ── */
