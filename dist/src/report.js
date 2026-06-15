@@ -436,7 +436,7 @@ function renderFactMatrix(data) {
         .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
         .join("");
     return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
-    <h2>① 핵심 숫자</h2>
+    <h2>📊 핵심 숫자</h2>
     ${renderSampleBadge(data)}
     <div class="fact-hero-strip" aria-label="핵심 KPI">${heroHtml}</div>
     <div class="fact-grid">${coreInner}</div>
