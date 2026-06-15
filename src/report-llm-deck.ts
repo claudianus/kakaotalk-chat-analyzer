@@ -181,7 +181,7 @@ export function renderLlmDayMicroStories(data: ReportData): string {
         `<li><time datetime="${escapeHtml(d.date)}">${escapeHtml(d.date)}</time> ${renderHighlightLine(d.line)}</li>`,
     )
     .join("");
-  return `<div class="llm-day-stories"><h3 class="insight-sub">그날의 방</h3><ul>${rows}</ul></div>`;
+  return `<div class="llm-day-stories"><h3 class="insight-sub">📅 그날의 방</h3><ul>${rows}</ul></div>`;
 }
 
 export function renderDailyHotTopics(data: ReportData): string {
