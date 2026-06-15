@@ -1,4 +1,5 @@
 import { isNoiseKeyword } from "./keyword-quality.js";
+import { deterministicIndex, hashFraction } from "./deterministic-random.js";
 
 export function normalizeVector(v: number[]): number[] {
   let sum = 0;
@@ -19,7 +20,7 @@ function cosineSimilarity(a: number[], b: number[]): number {
 
 function pickKMeansPlusPlusCentroids(vectors: number[][], k: number): number[][] {
   const centroids: number[][] = [];
-  const first = vectors[Math.floor(Math.random() * vectors.length)]!;
+  const first = vectors[deterministicIndex(vectors.length, `kmeans:first:${vectors.length}:${k}`)]!;
   centroids.push([...first]);
 
   while (centroids.length < k) {
@@ -33,7 +34,7 @@ function pickKMeansPlusPlusCentroids(vectors: number[][], k: number): number[][]
       centroids.push([...vectors[centroids.length % vectors.length]!]);
       continue;
     }
-    let r = Math.random() * total;
+    let r = hashFraction(`kmeans:centroid:${centroids.length}:${vectors.length}:${k}`) * total;
     let pick = 0;
     for (let i = 0; i < distSq.length; i += 1) {
       r -= distSq[i]!;

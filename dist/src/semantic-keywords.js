@@ -135,10 +135,9 @@ function tensorToRows(tensor) {
     }
     return out;
 }
-async function embedMessages(pipe, messages, onBatch, maxSamples = semanticSampleCap(messages.length), buildOptions) {
+async function embedMessages(pipe, messages, onBatch, buildOptions) {
     const modelId = loadedModelId ?? semanticEmbeddingModelId(buildOptions);
-    const subsampled = subsampleSemanticMessages(messages, maxSamples);
-    const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
+    const clipped = messages.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
     const vectors = [];
     const embedBatch = resolveEmbedBatchSize(modelId);
     for (let i = 0; i < clipped.length; i += embedBatch) {
@@ -158,10 +157,11 @@ export async function extractSemanticKeywords(messages, options) {
         return [];
     const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
     const pipe = await loadPipeline(options.buildOptions, options.corpusMessages ?? samples.length);
-    const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap, options.buildOptions);
+    const semanticSamples = subsampleSemanticMessages(samples, embedCap);
+    const vectors = await embedMessages(pipe, semanticSamples, options.onProgress, options.buildOptions);
     if (vectors.length < MIN_SAMPLES)
         return [];
-    const tokenBags = samples.map((m) => tokenizeForKeywords(m));
+    const tokenBags = semanticSamples.map((m) => tokenizeForKeywords(m));
     const k = Math.max(4, Math.min(14, Math.floor(Math.sqrt(vectors.length / 18))));
     const assignments = kMeansAssignments(vectors, k);
     const minCoherence = options.minClusterCoherence ?? 0.32;

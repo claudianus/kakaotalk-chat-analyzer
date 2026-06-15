@@ -176,12 +176,10 @@ async function embedMessages(
   pipe: FeaturePipeline,
   messages: string[],
   onBatch?: (done: number, total: number) => void,
-  maxSamples = semanticSampleCap(messages.length),
   buildOptions?: BuildReportOptions,
 ): Promise<number[][]> {
   const modelId = loadedModelId ?? semanticEmbeddingModelId(buildOptions);
-  const subsampled = subsampleSemanticMessages(messages, maxSamples);
-  const clipped = subsampled.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
+  const clipped = messages.map((m) => formatTextForEmbedding(m.slice(0, 512), modelId));
   const vectors: number[][] = [];
   const embedBatch = resolveEmbedBatchSize(modelId);
   for (let i = 0; i < clipped.length; i += embedBatch) {
@@ -214,10 +212,11 @@ export async function extractSemanticKeywords(
 
   const embedCap = semanticSampleCap(options.corpusMessages ?? samples.length);
   const pipe = await loadPipeline(options.buildOptions, options.corpusMessages ?? samples.length);
-  const vectors = await embedMessages(pipe, samples, options.onProgress, embedCap, options.buildOptions);
+  const semanticSamples = subsampleSemanticMessages(samples, embedCap);
+  const vectors = await embedMessages(pipe, semanticSamples, options.onProgress, options.buildOptions);
   if (vectors.length < MIN_SAMPLES) return [];
 
-  const tokenBags = samples.map((m) => tokenizeForKeywords(m));
+  const tokenBags = semanticSamples.map((m) => tokenizeForKeywords(m));
   const k = Math.max(4, Math.min(14, Math.floor(Math.sqrt(vectors.length / 18))));
   const assignments = kMeansAssignments(vectors, k);
   const minCoherence = options.minClusterCoherence ?? 0.32;

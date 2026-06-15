@@ -1263,7 +1263,26 @@ export class ReportAggregator {
             openChatBoilerplateExcluded: this.openChatBoilerplateExcluded,
             burstDetectionMethod,
             dailyHotTopics,
-            topicTrend: [],
+            topicTrend: (() => {
+                const monthBuckets = new Map();
+                for (const [dateStr, bucket] of this.dailyKeywordBuckets) {
+                    const monthKey = dateStr.slice(0, 7);
+                    let mb = monthBuckets.get(monthKey);
+                    if (!mb) {
+                        mb = new KeywordCounter();
+                        monthBuckets.set(monthKey, mb);
+                    }
+                    for (const item of bucket.topCounts(20))
+                        mb.addHits(item.label, item.count);
+                }
+                return [...monthBuckets.entries()]
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([period, bucket]) => ({
+                    period,
+                    topics: bucket.topCounts(6).map((item) => ({ name: item.label, value: item.count })),
+                }))
+                    .filter((t) => t.topics.length > 0);
+            })(),
             weeklyTopicTrend: (() => {
                 // 일별 키워드 버킷 → ISO 주차별 집계
                 const weekBuckets = new Map();

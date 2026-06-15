@@ -1,3 +1,4 @@
+import { deterministicPick } from "./deterministic-random.js";
 const TYPE_ICONS = {
     peak_activity: "📈",
     emotional_spike: "💥",
@@ -41,8 +42,8 @@ const CONFLICT_RESOLUTION_DESCRIPTIONS = [
 export function getTypeIcon(type) {
     return TYPE_ICONS[type] ?? "💬";
 }
-function pick(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
+function pick(arr, key = "memorable-moment") {
+    return deterministicPick(arr, key);
 }
 export function enhanceMemorableMomentsWithLlm(moments, llmInsights) {
     if (!llmInsights || !llmInsights.moments || llmInsights.moments.length === 0) {
@@ -135,7 +136,7 @@ function extractPeakDays(daily) {
         date: d.date,
         type: "peak_activity",
         title: "대화 폭발일",
-        description: pick(PEAK_DESCRIPTIONS).replace("{count}", String(d.count)),
+        description: pick(PEAK_DESCRIPTIONS, `peak:${d.date}:${d.count}`).replace("{count}", String(d.count)),
         messageCount: d.count,
         participants: [],
         keywords: [],
@@ -158,7 +159,7 @@ function extractEmotionalSpikes(dailySentiment) {
                 date: curr.date,
                 type: "emotional_spike",
                 title: "감정 고조일",
-                description: pick(EMOTIONAL_SPIKE_UP_DESCRIPTIONS)
+                description: pick(EMOTIONAL_SPIKE_UP_DESCRIPTIONS, `sent-up:${curr.date}:${prev.energy}:${curr.energy}`)
                     .replace("{curr}", String(Math.round(currEnergy)))
                     .replace("{prev}", String(Math.round(prevEnergy))),
                 messageCount: 0,
@@ -172,7 +173,7 @@ function extractEmotionalSpikes(dailySentiment) {
                 date: curr.date,
                 type: "emotional_spike",
                 title: "감정 저조일",
-                description: pick(EMOTIONAL_SPIKE_DOWN_DESCRIPTIONS)
+                description: pick(EMOTIONAL_SPIKE_DOWN_DESCRIPTIONS, `sent-down:${curr.date}:${prev.energy}:${curr.energy}`)
                     .replace("{curr}", String(Math.round(currEnergy)))
                     .replace("{prev}", String(Math.round(prevEnergy))),
                 messageCount: 0,
@@ -191,7 +192,7 @@ function extractMilestones(daily, totalMessages, firstMessageDate, lastMessageDa
             date: firstMessageDate.slice(0, 10),
             type: "milestone",
             title: "첫 대화",
-            description: pick(MILESTONE_FIRST_DESCRIPTIONS),
+            description: pick(MILESTONE_FIRST_DESCRIPTIONS, `first:${firstMessageDate}`),
             messageCount: 1,
             participants: [],
             keywords: [],
@@ -203,7 +204,7 @@ function extractMilestones(daily, totalMessages, firstMessageDate, lastMessageDa
             date: lastMessageDate.slice(0, 10),
             type: "milestone",
             title: "마지막 대화",
-            description: pick(MILESTONE_LAST_DESCRIPTIONS),
+            description: pick(MILESTONE_LAST_DESCRIPTIONS, `last:${lastMessageDate}`),
             messageCount: 1,
             participants: [],
             keywords: [],
@@ -229,7 +230,7 @@ function extractMilestones(daily, totalMessages, firstMessageDate, lastMessageDa
                 date: milestoneDate,
                 type: "milestone",
                 title: `${n.toLocaleString()}번째 메시지`,
-                description: pick(MILESTONE_NUMBER_DESCRIPTIONS).replace("{n}", n.toLocaleString()),
+                description: pick(MILESTONE_NUMBER_DESCRIPTIONS, `milestone:${milestoneDate}:${n}`).replace("{n}", n.toLocaleString()),
                 messageCount: n,
                 participants: [],
                 keywords: milestoneDayKeywords,
@@ -249,7 +250,7 @@ function extractSharedJoy(daily) {
         date: d.date,
         type: "shared_joy",
         title: "활발한 대화일",
-        description: pick(SHARED_JOY_DESCRIPTIONS).replace("{count}", String(d.count)),
+        description: pick(SHARED_JOY_DESCRIPTIONS, `joy:${d.date}:${d.count}`).replace("{count}", String(d.count)),
         messageCount: d.count,
         participants: [],
         keywords: [],
@@ -268,7 +269,7 @@ function extractConflictResolution(dailySentiment) {
                 date: curr.date,
                 type: "conflict_resolution",
                 title: "갈등 해결",
-                description: pick(CONFLICT_RESOLUTION_DESCRIPTIONS)
+                description: pick(CONFLICT_RESOLUTION_DESCRIPTIONS, `resolve:${curr.date}:${prev.negative}:${curr.negative}`)
                     .replace("{prevNeg}", String(Math.round(prev.negative)))
                     .replace("{currNeg}", String(Math.round(curr.negative)))
                     .replace("{prevPos}", String(Math.round(prev.positive)))

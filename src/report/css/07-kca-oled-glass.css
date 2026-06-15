@@ -125,6 +125,120 @@ body.kca-oled .room-title {
   text-shadow: 0 0 24px color-mix(in oklab, var(--accent) 40%, transparent);
 }
 
+:root[data-theme="light"] body.kca-oled .card::before,
+:root[data-theme="light"] body.kca-oled .viz-card::before,
+:root[data-theme="light"] body.kca-oled .kca-card::before,
+:root[data-theme="light"] body.kca-oled .kca-card--glass::before,
+:root[data-theme="light"] body.kca-oled .kca-card--chart::before,
+:root[data-theme="light"] body.kca-oled .kca-card--story::before,
+:root[data-theme="light"] body.kca-oled .kca-card--fact::before,
+:root[data-theme="light"] body.kca-oled .kca-card--insight::before,
+:root[data-theme="light"] body.kca-oled .kca-card--data::before,
+:root[data-theme="light"] body.kca-oled .kca-hero::before {
+  opacity: 0.42;
+}
+
+:root[data-theme="light"] body.kca-oled .card:hover::after,
+:root[data-theme="light"] body.kca-oled .wrapped-card:hover::after,
+:root[data-theme="light"] body.kca-oled .viz-card:hover::after,
+:root[data-theme="light"] body.kca-oled .kca-card:hover::after,
+:root[data-theme="light"] body.kca-oled .kca-card--glass:hover::after,
+:root[data-theme="light"] body.kca-oled .kca-card--chart:hover::after,
+:root[data-theme="light"] body.kca-oled .kca-card--story:hover::after,
+:root[data-theme="light"] body.kca-oled .kca-card--fact:hover::after,
+:root[data-theme="light"] body.kca-oled .kca-card--insight:hover::after,
+:root[data-theme="light"] body.kca-oled .kca-card--data:hover::after,
+:root[data-theme="light"] body.kca-oled .kca-hero:hover::after {
+  opacity: 0.34;
+}
+
+:root[data-theme="light"] body.kca-oled .hero h1,
+:root[data-theme="light"] body.kca-oled .kca-hero h1 {
+  filter: drop-shadow(0 12px 28px rgba(15, 118, 110, 0.12));
+}
+
+:root[data-theme="light"] body.kca-oled .room-title {
+  text-shadow: none;
+}
+
+:root[data-theme="light"] body.kca-oled .kca-topbar .toolbar {
+  background: color-mix(in oklab, var(--glass-strong) 82%, transparent);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+:root[data-theme="light"] body.kca-oled .kca-topbar {
+  background: rgba(255, 255, 255, 0.76);
+  border-color: rgba(17, 24, 39, 0.08);
+  box-shadow: 0 10px 26px rgba(29, 41, 57, 0.08);
+}
+
+:root[data-theme="light"] body.kca-oled .stat-sample-badge {
+  border-color: color-mix(in oklab, var(--accent) 26%, var(--line));
+  background: color-mix(in oklab, var(--accent) 5%, rgba(255, 255, 255, 0.78));
+  box-shadow: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) body.kca-oled .card::before,
+  :root:not([data-theme="dark"]) body.kca-oled .viz-card::before,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card::before,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--glass::before,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--chart::before,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--story::before,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--fact::before,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--insight::before,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--data::before,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-hero::before {
+    opacity: 0.42;
+  }
+
+  :root:not([data-theme="dark"]) body.kca-oled .card:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .wrapped-card:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .viz-card:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--glass:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--chart:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--story:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--fact:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--insight:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-card--data:hover::after,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-hero:hover::after {
+    opacity: 0.34;
+  }
+
+  :root:not([data-theme="dark"]) body.kca-oled .hero h1,
+  :root:not([data-theme="dark"]) body.kca-oled .kca-hero h1 {
+    filter: drop-shadow(0 12px 28px rgba(15, 118, 110, 0.12));
+  }
+
+  :root:not([data-theme="dark"]) body.kca-oled .room-title {
+    text-shadow: none;
+  }
+
+  :root:not([data-theme="dark"]) body.kca-oled .kca-topbar .toolbar {
+    background: color-mix(in oklab, var(--glass-strong) 82%, transparent);
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  :root:not([data-theme="dark"]) body.kca-oled .kca-topbar {
+    background: rgba(255, 255, 255, 0.76);
+    border-color: rgba(17, 24, 39, 0.08);
+    box-shadow: 0 10px 26px rgba(29, 41, 57, 0.08);
+  }
+
+  :root:not([data-theme="dark"]) body.kca-oled .stat-sample-badge {
+    border-color: color-mix(in oklab, var(--accent) 26%, var(--line));
+    background: color-mix(in oklab, var(--accent) 5%, rgba(255, 255, 255, 0.78));
+    box-shadow: none;
+  }
+}
+
 body.kca-oled .story-headline {
   color: color-mix(in oklab, var(--ink) 92%, var(--accent));
 }
@@ -380,18 +494,18 @@ body.kca-oled .gh-cal-cell[data-date]:focus-visible {
   body.kca-oled .kca-reveal {
     opacity: 0;
     transform: translateY(22px) scale(0.98);
-    filter: blur(6px);
+    filter: none;
     transition:
       opacity 0.65s var(--ease-out),
-      transform 0.65s var(--ease-spring),
-      filter 0.65s var(--ease-out);
+      transform 0.65s var(--ease-spring);
     transition-delay: var(--reveal-delay, 0ms);
   }
 
   body.kca-oled .kca-reveal.is-inview {
-    opacity: 1;
-    transform: none;
-    filter: none;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none;
   }
 }
 
