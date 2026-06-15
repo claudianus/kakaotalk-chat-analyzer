@@ -143,7 +143,7 @@ export function renderLlmEraLabels(data) {
     const rows = eras
         .map((e) => `<li><strong>${escapeHtml(e.label)}</strong><span>${escapeHtml(e.detail)}</span></li>`)
         .join("");
-    return `<div class="llm-era-labels"><h3 class="insight-sub">키워드 시대</h3><ul>${rows}</ul></div>`;
+    return `<div class="llm-era-labels"><h3 class="insight-sub">⏳ 키워드 시대</h3><ul>${rows}</ul></div>`;
 }
 export function renderLlmDayMicroStories(data) {
     const days = data.llmInsights?.dayMicroStories;
