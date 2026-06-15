@@ -1,6 +1,7 @@
 import { escapeHtml } from "./report-util.js";
 import { profanityLexiconVersion } from "./profanity.js";
 import { VERSION } from "./version.js";
+import { KCA_DETERMINISTIC_SEED } from "./deterministic-random.js";
 export const REPORT_SCHEMA = "2026-05";
 const PRESET_SOURCE_LABELS = {
     cli: "CLI --preset",
@@ -70,6 +71,14 @@ export function buildReportProvenance(data, options) {
             ...(options.llmSkippedReason ? { llmSkippedReason: options.llmSkippedReason } : {}),
             ...(options.llmModelId ? { llmModelId: options.llmModelId } : {}),
             ...(options.embeddingTopics !== undefined ? { embeddingTopics: options.embeddingTopics } : {}),
+            quality: {
+                deterministicSeed: `0x${KCA_DETERMINISTIC_SEED.toString(16)}`,
+                parseWarnings: data.source.warnings,
+                warningRatePercent: Number(((data.source.warnings / Math.max(data.summary.totalMessages, 1)) * 100).toFixed(3)),
+                ...(options.semanticCap !== undefined ? { semanticSampleCap: options.semanticCap } : {}),
+                openChatBoilerplateExcluded: data.openChatBoilerplateExcluded,
+                openChatBoilerplateExcludedPercent: Number(((data.openChatBoilerplateExcluded / Math.max(data.summary.totalMessages, 1)) * 100).toFixed(3)),
+            },
             ...(options.budgetMs !== undefined ? { budgetMs: options.budgetMs } : {}),
             ...(options.envOverrides?.length ? { envOverrides: options.envOverrides } : {}),
             ...(options.gpu ? { gpu: options.gpu } : {}),
@@ -179,6 +188,14 @@ export function formatProvenanceDetails(provenance) {
         lines.push(`LLM 미사용 사유: ${a.llmSkippedReason}`);
     if (a.embeddingTopics !== undefined) {
         lines.push(`임베딩 주제 레인: ${a.embeddingTopics ? "on" : "off"}`);
+    }
+    if (a.quality) {
+        lines.push(`결정적 샘플 seed: ${a.quality.deterministicSeed}`);
+        lines.push(`파싱 경고율: ${a.quality.parseWarnings}건 (${a.quality.warningRatePercent}%)`);
+        if (a.quality.semanticSampleCap !== undefined) {
+            lines.push(`시맨틱 샘플 정책: 상한 ${a.quality.semanticSampleCap} · 결정적 해시 subsample`);
+        }
+        lines.push(`오픈채팅 boilerplate 제외: ${a.quality.openChatBoilerplateExcluded.toLocaleString("ko-KR")}건 (${a.quality.openChatBoilerplateExcludedPercent}%)`);
     }
     if (a.budgetMs !== undefined) {
         lines.push(`분석 예산(휴리스틱): ~${Math.round(a.budgetMs / 1000)}초`);

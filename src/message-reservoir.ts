@@ -1,7 +1,9 @@
+import { hashString } from "./deterministic-random.js";
+
 /** 메시지 본문 균등 샘플(시맨틱 키워드·임베딩용) */
 export class MessageReservoir {
   private cap: number;
-  private buf: string[] = [];
+  private buf: { message: string; score: number; index: number }[] = [];
   private seen = 0;
 
   constructor(cap = 480) {
@@ -19,16 +21,29 @@ export class MessageReservoir {
 
   push(message: string): void {
     this.seen += 1;
+    const index = this.seen - 1;
+    const score = hashString(`${index}\u0000${message}`);
     if (this.buf.length < this.cap) {
-      this.buf.push(message);
+      this.buf.push({ message, score, index });
       return;
     }
-    const j = Math.floor(Math.random() * this.seen);
-    if (j < this.cap) this.buf[j] = message;
+    let maxIdx = 0;
+    for (let i = 1; i < this.buf.length; i += 1) {
+      const cur = this.buf[i]!;
+      const max = this.buf[maxIdx]!;
+      if (cur.score > max.score || (cur.score === max.score && cur.index > max.index)) maxIdx = i;
+    }
+    const max = this.buf[maxIdx]!;
+    if (score < max.score || (score === max.score && index < max.index)) {
+      this.buf[maxIdx] = { message, score, index };
+    }
   }
 
   drain(): string[] {
-    const out = this.buf;
+    const out = this.buf
+      .slice()
+      .sort((a, b) => a.index - b.index)
+      .map((item) => item.message);
     this.buf = [];
     this.seen = 0;
     return out;

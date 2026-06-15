@@ -597,6 +597,14 @@ export interface ReportProvenance {
     llmSkippedReason?: string;
     llmModelId?: string;
     embeddingTopics?: boolean;
+    quality?: {
+      deterministicSeed: string;
+      parseWarnings: number;
+      warningRatePercent: number;
+      semanticSampleCap?: number;
+      openChatBoilerplateExcluded: number;
+      openChatBoilerplateExcludedPercent: number;
+    };
     budgetMs?: number;
     envOverrides?: string[];
     gpu?: string;

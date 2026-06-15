@@ -21,7 +21,9 @@ const viewports = [
   { name: "mobile", w: 390, h: 844 },
   { name: "tablet", w: 834, h: 1194 },
   { name: "laptop", w: 1440, h: 900 },
-  { name: "4k", w: 2560, h: 1440 },
+  { name: "qhd", w: 2560, h: 1440 },
+  { name: "ultrawide", w: 3440, h: 1440 },
+  { name: "4k", w: 3840, h: 2160 },
 ];
 
 const chartIds = ["chart-hours", "chart-kw-cloud"];
@@ -57,25 +59,81 @@ async function runPlaywright() {
   const browser = await chromium.launch({ headless: true });
   const failures = [];
   try {
-    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-    const consoleErrors = [];
-    page.on("console", (msg) => {
-      if (msg.type() === "error") consoleErrors.push(msg.text());
-    });
-    await page.goto(base, { waitUntil: "networkidle", timeout: 90_000 });
-    await page.waitForTimeout(500);
-    for (const id of chartIds) {
-      const canvas = await page.$(`#${id} canvas`);
-      if (!canvas) failures.push(`#${id} missing canvas`);
+    for (const viewport of viewports) {
+      for (const theme of ["light", "dark"]) {
+        const page = await browser.newPage({ viewport: { width: viewport.w, height: viewport.h } });
+        const consoleErrors = [];
+        page.on("console", (msg) => {
+          if (msg.type() === "error") consoleErrors.push(msg.text());
+        });
+        await page.goto(base, { waitUntil: "networkidle", timeout: 90_000 });
+        await page.evaluate((mode) => {
+          document.documentElement.setAttribute("data-theme", mode);
+        }, theme);
+        await page.waitForTimeout(700);
+
+        const metrics = await page.evaluate(() => {
+          const minSectionWidth = Math.min(
+            ...Array.from(document.querySelectorAll(".kca-section, .kca-section-cluster"))
+              .filter((el) => el.getBoundingClientRect().height > 20)
+              .map((el) => Math.round(el.getBoundingClientRect().width)),
+          );
+          const missingAnchors = Array.from(document.querySelectorAll("[data-kca-jump]"))
+            .map((el) => el.getAttribute("data-kca-jump"))
+            .filter((id) => id && !document.getElementById(id));
+          const failedCharts = Array.from(document.querySelectorAll(".chart-box[data-chart-failed='1']"))
+            .map((el) => el.id || "(anonymous)");
+          const emptyCharts = Array.from(document.querySelectorAll(".chart-box[data-chart-empty='1']"))
+            .map((el) => el.id || "(anonymous)");
+          const chartWidths = Array.from(document.querySelectorAll(".chart-box"))
+            .map((el) => ({ id: el.id, width: Math.round(el.getBoundingClientRect().width) }));
+          return {
+            scrollWidth: document.documentElement.scrollWidth,
+            clientWidth: document.documentElement.clientWidth,
+            mainWidth: Math.round(document.querySelector("main")?.getBoundingClientRect().width || 0),
+            minSectionWidth: Number.isFinite(minSectionWidth) ? minSectionWidth : 0,
+            missingAnchors,
+            failedCharts,
+            emptyCharts,
+            chartWidths,
+          };
+        });
+
+        const label = `${viewport.name}/${theme}`;
+        if (metrics.scrollWidth > metrics.clientWidth + 2) {
+          failures.push(`${label} horizontal overflow ${metrics.scrollWidth}>${metrics.clientWidth}`);
+        }
+        if (viewport.w >= 1600 && metrics.mainWidth < metrics.clientWidth - 96) {
+          failures.push(`${label} main too narrow ${metrics.mainWidth}px for ${metrics.clientWidth}px viewport`);
+        }
+        const minExpected = Math.min(320, viewport.w - 32);
+        if (metrics.minSectionWidth > 0 && metrics.minSectionWidth < minExpected) {
+          failures.push(`${label} section too narrow ${metrics.minSectionWidth}px`);
+        }
+        if (metrics.missingAnchors.length) {
+          failures.push(`${label} missing anchors: ${metrics.missingAnchors.join(", ")}`);
+        }
+        if (metrics.failedCharts.length) {
+          failures.push(`${label} failed charts: ${metrics.failedCharts.join(", ")}`);
+        }
+        const narrowCharts = metrics.chartWidths.filter((c) => c.width > 0 && c.width < 180);
+        if (narrowCharts.length) {
+          failures.push(`${label} narrow charts: ${narrowCharts.map((c) => `${c.id}:${c.width}`).join(", ")}`);
+        }
+        if (viewport.name !== "mobile" && metrics.emptyCharts.includes("chart-hours")) {
+          failures.push(`${label} chart-hours unexpectedly empty`);
+        }
+
+        const fatal = consoleErrors.filter(
+          (t) =>
+            !t.includes("CursorBrowser") &&
+            !t.includes("favicon") &&
+            (t.includes("bootDyadWhenVisible") || t.includes("[kca-chart]")),
+        );
+        if (fatal.length) failures.push(`${label} console: ${fatal.join(" | ")}`);
+        await page.close();
+      }
     }
-    const fatal = consoleErrors.filter(
-      (t) =>
-        !t.includes("CursorBrowser") &&
-        !t.includes("favicon") &&
-        (t.includes("bootDyadWhenVisible") || t.includes("[kca-chart]")),
-    );
-    if (fatal.length) failures.push(`console: ${fatal.join(" | ")}`);
-    await page.close();
   } finally {
     await browser.close();
   }
@@ -83,7 +141,7 @@ async function runPlaywright() {
     console.error("report:viewport playwright FAIL:", failures.join("; "));
     process.exit(1);
   }
-  console.log("report:viewport playwright OK (390px, charts + console)");
+  console.log("report:viewport playwright OK (viewport matrix, wide canvas, anchors, overflow, charts + console)");
 }
 
 console.log(`report: ${htmlPath} (${kb} KiB)`);
@@ -96,7 +154,7 @@ for (const v of viewports) {
   console.log(`  [${v.name}] ${v.w}×${v.h}  ${base}`);
 }
 console.log("");
-console.log("체크: 가로 스크롤 없음 · ECharts 빈 캔버스 없음 · Wrapped 그리드 · fact 2열(모바일)");
+console.log("체크: 가로 스크롤 없음 · 큰 화면 full-width 캔버스 · ECharts 빈 캔버스 없음 · Wrapped 그리드 · fact 2열(모바일)");
 
 if (playwrightMode) {
   await runPlaywright();

@@ -66,6 +66,8 @@
   display: grid;
   gap: 14px;
   grid-template-columns: repeat(12, 1fr);
+  width: 100%;
+  min-width: 0;
 }
 
 /* ── Viz Card ── */
@@ -73,6 +75,7 @@
   grid-column: span 12;
   container-type: inline-size;
   container-name: kca-viz;
+  min-width: 0;
   border-radius: 18px;
   border: 1px solid var(--glass-border);
   background: var(--glass);
@@ -115,11 +118,39 @@
 /* ── Chart Box ── */
 .chart-box {
   width: 100%;
+  min-width: 0;
   min-height: 280px;
   height: min(42vh, 360px);
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--panel) 82%, transparent), color-mix(in oklab, var(--bg2) 76%, transparent)),
+    radial-gradient(circle at 20% 0%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 45%);
 }
 .chart-box.tall { height: min(52vh, 440px); min-height: 320px; }
 .chart-box.compact { height: 240px; min-height: 220px; }
+.chart-box--empty {
+  display: grid;
+  place-items: center;
+  border: 1px dashed color-mix(in oklab, var(--accent) 24%, var(--line));
+}
+.chart-empty-state {
+  display: grid;
+  gap: 6px;
+  max-width: min(28rem, 92%);
+  padding: 18px;
+  text-align: center;
+  color: var(--muted);
+}
+.chart-empty-state strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+.chart-empty-state span {
+  font-size: 12px;
+  line-height: 1.55;
+}
 .weekly-sparkline-container { padding: 8px 0; }
 .weekly-sparkline-container .chart-box {
   height: 180px;

@@ -77,62 +77,64 @@ export function renderReportHtml(data) {
             ${data.buildTiming ? `<p><strong>생성 소요</strong> ${escapeHtml(formatBuildTiming(data.buildTiming))}</p>` : ""}
             <p><strong>첫 메시지</strong> ${escapeHtml(data.summary.firstMessage ?? "—")}</p>
             <p><strong>마지막 메시지</strong> ${escapeHtml(data.summary.lastMessage ?? "—")}</p>
+            ${renderProvenanceSideCard(data)}
             ${renderProvenanceDetailsBlock(data)}
           </div>
         </details>
       </div>
     </header>
     ${renderLlmArchetypeBanner(data)}
+    <div class="kca-report-flow">
+      ${renderFactMatrix(data)}
 
-    <div class="kca-bento-grid">
-    <!-- ZONE 1: 최근 활동 대시보드 -->
-    <section class="kca-dashboard-zone" data-observe>
-      <h2 class="zone-title">⏰ 최근 활동</h2>
-      <div class="kca-dashboard-grid">
-        <div class="kca-dashboard-main">
-          ${renderRecentSnapshot(data)}
+      <section class="kca-section-cluster kca-section-cluster--recent anim-enter" data-observe style="--enter-delay:0.04s" aria-label="최근 활동과 핫토픽">
+        <div class="kca-section-kicker">Live Pulse</div>
+        <h2 class="zone-title">⏰ 최근 활동</h2>
+        <div class="kca-dashboard-grid kca-dashboard-grid--recent">
+          <div class="kca-dashboard-main">
+            ${renderRecentSnapshot(data)}
+          </div>
+          <aside class="kca-dashboard-side" aria-label="최근 핫토픽">
+            ${renderDailyHotTopics(data)}
+          </aside>
         </div>
-        <div class="kca-dashboard-side">
-          ${renderDailyHotTopics(data)}
+      </section>
+
+      <section class="kca-section-cluster kca-section-cluster--insights anim-enter" data-observe style="--enter-delay:0.05s" aria-label="핵심 인사이트">
+        <div class="kca-section-kicker">Executive Insight</div>
+        <h2 class="zone-title">📊 핵심 인사이트</h2>
+        <div class="kca-dashboard-grid kca-dashboard-grid--insight">
+          <div class="kca-dashboard-main">
+            ${renderInsightDeck(data)}
+          </div>
+          <aside class="kca-dashboard-side" aria-label="주제 맵과 트렌드">
+            <section class="kca-card kca-card--chart weekly-sparkline-card">
+              <h3>📈 주간 활동 트렌드</h3>
+              <p class="chart-hint">최근 주차별 활동량을 압축해서 보여줍니다.</p>
+              <div class="weekly-sparkline-container">
+                <div id="chart-weekly-sparkline" class="chart-box compact" role="img" aria-label="주간 활동 스파크라인"></div>
+              </div>
+            </section>
+            ${renderTopicMap(data)}
+            ${renderTopicTrendSection(data)}
+          </aside>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ZONE 1.5: 주간 트렌드 스파크라인 -->
-    <section class="kca-dashboard-zone" data-observe>
-      <h2 class="zone-title">📈 주간 활동 트렌드</h2>
-      <div class="weekly-sparkline-container">
-        <div id="chart-weekly-sparkline" class="chart-box compact" role="img" aria-label="주간 활동 스파크라인"></div>
-      </div>
-    </section>
+      <section class="kca-section-cluster kca-section-cluster--story anim-enter" data-observe style="--enter-delay:0.055s" aria-label="스토리와 참여자">
+        <div class="kca-section-kicker">Story Layer</div>
+        ${renderStorySections(data)}
+        ${renderLlmEpisodeStrip(data)}
+        ${renderLlmCharacterCards(data)}
+        ${renderParticipantRoles(data)}
+        ${renderLlmRelationshipBeats(data)}
+        ${renderLlmEraLabels(data)}
+      </section>
 
-    <!-- ZONE 2: 핵심 인사이트 -->
-    <section class="kca-dashboard-zone" data-observe>
-      <h2 class="zone-title">📊 핵심 인사이트</h2>
-      <div class="kca-dashboard-grid">
-        <div class="kca-dashboard-main">
-          ${renderInsightDeck(data)}
-        </div>
-        <div class="kca-dashboard-side">
-          ${renderTopicMap(data)}
-          ${renderTopicTrendSection(data)}
-        </div>
-      </div>
-    </section>
-
-    <!-- ZONE 3: Wrapped + 스토리 -->
-    ${renderStorySections(data)}
-    ${renderLlmEpisodeStrip(data)}
-    ${renderLlmCharacterCards(data)}
-    ${renderParticipantRoles(data)}
-    ${renderLlmRelationshipBeats(data)}
-    ${renderLlmEraLabels(data)}
-
-    <!-- ZONE 4: 상세 데이터 -->
-    <section class="kca-dashboard-zone viz-grid" data-observe>
-      <h2 class="zone-title">📈 상세 데이터</h2>
-      ${renderChartDeck(data)}
-    </section>
+      <section class="kca-section-cluster kca-section-cluster--viz anim-enter" data-observe style="--enter-delay:0.06s" aria-label="상세 데이터 시각화">
+        <div class="kca-section-kicker">Interactive Analytics</div>
+        ${renderChartDeck(data)}
+      </section>
     </div>
 
     ${renderOpenChatInsightCard(data)}
@@ -452,6 +454,7 @@ function renderFactMatrix(data) {
     return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>📊 핵심 숫자</h2>
     ${renderSampleBadge(data)}
+    ${renderAnalysisQualityRail(data)}
     <div class="fact-hero-strip" aria-label="핵심 KPI" data-observe>${heroHtml}</div>
     <div class="fact-grid" data-observe>${coreInner}</div>
     <details class="fact-more"><summary>더 많은 지표</summary><div class="fact-grid">${extraInner}</div></details>
@@ -639,6 +642,31 @@ function renderSampleBadge(data) {
         ? `${s.firstMessage.slice(0, 10)} ~ ${s.lastMessage.slice(0, 10)}`
         : "기간 미상";
     return `<p class="stat-sample-badge" role="note"><span class="stat-sample-k">📋 표본</span> <strong>${escapeHtml(formatNumber(s.totalMessages))}</strong>건 · <strong>${escapeHtml(formatNumber(s.participants))}</strong>명 · 활동 <strong>${escapeHtml(formatNumber(s.activeDays))}</strong>일 <span class="stat-sample-range">${escapeHtml(range)}</span></p>`;
+}
+function renderAnalysisQualityRail(data) {
+    const q = data.provenance?.analysis.quality;
+    const total = Math.max(data.summary.totalMessages, 1);
+    const warnings = q?.parseWarnings ?? data.source.warnings;
+    const warningRate = q?.warningRatePercent ?? Number(((warnings / total) * 100).toFixed(3));
+    const excluded = q?.openChatBoilerplateExcluded ?? data.openChatBoilerplateExcluded;
+    const excludedRate = q?.openChatBoilerplateExcludedPercent ?? Number(((excluded / total) * 100).toFixed(3));
+    const seed = q?.deterministicSeed ?? "deterministic";
+    const sem = q?.semanticSampleCap
+        ? `시맨틱 cap ${formatNumber(q.semanticSampleCap)}`
+        : data.summary.usedSemanticKeywords
+            ? "시맨틱 사용"
+            : "시맨틱 미사용";
+    const items = [
+        ["재현성", seed, "샘플링·클러스터링 seed"],
+        ["파싱 경고", `${formatNumber(warnings)}건`, `${warningRate}%`],
+        ["품질 레인", sem, data.summary.usedSentimentAnalysis ? "감정 분석 사용" : "감정 분석 미사용"],
+        ["노이즈 제외", `${formatNumber(excluded)}건`, `${excludedRate}%`],
+    ];
+    return `<div class="analysis-quality-rail" aria-label="분석 신뢰도 요약">
+    ${items
+        .map(([label, value, detail]) => `<span class="analysis-quality-pill"><b>${escapeHtml(label)}</b><strong>${escapeHtml(value)}</strong><em>${escapeHtml(detail)}</em></span>`)
+        .join("")}
+  </div>`;
 }
 function giniMetricSub(gini, participants) {
     if (gini === null)

@@ -1,4 +1,5 @@
 import type { DailyCount, DailyHotTopic, DailySentiment, LlmInsights, MemorableMoment } from "./types.js";
+import { deterministicPick } from "./deterministic-random.js";
 
 const TYPE_ICONS: Record<MemorableMoment["type"], string> = {
   peak_activity: "📈",
@@ -53,8 +54,8 @@ export function getTypeIcon(type: MemorableMoment["type"]): string {
   return TYPE_ICONS[type] ?? "💬";
 }
 
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pick<T>(arr: T[], key = "memorable-moment"): T {
+  return deterministicPick(arr, key);
 }
 
 export function enhanceMemorableMomentsWithLlm(
@@ -164,7 +165,7 @@ function extractPeakDays(daily: DailyCount[]): MemorableMoment[] {
     date: d.date,
     type: "peak_activity" as const,
     title: "대화 폭발일",
-    description: pick(PEAK_DESCRIPTIONS).replace("{count}", String(d.count)),
+        description: pick(PEAK_DESCRIPTIONS, `peak:${d.date}:${d.count}`).replace("{count}", String(d.count)),
     messageCount: d.count,
     participants: [],
     keywords: [],
@@ -187,7 +188,7 @@ function extractEmotionalSpikes(dailySentiment: DailySentiment[]): MemorableMome
         date: curr.date,
         type: "emotional_spike" as const,
         title: "감정 고조일",
-        description: pick(EMOTIONAL_SPIKE_UP_DESCRIPTIONS)
+        description: pick(EMOTIONAL_SPIKE_UP_DESCRIPTIONS, `sent-up:${curr.date}:${prev.energy}:${curr.energy}`)
           .replace("{curr}", String(Math.round(currEnergy)))
           .replace("{prev}", String(Math.round(prevEnergy))),
         messageCount: 0,
@@ -201,7 +202,7 @@ function extractEmotionalSpikes(dailySentiment: DailySentiment[]): MemorableMome
         date: curr.date,
         type: "emotional_spike" as const,
         title: "감정 저조일",
-        description: pick(EMOTIONAL_SPIKE_DOWN_DESCRIPTIONS)
+        description: pick(EMOTIONAL_SPIKE_DOWN_DESCRIPTIONS, `sent-down:${curr.date}:${prev.energy}:${curr.energy}`)
           .replace("{curr}", String(Math.round(currEnergy)))
           .replace("{prev}", String(Math.round(prevEnergy))),
         messageCount: 0,
@@ -227,7 +228,7 @@ function extractMilestones(
       date: firstMessageDate.slice(0, 10),
       type: "milestone" as const,
       title: "첫 대화",
-      description: pick(MILESTONE_FIRST_DESCRIPTIONS),
+      description: pick(MILESTONE_FIRST_DESCRIPTIONS, `first:${firstMessageDate}`),
       messageCount: 1,
       participants: [],
       keywords: [],
@@ -240,7 +241,7 @@ function extractMilestones(
       date: lastMessageDate.slice(0, 10),
       type: "milestone" as const,
       title: "마지막 대화",
-      description: pick(MILESTONE_LAST_DESCRIPTIONS),
+      description: pick(MILESTONE_LAST_DESCRIPTIONS, `last:${lastMessageDate}`),
       messageCount: 1,
       participants: [],
       keywords: [],
@@ -267,7 +268,7 @@ function extractMilestones(
         date: milestoneDate,
         type: "milestone" as const,
         title: `${n.toLocaleString()}번째 메시지`,
-        description: pick(MILESTONE_NUMBER_DESCRIPTIONS).replace("{n}", n.toLocaleString()),
+        description: pick(MILESTONE_NUMBER_DESCRIPTIONS, `milestone:${milestoneDate}:${n}`).replace("{n}", n.toLocaleString()),
         messageCount: n,
         participants: [],
         keywords: milestoneDayKeywords,
@@ -290,7 +291,7 @@ function extractSharedJoy(daily: DailyCount[]): MemorableMoment[] {
     date: d.date,
     type: "shared_joy" as const,
     title: "활발한 대화일",
-    description: pick(SHARED_JOY_DESCRIPTIONS).replace("{count}", String(d.count)),
+        description: pick(SHARED_JOY_DESCRIPTIONS, `joy:${d.date}:${d.count}`).replace("{count}", String(d.count)),
     messageCount: d.count,
     participants: [],
     keywords: [],
@@ -309,7 +310,7 @@ function extractConflictResolution(dailySentiment: DailySentiment[]): MemorableM
         date: curr.date,
         type: "conflict_resolution" as const,
         title: "갈등 해결",
-        description: pick(CONFLICT_RESOLUTION_DESCRIPTIONS)
+        description: pick(CONFLICT_RESOLUTION_DESCRIPTIONS, `resolve:${curr.date}:${prev.negative}:${curr.negative}`)
           .replace("{prevNeg}", String(Math.round(prev.negative)))
           .replace("{currNeg}", String(Math.round(curr.negative)))
           .replace("{prevPos}", String(Math.round(prev.positive)))

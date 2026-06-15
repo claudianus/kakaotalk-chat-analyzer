@@ -373,10 +373,34 @@ export const CHARTS_INIT_SCRIPT = `
         }
         return { w: w, left: 48, right: 14, top: 22, bottom: 28, fs: 11, rot: 0, leftCat: 96, bottomRot: 28 };
       }
+      function showChartEmpty(id, title, detail) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add("chart-box--empty");
+        el.setAttribute("data-chart-empty", "1");
+        el.setAttribute("aria-label", title + (detail ? " — " + detail : ""));
+        el.innerHTML = '<div class="chart-empty-state"><strong>' + title + '</strong>' + (detail ? '<span>' + detail + '</span>' : '') + '</div>';
+      }
+      function hasSeries(items) {
+        return Array.isArray(items) && items.some(function (item) {
+          if (typeof item === "number") return item > 0;
+          if (!item) return false;
+          if (typeof item.count === "number") return item.count > 0;
+          if (typeof item.value === "number") return item.value > 0;
+          if (typeof item.messages === "number") return item.messages > 0;
+          return true;
+        });
+      }
       function init(id, opt) {
         var el = document.getElementById(id);
         if (!el) return null;
+        if (el.clientWidth > 0 && el.clientWidth < 160) {
+          showChartEmpty(id, "차트를 그릴 공간이 부족합니다", "리포트 레이아웃을 다시 계산한 뒤 새로고침해 주세요.");
+          return null;
+        }
         try {
+          el.classList.remove("chart-box--empty");
+          el.removeAttribute("data-chart-empty");
           var chart = echarts.init(el, null, { renderer: "canvas" });
           chart.setOption(opt);
           charts.push(chart);
@@ -392,7 +416,7 @@ export const CHARTS_INIT_SCRIPT = `
         } catch (err) {
           console.error("[kca-chart]", id, err);
           el.setAttribute("data-chart-failed", "1");
-          el.innerHTML = '<p style="margin:0;padding:12px;font-size:12px;color:var(--muted);text-align:center">차트를 불러오지 못했어요. 새로고침하거나 네트워크(CDN)를 확인해 주세요.</p>';
+          showChartEmpty(id, "차트를 불러오지 못했어요", "새로고침하거나 네트워크(CDN)를 확인해 주세요.");
           return null;
         }
       }
@@ -425,7 +449,7 @@ export const CHARTS_INIT_SCRIPT = `
         if (h <= 17) return dark ? "#fbbf24" : "#d97706";
         return dark ? "#3b82f6" : "#1d4ed8";
       }
-      if (data.hourly && document.getElementById("chart-hours")) {
+      if (hasSeries(data.hourly) && document.getElementById("chart-hours")) {
         var hoursEl = document.getElementById("chart-hours");
         var hg = layout(hoursEl);
         init("chart-hours", Object.assign(baseOpt(), {
@@ -444,10 +468,12 @@ export const CHARTS_INIT_SCRIPT = `
             },
           }],
         }));
+      } else if (document.getElementById("chart-hours")) {
+        showChartEmpty("chart-hours", "시간대 데이터가 부족합니다", "분석할 수 있는 메시지가 더 쌓이면 시간 분포를 보여줍니다.");
       }
 
       // 주간 스파크라인 차트
-      if (data.daily && data.daily.length > 0 && document.getElementById("chart-weekly-sparkline")) {
+      if (hasSeries(data.daily) && document.getElementById("chart-weekly-sparkline")) {
         var sparkEl = document.getElementById("chart-weekly-sparkline");
         var sg = layout(sparkEl);
         var last7 = data.daily.slice(-7);
@@ -466,9 +492,11 @@ export const CHARTS_INIT_SCRIPT = `
             itemStyle: { color: accent, borderColor: dark ? "#0f1219" : "#fff", borderWidth: 2 },
           }],
         }));
+      } else if (document.getElementById("chart-weekly-sparkline")) {
+        showChartEmpty("chart-weekly-sparkline", "최근 활동 추이가 없습니다", "활동일 데이터가 있어야 주간 스파크라인을 그립니다.");
       }
 
-      if (data.weekdays && document.getElementById("chart-weekday")) {
+      if (hasSeries(data.weekdays) && document.getElementById("chart-weekday")) {
         var wdEl = document.getElementById("chart-weekday");
         var wg = layout(wdEl);
         var wdCounts = data.weekdays.map(function (w) { return w.count; });
@@ -493,9 +521,11 @@ export const CHARTS_INIT_SCRIPT = `
             }),
           }],
         }));
+      } else if (document.getElementById("chart-weekday")) {
+        showChartEmpty("chart-weekday", "요일 분포 데이터가 없습니다", "활동 메시지가 있으면 요일별 패턴을 표시합니다.");
       }
 
-      if (data.monthly && document.getElementById("chart-monthly")) {
+      if (hasSeries(data.monthly) && document.getElementById("chart-monthly")) {
         var moEl = document.getElementById("chart-monthly");
         var mg = layout(moEl);
         var monthLabels = data.monthly.map(function (m) {
@@ -511,9 +541,11 @@ export const CHARTS_INIT_SCRIPT = `
           yAxis: { type: "value", axisLabel: { color: muted, fontSize: mg.fs }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
           series: [{ type: "line", smooth: true, data: data.monthly.map(function (m) { return m.count; }), areaStyle: { opacity: 0.12 }, lineStyle: { width: 2, color: accent2 }, itemStyle: { color: accent2 } }],
         }));
+      } else if (document.getElementById("chart-monthly")) {
+        showChartEmpty("chart-monthly", "월별 추이가 없습니다", "두 달 이상 데이터가 있으면 월별 차트를 표시합니다.");
       }
 
-      if (data.daily && document.getElementById("chart-daily-heat")) {
+      if (hasSeries(data.daily) && document.getElementById("chart-daily-heat")) {
         var heatEl = document.getElementById("chart-daily-heat");
         var dg = layout(heatEl);
         var heatMax = Math.max.apply(null, data.daily.map(function (d) { return d.count; }).concat([1]));
@@ -550,9 +582,11 @@ export const CHARTS_INIT_SCRIPT = `
             series: [{ type: "heatmap", coordinateSystem: "calendar", data: heat, emphasis: { itemStyle: { shadowBlur: 8, shadowColor: dark ? "rgba(62,232,197,0.5)" : "rgba(33,110,57,0.45)" } } }],
           }));
         }
+      } else if (document.getElementById("chart-daily-heat")) {
+        showChartEmpty("chart-daily-heat", "일별 활동 데이터가 없습니다", "활동일이 확인되면 히트맵을 표시합니다.");
       }
 
-      if (data.keywords && document.getElementById("chart-kw-cloud")) {
+      if (hasSeries(data.keywords) && document.getElementById("chart-kw-cloud")) {
         var cloudEl = document.getElementById("chart-kw-cloud");
         var cg = layout(cloudEl);
         var cloud = data.keywords.slice(0, 100).map(function (k) {
@@ -571,14 +605,19 @@ export const CHARTS_INIT_SCRIPT = `
             rotationRange: [-45, 45],
             textStyle: {
               fontFamily: "Pretendard, Apple SD Gothic Neo, sans-serif",
-              color: function () {
+              color: function (p) {
                 var palette = dark ? ["#3ee8c5", "#818cf8", "#fbbf24", "#fb923c", "#f472b6"] : ["#0f6b5c", "#4f46e5", "#b8860b", "#c45c2a", "#be185d"];
-                return palette[Math.floor(Math.random() * palette.length)];
+                var name = (p && p.name) ? String(p.name) : "";
+                var h = 0;
+                for (var i = 0; i < name.length; i += 1) h = Math.imul(h ^ name.charCodeAt(i), 16777619);
+                return palette[Math.abs(h) % palette.length];
               },
             },
             data: cloud,
           }],
         });
+      } else if (document.getElementById("chart-kw-cloud")) {
+        showChartEmpty("chart-kw-cloud", "키워드 신호가 부족합니다", "짧은 대화이거나 필터링 후 남은 본문 키워드가 거의 없습니다.");
       }
 
       if (data.sentiment && document.getElementById("chart-sentiment")) {
@@ -600,9 +639,11 @@ export const CHARTS_INIT_SCRIPT = `
             label: { color: text, fontSize: sg.fs },
           }],
         }));
+      } else if (document.getElementById("chart-sentiment")) {
+        showChartEmpty("chart-sentiment", "감정 분석이 꺼져 있습니다", "프리셋이나 환경에 따라 감정 모델이 생략될 수 있습니다.");
       }
 
-      if (data.topicsThemes && data.topicsThemes.length && document.getElementById("chart-topics")) {
+      if (hasSeries(data.topicsThemes) && document.getElementById("chart-topics")) {
         var topEl = document.getElementById("chart-topics");
         var tg = layout(topEl);
         var topics = data.topicsThemes.slice(0, 12);
@@ -623,6 +664,8 @@ export const CHARTS_INIT_SCRIPT = `
             },
           }],
         }));
+      } else if (document.getElementById("chart-topics")) {
+        showChartEmpty("chart-topics", "주제 테마가 충분하지 않습니다", "키워드 공기 패턴이 더 뚜렷할 때 주제 차트를 표시합니다.");
       }
 
       if (data.topicTrend && data.topicTrend.length && document.getElementById("chart-topic-trend")) {
@@ -674,9 +717,11 @@ export const CHARTS_INIT_SCRIPT = `
           color: ttColors,
           series: series,
         }));
+      } else if (document.getElementById("chart-topic-trend")) {
+        showChartEmpty("chart-topic-trend", "월별 토픽 변화가 없습니다", "월별로 비교할 키워드 신호가 충분하지 않습니다.");
       }
 
-      if (data.domains && document.getElementById("chart-domains")) {
+      if (hasSeries(data.domains) && document.getElementById("chart-domains")) {
         var domEl = document.getElementById("chart-domains");
         var domg = layout(domEl);
         init("chart-domains", Object.assign(baseOpt(), {
@@ -697,6 +742,8 @@ export const CHARTS_INIT_SCRIPT = `
             itemStyle: { borderColor: dark ? "#0d1117" : "#fff", gapWidth: 2 },
           }],
         }));
+      } else if (document.getElementById("chart-domains")) {
+        showChartEmpty("chart-domains", "공유 링크가 거의 없습니다", "도메인 차트는 링크가 있는 대화에서 표시됩니다.");
       }
 
       if (data.interaction && document.getElementById("chart-network")) {
@@ -1033,7 +1080,9 @@ export const CHARTS_INIT_SCRIPT = `
             if (++tries > 120) {
               document.querySelectorAll(".chart-box").forEach(function (el) {
                 if (!el.querySelector("canvas")) {
-                  el.innerHTML = '<p style="margin:0;padding:12px;font-size:12px;color:var(--muted);text-align:center">ECharts CDN을 불러오지 못했습니다.</p>';
+                  el.classList.add("chart-box--empty");
+                  el.setAttribute("data-chart-empty", "1");
+                  el.innerHTML = '<div class="chart-empty-state"><strong>ECharts CDN을 불러오지 못했습니다</strong><span>네트워크를 확인한 뒤 새로고침해 주세요.</span></div>';
                 }
               });
               return;
