@@ -109,7 +109,7 @@ export function renderLlmRelationshipBeats(data) {
     const rows = beats
         .map((b) => `<li class="llm-beat-card"><strong>${escapeHtml(b.pair)}</strong>${b.role ? ` <em>${escapeHtml(b.role)}</em>` : ""}<span>${renderHighlightLine(b.beat)}</span></li>`)
         .join("");
-    return `<div class="llm-rel-beats"><h3 class="insight-sub">관계 드라마</h3><ul class="llm-beat-list">${rows}</ul></div>`;
+    return `<div class="llm-rel-beats"><h3 class="insight-sub">💕 관계 드라마</h3><ul class="llm-beat-list">${rows}</ul></div>`;
 }
 export function renderLlmCharacterCards(data) {
     const cards = data.llmInsights?.characterCards;
