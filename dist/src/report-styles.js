@@ -1817,6 +1817,13 @@ footer {
     }
     .chart-box.tall { height: min(52vh, 440px); min-height: 320px; }
     .chart-box.compact { height: 240px; min-height: 220px; }
+    .weekly-sparkline-container {
+      padding: 8px 0;
+    }
+    .weekly-sparkline-container .chart-box {
+      height: 180px;
+      min-height: 160px;
+    }
     #chart-daily-heat.chart-box { min-height: 280px; height: min(42vh, 360px); }
     .pie-legend {
       display: grid;

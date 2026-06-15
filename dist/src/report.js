@@ -97,6 +97,14 @@ export function renderReportHtml(data) {
       </div>
     </section>
 
+    <!-- ZONE 1.5: 주간 트렌드 스파크라인 -->
+    <section class="kca-dashboard-zone" data-observe>
+      <h2 class="zone-title">📈 주간 활동 트렌드</h2>
+      <div class="weekly-sparkline-container">
+        <div id="chart-weekly-sparkline" class="chart-box compact" role="img" aria-label="주간 활동 스파크라인"></div>
+      </div>
+    </section>
+
     <!-- ZONE 2: 핵심 인사이트 -->
     <section class="kca-dashboard-zone" data-observe>
       <h2 class="zone-title">📊 핵심 인사이트</h2>

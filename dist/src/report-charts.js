@@ -404,6 +404,7 @@ export const CHARTS_INIT_SCRIPT = `
       muted = cssVar("--muted", dark ? "#8b98a8" : "#5c6670");
       accent = cssVar("--accent", dark ? "#3ee8c5" : "#0f6b5c");
       accent2 = cssVar("--accent2", dark ? "#818cf8" : "#4f46e5");
+      var accent20 = accent + "33";
       heatLo = cssVar("--chart-heat-lo", dark ? "#1a2744" : "#d4e4f4");
       heatHi = cssVar("--chart-heat-hi", dark ? "#5ee8ff" : "#1e4fd6");
       wdColors = [
@@ -439,6 +440,28 @@ export const CHARTS_INIT_SCRIPT = `
               itemStyle: { color: dark ? "rgba(99,102,241,0.12)" : "rgba(79,70,229,0.08)" },
               data: [[{ xAxis: "0시" }, { xAxis: "5시" }], [{ xAxis: "22시" }, { xAxis: "23시" }]],
             },
+          }],
+        }));
+      }
+
+      // 주간 스파크라인 차트
+      if (data.daily && data.daily.length > 0 && document.getElementById("chart-weekly-sparkline")) {
+        var sparkEl = document.getElementById("chart-weekly-sparkline");
+        var sg = layout(sparkEl);
+        var last7 = data.daily.slice(-7);
+        init("chart-weekly-sparkline", Object.assign(baseOpt(), {
+          grid: { left: sg.left, right: sg.right, top: sg.top + 8, bottom: sg.bottom },
+          xAxis: { type: "category", data: last7.map(function (d) { return d.date.slice(5); }), axisLabel: { color: muted, fontSize: sg.fs } },
+          yAxis: { type: "value", axisLabel: { color: muted }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
+          series: [{
+            type: "line",
+            data: last7.map(function (d) { return d.count; }),
+            smooth: true,
+            symbol: "circle",
+            symbolSize: 6,
+            lineStyle: { width: 3, color: accent },
+            areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: accent20 }, { offset: 1, color: "transparent" }] } },
+            itemStyle: { color: accent, borderColor: dark ? "#0f1219" : "#fff", borderWidth: 2 },
           }],
         }));
       }
