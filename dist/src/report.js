@@ -520,6 +520,34 @@ function renderInsightDeck(data) {
     ${renderParticipantEmojiStats(data.participantEmojiStats)}
     ${renderHonorificInsight(data.honorificInsight)}
     <div class="insight-split" data-observe>
+        <p class="insight-lede">참여·응답·링크 분포를 한눈에 보여주는 <strong>패턴 지표</strong>예요. <a href="#s-help" data-kca-jump="s-help" style="color:var(--accent);font-weight:750">⑥ 용어 설명</a></p>
+      </div>
+      <div class="rh-wrap anim-ring" aria-label="리듬 점수" data-observe>
+        <div class="rh-ring" style="--p:${ins.rhythmScore}"><span></span></div>
+        <div class="rh-cap"><strong>리듬</strong><span>${ins.rhythmScore}<small>/100</small></span></div>
+      </div>
+    </div>
+    <div class="insight-grid" data-observe>
+      ${insMetric("📊 주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
+      ${insMetric("👥 참여 지니", giniStr, giniMetricSub(ins.participantGini, data.summary.participants))}
+      ${insMetric("⏱️ 응답 상위10%", p90, "느린 쪽 10% 구간")}
+      ${insMetric("⏸️ 최장 공백", silence, "활동일 사이 최대 휴지")}
+      ${insMetric("🏆 상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
+      ${insMetric("🔄 화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
+      ${linkEntropyMetric(data, ins)}
+      ${insMetric("❓ 질문 수", `${ins.questionLikeMessagesPer100}/100`, "100메시지당 물음표 포함")}
+      ${insMetric("💬 독백 비중", `${ins.monologueMessagesPercent}%`, "3연속 이상 동일인 메시지")}
+      ${sessionMetric}
+      ${insMetric("📈 최고 활동일", `${ins.peakDaySharePercent}%`, "전체 중 일별 최대 비중")}
+      ${insMetric("🔗 고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
+      ${insMetric("📝 평균 길이", `${data.summary.averageMessageLength}자`, "메시지당 평균 글자 수")}
+      ${insMetric("🌙 심야 비중", `${data.summary.nightSharePercent}%`, "23시~05시 메시지 비율")}
+    </div>
+    ${renderLlmInsideJokes(data)}
+    ${renderEmojiInsight(data.emojiInsight)}
+    ${renderParticipantEmojiStats(data.participantEmojiStats)}
+    ${renderHonorificInsight(data.honorificInsight)}
+    <div class="insight-split" data-observe>
       <div>
         <h3 class="insight-sub">하루 시간대 비중</h3>
         <p class="chart-hint">새벽·아침·낮·저녁 네 덩어리로 나눈 <strong>메시지 비율</strong>이에요.</p>
