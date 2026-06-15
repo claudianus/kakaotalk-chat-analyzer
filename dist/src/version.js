@@ -1,3 +1,3 @@
-export const VERSION = "0.24.34";
+export const VERSION = "0.24.35";
 export const USER_AGENT = `kakaotalk-chat-analyzer/${VERSION}`;
 //# sourceMappingURL=version.js.map

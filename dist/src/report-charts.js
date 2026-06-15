@@ -94,7 +94,7 @@ export function renderChartDeck(data) {
     </article>`
         : "";
     return `<section id="s-viz" class="kca-section viz-hero anim-enter" style="--enter-delay:0.055s" aria-label="인터랙티브 차트">
-    <h2>📊 인터랙티브 차트</h2>
+    <h2>📈 인터랙티브 차트</h2>
     <p>ECharts 기반 — 막대·히트맵·워드클라우드에 마우스를 올리면 수치를 확인할 수 있어요. 키워드 <strong>${formatNumber(kw)}</strong>개(메시지 등장 횟수 기준).</p>
   </section>
   <div class="viz-grid anim-enter" style="--enter-delay:0.06s">
