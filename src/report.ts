@@ -1281,10 +1281,10 @@ function renderCountBars(items: CountItem[]): string {
 function renderProvenanceAnalysisBadges(data: ReportData): string {
   const a = data.provenance?.analysis;
   if (!a?.preset) return "";
-  const sem = a.semanticUsed ? "시맨틱 on" : "시맨틱 off";
-  const llm = a.llmUsed ? "LLM on" : "LLM off";
+  const sem = a.semanticUsed ? "🧠 시맨틱 on" : "시맨틱 off";
+  const llm = a.llmUsed ? "🤖 LLM on" : "LLM off";
   return `<div class="badge-row kca-provenance-badges" aria-label="분석 설정 요약">
-    <span class="badge">preset ${escapeHtml(a.preset)}</span>
+    <span class="badge">⚡ preset ${escapeHtml(a.preset)}</span>
     <span class="badge">${escapeHtml(sem)}</span>
     <span class="badge">${escapeHtml(llm)}</span>
   </div>`;
