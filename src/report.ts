@@ -715,7 +715,7 @@ function renderSampleBadge(data: ReportData): string {
     s.firstMessage && s.lastMessage
       ? `${s.firstMessage.slice(0, 10)} ~ ${s.lastMessage.slice(0, 10)}`
       : "기간 미상";
-  return `<p class="stat-sample-badge" role="note"><span class="stat-sample-k">표본</span> <strong>${escapeHtml(formatNumber(s.totalMessages))}</strong>건 · <strong>${escapeHtml(formatNumber(s.participants))}</strong>명 · 활동 <strong>${escapeHtml(formatNumber(s.activeDays))}</strong>일 <span class="stat-sample-range">${escapeHtml(range)}</span></p>`;
+  return `<p class="stat-sample-badge" role="note"><span class="stat-sample-k">📋 표본</span> <strong>${escapeHtml(formatNumber(s.totalMessages))}</strong>건 · <strong>${escapeHtml(formatNumber(s.participants))}</strong>명 · 활동 <strong>${escapeHtml(formatNumber(s.activeDays))}</strong>일 <span class="stat-sample-range">${escapeHtml(range)}</span></p>`;
 }
 
 function giniMetricSub(gini: number | null, participants: number): string {
