@@ -31,7 +31,7 @@ export function renderLlmArchetypeBanner(data: ReportData): string {
     ? `<div class="llm-trait-row llm-trait-row--fallback"><span class="llm-trait-chip llm-trait-chip--fallback">${escapeHtml(arch.name)}의 특징적인 대화 패턴</span></div>`
     : "";
   return `<section id="s-archetype" class="kca-section llm-archetype-banner anim-enter" style="--enter-delay:0.025s" aria-label="방 아키타입">
-    <p class="llm-archetype-kicker">이 방의 얼굴</p>
+    <p class="llm-archetype-kicker">🎭 이 방의 얼굴</p>
     <h2 class="llm-archetype-name">${escapeHtml(arch.name)}</h2>
     <p class="llm-archetype-desc">${renderHighlightLine(arch.description)}</p>
     ${traitsHtml ? `<div class="llm-trait-row">${traitsHtml}</div>` : fallbackHtml}
