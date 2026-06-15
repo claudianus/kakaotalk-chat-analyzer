@@ -1,4 +1,4 @@
-/* kca Base v4 — Reset, Typography, Layout, Animations, Korean Optimized */
+/* kca Base v5 — Holographic Dashboard: Full-viewport, Aurora, Animations */
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -20,10 +20,10 @@ body.kca-oled {
   min-height: 100dvh;
   background-color: var(--bg2);
   background-image:
-    radial-gradient(ellipse 120% 60% at 50% -20%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 55%),
-    radial-gradient(ellipse 90% 50% at 100% 10%, color-mix(in oklab, var(--accent2) 6%, transparent), transparent 45%),
-    radial-gradient(ellipse 80% 40% at 0% 60%, color-mix(in oklab, var(--accent) 5%, transparent), transparent 40%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, #050508 100%);
+    radial-gradient(ellipse 140% 70% at 50% -20%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 55%),
+    radial-gradient(ellipse 100% 60% at 100% 10%, color-mix(in oklab, var(--accent2) 8%, transparent), transparent 45%),
+    radial-gradient(ellipse 90% 50% at 0% 60%, color-mix(in oklab, var(--accent) 6%, transparent), transparent 40%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, #04060e 100%);
   color: var(--ink);
   font-family: var(--kca-font-sans);
   font-size: 16px;
@@ -34,37 +34,37 @@ body.kca-oled {
   transition: background 0.5s var(--ease-out), color 0.3s var(--ease-out);
 }
 
-/* Aurora mesh background */
+/* Aurora animated mesh background */
 body.kca-oled::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
-  opacity: 0.28;
+  opacity: 0.32;
   background:
-    radial-gradient(ellipse 600px 400px at 25% 25%, var(--glow) 0%, transparent 60%),
-    radial-gradient(ellipse 500px 350px at 75% 15%, var(--glow-red) 0%, transparent 55%),
-    radial-gradient(ellipse 450px 300px at 50% 75%, var(--glow-warm) 0%, transparent 50%),
-    radial-gradient(ellipse 350px 250px at 85% 65%, var(--glow-amber) 0%, transparent 45%);
-  animation: kca-aurora 20s ease-in-out infinite alternate;
+    radial-gradient(ellipse 800px 500px at 20% 20%, var(--glow) 0%, transparent 60%),
+    radial-gradient(ellipse 600px 400px at 80% 30%, var(--glow-red) 0%, transparent 55%),
+    radial-gradient(ellipse 500px 350px at 50% 75%, var(--glow-warm) 0%, transparent 50%),
+    radial-gradient(ellipse 400px 300px at 85% 65%, var(--glow-amber) 0%, transparent 45%);
+  animation: kca-aurora 18s ease-in-out infinite alternate;
 }
 
-/* Noise texture overlay */
+/* SVG noise texture overlay */
 body.kca-oled::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.04;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 200px 200px;
   mix-blend-mode: overlay;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--accent) 28%, transparent);
+  background: color-mix(in oklab, var(--accent) 30%, transparent);
   color: var(--ink);
 }
 
@@ -74,23 +74,21 @@ body.kca-oled::after {
   border-radius: 4px;
 }
 
+/* ── Main: FULL WIDTH, NO max-width cap ── */
 main {
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 0 var(--content-pad);
-}
-@media (min-width: 1024px) {
-  main { padding: 0 clamp(20px, 3vw, 48px); }
 }
 
 /* ── Grid System ── */
 .kca-bento-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
 }
-.kca-bento-grid--2 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-.kca-bento-grid--3 { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.kca-bento-grid--2 { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.kca-bento-grid--3 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 
 .grid { display: grid; gap: var(--section-gap); }
 .grid.two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
@@ -115,11 +113,11 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 
 /* ── Keyframe Animations ── */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(28px); }
+  from { opacity: 0; transform: translateY(32px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.92); }
+  from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
 @keyframes shimmer {
@@ -128,27 +126,32 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 }
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 0 0 var(--glow); }
-  50% { box-shadow: 0 0 24px 6px var(--glow); }
+  50% { box-shadow: 0 0 28px 8px var(--glow); }
 }
 @keyframes kca-aurora {
-  0% { opacity: 0.28; transform: scale(1) rotate(0deg); }
-  33% { opacity: 0.2; transform: scale(1.03) rotate(0.5deg); }
-  66% { opacity: 0.24; transform: scale(1.01) rotate(-0.5deg); }
-  100% { opacity: 0.28; transform: scale(1) rotate(0deg); }
+  0% { opacity: 0.32; transform: scale(1) rotate(0deg); }
+  25% { opacity: 0.22; transform: scale(1.04) rotate(0.8deg); }
+  50% { opacity: 0.28; transform: scale(1.02) rotate(-0.4deg); }
+  75% { opacity: 0.2; transform: scale(1.05) rotate(0.6deg); }
+  100% { opacity: 0.32; transform: scale(1) rotate(-0.3deg); }
 }
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(24px); }
+  from { opacity: 0; transform: translateX(28px); }
   to { opacity: 1; transform: translateX(0); }
 }
 @keyframes count-pulse {
   0% { transform: scale(1); }
-  40% { transform: scale(1.06); }
+  40% { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+@keyframes holographic-shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
 }
 
 /* Animation utility classes */
@@ -171,7 +174,7 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 /* IntersectionObserver trigger */
 [data-observe] {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(24px);
   transition: opacity var(--duration-slow) var(--ease-out), transform var(--duration-slow) var(--ease-out);
 }
 [data-observe].is-visible {

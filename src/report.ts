@@ -100,22 +100,22 @@ export function renderReportHtml(data: ReportData): string {
         <div class="kca-hero-kpis">
           <div class="kca-hero-kpi">
             <span class="kca-hero-kpi-icon">💬</span>
-            <span class="kca-hero-kpi-value">${formatNumber(data.summary.totalMessages)}</span>
+            <span class="kca-hero-kpi-value" data-countup="${data.summary.totalMessages}">${formatNumber(data.summary.totalMessages)}</span>
             <span class="kca-hero-kpi-label">메시지</span>
           </div>
           <div class="kca-hero-kpi">
             <span class="kca-hero-kpi-icon">👥</span>
-            <span class="kca-hero-kpi-value">${formatNumber(data.summary.participants)}</span>
+            <span class="kca-hero-kpi-value" data-countup="${data.summary.participants}">${formatNumber(data.summary.participants)}</span>
             <span class="kca-hero-kpi-label">참여자</span>
           </div>
           <div class="kca-hero-kpi">
             <span class="kca-hero-kpi-icon">📅</span>
-            <span class="kca-hero-kpi-value">${formatNumber(data.summary.activeDays)}</span>
+            <span class="kca-hero-kpi-value" data-countup="${data.summary.activeDays}">${formatNumber(data.summary.activeDays)}</span>
             <span class="kca-hero-kpi-label">활동일</span>
           </div>
           <div class="kca-hero-kpi">
             <span class="kca-hero-kpi-icon">⚡</span>
-            <span class="kca-hero-kpi-value">${data.summary.messagesPerActiveDay}</span>
+            <span class="kca-hero-kpi-value" data-countup="${data.summary.messagesPerActiveDay}">${data.summary.messagesPerActiveDay}</span>
             <span class="kca-hero-kpi-label">일평균</span>
           </div>
         </div>
@@ -138,6 +138,7 @@ export function renderReportHtml(data: ReportData): string {
     </header>
     ${renderLlmArchetypeBanner(data)}
 
+    <div class="kca-bento-grid">
     <!-- ZONE 1: 최근 활동 대시보드 -->
     <section class="kca-dashboard-zone" data-observe>
       <h2 class="zone-title">⏰ 최근 활동</h2>
@@ -182,10 +183,11 @@ export function renderReportHtml(data: ReportData): string {
     ${renderLlmEraLabels(data)}
 
     <!-- ZONE 4: 상세 데이터 -->
-    <section class="kca-dashboard-zone" data-observe>
+    <section class="kca-dashboard-zone viz-grid" data-observe>
       <h2 class="zone-title">📈 상세 데이터</h2>
       ${renderChartDeck(data)}
     </section>
+    </div>
 
     ${renderOpenChatInsightCard(data)}
     ${renderShopSearchPromoted(data)}
