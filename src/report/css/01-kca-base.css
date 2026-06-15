@@ -3,7 +3,8 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: clip;
+  overflow-x: hidden;
+  overflow-y: scroll;
   max-width: 100%;
   overscroll-behavior: contain;
   -webkit-text-size-adjust: 100%;
@@ -12,7 +13,8 @@ html {
 
 body.kca-oled {
   margin: 0;
-  overflow-x: clip;
+  overflow-x: hidden;
+  overflow-y: auto;
   max-width: 100%;
   min-height: 100dvh;
   background-color: var(--bg2);
@@ -67,9 +69,15 @@ body.kca-oled::after {
 }
 
 main {
-  max-width: min(960px, 100% - 2 * var(--content-pad));
+  max-width: min(1200px, 100% - 2 * var(--content-pad));
   margin: 0 auto;
   padding: 0 var(--content-pad);
+}
+@media (min-width: 1400px) {
+  main { max-width: 1320px; }
+}
+@media (min-width: 1800px) {
+  main { max-width: 1500px; }
 }
 
 /* ── Bento Grid System ── */

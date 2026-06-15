@@ -445,8 +445,14 @@
 }
 .kca-dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 16px;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+}
+@media (min-width: 1400px) {
+  .kca-dashboard-grid {
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+  }
 }
 .kca-dashboard-main { min-width: 0; }
 .kca-dashboard-side {

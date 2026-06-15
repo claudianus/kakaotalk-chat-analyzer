@@ -254,7 +254,8 @@ export const REPORT_STYLES = `/* open-props — https://open-props.style/ (MIT) 
 
 html {
   scroll-behavior: smooth;
-  overflow-x: clip;
+  overflow-x: hidden;
+  overflow-y: scroll;
   max-width: 100%;
   overscroll-behavior: contain;
   -webkit-text-size-adjust: 100%;
@@ -263,7 +264,8 @@ html {
 
 body.kca-oled {
   margin: 0;
-  overflow-x: clip;
+  overflow-x: hidden;
+  overflow-y: auto;
   max-width: 100%;
   min-height: 100dvh;
   background-color: var(--bg2);
@@ -318,9 +320,15 @@ body.kca-oled::after {
 }
 
 main {
-  max-width: min(960px, 100% - 2 * var(--content-pad));
+  max-width: min(1200px, 100% - 2 * var(--content-pad));
   margin: 0 auto;
   padding: 0 var(--content-pad);
+}
+@media (min-width: 1400px) {
+  main { max-width: 1320px; }
+}
+@media (min-width: 1800px) {
+  main { max-width: 1500px; }
 }
 
 /* ── Bento Grid System ── */
@@ -872,8 +880,14 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 }
 .kca-dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 16px;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+}
+@media (min-width: 1400px) {
+  .kca-dashboard-grid {
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+  }
 }
 .kca-dashboard-main { min-width: 0; }
 .kca-dashboard-side {
