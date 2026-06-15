@@ -542,7 +542,7 @@ function linkEntropyMetric(data: ReportData, ins: ReportData["insights"]): strin
 
 function renderInsightDeck(data: ReportData): string {
   const ins = data.insights;
-  const sessionMetric = insMetric("대화 세션",
+  const sessionMetric = insMetric("💬 대화 세션",
     ins.avgMessagesPerSession === null
       ? `${ins.sessionCount}개`
       : `${ins.sessionCount}개 / 평균 ${ins.avgMessagesPerSession}건`,
