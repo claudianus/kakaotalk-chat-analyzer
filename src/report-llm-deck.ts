@@ -53,7 +53,7 @@ export function renderLlmEpisodeStrip(data: ReportData): string {
     )
     .join("");
   return `<section id="s-episodes" class="kca-section llm-episode-strip anim-enter" style="--enter-delay:0.035s" aria-label="시즌 에피소드">
-    <h2 class="llm-strip-title">시즌 에피소드</h2>
+    <h2 class="llm-strip-title">🎬 시즌 에피소드</h2>
     <div class="llm-episode-scroll" role="list">${inner}</div>
   </section>`;
 }
