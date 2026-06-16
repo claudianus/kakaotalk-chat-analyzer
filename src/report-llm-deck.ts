@@ -445,16 +445,17 @@ function mapSentimentWeather(
   s: { positive: number; negative: number; neutral: number },
   energy?: number,
 ): { icon: string; cls: string; label: string } {
-  if (s.positive >= s.negative && s.positive >= s.neutral) {
-    return { icon: "☀️", cls: "sun", label: "맑음" };
+  const total = Math.max(1, s.positive + s.negative + s.neutral);
+  const score = (s.positive - s.negative) / total;
+  const isStorm = energy != null && energy < -40 && s.negative > s.positive;
+  if (isStorm) {
+    return { icon: "⚡", cls: "storm", label: "폭풍" };
   }
-  if (s.negative > s.positive) {
-    if (energy != null && energy < -40) {
-      return { icon: "⚡", cls: "storm", label: "폭풍" };
-    }
-    return { icon: "🌧️", cls: "rain", label: "흐림" };
-  }
-  return { icon: "⛅", cls: "cloud", label: "구름" };
+  if (score > 0.3) return { icon: "☀️", cls: "sun", label: "맑음" };
+  if (score > 0.05) return { icon: "🌤️", cls: "partly-sunny", label: "대체로 맑음" };
+  if (score > -0.05) return { icon: "⛅", cls: "cloud", label: "구름" };
+  if (score > -0.3) return { icon: "🌥️", cls: "overcast", label: "흐림" };
+  return { icon: "🌧️", cls: "rain", label: "비" };
 }
 
 /** 최근 7일 감정 흐름을 날씨 아이콘으로 렌더링 */
@@ -505,13 +506,26 @@ export function renderRoomCultureStrip(data: ReportData): string {
   }));
   if (repeated.length === 0 && jokes.length === 0) return "";
 
+  function formatCultureLabel(label: string): string {
+    const urlMatch = label.match(/^https?:\/\/([^\/\s]+)(\/\S*)?$/i);
+    if (urlMatch) {
+      const host = urlMatch[1] ?? "";
+      return `<a class="culture-link" href="${escapeHtml(label)}" target="_blank" rel="noopener noreferrer">🔗 ${escapeHtml(host)}</a>`;
+    }
+    const withLinks = escapeHtml(label).replace(
+      /(https?:\/\/[^\s<]+)/g,
+      (url) => `<a class="culture-link" href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
+    );
+    return withLinks;
+  }
+
   const phraseCards = repeated
     .map(
       (r) =>
         `<article class="culture-card culture-card--phrase" data-observe role="listitem">
           ${r.date ? `<time datetime="${escapeHtml(r.date)}">${escapeHtml(r.date.slice(5))}</time>` : ""}
           <span class="culture-badge">반복</span>
-          <span class="culture-label">${escapeHtml(r.label)}</span>
+          <span class="culture-label">${formatCultureLabel(r.label)}</span>
           <span class="culture-count">${formatNumber(r.count)}회</span>
         </article>`,
     )
@@ -522,7 +536,7 @@ export function renderRoomCultureStrip(data: ReportData): string {
       (j) =>
         `<article class="culture-card culture-card--joke" data-observe role="listitem" title="${escapeHtml(j.why)}">
           <span class="culture-badge">밈</span>
-          <span class="culture-label">${escapeHtml(j.label)}</span>
+          <span class="culture-label">${formatCultureLabel(j.label)}</span>
         </article>`,
     )
     .join("");

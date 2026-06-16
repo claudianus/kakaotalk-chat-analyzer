@@ -78,23 +78,38 @@ function renderDyadBlock(data) {
   </section>`;
 }
 export function renderChemistryCards(m) {
-    const cards = m.topPairs
+    const pairMap = new Map();
+    for (const p of m.topPairs) {
+        const a = p.fromAlias;
+        const b = p.toAlias;
+        if (a === b)
+            continue;
+        const key = [a, b].sort().join("\u0001");
+        const entry = pairMap.get(key) ?? { a, b, aToB: 0, bToA: 0 };
+        const i = m.aliases.indexOf(a);
+        const j = m.aliases.indexOf(b);
+        const directed = i >= 0 && j >= 0 ? (m.matrix[i]?.[j] ?? 0) : p.replies;
+        if (a === entry.a)
+            entry.aToB += directed;
+        else
+            entry.bToA += directed;
+        pairMap.set(key, entry);
+    }
+    const cards = Array.from(pairMap.values())
+        .map((p) => ({ ...p, total: p.aToB + p.bToA }))
+        .sort((x, y) => y.total - x.total)
         .slice(0, 3)
         .map((p) => {
-        const i = m.aliases.indexOf(p.fromAlias);
-        const j = m.aliases.indexOf(p.toAlias);
-        const aToB = i >= 0 && j >= 0 ? (m.matrix[i]?.[j] ?? 0) : p.replies;
-        const bToA = i >= 0 && j >= 0 ? (m.matrix[j]?.[i] ?? 0) : 0;
-        const total = aToB + bToA;
+        const total = p.total;
         let initiator = "양쪽";
-        if (aToB > bToA)
-            initiator = p.fromAlias;
-        else if (bToA > aToB)
-            initiator = p.toAlias;
-        const balance = total > 0 ? Math.min(aToB, bToA) / total : 0;
+        if (p.aToB > p.bToA)
+            initiator = p.a;
+        else if (p.bToA > p.aToB)
+            initiator = p.b;
+        const balance = total > 0 ? Math.min(p.aToB, p.bToA) / total : 0;
         const balancePct = Math.round(balance * 100);
         return `<article class="chemistry-card" data-observe role="listitem">
-        <div class="chemistry-pair">${escapeHtml(p.fromAlias)} ↔ ${escapeHtml(p.toAlias)}</div>
+        <div class="chemistry-pair">${escapeHtml(p.a)} ↔ ${escapeHtml(p.b)}</div>
         <div class="chemistry-line"><span>주도</span><strong>${escapeHtml(initiator)}</strong></div>
         <div class="chemistry-line"><span>밸런스</span><strong>${balancePct}%</strong></div>
         <div class="chemistry-line"><span>합계 응답</span><strong>${formatNumber(total)}회</strong></div>
