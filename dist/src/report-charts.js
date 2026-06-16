@@ -100,36 +100,39 @@ export function renderChartDeck(data) {
     const themeCount = topicsThemesOnly(data.topics).length;
     const showDailyHeat = !hasCalendarHeatmap(data);
     const showMonthly = showMonthlyChart(data);
+    const densityClass = chartDensityClass(data);
+    const heatSpanClass = data.daily.length > 420 ? "span-8 span-xl-6 viz-card--wide" : "span-6 span-xl-4";
+    const keywordRankSpanClass = kw >= 24 ? "span-12 span-xl-6 viz-card--table" : "span-6 span-xl-4 viz-card--table";
     const topicChart = themeCount > 0
-        ? `<article class="viz-card kca-card--chart span-12">
+        ? `<article class="viz-card kca-card--chart span-6 span-xl-4 viz-card--matrix">
       <h3>대화 테마 · c-TF-IDF</h3>
       <p class="viz-hint">막대 = <strong>의미 주제</strong> 신호 비중(근사 %). 기간별 키워드 흐름은 아래 토픽 트렌드에서 보세요.</p>
-      <div id="chart-topics" class="chart-box" role="img" aria-label="주제 테마 차트"></div>
+      <div id="chart-topics" class="chart-box compact" role="img" aria-label="주제 테마 차트"></div>
     </article>`
         : "";
     return `<section id="s-viz" class="kca-section viz-hero anim-enter" data-observe style="--enter-delay:0.055s" aria-label="인터랙티브 차트">
     <h2>📈 인터랙티브 차트</h2>
     <p>ECharts 기반 — 막대·히트맵·워드클라우드에 마우스를 올리면 수치를 확인할 수 있어요. 키워드 <strong>${formatNumber(kw)}</strong>개(메시지 등장 횟수 기준).</p>
   </section>
-  <div class="viz-grid anim-enter" data-observe style="--enter-delay:0.06s">
-    <article class="viz-card kca-card--chart span-8">
+  <div class="viz-grid ${densityClass} anim-enter" data-observe style="--enter-delay:0.06s">
+    <article class="viz-card kca-card--chart span-6 span-xl-4 viz-card--cloud">
       <h3>키워드 워드클라우드</h3>
       <p class="viz-hint">글자 크기 = 메시지 등장 빈도. Kiwi·BM25로 뽑은 본문 키워드입니다.</p>
-      <div id="chart-kw-cloud" class="chart-box tall" role="img" aria-label="키워드 워드클라우드"></div>
+      <div id="chart-kw-cloud" class="chart-box tall chart-box--cloud" role="img" aria-label="키워드 워드클라우드"></div>
     </article>
-    <article class="viz-card kca-card--chart span-4">
+    <article class="viz-card kca-card--chart span-6 span-xl-4 viz-card--micro">
       <h3>시간대 분포</h3>
       <p class="viz-hint">0~23시 메시지량</p>
       <div id="chart-hours" class="chart-box compact" role="img" aria-label="시간대 차트"></div>
     </article>
     ${showDailyHeat
-        ? `<article class="viz-card kca-card--chart span-6">
+        ? `<article class="viz-card kca-card--chart ${heatSpanClass}">
       <h3>일별 활동 히트맵</h3>
       <p class="viz-hint">활동 기간만 표시 · 급증일 강조</p>
       <div id="chart-daily-heat" class="chart-box" role="img" aria-label="일별 히트맵"></div>
     </article>`
         : ""}
-    <article class="viz-card kca-card--chart span-6">
+    <article class="viz-card kca-card--chart span-6 span-xl-4 viz-card--combo">
       <h3>요일 분포</h3>
       <p class="viz-hint">요일별 메시지량</p>
       <div id="chart-weekday" class="chart-box compact" role="img" aria-label="요일 차트"></div>
@@ -139,7 +142,7 @@ export function renderChartDeck(data) {
       <div id="chart-monthly" class="chart-box compact" role="img" aria-label="월별 차트"></div>`
         : ""}
     </article>
-    <article class="viz-card kca-card--chart span-12">
+    <article class="viz-card kca-card--chart ${keywordRankSpanClass}">
       <h3>키워드 순위 · 메시지 등장 횟수</h3>
       <p class="viz-hint">막대 길이 = 1위 대비 비율 · 전체 ${formatNumber(kw)}개 · 워드클라우드는 위 카드</p>
       <div class="kw-sort-toggle" role="group" aria-label="키워드 정렬">
@@ -151,12 +154,12 @@ export function renderChartDeck(data) {
         <div id="kw-ranked-distinct" hidden>${renderKeywordRankedList(data.keywordsDistinctive)}</div>
       </div>
     </article>
-    <article class="viz-card kca-card--chart span-12">
+    <article class="viz-card kca-card--chart span-6 span-xl-4 viz-card--domains">
       <h3>공유 도메인</h3>
       <p class="viz-hint">링크 호스트 상위</p>
-      <div id="chart-domains" class="chart-box" role="img" aria-label="도메인 차트"></div>
+      <div id="chart-domains" class="chart-box compact" role="img" aria-label="도메인 차트"></div>
     </article>
-    ${data.interaction ? `<article class="viz-card kca-card--chart span-12">
+    ${data.interaction ? `<article class="viz-card kca-card--chart span-12 viz-card--immersive">
       <h3>응답 관계 네트워크</h3>
       <p class="viz-hint">누가 누구에게 답하는지 <strong>원형 아크 다이어그램</strong>으로 보여줍니다. 화살표 = 응답 방향, 선 굵기 = 응답 횟수, 노드 크기 = 응답 총량입니다.</p>
       <div id="chart-network-insight" class="network-insight" aria-live="polite"></div>
@@ -175,11 +178,27 @@ export function renderChartDeck(data) {
     ${renderTopicTrendCard(data)}
   </div>`;
 }
+function chartDensityClass(data) {
+    const chartSignals = [
+        data.keywords.length >= 12,
+        data.domains.length >= 4,
+        data.daily.length >= 14,
+        data.participants.length >= 3,
+        topicsThemesOnly(data.topics).length >= 2,
+        Boolean(data.interaction?.totalReplies),
+        Boolean(data.smartTopicTrend && data.smartTopicTrend.items.length >= 2),
+    ].filter(Boolean).length;
+    if (chartSignals >= 6)
+        return "viz-grid--dense";
+    if (chartSignals >= 4)
+        return "viz-grid--balanced";
+    return "viz-grid--sparse";
+}
 function renderTopicTrendCard(data) {
     const trend = data.smartTopicTrend;
     if (!trend || trend.items.length < 2)
         return "";
-    return `<article class="viz-card kca-card--chart span-12">
+    return `<article class="viz-card kca-card--chart span-12 span-xl-8 viz-card--trend">
       <h3>${escapeHtml(trend.label)}</h3>
       <p class="viz-hint">${escapeHtml(trend.hint)} 스택드 에어리어 차트입니다.</p>
       <div id="chart-topic-trend" class="chart-box" role="img" aria-label="${escapeHtml(trend.label)} 차트"></div>

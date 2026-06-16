@@ -192,14 +192,10 @@ export function renderDailyHotTopics(data: ReportData): string {
 
   const burstSet = new Set(data.burstDays.map((d) => d.date));
   const maxMsg = Math.max(...topics.map((t) => t.messageCount), 1);
-  const visibleTopics = topics.slice(0, 2);
-  const extraTopics = topics.slice(2);
-
-  const renderTopic = (t: (typeof topics)[number], compact = false) => {
+  const renderTopic = (t: (typeof topics)[number]) => {
       const isBurst = burstSet.has(t.date);
       const burstCls = isBurst ? " hot-topic--burst" : "";
       const burstBadge = isBurst ? '<span class="hot-topic-badge">🔥 급증일</span>' : "";
-      const compactCls = compact ? " hot-topic-card--compact" : "";
       const keywords = t.keywords
         .slice(0, 4)
         .map((k) => `<span class="hot-topic-kw">${escapeHtml(k)}</span>`)
@@ -211,7 +207,7 @@ export function renderDailyHotTopics(data: ReportData): string {
       const lift = typeof t.lift === "number" ? ` · 평균 ${t.lift}배` : "";
       const barW = Math.round((t.messageCount / maxMsg) * 100);
       const participants = (t.participants ?? []).slice(0, 3).join(" · ");
-      return `<article class="hot-topic-card${burstCls}${compactCls}" role="listitem" data-observe>
+      return `<article class="hot-topic-card${burstCls}" role="listitem" data-observe>
         <div class="hot-topic-meta">
           <time class="hot-topic-date" datetime="${escapeHtml(t.date)}">${escapeHtml(t.date)}</time>
           ${burstBadge}
@@ -228,22 +224,14 @@ export function renderDailyHotTopics(data: ReportData): string {
       </article>`;
   };
 
-  const rows = visibleTopics.map((t) => renderTopic(t)).join("");
-  const extraRows = extraTopics.map((t) => renderTopic(t, true)).join("");
-  const extraPanel = extraTopics.length
-    ? `<details class="hot-topics-more">
-        <summary>${extraTopics.length}개 더 보기</summary>
-        <div class="hot-topics-grid hot-topics-grid--extra" role="list">${extraRows}</div>
-      </details>`
-    : "";
+  const rows = topics.map((t) => renderTopic(t)).join("");
 
   return `<section id="s-hot-topics" class="kca-section hot-topics-section anim-enter" style="--enter-delay:0.045s" aria-label="이 날의 핫토픽" data-observe>
     <div class="hot-topics-head">
       <h2 class="llm-strip-title">🔥 이 날의 핫토픽</h2>
-      <span class="hot-topics-count">상위 ${visibleTopics.length}개 · 전체 ${topics.length}일</span>
+      <span class="hot-topics-count">전체 ${topics.length}일</span>
     </div>
     <div class="hot-topics-grid" role="list">${rows}</div>
-    ${extraPanel}
   </section>`;
 }
 

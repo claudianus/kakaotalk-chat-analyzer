@@ -44,15 +44,6 @@ export const REPORT_UX_SCRIPT = `
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
       }
-      var shell = document.querySelector(".deck-nav-shell");
-      if (shell) {
-        shell.addEventListener("toggle", function () {
-          setTimeout(function () {
-            onScroll();
-            window.dispatchEvent(new Event("resize"));
-          }, 60);
-        });
-      }
       var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!reduce && typeof IntersectionObserver !== "undefined") {
         var reveal = new IntersectionObserver(
@@ -296,10 +287,9 @@ export function renderTopChrome(_data, sectionNavHtml) {
       <button type="button" class="theme-btn" data-theme-set="dark" aria-pressed="false">다크</button>
       <button type="button" class="theme-btn" data-theme-set="system" aria-pressed="false">시스템</button>
     </div>
-    <details class="deck-nav-shell">
-      <summary>섹션 메뉴 · 빠른 이동</summary>
+    <div class="deck-nav-shell" aria-label="섹션 메뉴 · 빠른 이동">
       ${sectionNavHtml}
-    </details>
+    </div>
   </div>
   <button type="button" class="kca-back-top" hidden aria-label="맨 위로 이동">↑</button>`;
 }

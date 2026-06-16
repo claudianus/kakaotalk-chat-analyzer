@@ -133,6 +133,32 @@ main {
 
 .grid { display: grid; gap: var(--section-gap); }
 .grid.two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+.grid.smart {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: clamp(12px, 1.4vw, 20px);
+  align-items: stretch;
+}
+.grid.smart > * {
+  min-width: 0;
+  height: 100%;
+}
+.kca-data-grid .card,
+.kca-data-grid .kca-card {
+  height: 100%;
+}
+.kca-data-grid--compact {
+  --card-pad: clamp(14px, 1.8vw, 20px);
+}
+@media (min-width: 1500px) {
+  .grid.smart {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  }
+}
+@media (min-width: 2100px) {
+  .grid.smart {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr));
+  }
+}
 
 .kca-report-flow {
   display: grid;

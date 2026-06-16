@@ -175,22 +175,6 @@
   background: var(--accent-grad);
 }
 
-/* ── Monthly Trend Fold ── */
-.trend-monthly-fold {
-  margin-top: 12px;
-  border-top: 1px solid var(--glass-border);
-  padding-top: 8px;
-}
-.trend-monthly-fold summary {
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--muted);
-  font-weight: 600;
-  padding: 4px 0;
-  transition: color var(--duration-fast);
-}
-.trend-monthly-fold summary:hover { color: var(--ink); }
-
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .recent-days-grid { grid-template-columns: 1fr; }
