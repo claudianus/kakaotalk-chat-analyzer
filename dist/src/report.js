@@ -8,9 +8,9 @@ import { REPORT_STYLES } from "./report-styles.js";
 import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderTopChrome, topicNavLink, } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck, renderStoryTimelinePair } from "./report-innovation.js";
-import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderParticipantRoles, renderRecentSnapshot, } from "./report-llm-deck.js";
+import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderParticipantRoles, renderRecentSnapshot, renderRoomCultureStrip, renderSentimentWeatherStrip, } from "./report-llm-deck.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
-import { hasBenchmarkSection, hasCalendarHeatmap, hasDaypartFingerprint, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasParticipantDynamics, hasRhythmSilenceMap, hasSentimentRollercoaster, hasTimelineSection, hasTopicFlow, } from "./report-section-visibility.js";
+import { hasActivityRestRhythm, hasBenchmarkSection, hasCalendarHeatmap, hasDaypartFingerprint, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasParticipantDynamics, hasRhythmSilenceMap, hasRoomCultureStrip, hasSentimentRollercoaster, hasSentimentWeatherStrip, hasTimelineSection, hasTopicFlow, } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
 import { keywordSummaryTop } from "./report-config.js";
 import { VERSION } from "./version.js";
@@ -65,6 +65,7 @@ export function renderReportHtml(data) {
             <span class="kca-hero-kpi-label">일평균</span>
           </div>
         </div>
+        ${renderHeroRhythmCard(data)}
         <div class="badge-row">
           <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
           <span class="badge">인코딩: ${escapeHtml(data.source.encoding)}</span>
@@ -93,6 +94,7 @@ export function renderReportHtml(data) {
         <div class="kca-dashboard-grid kca-dashboard-grid--recent">
           <div class="kca-dashboard-main">
             ${renderRecentSnapshot(data)}
+            ${hasSentimentWeatherStrip(data) ? renderSentimentWeatherStrip(data) : ""}
           </div>
           <aside class="kca-dashboard-side" aria-label="최근 핫토픽">
             ${renderDailyHotTopics(data)}
@@ -162,6 +164,7 @@ export function renderReportHtml(data) {
       ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구 집계.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
       ${panel("리액션·반복 문구", "ㅋㅋ 전용 메시지 + 3회 이상 반복 문장.", renderReactionsPanel(data))}
     </section>
+    ${renderRoomCultureStrip(data)}
     ${renderShopSearchSection(data, false)}
     </div>
 
@@ -331,6 +334,9 @@ function renderSectionNav(data) {
     const rhythm = hasRhythmSilenceMap(data)
         ? `<a href="#s-rhythm" data-kca-jump="s-rhythm">리듬 & 침묵</a>`
         : "";
+    const activityRest = hasActivityRestRhythm(data)
+        ? `<a href="#s-activity-rest" data-kca-jump="s-activity-rest">활동·휴식</a>`
+        : "";
     const dynamics = hasParticipantDynamics(data)
         ? `<a href="#s-dynamics" data-kca-jump="s-dynamics">참여자 역학</a>`
         : "";
@@ -340,12 +346,19 @@ function renderSectionNav(data) {
     const topicflow = hasTopicFlow(data)
         ? `<a href="#s-topicflow" data-kca-jump="s-topicflow">토픽 플로우</a>`
         : "";
+    const sentimentWeather = hasSentimentWeatherStrip(data)
+        ? `<a href="#s-sentiment-weather" data-kca-jump="s-sentiment-weather">감정 날씨</a>`
+        : "";
+    const culture = hasRoomCultureStrip(data)
+        ? `<a href="#s-culture" data-kca-jump="s-culture">방 밈</a>`
+        : "";
     return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
     <a href="#s-story" data-kca-jump="s-story">⓪ Wrapped</a>
     ${archetype}
     ${storyNavLinks(data)}
     <a href="#s-recent" data-kca-jump="s-recent">⏰ 최근 활동</a>
+    ${sentimentWeather}
     <a href="#s-facts" data-kca-jump="s-facts">① 핵심 숫자</a>
     ${narrative}
     ${timeline}
@@ -356,9 +369,11 @@ function renderSectionNav(data) {
     ${topicNavLink(data)}
     ${sentiment}
     ${rhythm}
+    ${activityRest}
     ${dynamics}
     ${daypart}
     ${topicflow}
+    ${culture}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
     <a href="#s-viz" data-kca-jump="s-viz">④ 인터랙티브 차트</a>
     <a href="#s-charts" data-kca-jump="s-charts">⑤ 표·막대 모음</a>
@@ -743,6 +758,32 @@ function privacyLabel(mode) {
     if (mode === "public-anonymous")
         return "완전 별칭(User 001)";
     return mode;
+}
+function renderHeroRhythmCard(data) {
+    const ins = data.insights;
+    const pace = data.conversationPace;
+    const burst = ins.burstGapUnder1mPercent ?? 0;
+    const gap = ins.gapOver60mPercent ?? 0;
+    let tempo = "빠른 왕복과 느긋한 침묵이 고루 섞인 대화 리듬이에요.";
+    if (burst >= 30 && gap >= 30) {
+        tempo = `1분 미만 응답 ${formatNumber(burst)}%와 1시간 이상 응답 ${formatNumber(gap)}%가 교차하는 비동기·버스트 리듬이에요.`;
+    }
+    else if (burst >= 30) {
+        tempo = `대화의 ${formatNumber(burst)}%가 1분 안에 이어지는 실시간형 템포예요.`;
+    }
+    else if (gap >= 30) {
+        tempo = `대부분 ${formatNumber(gap)}%가 1시간 이상 느긋하게 이어지는 비동기형이에요.`;
+    }
+    return `<div class="kca-hero-rhythm" data-observe>
+    <div class="khr-score">
+      <span class="khr-number" data-countup="${ins.rhythmScore}">${ins.rhythmScore}</span>
+      <span class="khr-denom">/100</span>
+    </div>
+    <div class="khr-body">
+      <strong>${escapeHtml(pace.emoji)} ${escapeHtml(pace.label)}</strong>
+      <span>${escapeHtml(tempo)}</span>
+    </div>
+  </div>`;
 }
 function panel(title, hint, content) {
     return `<div class="card"><h3 class="panel-title">${escapeHtml(title)}</h3><p class="chart-hint" style="margin-top:-4px">${escapeHtml(hint)}</p>${content}</div>`;

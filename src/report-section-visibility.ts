@@ -59,3 +59,17 @@ export function hasTopicFlow(data: ReportData): boolean {
     data.topics.length >= 2
   );
 }
+
+export function hasSentimentWeatherStrip(data: ReportData): boolean {
+  return (data.recentSnapshot?.week?.length ?? 0) >= 3 || data.dailySentiment.length >= 3;
+}
+
+export function hasActivityRestRhythm(data: ReportData): boolean {
+  return data.daily.length >= 3;
+}
+
+export function hasRoomCultureStrip(data: ReportData): boolean {
+  return (
+    data.repeatedPhrases.length > 0 || (data.llmInsights?.insideJokes?.length ?? 0) > 0
+  );
+}

@@ -42,4 +42,13 @@ export function hasTopicFlow(data) {
     return (Boolean(data.smartTopicTrend?.items.length && data.smartTopicTrend.items.length >= 2) ||
         data.topics.length >= 2);
 }
+export function hasSentimentWeatherStrip(data) {
+    return (data.recentSnapshot?.week?.length ?? 0) >= 3 || data.dailySentiment.length >= 3;
+}
+export function hasActivityRestRhythm(data) {
+    return data.daily.length >= 3;
+}
+export function hasRoomCultureStrip(data) {
+    return (data.repeatedPhrases.length > 0 || (data.llmInsights?.insideJokes?.length ?? 0) > 0);
+}
 //# sourceMappingURL=report-section-visibility.js.map

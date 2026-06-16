@@ -2,6 +2,7 @@ import { timelineActivityRange } from "./event-spine.js";
 import type { ReportData } from "./types.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
 import {
+  hasActivityRestRhythm,
   hasBenchmarkSection,
   hasDaypartFingerprint,
   hasParticipantDynamics,
@@ -49,6 +50,7 @@ export function renderInnovationDeck(data: ReportData): string {
     renderExplorerBlock(data),
     hasSentimentRollercoaster(data) ? renderSentimentRollercoaster(data) : "",
     hasRhythmSilenceMap(data) ? renderRhythmSilenceMap(data) : "",
+    hasActivityRestRhythm(data) ? renderActivityRestRhythm(data) : "",
     hasParticipantDynamics(data) ? renderParticipantDynamics(data) : "",
     hasDaypartFingerprint(data) ? renderDaypartFingerprint(data) : "",
     hasTopicFlow(data) ? renderTopicFlow(data) : "",
@@ -83,22 +85,40 @@ function renderTimelineList(data: ReportData): string {
 function renderDyadBlock(data: ReportData): string {
   const m = data.interaction;
   if (!m || m.totalReplies < 3) return "";
-  const pairs = m.topPairs
-    .slice(0, 6)
-    .map(
-      (p) =>
-        `<li><strong>${escapeHtml(p.fromAlias)}</strong> → ${escapeHtml(p.toAlias)} · <span class="num">${formatNumber(p.replies)}</span>회</li>`,
-    )
-    .join("");
   return `<section id="s-dyad" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.048s" aria-label="상호작용">
     <h2 class="section-glow">누가 누구에게 답하는가</h2>
     <p class="chart-hint">연속 메시지에서 화자가 바뀔 때 <strong>직전 화자 → 현재 화자</strong>로 응답 엣지를 셉니다(상위 ${m.aliases.length}명).</p>
     ${renderLlmRelationshipBeats(data)}
-    <ul class="dyad-pairs">${pairs}</ul>
+    ${renderChemistryCards(m)}
     <div id="chart-dyad" class="chart-box chart-box--dyad is-loading" aria-busy="true" aria-label="상호작용 히트맵">
       <div class="chart-skeleton chart-skeleton--heatmap" aria-hidden="true"></div>
     </div>
   </section>`;
+}
+
+export function renderChemistryCards(m: NonNullable<ReportData["interaction"]>): string {
+  const cards = m.topPairs
+    .slice(0, 3)
+    .map((p) => {
+      const i = m.aliases.indexOf(p.fromAlias);
+      const j = m.aliases.indexOf(p.toAlias);
+      const aToB = i >= 0 && j >= 0 ? (m.matrix[i]?.[j] ?? 0) : p.replies;
+      const bToA = i >= 0 && j >= 0 ? (m.matrix[j]?.[i] ?? 0) : 0;
+      const total = aToB + bToA;
+      let initiator = "양쪽";
+      if (aToB > bToA) initiator = p.fromAlias;
+      else if (bToA > aToB) initiator = p.toAlias;
+      const balance = total > 0 ? Math.min(aToB, bToA) / total : 0;
+      const balancePct = Math.round(balance * 100);
+      return `<article class="chemistry-card" data-observe role="listitem">
+        <div class="chemistry-pair">${escapeHtml(p.fromAlias)} ↔ ${escapeHtml(p.toAlias)}</div>
+        <div class="chemistry-line"><span>주도</span><strong>${escapeHtml(initiator)}</strong></div>
+        <div class="chemistry-line"><span>밸런스</span><strong>${balancePct}%</strong></div>
+        <div class="chemistry-line"><span>합계 응답</span><strong>${formatNumber(total)}회</strong></div>
+      </article>`;
+    })
+    .join("");
+  return `<div class="chemistry-cards" role="list">${cards}</div>`;
 }
 
 function renderPeriodCompareBlock(data: ReportData): string {
@@ -326,4 +346,97 @@ function renderTopicFlow(data: ReportData): string {
     <p class="chart-hint">대화에서 드러난 주요 주제들의 흐름입니다.</p>
     <div class="topic-flow-table"><div class="topic-flow-row"><div class="topic-flow-chips">${chips}</div></div></div>
   </section>`;
+}
+
+export function renderActivityRestRhythm(data: ReportData): string {
+  if (data.daily.length < 3) return "";
+  const sorted = [...data.daily].sort((a, b) => a.date.localeCompare(b.date));
+  const activeDays = sorted.filter((d) => d.count > 0);
+  if (activeDays.length === 0) return "";
+
+  const segments: Array<{
+    type: "active" | "gap";
+    days: number;
+    messages?: number;
+    start: string;
+    end: string;
+  }> = [];
+  let run: typeof activeDays = [];
+  for (const d of activeDays) {
+    if (run.length === 0) {
+      run.push(d);
+      continue;
+    }
+    const prev = run[run.length - 1]!;
+    const gap = dateDiffDays(prev.date, d.date) - 1;
+    if (gap > 0) {
+      segments.push({
+        type: "active",
+        days: run.length,
+        messages: run.reduce((s, x) => s + x.count, 0),
+        start: run[0]!.date,
+        end: prev.date,
+      });
+      segments.push({
+        type: "gap",
+        days: gap,
+        start: addDays(prev.date, 1),
+        end: addDays(d.date, -1),
+      });
+      run = [d];
+    } else {
+      run.push(d);
+    }
+  }
+  if (run.length) {
+    segments.push({
+      type: "active",
+      days: run.length,
+      messages: run.reduce((s, x) => s + x.count, 0),
+      start: run[0]!.date,
+      end: run[run.length - 1]!.date,
+    });
+  }
+
+  const spanDays = Math.max(dateDiffDays(segments[0]!.start, segments[segments.length - 1]!.end) + 1, 1);
+  const maxMessages = Math.max(
+    ...segments.filter((s) => s.type === "active").map((s) => s.messages ?? 1),
+    1,
+  );
+
+  const html = segments
+    .map((s) => {
+      const width = Math.max(s.type === "active" ? 4 : 2, Math.round((s.days / spanDays) * 100));
+      if (s.type === "active") {
+        const intensity = Math.max(20, Math.round(((s.messages ?? 0) / maxMessages) * 80));
+        return `<div class="arr-seg arr-seg--active" style="--arr-w:${width}%;--arr-intensity:${intensity}%" title="${escapeHtml(s.start)}~${escapeHtml(s.end)} · ${formatNumber(s.messages ?? 0)}건 · ${s.days}일" data-observe></div>`;
+      }
+      return `<div class="arr-seg arr-seg--gap" style="--arr-w:${width}%;" title="침묵 ${s.days}일 (${escapeHtml(s.start)}~${escapeHtml(s.end)})" data-observe></div>`;
+    })
+    .join("");
+
+  return `<section id="s-activity-rest" class="kca-section card kca-card--data activity-rest-rhythm anim-enter" data-observe style="--enter-delay:0.0575s" aria-label="활동-휴식 리듬">
+    <h2 class="section-glow">활동·휴식 리듬</h2>
+    <p class="chart-hint">활동일(색)과 침묵(회색)을 시간 순서대로 펼친 스트립이에요.</p>
+    <div class="arr-strip" role="img" aria-label="활동과 휴식 리듬">${html}</div>
+    <div class="arr-metrics">
+      <div><b>최장 활동 연속</b><span class="num">${formatNumber(data.summary.longestActiveStreakDays)}일</span></div>
+      <div><b>최장 침묵</b><span class="num">${formatNumber(data.insights.maxSilenceBetweenActiveDays ?? 0)}일</span></div>
+    </div>
+  </section>`;
+}
+
+function parseYmdTs(date: string): number {
+  const [y, m, d] = date.split("-").map(Number);
+  return Date.UTC(y!, m! - 1, d!);
+}
+
+function dateDiffDays(a: string, b: string): number {
+  return Math.round((parseYmdTs(b) - parseYmdTs(a)) / 86_400_000);
+}
+
+function addDays(date: string, n: number): string {
+  const ts = parseYmdTs(date) + n * 86_400_000;
+  const d = new Date(ts);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 }

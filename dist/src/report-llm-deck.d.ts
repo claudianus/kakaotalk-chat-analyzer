@@ -14,3 +14,7 @@ export declare function renderParticipantRoles(data: ReportData): string;
 export declare function renderMemorableMomentsList(data: ReportData): string;
 export declare function renderMemorableMoments(data: ReportData): string;
 export declare function renderRecentSnapshot(data: ReportData): string;
+/** 최근 7일 감정 흐름을 날씨 아이콘으로 렌더링 */
+export declare function renderSentimentWeatherStrip(data: ReportData): string;
+/** 반복 문구 + 방 밈을 하나의 타임라인 스트립으로 렌더링 */
+export declare function renderRoomCultureStrip(data: ReportData): string;

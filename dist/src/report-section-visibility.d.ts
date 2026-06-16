@@ -11,3 +11,6 @@ export declare function hasRhythmSilenceMap(data: ReportData): boolean;
 export declare function hasParticipantDynamics(data: ReportData): boolean;
 export declare function hasDaypartFingerprint(data: ReportData): boolean;
 export declare function hasTopicFlow(data: ReportData): boolean;
+export declare function hasSentimentWeatherStrip(data: ReportData): boolean;
+export declare function hasActivityRestRhythm(data: ReportData): boolean;
+export declare function hasRoomCultureStrip(data: ReportData): boolean;
