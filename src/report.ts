@@ -124,8 +124,8 @@ export function renderReportHtml(data: ReportData): string {
           <span class="badge">인코딩: ${escapeHtml(data.source.encoding)}</span>
           <span class="badge">경고: ${data.source.warnings}건</span>
         </div>
-        <details class="kca-hero-meta-fold">
-          <summary>리포트 상세 정보</summary>
+        <div class="kca-hero-meta-shell" aria-label="리포트 상세 정보">
+          <p class="kca-hero-meta-heading">리포트 상세 정보</p>
           <div class="kca-hero-meta">
             <p><strong>생성 시각</strong> ${escapeHtml(formatTimestamp(data.generatedAt))}</p>
             ${data.buildTiming ? `<p><strong>생성 소요</strong> ${escapeHtml(formatBuildTiming(data.buildTiming))}</p>` : ""}
@@ -134,7 +134,7 @@ export function renderReportHtml(data: ReportData): string {
             ${renderProvenanceSideCard(data)}
             ${renderProvenanceDetailsBlock(data)}
           </div>
-        </details>
+        </div>
       </div>
     </header>
     ${renderLlmArchetypeBanner(data)}
@@ -206,21 +206,15 @@ export function renderReportHtml(data: ReportData): string {
       ${panel("일별 활동 (CSS)", "칸 색 = 메시지 밀도.", renderDaily(data.daily, data.burstDays))}
     </section>`
     }
-    <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
+    <section class="grid smart kca-section kca-data-grid" style="margin-bottom:var(--section-gap)">
       ${renderParticipantsFold(data)}
       ${panel(`글자 수 랭킹 · 상위 ${formatNumber(Math.min(data.participantsByCharacters.length, 40))}`, "건수가 아닌 글자 수 기준 랭킹.", renderParticipantsByCharacters(data.participantsByCharacters))}
     </section>
 
-    <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
+    <section class="grid smart kca-section kca-data-grid kca-data-grid--compact" style="margin-bottom:var(--section-gap)">
       ${panel("첨부 유형", "사진·동영상 등 유형별 비중.", renderCountBars(data.attachments))}
       ${renderToneSignalsPanel(data)}
-    </section>
-
-    <section class="kca-section" style="margin-bottom:var(--section-gap)">
       ${panel("자주 나온 도메인", "공유 링크 호스트 상위", renderCountBars(data.domains.slice(0, 24)))}
-    </section>
-
-    <section class="grid two kca-section" style="margin-bottom:var(--section-gap)">
       ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구 집계.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
       ${panel("리액션·반복 문구", "ㅋㅋ 전용 메시지 + 3회 이상 반복 문장.", renderReactionsPanel(data))}
     </section>
@@ -441,8 +435,8 @@ function renderHelpGlossary(): string {
   const site = "https://claudianus.github.io/kakaotalk-chat-analyzer/";
   return `<section id="s-help" class="kca-section glossary anim-enter" aria-label="용어 설명" style="--enter-delay:0.08s">
     <p class="self-serve-footer-links">직접 만들기: <code>npx kcachat@latest "./파일.csv"</code> · ${externalLink(gh, "GitHub")} · ${externalLink(site, "소개")}</p>
-    <details>
-      <summary>용어 설명</summary>
+    <div class="glossary-panel">
+      <h2>용어 설명</h2>
       <dl>
         <dt>지니 계수</dt><dd>참여가 얼마나 한쪽에 쏠렸는지 0~1에 가까운 숫자예요. 0에 가까우면 비슷하게 나눠 말하고, 높을수록 소수가 더 많이 말한 편이에요.</dd>
         <dt>응답 상위 10%</dt><dd>메시지 사이 시간 간격을 작은 순으로 줄 세웠을 때, 느린 쪽 10% 지점 값이에요. “가끔 아주 느린 응답”이 있는지 볼 때 씁니다.</dd>
@@ -450,14 +444,13 @@ function renderHelpGlossary(): string {
         <dt>리듬 점수</dt><dd>활동일·메시지 밀도·시간대 분산 등을 섞은 내부 요약 점수(0~100)로, “이 방이 얼마나 꾸준히 살아 있는지” 감으로 보기 위한 지표입니다.</dd>
         <dt>화자 전환 (100메시지당)</dt><dd>말하는 사람이 바뀐 횟수를 메시지 100개당으로 나눈 거예요. 숫자가 클수록 빠르게 교대하며 대화하는 스타일에 가깝습니다.</dd>
       </dl>
-    </details>
+    </div>
   </section>`;
 }
 
 function renderFactMatrix(data: ReportData): string {
   const s = data.summary;
   const ins = data.insights;
-  // Bento-style hero KPIs with icons + CountUp animation targets
   const heroKpis: [string, string, string, number | string][] = [
     ["💬", "총 메시지", formatNumber(s.totalMessages), s.totalMessages],
     ["👥", "참여자", formatNumber(s.participants), s.participants],
@@ -481,10 +474,6 @@ function renderFactMatrix(data: ReportData): string {
     ["응답 간격", formatReplyGapMinutes(s.medianReplyGapMinutes)],
     ["화자전환·100", String(ins.speakerSwitchRatePer100)],
   ];
-  const coreInner = core
-    .map(([k, v]) => `<div class="fact-cell" data-observe><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
-    .join("");
-
   const extra: [string, string][] = [
     ["응답 상위10%", ins.replyGapP90Minutes === null ? "—" : formatReplyGapMinutes(ins.replyGapP90Minutes)],
     ["평균 길이", `${s.averageMessageLength}자`],
@@ -493,8 +482,8 @@ function renderFactMatrix(data: ReportData): string {
     ["이모지 메시지", formatNumber(s.emojiMessages)],
     ["최장 무활동", `${ins.maxSilenceBetweenActiveDays ?? 0}일`],
   ];
-  const extraInner = extra
-    .map(([k, v]) => `<div class="fact-cell"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
+  const factInner = [...core, ...extra]
+    .map(([k, v]) => `<div class="fact-cell" data-observe><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
     .join("");
 
   return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
@@ -502,8 +491,7 @@ function renderFactMatrix(data: ReportData): string {
     ${renderSampleBadge(data)}
     ${renderAnalysisQualityRail(data)}
     <div class="fact-hero-strip" aria-label="핵심 KPI" data-observe>${heroHtml}</div>
-    <div class="fact-grid" data-observe>${coreInner}</div>
-    <details class="fact-more"><summary>더 많은 지표</summary><div class="fact-grid">${extraInner}</div></details>
+    <div class="fact-grid fact-grid--all" data-observe>${factInner}</div>
   </section>`;
 }
 
@@ -596,7 +584,7 @@ function renderInsightDeck(data: ReportData): string {
       </div>
       <div>
         <h3 class="insight-sub">참여자 말풍선 맵</h3>
-        <p class="chart-hint">말풍선 <strong>크기·위치</strong>로 비중(가로)과 평균 글자 수(세로)를 봅니다. 좁은 화면에서는 채팅 목록형으로 펼쳐져요.</p>
+        <p class="chart-hint">말풍선 <strong>크기·위치</strong>로 비중(가로)과 평균 글자 수(세로)를 봅니다. 좁은 화면에서도 축약형 버블 맵으로 유지돼요.</p>
         ${scatter}
       </div>
     </div>
@@ -672,17 +660,18 @@ function renderHonorificInsight(honorific: ReportData["honorificInsight"]): stri
     honorific: "존칭",
     casual: "반말",
     mixed: "혼합",
-    insufficient: "표본 부족",
+    insufficient: "판별 표본 부족",
   };
   const roomLabel = styleLabels[honorific.roomStyle] ?? honorific.roomStyle;
   const participantHtml = honorific.participants
     .slice(0, 5)
     .map((p) => {
       const style = styleLabels[p.dominantStyle] ?? p.dominantStyle;
-      const sample = p.sampleCount ? ` · 표본 ${formatNumber(p.sampleCount)}건` : "";
+      const totalSample = p.sampleCount ? ` · 전체 ${formatNumber(p.sampleCount)}건` : "";
+      const styledSample = p.styledSampleCount !== undefined ? ` · 판별 ${formatNumber(p.styledSampleCount)}건` : "";
       const neutral = p.neutralRatio !== undefined ? ` · 중립 ${Math.round(p.neutralRatio * 100)}%` : "";
-      const ratio = p.dominantStyle === "insufficient" ? "판단 보류" : `존칭 ${Math.round(p.honorificRatio * 100)}%`;
-      return `<span class="honorific-stat">${escapeHtml(p.alias)}: ${escapeHtml(style)} (${escapeHtml(ratio)}${escapeHtml(sample)}${escapeHtml(neutral)})</span>`;
+      const ratio = p.dominantStyle === "insufficient" ? "판별 보류" : `존칭 ${Math.round(p.honorificRatio * 100)}%`;
+      return `<span class="honorific-stat">${escapeHtml(p.alias)}: ${escapeHtml(style)} (${escapeHtml(ratio)}${escapeHtml(totalSample)}${escapeHtml(styledSample)}${escapeHtml(neutral)})</span>`;
     })
     .join(" ");
   return `<div class="honorific-insight-card" style="margin-top:14px">
@@ -786,9 +775,9 @@ function renderParticipantBubbleMap(
   const maxMessages = Math.max(...top.map((p) => p.messages), 1);
   const layouts = resolveBubbleOverlaps(
     top.map((p) => {
-      const x = 14 + (p.sharePercent / maxShare) * 72;
+      const x = 16 + (p.sharePercent / maxShare) * 68;
       const yRaw = (p.averageLength - minLen) / lenSpan;
-      const y = 16 + (1 - yRaw) * 68;
+      const y = 20 + (1 - yRaw) * 60;
       return { x, y, scale: scatterScale(p.messages, maxMessages) };
     }),
   );
@@ -796,8 +785,9 @@ function renderParticipantBubbleMap(
     .map((p, i) => {
       const { x, y, scale } = layouts[i]!;
       const hue = (i * 53) % 360;
+      const size = Math.round(76 + scale * 34);
       const title = `${p.alias} · ${p.sharePercent}% · 평균 ${p.averageLength}자 · ${formatNumber(p.messages)}건`;
-      return `<div class="bubble-node" style="left:${x}%;top:${y}%;--bubble-scale:${scale};--bubble-hue:${hue}" title="${escapeHtml(title)}">
+      return `<div class="bubble-node" style="left:${x}%;top:${y}%;--bubble-size:${size}px;--bubble-hue:${hue}" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">
         <span class="bubble-shape" aria-hidden="true"></span>
         <div class="bubble-content">
           <strong>${escapeHtml(p.alias)}</strong>
@@ -808,6 +798,7 @@ function renderParticipantBubbleMap(
     })
     .join("");
   return `<div class="sc-plot" role="img" aria-label="참여자 말풍선 맵: 가로 메시지 비중, 세로 평균 글자 수">
+    <div class="sc-plot-orbit" aria-hidden="true"></div>
     <span class="sc-grid-label sc-lbl-top">평균 글자 ↑</span>
     <span class="sc-grid-label sc-lbl-bottom">평균 글자 ↓</span>
     <span class="sc-grid-label sc-lbl-left">비중 ↓</span>
@@ -978,11 +969,12 @@ function renderParticipants(participants: ParticipantStat[]): string {
     .join("");
   return `<div class="rank-participants">
     <div class="participant-card-list" aria-label="참여자 랭킹">${cards}</div>
-    <details class="rank-table-fold"><summary>상세 테이블 보기</summary>
+    <div class="rank-table-fold rank-table-expanded" aria-label="참여자 상세 테이블">
+      <h3 class="rank-table-title">상세 테이블</h3>
       <div class="glass-table-wrap">
         <table class="table table-rank table-glass"><thead><tr><th>표시명</th><th class="num">메시지</th><th class="num">비율</th><th class="num">평균 길이</th><th class="num">URL</th><th class="num">첨부</th><th class="num">심야</th><th class="num">연속 최대</th></tr></thead><tbody>${rows}</tbody></table>
       </div>
-    </details>
+    </div>
   </div>`;
 }
 
@@ -1024,11 +1016,12 @@ function renderParticipantsByCharacters(participants: ParticipantStat[]): string
     .join("");
   return `<div id="s-rank-chars" class="rank-participants">
     <div class="participant-card-list" aria-label="글자 수 랭킹">${cards}</div>
-    <details class="rank-table-fold"><summary>상세 테이블 보기</summary>
+    <div class="rank-table-fold rank-table-expanded" aria-label="글자 수 상세 테이블">
+      <h3 class="rank-table-title">상세 테이블</h3>
       <div class="glass-table-wrap">
         <table class="table table-rank table-glass"><thead><tr><th>표시명</th><th class="num">총 글자</th><th class="num">글자 비율</th><th class="num">메시지</th><th class="num">평균 길이</th></tr></thead><tbody>${rows}</tbody></table>
       </div>
-    </details>
+    </div>
   </div>`;
 }
 
@@ -1264,7 +1257,7 @@ function renderShopSearchSection(data: ReportData, promoted = false): string {
   const untagged = ev.shopSearchUntaggedNotices;
   const footnote = `<p class="chart-hint" style="margin:10px 0 0">알림 <strong>${formatNumber(noticeCount)}</strong>건 · 태그 추출 <strong>${formatNumber(extractions)}</strong>건(고유 <strong>${formatNumber(unique)}</strong>개)${untagged > 0 ? ` · 미추출 <strong>${formatNumber(untagged)}</strong>건` : ""}.</p>`;
   const debug = data.shopSearchMissSamples?.length
-    ? `<details class="kca-debug-shop"><summary>미추출 샘플 (디버그)</summary><ul>${data.shopSearchMissSamples.map((s) => `<li><code>${escapeHtml(s)}</code></li>`).join("")}</ul></details>`
+    ? `<div class="kca-debug-shop"><h3>미추출 샘플 (디버그)</h3><ul>${data.shopSearchMissSamples.map((s) => `<li><code>${escapeHtml(s)}</code></li>`).join("")}</ul></div>`
     : "";
   const title = promoted ? "샵검색 키워드 (오픈채팅)" : "샵검색 키워드";
   return `<section id="s-shopsearch" class="kca-section">${panel(
@@ -1278,13 +1271,16 @@ function renderKeywordCssFold(data: ReportData): string {
   const topN = keywordSummaryTop();
   const totalKw = data.keywords.length;
   const body = renderKeywordSnapshot(data.keywords, data, topN);
-  return `<details class="kw-css-fold" open>
-    <summary>키워드 상위 ${topN}개 요약<small>전체 ${formatNumber(totalKw)}개 · 빈도 순 · ④ 차트에서 특이어 순</small></summary>
+  return `<div class="kw-css-fold kw-css-panel" aria-label="키워드 상위 ${topN}개 요약">
+    <div class="kw-css-head">
+      <h3 class="kw-css-title">키워드 상위 ${topN}개 요약</h3>
+      <p class="kw-css-meta">전체 ${formatNumber(totalKw)}개 · 빈도 순 · ④ 차트에서 특이어 순</p>
+    </div>
     <div class="kw-css-body">
       <p class="chart-hint" style="margin:0 0 10px">숫자는 메시지 등장 횟수입니다.</p>
       ${body}
     </div>
-  </details>`;
+  </div>`;
 }
 
 function renderKeywordSnapshot(items: CountItem[], data: ReportData, topN = keywordSummaryTop()): string {
@@ -1339,10 +1335,10 @@ function renderProvenanceSideCard(data: ReportData): string {
 function renderProvenanceDetailsBlock(data: ReportData): string {
   if (!data.provenance) return "";
   const lines = formatProvenanceDetails(data.provenance);
-  return `<details class="kca-provenance">
-      <summary>리포트 정보</summary>
+  return `<div class="kca-provenance" aria-label="리포트 정보">
+      <p class="kca-provenance-title">리포트 정보</p>
       <ul class="kca-provenance-list">${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>
-    </details>`;
+    </div>`;
 }
 
 function renderProvenanceFooterPrefix(data: ReportData): string {

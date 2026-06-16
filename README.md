@@ -262,6 +262,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.24.60** | **리포트 UX·존칭 인사이트 개선** — 차트/핫토픽/말풍선 맵 레이아웃 밀도 조정 · provenance/접힘 UI 단순화 · 존칭 판별 표본 수 표시 |
 | **0.24.59** | **리포트 품질 하드닝** — 담화표지/구어 filler 키워드 노출 차단 · LLM 하네스 검증·폴백 provenance · Downloads CSV 품질 matrix/HTML 감사 자동화 |
 | **0.24.58** | **스마트 토픽 트렌드** — 대화 보관 기간에 따라 일간·주간·월간 키워드 차트를 자동 선택 · 대형 화면 리포트 폭 조정 |
 | **0.24.57** | **프리미엄 리포트 리바이벌** — 대형 리포트 레이아웃 붕괴 수정 · full-width 분석 섹션 · 차트 empty state · 결정적 샘플링/시맨틱 라벨 정렬 · viewport QA 강화 |

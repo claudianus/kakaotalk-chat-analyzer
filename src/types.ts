@@ -64,6 +64,7 @@ export interface ParticipantHonorific {
   casualRatio: number;
   neutralRatio?: number;
   sampleCount?: number;
+  styledSampleCount?: number;
   dominantStyle: string;
 }
 

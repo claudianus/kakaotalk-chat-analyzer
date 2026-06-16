@@ -111,7 +111,8 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
     assert.match(htmlWithProv, /<!-- kca-version:/);
     assert.match(htmlWithProv, /<strong>생성 도구<\/strong>/);
     assert.match(htmlWithProv, new RegExp(`kca ${VERSION.replace(/\./g, "\\.")}`));
-    assert.equal(htmlWithProv.includes("details.kca-provenance"), true);
+    assert.equal(htmlWithProv.includes('class="kca-provenance"'), true);
+    assert.equal(htmlWithProv.includes("details.kca-provenance"), false);
 
     const streamed = await buildReportFromExport(csvPath, {
       privacy: "public-masked",

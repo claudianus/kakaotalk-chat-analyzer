@@ -174,16 +174,14 @@
   .kca-hero-kpis { grid-template-columns: repeat(2, 1fr); }
 }
 
-.kca-hero-meta-fold { margin-top: 12px; }
-.kca-hero-meta-fold summary {
-  cursor: pointer;
-  font-size: var(--font-size-small);
+.kca-hero-meta-shell { margin-top: 14px; }
+.kca-hero-meta-heading {
+  margin: 0 0 8px;
   color: var(--muted);
-  font-weight: 600;
-  padding: 6px 0;
-  transition: color var(--duration-fast) var(--ease-smooth);
+  font-size: var(--font-size-small);
+  font-weight: 800;
+  letter-spacing: 0.03em;
 }
-.kca-hero-meta-fold summary:hover { color: var(--accent); }
 .kca-hero-meta {
   display: flex;
   flex-direction: column;
@@ -199,15 +197,15 @@
 }
 .kca-hero-meta p { margin: 0; }
 .kca-hero-meta strong { color: var(--ink); font-weight: 700; }
-details.kca-provenance {
+.kca-provenance {
   border-top: 1px solid var(--line);
-  padding-top: 8px;
+  padding-top: 10px;
 }
-details.kca-provenance summary {
-  cursor: pointer;
+.kca-provenance-title {
+  margin: 0;
   color: var(--muted);
   font-size: var(--font-size-small);
-  font-weight: 700;
+  font-weight: 800;
 }
 .kca-provenance-list {
   margin: 8px 0 0;
@@ -306,8 +304,6 @@ details.kca-provenance summary {
 .fact-cell b { display: block; font-size: 11px; color: var(--muted); font-weight: 650; letter-spacing: 0.02em; }
 .fact-cell span { font-size: 18px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
 .fact-hint { color: var(--muted); font-size: var(--font-size-small); margin: 0 0 12px; }
-.fact-more summary { cursor: pointer; font-size: var(--font-size-small); color: var(--muted); font-weight: 600; padding: 6px 0; transition: color var(--duration-fast); }
-.fact-more summary:hover { color: var(--accent); }
 
 .analysis-quality-rail {
   display: grid;
@@ -486,16 +482,13 @@ details.kca-provenance summary {
   background: color-mix(in oklab, var(--accent) 4%, var(--panel));
   border-color: var(--line);
 }
-.rank-table-fold { margin-top: 12px; }
-.rank-table-fold summary {
-  cursor: pointer;
-  font-size: var(--font-size-small);
+.rank-table-fold { margin-top: 14px; }
+.rank-table-title {
+  margin: 0 0 8px;
   color: var(--muted);
-  font-weight: 600;
-  padding: 6px 0;
-  transition: color var(--duration-fast);
+  font-size: 13px;
+  font-weight: 800;
 }
-.rank-table-fold summary:hover { color: var(--accent); }
 
 /* ── Insight Metrics ── */
 .ins-deck {
@@ -659,15 +652,234 @@ details.kca-provenance summary {
   margin-bottom: 8px;
 }
 
-/* ── Bubble / Scatter ── */
+/* ── Participant Bubble Map ── */
+.sc-plot {
+  position: relative;
+  min-height: clamp(360px, 44vw, 520px);
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--accent) 20%, var(--line));
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 78% 24%, color-mix(in oklab, var(--accent2) 16%, transparent), transparent 34%),
+    radial-gradient(circle at 24% 72%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 34%),
+    linear-gradient(90deg, color-mix(in oklab, var(--line) 62%, transparent) 1px, transparent 1px),
+    linear-gradient(0deg, color-mix(in oklab, var(--line) 62%, transparent) 1px, transparent 1px),
+    color-mix(in oklab, var(--panel-solid) 72%, transparent);
+  background-size: auto, auto, 25% 25%, 25% 25%, auto;
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
+  isolation: isolate;
+}
+.sc-plot::before,
+.sc-plot::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+.sc-plot::before {
+  inset: 50% 8% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 30%, var(--line)), transparent);
+}
+.sc-plot::after {
+  inset: 8% auto 8% 50%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--accent2) 28%, var(--line)), transparent);
+}
+.sc-plot-orbit {
+  position: absolute;
+  inset: 14%;
+  border: 1px dashed color-mix(in oklab, var(--accent) 18%, transparent);
+  border-radius: 50%;
+  opacity: 0.48;
+  filter: blur(0.1px);
+  pointer-events: none;
+}
+.sc-grid-label,
+.sc-quadrant {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+.sc-grid-label {
+  padding: 4px 9px;
+  border: 1px solid color-mix(in oklab, var(--accent) 18%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--panel-solid) 82%, transparent);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow: var(--shadow-sm);
+}
+.sc-lbl-top { top: 14px; left: 50%; transform: translateX(-50%); }
+.sc-lbl-bottom { bottom: 16px; left: 50%; transform: translateX(-50%); }
+.sc-lbl-left { top: 50%; left: 14px; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
+.sc-lbl-right { top: 50%; right: 14px; transform: translateY(-50%) rotate(90deg); transform-origin: center; }
+.sc-quadrant {
+  color: color-mix(in oklab, var(--muted) 72%, transparent);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+.sc-q-tl { top: 42px; left: 20px; }
+.sc-q-tr { top: 42px; right: 20px; color: color-mix(in oklab, var(--accent) 74%, var(--muted)); }
+.sc-q-bl { bottom: 42px; left: 20px; }
+.sc-q-br { bottom: 42px; right: 20px; color: color-mix(in oklab, var(--warm) 74%, var(--muted)); }
+.sc-plot-list {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.bubble-node {
+  position: absolute;
+  width: var(--bubble-size, 104px);
+  height: var(--bubble-size, 104px);
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  text-align: center;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.28));
+  transition: filter var(--duration-normal) var(--ease-smooth), z-index var(--duration-fast);
+}
+.bubble-node:hover {
+  z-index: 6;
+  filter: drop-shadow(0 24px 36px color-mix(in oklab, hsl(var(--bubble-hue, 180) 92% 64%) 28%, rgba(0, 0, 0, 0.36)));
+}
+.bubble-shape {
+  position: absolute;
+  inset: 0;
+  border-radius: 46% 54% 50% 50% / 48% 48% 52% 52%;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.38), transparent 25%),
+    linear-gradient(145deg,
+      hsl(var(--bubble-hue, 180) 88% var(--bubble-pct-l, 68%) / 0.84),
+      color-mix(in oklab, hsl(var(--bubble-hue, 180) 86% var(--bubble-surface-l, 30%)) 82%, var(--panel-solid))
+    );
+  border: 1px solid hsl(var(--bubble-hue, 180) 88% var(--bubble-border-l, 50%) / 0.52);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -16px 30px rgba(0, 0, 0, 0.18),
+    0 0 34px hsl(var(--bubble-hue, 180) 88% 60% / 0.2);
+  transition: transform var(--duration-normal) var(--ease-spring), box-shadow var(--duration-normal) var(--ease-out);
+}
+.bubble-shape::after {
+  content: "";
+  position: absolute;
+  right: 13%;
+  bottom: 3%;
+  width: 24%;
+  height: 24%;
+  border-radius: 0 0 80% 0;
+  background: inherit;
+  transform: rotate(32deg) skew(8deg);
+  border-right: 1px solid hsl(var(--bubble-hue, 180) 88% var(--bubble-border-l, 50%) / 0.36);
+  border-bottom: 1px solid hsl(var(--bubble-hue, 180) 88% var(--bubble-border-l, 50%) / 0.36);
+}
+.bubble-node:hover .bubble-shape {
+  transform: scale(1.08) rotate(-1.5deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -16px 30px rgba(0, 0, 0, 0.14),
+    0 0 46px hsl(var(--bubble-hue, 180) 88% 60% / 0.34);
+}
+.bubble-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 86%;
+  padding: 6px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+}
+.bubble-content strong {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(12px, 1.6vw, 16px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+.bubble-pct {
+  font-size: clamp(14px, 2vw, 19px);
+  font-weight: 950;
+  line-height: 1;
+}
+.bubble-content small {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: color-mix(in oklab, var(--ink) 78%, transparent);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+@media (max-width: 640px) {
+  .sc-plot {
+    min-height: 440px;
+    border-radius: 20px;
+    background-size: auto, auto, 50% 25%, 50% 25%, auto;
+  }
+  .sc-grid-label {
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+  .sc-quadrant {
+    display: none;
+  }
+  .bubble-node {
+    width: min(var(--bubble-size, 96px), 86px);
+    height: min(var(--bubble-size, 96px), 86px);
+  }
+  .bubble-content {
+    gap: 1px;
+    padding: 5px;
+  }
+  .bubble-content strong {
+    font-size: 12px;
+  }
+  .bubble-pct {
+    font-size: 14px;
+  }
+  .bubble-content small {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bubble-node {
+    animation: bubble-float 7s ease-in-out infinite;
+    animation-delay: calc((var(--bubble-hue, 0) * -19ms));
+  }
+}
+
+@keyframes bubble-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+
+/* Legacy bubble classes kept for older generated snippets. */
 .bubble-map, .scatter-plot { position: relative; width: 100%; min-height: 200px; }
 .bubble { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; transition: transform var(--duration-normal) var(--ease-spring); }
 .bubble:hover { transform: scale(1.1); z-index: 10; }
 
 /* ── Glossary ── */
 .glossary { font-size: var(--font-size-small); color: var(--muted); }
-.glossary summary { cursor: pointer; font-weight: 600; color: var(--muted); padding: 8px 0; transition: color var(--duration-fast); }
-.glossary summary:hover { color: var(--accent); }
+.glossary-panel {
+  padding: var(--card-pad);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  background: var(--glass);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
+}
+.glossary-panel h2 { margin-bottom: 10px; }
 .glossary dt { font-weight: 700; color: var(--ink); margin-top: 10px; }
 .glossary dd { margin: 2px 0 0; }
 
@@ -792,7 +1004,18 @@ details.kca-provenance summary {
 }
 
 /* ── Debug ── */
-.kca-debug-shop summary { cursor: pointer; font-size: var(--font-size-small); color: var(--muted); }
+.kca-debug-shop {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+.kca-debug-shop h3 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}
 .kca-debug-shop code { font-size: 11px; }
 
 /* ── Reactions ── */
@@ -1005,6 +1228,4 @@ footer {
 /* ── Shop search ── */
 .shop-search-section { margin-top: var(--section-gap); }
 
-/* ── Keyword CSS fold ── */
-.kw-fold summary { cursor: pointer; font-size: var(--font-size-small); color: var(--muted); font-weight: 600; padding: 6px 0; transition: color var(--duration-fast); }
-.kw-fold summary:hover { color: var(--accent); }
+/* ── Keyword CSS panel ── */

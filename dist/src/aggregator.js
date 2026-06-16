@@ -672,7 +672,7 @@ export class ReportAggregator {
                     increment(this.domains, domain);
             }
             if (!isPureSystem && !isOpenChatBoilerplate(msg)) {
-                // 존칙/반말 스타일 집계
+                // 존칭/반말 스타일 집계
                 const style = analyzeHonorificStyle(msg);
                 let hCounts = this.senderHonorificCounts.get(record.sender);
                 if (!hCounts) {
@@ -1253,7 +1253,7 @@ export class ReportAggregator {
             participantEmojiStats.push({ alias, totalEmojis, topEmojis, dominantEmotion });
         }
         participantEmojiStats.sort((a, b) => b.totalEmojis - a.totalEmojis);
-        // 존칙/반말 인사이트 및 관계 추론
+        // 존칭/반말 인사이트 및 관계 추론
         const participantHonorifics = [];
         let roomHonorificCount = 0;
         let roomCasualCount = 0;
@@ -1266,9 +1266,8 @@ export class ReportAggregator {
             const honorificRatio = styledTotal > 0 ? counts.honorific / styledTotal : 0;
             const casualRatio = styledTotal > 0 ? counts.casual / styledTotal : 0;
             const neutralRatio = observedTotal > 0 ? counts.neutral / observedTotal : 1;
-            const styledCoverage = observedTotal > 0 ? styledTotal / observedTotal : 0;
             let dominantStyle = "mixed";
-            if (styledTotal < 3 || styledCoverage < 0.25)
+            if (styledTotal < 3)
                 dominantStyle = "insufficient";
             else if (honorificRatio >= 0.7)
                 dominantStyle = "honorific";
@@ -1280,6 +1279,7 @@ export class ReportAggregator {
                 casualRatio,
                 neutralRatio,
                 sampleCount: observedTotal,
+                styledSampleCount: styledTotal,
                 dominantStyle,
             });
             roomHonorificCount += counts.honorific;

@@ -471,17 +471,3 @@
 }
 
 /* ── Misc ── */
-.fact-more {
-  margin-top: 12px;
-}
-.fact-more summary {
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--accent);
-}
-.panel-fold summary {
-  cursor: pointer;
-  font-weight: 750;
-  font-size: 14px;
-}
