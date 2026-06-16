@@ -24,9 +24,15 @@ import { resolvePresetNameWithAuto } from "./analysis-preset.js";
 import type { AnalysisBudgetTracker } from "./analysis-budget.js";
 import { extractLlmJsonObject, parseLlmJsonResponse, type LlmJsonShape } from "./llm-json.js";
 import { mergeTopicProposals, type LlmTopicProposal } from "./topic-merge.js";
-import { isLlmGarbageText, sanitizeLlmDeck, sanitizeLlmParagraphs } from "./llm-deck-validate.js";
+import {
+  isLlmGarbageText,
+  mergeLlmValidationAudits,
+  sanitizeLlmDeckWithAudit,
+  sanitizeLlmParagraphsWithAudit,
+  textHasLlmEvidence,
+} from "./llm-deck-validate.js";
 import { buildKcaLlmJsonSchema } from "./llm-schema.js";
-import type { LlmInsights, ReportData, ReportTopic } from "./types.js";
+import type { LlmHarnessQuality, LlmInsights, ReportData, ReportTopic } from "./types.js";
 import type { RoomNarrative } from "./room-narrative.js";
 import { resolveLlmGpuForInfer } from "./llm-gpu-policy.js";
 import { runLlamaPrompt, LlmInferProcessError } from "./llm-runtime.js";
@@ -44,6 +50,7 @@ export interface LlmEnrichmentResult {
   narrative?: RoomNarrative;
   topics?: ReportTopic[];
   llmInsights?: LlmInsights;
+  llmQuality?: LlmHarnessQuality;
   skipReason?: string;
 }
 
@@ -293,20 +300,28 @@ function mergeTopics(data: ReportData, parsed: LlmJsonShape): ReportTopic[] {
   const topics = data.topics.map((t) => ({ ...t }));
   for (const row of parsed.topicTitles ?? []) {
     const t = topics[row.i];
-    if (t && row.title?.trim()) {
-      t.title = row.title.trim().slice(0, 48);
+    const title = row.title?.trim();
+    if (t && title && !isLlmGarbageText(title) && textHasLlmEvidence(`${title} ${t.terms.join(" ")}`, data)) {
+      t.title = title.slice(0, 48);
     }
   }
   return topics;
 }
 
-function mergeNarrative(data: ReportData, parsed: LlmJsonShape, base: RoomNarrative): RoomNarrative {
-  const llmParas = sanitizeLlmParagraphs(parsed.paragraphs, data);
-  if (llmParas.length === 0) return base;
+function mergeNarrative(
+  data: ReportData,
+  parsed: LlmJsonShape,
+  base: RoomNarrative,
+): { narrative: RoomNarrative; audit: ReturnType<typeof sanitizeLlmParagraphsWithAudit>["audit"] } {
+  const { paragraphs: llmParas, audit } = sanitizeLlmParagraphsWithAudit(parsed.paragraphs, data);
+  if (llmParas.length === 0) return { narrative: base, audit };
   const merged = [...llmParas, ...base.paragraphs.slice(0, 2)];
   return {
-    ogSummary: base.ogSummary,
-    paragraphs: merged.slice(0, 5),
+    narrative: {
+      ogSummary: base.ogSummary,
+      paragraphs: merged.slice(0, 5),
+    },
+    audit,
   };
 }
 
@@ -314,22 +329,38 @@ function mergeLlmInsights(
   data: ReportData,
   parsed: LlmJsonShape,
   proposals?: LlmTopicProposal[],
-): LlmInsights | undefined {
+): { llmInsights: LlmInsights | undefined; audit: ReturnType<typeof sanitizeLlmDeckWithAudit>["audit"] } {
   const insightBullets = (parsed.insightBullets ?? [])
-    .filter((s) => s.trim().length > 4 && !isLlmGarbageText(s))
+    .filter((s) => s.trim().length > 4 && !isLlmGarbageText(s) && textHasLlmEvidence(s, data))
     .slice(0, 5);
   const rawShop = parsed.shopSearchSummary?.trim().slice(0, 200);
-  const shopSearchSummary = rawShop && !isLlmGarbageText(rawShop) ? rawShop : undefined;
+  const shopSearchSummary = rawShop && !isLlmGarbageText(rawShop) && textHasLlmEvidence(rawShop, data) ? rawShop : undefined;
   const rawDyad = parsed.dyadInsight?.trim().slice(0, 200);
-  const dyadInsight = rawDyad && !isLlmGarbageText(rawDyad) ? rawDyad : undefined;
+  const dyadInsight = rawDyad && !isLlmGarbageText(rawDyad) && textHasLlmEvidence(rawDyad, data) ? rawDyad : undefined;
   const topicProposals = (proposals ?? [])
-    .filter((p) => p.title?.trim())
+    .filter((p) => p.title?.trim() && textHasLlmEvidence(`${p.title} ${(p.terms ?? p.keywordEvidence ?? []).join(" ")}`, data))
     .slice(0, 4)
     .map((p) => ({
       title: p.title.trim().slice(0, 48),
       terms: (p.terms ?? p.keywordEvidence ?? []).slice(0, 6),
     }));
-  const deck = sanitizeLlmDeck(parsed, data);
+  const { insights: deck, audit: deckAudit } = sanitizeLlmDeckWithAudit(parsed, data);
+  const acceptedInline =
+    insightBullets.length +
+    (shopSearchSummary ? 1 : 0) +
+    (dyadInsight ? 1 : 0) +
+    topicProposals.length;
+  const droppedInline =
+    Math.max(0, (parsed.insightBullets ?? []).length - insightBullets.length) +
+    (rawShop && !shopSearchSummary ? 1 : 0) +
+    (rawDyad && !dyadInsight ? 1 : 0) +
+    Math.max(0, (proposals ?? []).length - topicProposals.length);
+  const audit = mergeLlmValidationAudits(deckAudit, {
+    acceptedClaims: acceptedInline,
+    droppedClaims: droppedInline,
+    fallbackUsed: false,
+    validationWarnings: droppedInline > 0 ? ["unsupported_inline_insight"] : [],
+  });
   const merged: LlmInsights = {
     insightBullets,
     shopSearchSummary,
@@ -343,14 +374,29 @@ function mergeLlmInsights(
     dyadInsight ||
     topicProposals.length ||
     Object.keys(deck).length > 0;
-  if (!hasContent) return undefined;
-  return merged;
+  if (!hasContent) return { llmInsights: undefined, audit };
+  return { llmInsights: merged, audit };
+}
+
+function toHarnessQuality(
+  audit: ReturnType<typeof mergeLlmValidationAudits>,
+  args?: { schemaValid?: boolean; repairAttempts?: number },
+): LlmHarnessQuality {
+  return {
+    schemaValid: args?.schemaValid ?? true,
+    acceptedClaims: audit.acceptedClaims,
+    droppedClaims: audit.droppedClaims,
+    repairAttempts: args?.repairAttempts ?? 0,
+    fallbackUsed: audit.fallbackUsed,
+    validationWarnings: audit.validationWarnings.slice(0, 12),
+  };
 }
 
 function buildEnrichmentFromParsed(
   data: ReportData,
   parsed: LlmJsonShape,
   plan: LlmRunPlan,
+  repairAttempts = 0,
 ): LlmEnrichmentResult {
   let topics = mergeTopics(data, parsed);
   topics = mergeTopicProposals(
@@ -359,17 +405,40 @@ function buildEnrichmentFromParsed(
     data.keywords,
     data.summary.totalMessages,
   );
-  const narrative = mergeNarrative(data, parsed, data.narrative);
-  const llmInsights = mergeLlmInsights(
+  const narrativeResult = mergeNarrative(data, parsed, data.narrative);
+  const insightsResult = mergeLlmInsights(
     data,
     parsed,
     parsed.topicProposals as LlmTopicProposal[] | undefined,
   );
-  return { used: true, plan, topics, narrative, llmInsights };
+  const audit = mergeLlmValidationAudits(narrativeResult.audit, insightsResult.audit);
+  return {
+    used: true,
+    plan,
+    topics,
+    narrative: narrativeResult.narrative,
+    llmInsights: insightsResult.llmInsights,
+    llmQuality: toHarnessQuality(audit, { repairAttempts }),
+  };
 }
 
 function parseCompletionRaw(raw: string): LlmJsonShape | null {
   return parseLlmJsonResponse(raw, null);
+}
+
+function hasAcceptedLlmClaims(result: LlmEnrichmentResult): boolean {
+  return (result.llmQuality?.acceptedClaims ?? 0) > 0;
+}
+
+function schemaFailureQuality(repairAttempts = 0): LlmHarnessQuality {
+  return {
+    schemaValid: false,
+    acceptedClaims: 0,
+    droppedClaims: 0,
+    repairAttempts,
+    fallbackUsed: true,
+    validationWarnings: ["schema_or_json_parse_failed"],
+  };
 }
 
 function llmRetryBudgetSkipReason(budget?: AnalysisBudgetTracker): string | undefined {
@@ -404,22 +473,42 @@ export async function applyLlmEnrichment(
     const primary = await runLlmCompletion(data, plan);
     if (primary.ok) {
       const parsed = parseCompletionRaw(primary.raw);
-      if (parsed) return buildEnrichmentFromParsed(data, parsed, plan);
-      process.stderr.write(
-        `[kca] LLM JSON 파싱 실패 (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms) — compact 재시도\n`,
-      );
-      debugLlmRaw(primary.raw, "parse_fail primary");
+      let primaryValidationFailure: LlmHarnessQuality | undefined;
+      if (parsed) {
+        const result = buildEnrichmentFromParsed(data, parsed, plan);
+        if (hasAcceptedLlmClaims(result)) return result;
+        primaryValidationFailure = result.llmQuality;
+        process.stderr.write(
+          `[kca] LLM 검증 실패 (accepted 0, dropped ${result.llmQuality?.droppedClaims ?? 0}) — compact repair 재시도\n`,
+        );
+      } else {
+        process.stderr.write(
+          `[kca] LLM JSON 파싱 실패 (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms) — compact 재시도\n`,
+        );
+        debugLlmRaw(primary.raw, "parse_fail primary");
+      }
 
       const reprobe = probeMachineProfileSync();
       if (!canRetryLlmRam(reprobe, primary.size)) {
-        const skipReason = `JSON 파싱 실패 (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms); 재시도 건너뜀 (free ${reprobe.freeMemGb}GB < ${minFreeGbForLlmRetry()}GB)`;
+        const prefix = parsed ? "LLM 검증 실패" : "JSON 파싱 실패";
+        const skipReason = `${prefix} (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms); 재시도 건너뜀 (free ${reprobe.freeMemGb}GB < ${minFreeGbForLlmRetry()}GB)`;
         process.stderr.write(`[kca] LLM ${skipReason} — 규칙 기반 서사 유지\n`);
-        return { used: false, plan, skipReason };
+        return {
+          used: false,
+          plan,
+          skipReason,
+          llmQuality: primaryValidationFailure ?? schemaFailureQuality(),
+        };
       }
       const budgetSkip = llmRetryBudgetSkipReason(budget);
       if (budgetSkip) {
         process.stderr.write(`[kca] LLM ${budgetSkip} — 규칙 기반 서사 유지\n`);
-        return { used: false, plan, skipReason: budgetSkip };
+        return {
+          used: false,
+          plan,
+          skipReason: budgetSkip,
+          llmQuality: primaryValidationFailure ?? schemaFailureQuality(),
+        };
       }
 
       const retry = await runLlmCompletion(data, plan, {
@@ -436,12 +525,22 @@ export async function applyLlmEnrichment(
           used: false,
           plan,
           skipReason: `JSON 파싱 실패 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms)`,
+          llmQuality: schemaFailureQuality(1),
+        };
+      }
+      const repaired = buildEnrichmentFromParsed(data, parsedRetry, plan, 1);
+      if (!hasAcceptedLlmClaims(repaired)) {
+        return {
+          used: false,
+          plan,
+          skipReason: `LLM 검증 실패 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms, accepted 0)`,
+          llmQuality: repaired.llmQuality,
         };
       }
       process.stderr.write(
-        `[kca] LLM compact 재시도 성공 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms)\n`,
+        `[kca] LLM compact repair 성공 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms)\n`,
       );
-      return buildEnrichmentFromParsed(data, parsedRetry, plan);
+      return repaired;
     }
 
     if (primary.code !== "timeout") {
@@ -494,9 +593,19 @@ export async function applyLlmEnrichment(
         used: false,
         plan,
         skipReason: `JSON 파싱 실패 (${qwen35DisplayLabel(retrySize)}, ${retry.elapsedMs}ms)`,
+        llmQuality: schemaFailureQuality(1),
       };
     }
-    return buildEnrichmentFromParsed(data, parsedRetry, plan);
+    const repaired = buildEnrichmentFromParsed(data, parsedRetry, plan, 1);
+    if (!hasAcceptedLlmClaims(repaired)) {
+      return {
+        used: false,
+        plan,
+        skipReason: `LLM 검증 실패 (${qwen35DisplayLabel(retrySize)}, ${retry.elapsedMs}ms, accepted 0)`,
+        llmQuality: repaired.llmQuality,
+      };
+    }
+    return repaired;
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     process.stderr.write(`[kca] LLM 건너뜀 — ${msg}\n`);

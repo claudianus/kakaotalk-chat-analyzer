@@ -25,6 +25,7 @@ export async function enrichReportWithLlm(
   if (!result.used) {
     return {
       ...report,
+      llmQuality: result.llmQuality ?? report.llmQuality,
       summary: {
         ...report.summary,
         usedLlmAnalysis: false,
@@ -44,6 +45,7 @@ export async function enrichReportWithLlm(
     topics: result.topics ?? report.topics,
     narrative: result.narrative ?? report.narrative,
     llmInsights: result.llmInsights ?? report.llmInsights,
+    llmQuality: result.llmQuality ?? report.llmQuality,
     memorableMoments: enhancedMoments,
     summary: {
       ...report.summary,

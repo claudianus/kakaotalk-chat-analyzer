@@ -23,6 +23,7 @@ export interface BuildReportProvenanceOptions {
     llmUsed?: boolean;
     llmSkippedReason?: string;
     llmModelId?: string;
+    llmQuality?: ReportProvenance["analysis"]["llmQuality"];
     embeddingTopics?: boolean;
     budgetMs?: number;
     envOverrides?: string[];

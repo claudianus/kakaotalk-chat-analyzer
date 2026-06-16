@@ -17,6 +17,8 @@ test("applyLlmEnrichment with KCA_LLM_MOCK updates narrative", async () => {
         result.topics?.some((t) => t.title.includes("모의")),
     );
     assert.ok(result.llmInsights?.roomArchetype?.name);
+    assert.equal(result.llmQuality?.schemaValid, true);
+    assert.ok((result.llmQuality?.acceptedClaims ?? 0) > 0);
   } finally {
     if (prevMock === undefined) delete process.env.KCA_LLM_MOCK;
     else process.env.KCA_LLM_MOCK = prevMock;
@@ -51,6 +53,7 @@ test("applyLlmEnrichment skips gracefully on invalid mock JSON without throw", a
     });
     assert.equal(result.used, false);
     assert.ok(result.skipReason?.includes("JSON 파싱 실패"));
+    assert.equal(result.llmQuality?.schemaValid, false);
   } finally {
     if (prevMock === undefined) delete process.env.KCA_LLM_MOCK;
     else process.env.KCA_LLM_MOCK = prevMock;

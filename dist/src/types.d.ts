@@ -394,6 +394,14 @@ export interface LlmDayMicroStory {
     date: string;
     line: string;
 }
+export interface LlmHarnessQuality {
+    schemaValid: boolean;
+    acceptedClaims: number;
+    droppedClaims: number;
+    repairAttempts: number;
+    fallbackUsed: boolean;
+    validationWarnings: string[];
+}
 export interface TopicTrendItem {
     period: string;
     topics: {
@@ -582,6 +590,7 @@ export interface ReportProvenance {
         llmUsed?: boolean;
         llmSkippedReason?: string;
         llmModelId?: string;
+        llmQuality?: LlmHarnessQuality;
         embeddingTopics?: boolean;
         quality?: {
             deterministicSeed: string;
@@ -719,6 +728,8 @@ export interface ReportData {
     narrative: RoomNarrative;
     /** LLM 보강 시 추가 인사이트(quality/custom) */
     llmInsights?: LlmInsights;
+    /** LLM 입력 계약·검증·복구 하네스 결과 */
+    llmQuality?: LlmHarnessQuality;
     /** 처음/마지막·키워드 시프트 */
     periodCompare: PeriodComparison;
     /** 합성 참고 분위수(추정) */

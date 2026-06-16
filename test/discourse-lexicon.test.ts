@@ -3,7 +3,7 @@ import test from "node:test";
 import { discourseRatio, isDiscourseTerm } from "../src/discourse-lexicon.js";
 
 test("isDiscourseTerm flags BrewPage noise tokens", () => {
-  for (const w of ["요즘", "시간", "부탁", "환영", "있어요", "그런거", "감사합니다", "한데"]) {
+  for (const w of ["요즘", "시간", "부탁", "환영", "있어요", "그런거", "감사합니다", "한데", "그냥", "근데", "솔직히", "아무튼", "그니까", "맞아요", "네네"]) {
     assert.equal(isDiscourseTerm(w), true, w);
   }
   assert.equal(isDiscourseTerm("클로드"), false);

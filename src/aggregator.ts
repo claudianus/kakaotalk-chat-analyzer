@@ -116,6 +116,7 @@ const ATTACHMENT_MARKERS = [
 ] as const;
 
 const KEYWORD_EXCLUDE = new Set<string>([...ATTACHMENT_MARKERS, ...SYSTEM_NOTICE_KEYWORD_STOP]);
+const DISPLAY_KEYWORD_STOPWORDS = buildKeywordStopwords();
 const PURE_LAUGH_RE = /^[ㅋㅎㅠㅜ]+$/u;
 const PLAN_SIGNAL_RE =
   /(?:\d{1,2}\s*월|\d{1,2}\s*일|내일|모레|다음\s*주|오전|오후|저녁|점심|몇\s*시|\d{1,2}:\d{2})/u;
@@ -131,6 +132,17 @@ const CONTEXT_TOPIC_STOPWORDS = new Set([
   "오늘", "내일", "지금", "방금", "저거", "이거", "그거", "저도", "제가", "혹시", "그냥", "진짜", "약간", "관련",
   "http", "https", "링크", "사진", "영상", "이모티콘",
 ]);
+
+function isDisplayKeywordToken(token: string): boolean {
+  const label = normalizeToken(token);
+  if (label.length < 2) return false;
+  if (KEYWORD_EXCLUDE.has(label) || DISPLAY_KEYWORD_STOPWORDS.has(label)) return false;
+  return !isNoiseKeyword(label);
+}
+
+function displayKeywordTokens(tokens: string[]): string[] {
+  return tokens.map((token) => normalizeToken(token)).filter(isDisplayKeywordToken);
+}
 
 interface DailyContextSample {
   text: string;
@@ -605,12 +617,13 @@ export class ReportAggregator {
   applyKeywordTokens(kwTokens: string[], monthKey: string, dayKey?: string): void {
     this.keywordStream.addDocumentTokens(kwTokens);
     this.topicMap.addMessage(kwTokens, monthKey);
+    const displayTokens = displayKeywordTokens(kwTokens);
     let monthBucket = this.monthlyKeywordBuckets.get(monthKey);
     if (!monthBucket) {
       monthBucket = new KeywordCounter();
       this.monthlyKeywordBuckets.set(monthKey, monthBucket);
     }
-    for (const t of kwTokens) monthBucket.add(t);
+    for (const t of displayTokens) monthBucket.add(t);
     // 일별 키워드 버킷 (dayKey가 제공된 경우)
     if (dayKey) {
       let dayBucket = this.dailyKeywordBuckets.get(dayKey);
@@ -618,7 +631,7 @@ export class ReportAggregator {
         dayBucket = new KeywordCounter();
         this.dailyKeywordBuckets.set(dayKey, dayBucket);
       }
-      for (const t of kwTokens) dayBucket.add(t);
+      for (const t of displayTokens) dayBucket.add(t);
     }
   }
 

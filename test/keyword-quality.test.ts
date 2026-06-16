@@ -15,6 +15,10 @@ test("isNoiseKeyword filters digits and short latin tokens", () => {
   assert.equal(isNoiseKeyword("클로드"), false);
   assert.equal(isNoiseKeyword("SaaS"), false);
   assert.equal(isNoiseKeyword("요즘"), true);
+  assert.equal(isNoiseKeyword("그냥"), true);
+  assert.equal(isNoiseKeyword("근데"), true);
+  assert.equal(isNoiseKeyword("솔직히"), true);
+  assert.equal(isNoiseKeyword("아무튼"), true);
   assert.equal(isNoiseKeyword("감사합니다"), true);
   assert.equal(isNoiseKeyword("프로"), true);
   assert.equal(isNoiseKeyword("프로그램"), false);

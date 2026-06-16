@@ -1,4 +1,5 @@
 const KEYWORD_POOL_MAX = 80;
+const AI_SLOP_TEXT_RE = /(?:AI 분석 결과|압도적|압도적인|흥미로운|흥미롭게도|다채로운|놀라운|놀랍게도|풍부한 대화|의미 있는 대화|다양한 이야기를 나누는|시사합니다|특별한 공간입니다|활발한 소통의 장)/i;
 const GENERIC_ARCHETYPE_NAMES = new Set([
     "chatroom",
     "chatroom(이름 미전송)",
@@ -10,6 +11,38 @@ const GENERIC_ARCHETYPE_NAMES = new Set([
     "잡담방",
 ]);
 const LLM_FAILURE_TEXT_RE = /(?:messages are too general|specific archetype|more specific topic keywords|lack of keywords|no focus|cannot define|insufficient keywords|not enough context|이름 미전송)/i;
+function emptyAudit() {
+    return {
+        acceptedClaims: 0,
+        droppedClaims: 0,
+        fallbackUsed: false,
+        validationWarnings: [],
+    };
+}
+function recordDrop(audit, count, reason) {
+    if (count <= 0)
+        return;
+    audit.droppedClaims += count;
+    if (!audit.validationWarnings.includes(reason))
+        audit.validationWarnings.push(reason);
+}
+function recordAccept(audit, count) {
+    if (count > 0)
+        audit.acceptedClaims += count;
+}
+export function mergeLlmValidationAudits(...audits) {
+    const merged = emptyAudit();
+    for (const audit of audits) {
+        merged.acceptedClaims += audit.acceptedClaims;
+        merged.droppedClaims += audit.droppedClaims;
+        merged.fallbackUsed = merged.fallbackUsed || audit.fallbackUsed;
+        for (const warning of audit.validationWarnings) {
+            if (!merged.validationWarnings.includes(warning))
+                merged.validationWarnings.push(warning);
+        }
+    }
+    return merged;
+}
 /** LLM 출력의 템플릿 잔여물·오류 메시지·JSON 키 필터링 */
 export function isLlmGarbageText(value) {
     const v = value.trim();
@@ -22,6 +55,8 @@ export function isLlmGarbageText(value) {
     if (/this is not correct|please wait|json|schema|format|template/i.test(v))
         return true;
     if (LLM_FAILURE_TEXT_RE.test(v))
+        return true;
+    if (AI_SLOP_TEXT_RE.test(v))
         return true;
     // 통계 숫자만 나열 (쉼표·공백·%·숫자 외 문자 없음)
     if (/^[\d\s,%\.]+$/.test(v))
@@ -82,6 +117,10 @@ function statTokens(data) {
     pushNum(data.insights.weekendSharePercent);
     if (data.summary.peakHour !== null)
         s.add(`${data.summary.peakHour}`);
+    for (const kw of data.keywords.slice(0, KEYWORD_POOL_MAX))
+        pushNum(kw.count);
+    for (const topic of data.topics.slice(0, 12))
+        pushNum(topic.messagePercent);
     return s;
 }
 function statRefOk(ref, data) {
@@ -99,7 +138,7 @@ function statRefOk(ref, data) {
 function normalized(value) {
     return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
-function textHasEvidence(value, data, kw = keywordPool(data)) {
+export function textHasLlmEvidence(value, data, kw = keywordPool(data)) {
     const text = normalized(value);
     if (text.length < 4 || isLlmGarbageText(value))
         return false;
@@ -120,7 +159,7 @@ function sanitizeTrait(value, data, kw) {
         return null;
     if (GENERIC_ARCHETYPE_NAMES.has(normalized(trait)))
         return null;
-    if (kw.size > 0 && !textHasEvidence(trait, data, kw))
+    if (kw.size > 0 && !textHasLlmEvidence(trait, data, kw))
         return null;
     return trait;
 }
@@ -136,7 +175,7 @@ function roomArchetypeIsUsable(arch, data, kw) {
     if (kw.size === 0)
         return true;
     const traits = (arch.traits ?? []).join(" ");
-    return textHasEvidence(`${name} ${description} ${traits}`, data, kw);
+    return textHasLlmEvidence(`${name} ${description} ${traits}`, data, kw);
 }
 function topEvidenceTerms(data, limit = 4) {
     const terms = [];
@@ -172,16 +211,25 @@ function fallbackRoomArchetype(data) {
         traits: terms.slice(0, 3),
     };
 }
-export function sanitizeLlmParagraphs(paragraphs, data) {
+export function sanitizeLlmParagraphsWithAudit(paragraphs, data) {
     const kw = keywordPool(data);
-    return (paragraphs ?? [])
+    const audit = emptyAudit();
+    const raw = paragraphs ?? [];
+    const kept = raw
         .map((p) => p.trim().slice(0, 180))
-        .filter((p) => p.length > 8 && textHasEvidence(p, data, kw))
+        .filter((p) => p.length > 8 && textHasLlmEvidence(p, data, kw))
         .slice(0, 3);
+    recordAccept(audit, kept.length);
+    recordDrop(audit, Math.max(0, raw.length - kept.length), "unsupported_or_generic_paragraph");
+    return { paragraphs: kept, audit };
 }
-export function sanitizeLlmDeck(parsed, data) {
+export function sanitizeLlmParagraphs(paragraphs, data) {
+    return sanitizeLlmParagraphsWithAudit(paragraphs, data).paragraphs;
+}
+export function sanitizeLlmDeckWithAudit(parsed, data) {
     const kw = keywordPool(data);
     const out = {};
+    const audit = emptyAudit();
     const arch = parsed.roomArchetype;
     if (arch && roomArchetypeIsUsable(arch, data, kw)) {
         const traits = (arch.traits ?? [])
@@ -193,33 +241,45 @@ export function sanitizeLlmDeck(parsed, data) {
             description: arch.description.trim().slice(0, 200),
             traits,
         };
+        recordAccept(audit, 1);
     }
     else {
+        if (arch)
+            recordDrop(audit, 1, "unsupported_room_archetype");
         const fallback = fallbackRoomArchetype(data);
-        if (fallback)
+        if (fallback) {
             out.roomArchetype = fallback;
+            audit.fallbackUsed = true;
+        }
     }
-    const moments = (parsed.moments ?? [])
+    const rawMoments = parsed.moments ?? [];
+    const moments = rawMoments
         .filter((m) => m.headline?.trim() && m.statRef?.trim() && statRefOk(m.statRef, data))
         .slice(0, 5)
         .map((m) => ({
         headline: m.headline.trim().slice(0, 120),
         statRef: m.statRef.trim().slice(0, 80),
     }));
+    recordAccept(audit, moments.length);
+    recordDrop(audit, Math.max(0, rawMoments.length - moments.length), "unsupported_moment");
     if (moments.length)
         out.moments = moments;
-    const beats = (parsed.relationshipBeats ?? [])
-        .filter((b) => b.pair?.trim() && b.beat?.trim())
+    const rawBeats = parsed.relationshipBeats ?? [];
+    const beats = rawBeats
+        .filter((b) => b.pair?.trim() && b.beat?.trim() && textHasLlmEvidence(b.beat, data, kw))
         .slice(0, 4)
         .map((b) => ({
         pair: b.pair.trim().slice(0, 48),
         beat: b.beat.trim().slice(0, 120),
         role: b.role?.trim().slice(0, 24),
     }));
+    recordAccept(audit, beats.length);
+    recordDrop(audit, Math.max(0, rawBeats.length - beats.length), "unsupported_relationship_beat");
     if (beats.length)
         out.relationshipBeats = beats;
-    const episodes = (parsed.episodeCards ?? [])
-        .filter((e) => e.title?.trim())
+    const rawEpisodes = parsed.episodeCards ?? [];
+    const episodes = rawEpisodes
+        .filter((e) => e.title?.trim() && textHasLlmEvidence(`${e.title} ${e.tagline ?? ""}`, data, kw))
         .slice(0, 6)
         .map((e) => ({
         period: (e.period ?? "").trim().slice(0, 40),
@@ -227,18 +287,24 @@ export function sanitizeLlmDeck(parsed, data) {
         tagline: (e.tagline ?? "").trim().slice(0, 80),
         emoji: (e.emoji ?? "📖").trim().slice(0, 4) || "📖",
     }));
+    recordAccept(audit, episodes.length);
+    recordDrop(audit, Math.max(0, rawEpisodes.length - episodes.length), "unsupported_episode_card");
     if (episodes.length)
         out.episodeCards = episodes;
-    const eras = (parsed.eraLabels ?? [])
-        .filter((e) => e.label?.trim())
+    const rawEras = parsed.eraLabels ?? [];
+    const eras = rawEras
+        .filter((e) => e.label?.trim() && textHasLlmEvidence(`${e.label} ${e.detail ?? ""}`, data, kw))
         .slice(0, 3)
         .map((e) => ({
         label: e.label.trim().slice(0, 48),
         detail: (e.detail ?? "").trim().slice(0, 120),
     }));
+    recordAccept(audit, eras.length);
+    recordDrop(audit, Math.max(0, rawEras.length - eras.length), "unsupported_era_label");
     if (eras.length)
         out.eraLabels = eras;
-    const jokes = (parsed.insideJokes ?? [])
+    const rawJokes = parsed.insideJokes ?? [];
+    const jokes = rawJokes
         .filter((j) => j.label?.trim())
         .slice(0, 5)
         .map((j) => {
@@ -252,40 +318,58 @@ export function sanitizeLlmDeck(parsed, data) {
             evidenceKeywords: evidence,
         };
     })
-        .filter((j) => j.evidenceKeywords.length > 0 || j.whyFunny.length > 8);
+        .filter((j) => j.evidenceKeywords.length > 0);
+    recordAccept(audit, jokes.length);
+    recordDrop(audit, Math.max(0, rawJokes.length - jokes.length), "unsupported_inside_joke");
     if (jokes.length)
         out.insideJokes = jokes;
-    const chars = (parsed.characterCards ?? [])
-        .filter((c) => c.alias?.trim())
+    const rawChars = parsed.characterCards ?? [];
+    const chars = rawChars
+        .filter((c) => c.alias?.trim() && textHasLlmEvidence(`${c.tagline ?? ""} ${c.statHook ?? ""}`, data, kw))
         .slice(0, 3)
         .map((c) => ({
         alias: c.alias.trim().slice(0, 32),
         tagline: (c.tagline ?? "").trim().slice(0, 80),
         statHook: (c.statHook ?? "").trim().slice(0, 60),
     }));
+    recordAccept(audit, chars.length);
+    recordDrop(audit, Math.max(0, rawChars.length - chars.length), "unsupported_character_card");
     if (chars.length)
         out.characterCards = chars;
-    const days = (parsed.dayMicroStories ?? [])
-        .filter((d) => d.date?.trim() && d.line?.trim())
+    const rawDays = parsed.dayMicroStories ?? [];
+    const days = rawDays
+        .filter((d) => d.date?.trim() && d.line?.trim() && textHasLlmEvidence(d.line, data, kw))
         .slice(0, 5)
         .map((d) => ({
         date: d.date.trim().slice(0, 10),
         line: d.line.trim().slice(0, 120),
     }));
+    recordAccept(audit, days.length);
+    recordDrop(audit, Math.max(0, rawDays.length - days.length), "unsupported_day_micro_story");
     if (days.length)
         out.dayMicroStories = days;
-    if (parsed.shareLine?.trim()) {
+    if (parsed.shareLine?.trim() && textHasLlmEvidence(parsed.shareLine, data, kw)) {
         out.shareLine = parsed.shareLine.trim().slice(0, 160);
+        recordAccept(audit, 1);
+    }
+    else if (parsed.shareLine?.trim()) {
+        recordDrop(audit, 1, "unsupported_share_line");
     }
     const tags = (parsed.hashtags ?? []).map((h) => h.trim().replace(/^#/, "")).filter(Boolean).slice(0, 3);
     if (tags.length)
         out.hashtags = tags.map((h) => h.slice(0, 24));
-    const cf = (parsed.counterfactuals ?? [])
-        .filter((c) => c.text?.trim())
+    const rawCf = parsed.counterfactuals ?? [];
+    const cf = rawCf
+        .filter((c) => c.text?.trim() && textHasLlmEvidence(c.text, data, kw))
         .slice(0, 2)
         .map((c) => ({ text: c.text.trim().slice(0, 120) }));
+    recordAccept(audit, cf.length);
+    recordDrop(audit, Math.max(0, rawCf.length - cf.length), "unsupported_counterfactual");
     if (cf.length)
         out.counterfactuals = cf;
-    return out;
+    return { insights: out, audit };
+}
+export function sanitizeLlmDeck(parsed, data) {
+    return sanitizeLlmDeckWithAudit(parsed, data).insights;
 }
 //# sourceMappingURL=llm-deck-validate.js.map

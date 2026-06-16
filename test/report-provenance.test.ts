@@ -76,6 +76,14 @@ test("patchReportProvenance updates timing lines in HTML", () => {
     llmTier: "off",
     llmUsed: false,
     llmSkippedReason: "balanced preset (KCA_LLM=1 없음)",
+    llmQuality: {
+      schemaValid: false,
+      acceptedClaims: 0,
+      droppedClaims: 2,
+      repairAttempts: 1,
+      fallbackUsed: true,
+      validationWarnings: ["schema_or_json_parse_failed"],
+    },
     buildTiming: { parseAggregateMs: 100, renderHtmlMs: 50, writeFileMs: 10, totalMs: 160 },
     htmlBytes: 1000,
   });
@@ -84,5 +92,7 @@ test("patchReportProvenance updates timing lines in HTML", () => {
   assert.match(patched, /생성 160ms/);
   assert.match(patched, /"preset":"balanced"/);
   assert.match(patched, /"llmUsed":false/);
+  assert.match(patched, /"llmQuality":/);
+  assert.match(patched, /LLM 하네스: schema fail · accepted 0 · dropped 2 · repair 1 · rule fallback/);
   assert.match(patched, /분석 preset: balanced/);
 });
