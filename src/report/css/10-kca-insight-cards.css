@@ -1,5 +1,48 @@
 /* kca Insight Cards v5 — Premium Glassmorphism */
 
+/* ── Story timeline pair (memorable moments + event spine) ── */
+.story-timeline-pair {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card-lg, 24px);
+  background: var(--glass);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+  padding: var(--card-pad);
+  margin-bottom: var(--section-gap);
+  backdrop-filter: blur(var(--glass-blur-heavy, 32px)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy, 32px)) saturate(var(--glass-saturate));
+}
+.story-timeline-pair__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 20px;
+  align-items: start;
+}
+.story-timeline-pair__col {
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--glass-border);
+  background: color-mix(in oklab, var(--panel-solid) 72%, transparent);
+}
+.story-timeline-pair__col h2 {
+  margin: 0 0 8px;
+  font-size: clamp(18px, 2.1vw, 24px);
+  letter-spacing: -0.03em;
+}
+.story-timeline-pair__col .chart-hint {
+  margin: 0 0 12px;
+}
+.story-timeline-pair__col--spine .spine-list {
+  max-height: min(68vh, 720px);
+  overflow-y: auto;
+  padding-right: 6px;
+}
+@media (max-width: 960px) {
+  .story-timeline-pair__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Glass Section Containers ── */
 .hot-topics-section,
 .participant-roles-section,
@@ -151,11 +194,11 @@
 
 /* ── Emoji Insight ── */
 .emoji-insight-card {
-  background: var(--panel);
-  border-radius: 14px;
+  background: var(--glass);
+  border-radius: 16px;
   padding: 16px;
-  margin-top: 14px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
 }
 .emoji-stat {
   display: inline-flex;
@@ -175,10 +218,10 @@
 }
 .moment-item {
   display: grid;
-  grid-template-columns: 92px auto 1fr;
+  grid-template-columns: 88px 28px minmax(0, 1fr);
   align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 10px 12px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--glass-border);
   transition: background var(--duration-fast) var(--ease-smooth), border-color var(--duration-fast);
 }
@@ -205,21 +248,35 @@
 .moment-title {
   font-weight: 700;
   color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
 }
 .moment-desc {
   color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 /* ── Participant Roles ── */
 .participant-roles-section {
   margin-bottom: var(--section-gap);
 }
+.participant-roles-head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.participant-roles-head .llm-strip-title {
+  margin: 0;
+}
+.role-selection-hint {
+  margin: 0;
+  max-width: 72ch;
+}
 .participant-roles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
 }
 .participant-role-card {
   background: var(--glass);
@@ -283,13 +340,21 @@
   line-height: 1.6;
 }
 
+.participant-emoji-insight-card {
+  background: var(--glass);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
+}
+
 /* ── Honorifics ── */
 .honorific-insight-card {
-  background: var(--panel);
-  border-radius: 14px;
+  background: var(--glass);
+  border-radius: 16px;
   padding: 16px;
-  margin-top: 14px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--glass-highlight);
 }
 .honorific-stat {
   display: inline-flex;

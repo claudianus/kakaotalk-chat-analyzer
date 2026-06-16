@@ -222,6 +222,7 @@ export function renderParticipantRoles(data) {
     const roles = data.participantRoles;
     if (!roles || roles.length === 0)
         return "";
+    const ROLE_MIN_CONFIDENCE = 0.82;
     const roleEmoji = {
         주도형: "👑",
         긴글러: "✍️",
@@ -259,12 +260,16 @@ export function renderParticipantRoles(data) {
       </article>`;
     })
         .join("");
+    const countLine = `메시지 상위 <strong>${roles.length}명</strong> · 패턴 신뢰도 ${Math.round(ROLE_MIN_CONFIDENCE * 100)}% 이상`;
     return `<section id="s-participant-roles" class="kca-section participant-roles-section anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할" data-observe>
-    <h2 class="llm-strip-title">👥 참여자 역할</h2>
+    <div class="participant-roles-head">
+      <h2 class="llm-strip-title">👥 참여자 역할</h2>
+      <p class="chart-hint role-selection-hint">메시지 수 상위 참여자부터 검사해, 웃음·심야·링크·연속 발화 등 <strong>통계적으로 두드러진 행동</strong>이 감지된 경우만 최대 12명까지 표시합니다. (${countLine})</p>
+    </div>
     <div class="participant-roles-grid" role="list">${cards}</div>
   </section>`;
 }
-export function renderMemorableMoments(data) {
+export function renderMemorableMomentsList(data) {
     const moments = data.memorableMoments;
     if (!moments || moments.length === 0)
         return "";
@@ -301,9 +306,15 @@ export function renderMemorableMoments(data) {
       </li>`;
     })
         .join("");
+    return `<ul class="moments-list">${items}</ul>`;
+}
+export function renderMemorableMoments(data) {
+    const list = renderMemorableMomentsList(data);
+    if (!list)
+        return "";
     return `<section id="s-memorable-moments" class="kca-section memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간" data-observe>
     <h2 class="llm-strip-title">✨ 기억에 남는 순간</h2>
-    <ul class="moments-list">${items}</ul>
+    ${list}
   </section>`;
 }
 // ── 최근 7일 + 리포트 당일 스냅샷 ──

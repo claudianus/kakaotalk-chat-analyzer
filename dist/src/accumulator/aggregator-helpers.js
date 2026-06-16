@@ -254,14 +254,17 @@ export function buildRoomEventStats(total, c, shopExtra) {
     };
 }
 /* ── 참여자 역할 ── */
+const PARTICIPANT_ROLE_MAX = 12;
+const PARTICIPANT_ROLE_MIN_CONFIDENCE = 0.82;
 export function buildParticipantRoles(participants, laughBySender, shortBySender, aliases) {
     if (participants.length === 0)
         return [];
     const sortedByMessages = [...participants].sort((a, b) => b.messages - a.messages);
     const avgLengthOverall = participants.reduce((sum, p) => sum + p.averageLength, 0) / participants.length;
-    const pickedRoles = new Set();
     const results = [];
-    for (const p of participants) {
+    for (const p of sortedByMessages) {
+        if (results.length >= PARTICIPANT_ROLE_MAX)
+            break;
         const rawAlias = [...aliases.entries()].find(([, a]) => a === p.alias)?.[0];
         const laughCount = rawAlias ? (laughBySender.get(rawAlias) ?? 0) : 0;
         const shortCount = rawAlias ? (shortBySender.get(rawAlias) ?? 0) : 0;
@@ -298,13 +301,10 @@ export function buildParticipantRoles(participants, laughBySender, shortBySender
             candidates.push({ role: "연속 발화자", confidence: 0.82, reason: `최대 ${p.maxConsecutive}연속 발화로 한 번에 흐름을 길게 이어감`, score: p.maxConsecutive * 3 });
         }
         candidates.sort((a, b) => b.score - a.score);
-        const picked = candidates.find((c) => !pickedRoles.has(c.role));
-        if (!picked)
+        const picked = candidates[0];
+        if (!picked || picked.confidence < PARTICIPANT_ROLE_MIN_CONFIDENCE)
             continue;
-        pickedRoles.add(picked.role);
         results.push({ alias: p.alias, role: picked.role, confidence: picked.confidence, reason: picked.reason });
-        if (results.length >= 6)
-            break;
     }
     return results;
 }

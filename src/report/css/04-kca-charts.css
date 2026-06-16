@@ -320,6 +320,20 @@
 .kw-bar-fill--rank3 { background: var(--kw-bar-rank3); }
 
 /* ── Network Graph ── */
+.network-split {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+.network-split__meta {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.network-split__chart {
+  min-width: 0;
+}
 .network-insight {
   display: flex;
   flex-wrap: wrap;
@@ -399,8 +413,14 @@
   margin-left: 2px;
 }
 .chart-box--network {
-  height: clamp(320px, 38vw, 480px);
-  min-height: 320px;
+  height: clamp(320px, 36vw, 460px);
+  min-height: 300px;
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .network-split {
+    grid-template-columns: 1fr;
+  }
 }
 .network-empty {
   text-align: center;

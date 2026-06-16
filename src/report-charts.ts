@@ -210,20 +210,26 @@ export function renderChartDeck(data: ReportData): string {
       <p class="viz-hint">링크 호스트 상위</p>
       <div id="chart-domains" class="chart-box compact" role="img" aria-label="도메인 차트"></div>
     </article>
-    ${data.interaction ? `<article class="viz-card kca-card--chart span-12 viz-card--immersive">
+    ${data.interaction ? `<article class="viz-card kca-card--chart span-12 viz-card--network">
       <h3>응답 관계 네트워크</h3>
-      <p class="viz-hint">누가 누구에게 답하는지 <strong>원형 아크 다이어그램</strong>으로 보여줍니다. 화살표 = 응답 방향, 선 굵기 = 응답 횟수, 노드 크기 = 응답 총량입니다.</p>
-      <div id="chart-network-insight" class="network-insight" aria-live="polite"></div>
-      <div class="network-controls">
-        <label class="network-filter-label">
-          <span>최소 응답</span>
-          <input type="range" id="network-threshold" min="1" max="500" value="3" class="network-threshold-slider" aria-label="최소 응답 횟수 필터">
-          <span id="network-threshold-val" class="network-threshold-value">3</span>
-          <span>회 이상</span>
-        </label>
+      <p class="viz-hint">누가 누구에게 답하는지 <strong>원형 다이어그램</strong>으로 보여줍니다. 화살표 = 응답 방향, 선 굵기 = 응답 횟수, 노드 크기 = 응답 총량입니다.</p>
+      <div class="network-split">
+        <div class="network-split__meta">
+          <div id="chart-network-insight" class="network-insight" aria-live="polite"></div>
+          <div class="network-controls">
+            <label class="network-filter-label">
+              <span>최소 응답</span>
+              <input type="range" id="network-threshold" min="1" max="500" value="3" class="network-threshold-slider" aria-label="최소 응답 횟수 필터">
+              <span id="network-threshold-val" class="network-threshold-value">3</span>
+              <span>회 이상</span>
+            </label>
+          </div>
+        </div>
+        <div class="network-split__chart">
+          <div id="chart-network" class="chart-box chart-box--network" role="img" aria-label="응답 관계 네트워크"></div>
+          <div id="chart-network-empty" class="network-empty" hidden aria-hidden="true">표시할 응답 관계가 없습니다. 최소 응답 횟수를 낮춰보세요.</div>
+        </div>
       </div>
-      <div id="chart-network" class="chart-box chart-box--network" role="img" aria-label="응답 관계 네트워크"></div>
-      <div id="chart-network-empty" class="network-empty" hidden aria-hidden="true">표시할 응답 관계가 없습니다. 최소 응답 횟수를 낮춰보세요.</div>
     </article>` : ""}
     ${topicChart}
     ${renderTopicTrendCard(data)}
@@ -983,6 +989,7 @@ export const CHARTS_INIT_SCRIPT = `
             type: "graph",
             layout: "circular",
             circular: { rotateLabel: false },
+            center: ["50%", "50%"],
             data: nodes,
             links: styledLinks,
             roam: isMobile ? false : "scale",

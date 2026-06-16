@@ -10,7 +10,7 @@ export interface BubbleLayoutResult extends BubbleLayoutInput {
   nudged: boolean;
 }
 
-const MIN_DIST = 13.5;
+const MIN_DIST = 11.5;
 
 function dist(a: BubbleLayoutResult, b: BubbleLayoutResult): number {
   return Math.hypot(a.x - b.x, a.y - b.y);

@@ -207,7 +207,7 @@ test("buildReportStory limits duplicate persona titles", () => {
   assert.ok(dup.length <= 2, `too many duplicate personas: ${dup.join(", ")}`);
 });
 
-test("buildParticipantRoles returns only distinctive premium role cards", () => {
+test("buildParticipantRoles returns distinctive role cards for top participants", () => {
   const many: ParticipantStat[] = Array.from({ length: 18 }, (_, i) => ({
     alias: `U${i}`,
     messages: 200 - i * 5,
@@ -227,9 +227,9 @@ test("buildParticipantRoles returns only distinctive premium role cards", () => 
     new Map([["U7", 90]]),
     aliases,
   );
-  assert.ok(roles.length <= 6);
+  assert.ok(roles.length <= 12);
+  assert.ok(roles.length >= 4);
   assert.equal(roles.some((r) => r.role === "조력형"), false);
-  assert.equal(new Set(roles.map((r) => r.role)).size, roles.length);
 });
 
 test("extractMemorableMoments avoids milestone walls and keeps topic evidence", () => {

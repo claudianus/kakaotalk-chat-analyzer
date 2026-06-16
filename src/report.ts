@@ -34,7 +34,7 @@ import {
   topicNavLink,
 } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
-import { renderInnovationDeck } from "./report-innovation.js";
+import { renderInnovationDeck, renderStoryTimelinePair } from "./report-innovation.js";
 import {
   renderDailyHotTopics,
   renderLlmArchetypeBanner,
@@ -46,7 +46,6 @@ import {
   renderLlmMomentsBlock,
   renderLlmRelationshipBeats,
   renderLlmShareFooter,
-  renderMemorableMoments,
   renderParticipantRoles,
   renderRecentSnapshot,
 } from "./report-llm-deck.js";
@@ -195,7 +194,7 @@ export function renderReportHtml(data: ReportData): string {
     ${renderShopSearchPromoted(data)}
     ${renderLlmMomentsBlock(data)}
     ${renderLlmDayMicroStories(data)}
-    ${renderMemorableMoments(data)}
+    ${renderStoryTimelinePair(data)}
     ${renderInnovationDeck(data)}
 
     <div id="s-charts" class="kca-section anim-enter" data-observe style="--enter-delay:0.07s">
@@ -373,8 +372,8 @@ function renderSectionNav(data: ReportData): string {
   const narrative = hasNarrativeSection(data)
     ? `<a href="#s-narrative" data-kca-jump="s-narrative">② 방 이야기</a>`
     : "";
-  const timeline = hasTimelineSection(data)
-    ? `<a href="#s-timeline" data-kca-jump="s-timeline">타임라인</a>`
+  const timeline = hasTimelineSection(data) || (data.memorableMoments?.length ?? 0) > 0
+    ? `<a href="#s-story-pair" data-kca-jump="s-story-pair">스토리</a>`
     : "";
   const dyad = hasDyadSection(data) ? `<a href="#s-dyad" data-kca-jump="s-dyad">상호작용</a>` : "";
   const explorer = hasExplorerSection(data)
@@ -567,9 +566,11 @@ function renderInsightDeck(data: ReportData): string {
       ${insMetric("🌙 심야 비중", `${data.summary.nightSharePercent}%`, "23시~05시 메시지 비율")}
     </div>
     ${renderLlmInsideJokes(data)}
-    ${renderEmojiInsight(data.emojiInsight)}
-    ${renderParticipantEmojiStats(data.participantEmojiStats)}
-    ${renderHonorificInsight(data.honorificInsight)}
+    <div class="insight-aux-grid" data-observe>
+      ${renderEmojiInsight(data.emojiInsight)}
+      ${renderParticipantEmojiStats(data.participantEmojiStats)}
+      ${renderHonorificInsight(data.honorificInsight)}
+    </div>
     <div class="insight-split" data-observe>
       <div>
         <h3 class="insight-sub">하루 시간대 비중</h3>
@@ -584,7 +585,7 @@ function renderInsightDeck(data: ReportData): string {
       </div>
       <div>
         <h3 class="insight-sub">참여자 말풍선 맵</h3>
-        <p class="chart-hint">말풍선 <strong>크기·위치</strong>로 비중(가로)과 평균 글자 수(세로)를 봅니다. 좁은 화면에서도 축약형 버블 맵으로 유지돼요.</p>
+        <p class="chart-hint">말풍선 <strong>크기 = 메시지 건수</strong>, 가로 = 비중, 세로 = 평균 글자 수입니다.</p>
         ${scatter}
       </div>
     </div>
@@ -611,9 +612,9 @@ function renderParticipantEmojiStats(participantEmojiStats: ReportData["particip
       return `<tr><td>${escapeHtml(p.alias)}</td><td>${topEmojisHtml}</td><td>${escapeHtml(emotionLabels[p.dominantEmotion] ?? p.dominantEmotion)}</td></tr>`;
     })
     .join("");
-  return `<div class="participant-emoji-insight-card" style="margin-top:14px">
+  return `<div class="participant-emoji-insight-card">
     <h3 class="insight-sub">참여자별 이모지 패턴</h3>
-    <p class="chart-hint">참여자별로 자주 쓴 이모지 TOP 3와 주요 감정 톤입니다.</p>
+    <p class="chart-hint">이모지가 포함된 메시지 중, 패턴이 뚜렷한 참여자 최대 10명입니다.</p>
     <table class="table" style="margin-top:8px">
       <thead><tr><th>표시명</th><th>자주 쓴 이모지</th><th>주요 감정</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -641,7 +642,7 @@ function renderEmojiInsight(emojiInsight: ReportData["emojiInsight"]): string {
   const topHtml = emojiInsight.topEmojis
     .map((item) => `${escapeHtml(item.emoji)}(${formatNumber(item.count)})`)
     .join(" ");
-  return `<div class="emoji-insight-card" style="margin-top:14px">
+  return `<div class="emoji-insight-card">
     <h3 class="insight-sub">이모지 감정 맵</h3>
     <p class="chart-hint">이모지가 포함된 메시지 <strong>${formatNumber(total)}</strong>건의 감정 분포예요.</p>
     <div class="emoji-breakdown" style="display:flex;flex-wrap:wrap;gap:10px;margin:8px 0">
@@ -736,7 +737,7 @@ function top3MetricSub(top3: number, gini: number | null): string {
 }
 
 function insMetric(label: string, value: string, sub: string): string {
-  return `<div class="ins-metric"><span class="ins-m-label">${escapeHtml(label)}</span><span class="ins-m-val">${escapeHtml(value)}</span><span class="ins-m-sub">${escapeHtml(sub)}</span></div>`;
+  return `<div class="ins-metric"><span class="ins-label">${escapeHtml(label)}</span><span class="ins-value">${escapeHtml(value)}</span><span class="ins-sub">${escapeHtml(sub)}</span></div>`;
 }
 
 function daypartColor(key: string): string {
@@ -785,19 +786,19 @@ function renderParticipantBubbleMap(
     .map((p, i) => {
       const { x, y, scale } = layouts[i]!;
       const hue = (i * 53) % 360;
-      const size = Math.round(76 + scale * 34);
+      const size = Math.round(52 + scale * 108);
       const title = `${p.alias} · ${p.sharePercent}% · 평균 ${p.averageLength}자 · ${formatNumber(p.messages)}건`;
       return `<div class="bubble-node" style="left:${x}%;top:${y}%;--bubble-size:${size}px;--bubble-hue:${hue}" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">
-        <span class="bubble-shape" aria-hidden="true"></span>
+        <span class="bubble-disk" aria-hidden="true"></span>
         <div class="bubble-content">
           <strong>${escapeHtml(p.alias)}</strong>
           <span class="bubble-pct">${p.sharePercent}%</span>
-          <small>평균 ${p.averageLength}자 · ${formatNumber(p.messages)}건</small>
+          <small>${formatNumber(p.messages)}건 · 평균 ${p.averageLength}자</small>
         </div>
       </div>`;
     })
     .join("");
-  return `<div class="sc-plot" role="img" aria-label="참여자 말풍선 맵: 가로 메시지 비중, 세로 평균 글자 수">
+  return `<div class="sc-plot sc-plot--bubble" role="img" aria-label="참여자 말풍선 맵: 크기 메시지 건수, 가로 비중, 세로 평균 글자 수">
     <div class="sc-plot-orbit" aria-hidden="true"></div>
     <span class="sc-grid-label sc-lbl-top">평균 글자 ↑</span>
     <span class="sc-grid-label sc-lbl-bottom">평균 글자 ↓</span>
@@ -812,7 +813,7 @@ function renderParticipantBubbleMap(
 }
 
 function scatterScale(messages: number, maxMessages: number): number {
-  return Math.round((0.72 + (messages / maxMessages) * 0.45) * 100) / 100;
+  return Math.sqrt(messages / maxMessages);
 }
 
 function privacyLabel(mode: string): string {
