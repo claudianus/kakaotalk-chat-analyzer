@@ -294,6 +294,9 @@ export function buildRoomEventStats(
 
 /* ── 참여자 역할 ── */
 
+const PARTICIPANT_ROLE_MAX = 12;
+const PARTICIPANT_ROLE_MIN_CONFIDENCE = 0.82;
+
 export function buildParticipantRoles(
   participants: ParticipantStat[], laughBySender: Map<string, number>,
   shortBySender: Map<string, number>, aliases: Map<string, string>,
@@ -301,10 +304,10 @@ export function buildParticipantRoles(
   if (participants.length === 0) return [];
   const sortedByMessages = [...participants].sort((a, b) => b.messages - a.messages);
   const avgLengthOverall = participants.reduce((sum, p) => sum + p.averageLength, 0) / participants.length;
-  const pickedRoles = new Set<string>();
   const results: ParticipantRole[] = [];
 
-  for (const p of participants) {
+  for (const p of sortedByMessages) {
+    if (results.length >= PARTICIPANT_ROLE_MAX) break;
     const rawAlias = [...aliases.entries()].find(([, a]) => a === p.alias)?.[0];
     const laughCount = rawAlias ? (laughBySender.get(rawAlias) ?? 0) : 0;
     const shortCount = rawAlias ? (shortBySender.get(rawAlias) ?? 0) : 0;
@@ -343,11 +346,9 @@ export function buildParticipantRoles(
     }
 
     candidates.sort((a, b) => b.score - a.score);
-    const picked = candidates.find((c) => !pickedRoles.has(c.role));
-    if (!picked) continue;
-    pickedRoles.add(picked.role);
+    const picked = candidates[0];
+    if (!picked || picked.confidence < PARTICIPANT_ROLE_MIN_CONFIDENCE) continue;
     results.push({ alias: p.alias, role: picked.role, confidence: picked.confidence, reason: picked.reason });
-    if (results.length >= 6) break;
   }
 
   return results;

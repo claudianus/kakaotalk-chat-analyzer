@@ -1,17 +1,46 @@
 import { timelineActivityRange } from "./event-spine.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
 import { hasBenchmarkSection } from "./report-section-visibility.js";
-import { renderLlmDayMicroStories, renderLlmEraLabels, renderLlmRelationshipBeats, } from "./report-llm-deck.js";
+import { renderLlmDayMicroStories, renderLlmEraLabels, renderLlmRelationshipBeats, renderMemorableMomentsList, } from "./report-llm-deck.js";
+export function renderStoryTimelinePair(data) {
+    const momentsList = renderMemorableMomentsList(data);
+    const spineList = renderTimelineList(data);
+    if (!momentsList && !spineList)
+        return "";
+    const momentsCol = momentsList
+        ? `<div class="story-timeline-pair__col story-timeline-pair__col--moments">
+      <h2 class="llm-strip-title">✨ 기억에 남는 순간</h2>
+      <p class="chart-hint">활동 급증·감정 반전·마일스톤 등 규칙으로 뽑은 하이라이트입니다.</p>
+      ${momentsList}
+    </div>`
+        : "";
+    const spineCol = spineList
+        ? `<div class="story-timeline-pair__col story-timeline-pair__col--spine">
+      <h2 class="llm-strip-title">⏳ 이벤트 스파인</h2>
+      ${renderTimelineHint(data)}
+      ${spineList}
+    </div>`
+        : "";
+    return `<section id="s-story-pair" class="kca-section story-timeline-pair anim-enter" data-observe style="--enter-delay:0.04s" aria-label="기억에 남는 순간과 이벤트 스파인">
+    <div class="story-timeline-pair__grid">${momentsCol}${spineCol}</div>
+  </section>`;
+}
 export function renderInnovationDeck(data) {
     return [
-        renderTimelineBlock(data),
         renderDyadBlock(data),
         renderPeriodCompareBlock(data),
         hasBenchmarkSection(data) ? renderBenchmarkBlock(data) : "",
         renderExplorerBlock(data),
     ].join("\n");
 }
-function renderTimelineBlock(data) {
+function renderTimelineHint(data) {
+    const range = timelineActivityRange(data.daily);
+    const rangeLine = range
+        ? `활동 <strong>${escapeHtml(range.first)}</strong>~<strong>${escapeHtml(range.last)}</strong> · 이벤트 <strong>${data.timeline.length}</strong>건 — `
+        : "";
+    return `<p class="chart-hint">${rangeLine}급증·침묵·입퇴장·링크·약속 신호 등 <strong>임계값을 넘은 날</strong>만 나열합니다.</p>`;
+}
+function renderTimelineList(data) {
     if (data.timeline.length === 0)
         return "";
     const items = data.timeline
@@ -26,15 +55,7 @@ function renderTimelineBlock(data) {
       </li>`;
     })
         .join("");
-    const range = timelineActivityRange(data.daily);
-    const rangeLine = range
-        ? `활동 <strong>${escapeHtml(range.first)}</strong>~<strong>${escapeHtml(range.last)}</strong> · 이벤트 <strong>${data.timeline.length}</strong>건 — `
-        : "";
-    return `<section id="s-timeline" class="kca-section card kca-card--story spine-card anim-enter" data-observe style="--enter-delay:0.045s" aria-label="이벤트 타임라인">
-    <h2 class="section-glow">⏳ 이벤트 스파인</h2>
-    <p class="chart-hint">${rangeLine}급증·침묵·입퇴장·링크·약속 신호 등 <strong>임계값을 넘은 날</strong>만 나열합니다(전 기간 달력 아님).</p>
-    <ol class="spine-list">${items}</ol>
-  </section>`;
+    return `<ol id="s-timeline" class="spine-list">${items}</ol>`;
 }
 function renderDyadBlock(data) {
     const m = data.interaction;

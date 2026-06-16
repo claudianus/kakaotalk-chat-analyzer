@@ -1,5 +1,5 @@
 /** 말풍선 맵 겹침 완화: 데이터 좌표(%) → 충돌 없는 위치 */
-const MIN_DIST = 13.5;
+const MIN_DIST = 11.5;
 function dist(a, b) {
     return Math.hypot(a.x - b.x, a.y - b.y);
 }
