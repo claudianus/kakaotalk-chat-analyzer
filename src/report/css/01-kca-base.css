@@ -114,9 +114,9 @@ body.kca-oled::after {
   border-radius: 4px;
 }
 
-/* ── Main: full-width premium report canvas ── */
+/* ── Main: wide premium report canvas ── */
 main {
-  width: calc(100% - (var(--content-pad) * 2));
+  width: min(calc(100% - (var(--content-pad) * 2)), var(--content-max));
   max-width: none;
   margin-inline: auto;
   padding: clamp(18px, 2.4vw, 34px) 0 clamp(48px, 6vw, 84px);

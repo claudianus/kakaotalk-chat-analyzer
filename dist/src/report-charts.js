@@ -17,6 +17,7 @@ export function serializeChartPayload(data) {
         .replace(/\u2029/g, "\\u2029");
 }
 export function buildChartPayload(data) {
+    const topicTrendItems = data.smartTopicTrend?.items ?? data.topicTrend;
     return {
         hourly: data.hourly,
         weekdays: data.weekdays,
@@ -71,10 +72,21 @@ export function buildChartPayload(data) {
                 messageCounts: data.interaction.messageCounts,
             }
             : null,
-        topicTrend: data.topicTrend.map((t) => ({
+        topicTrend: topicTrendItems.map((t) => ({
             period: t.period,
             topics: t.topics.map((topic) => ({ name: topic.name, value: topic.value })),
         })),
+        smartTopicTrend: data.smartTopicTrend
+            ? {
+                granularity: data.smartTopicTrend.granularity,
+                label: data.smartTopicTrend.label,
+                hint: data.smartTopicTrend.hint,
+                items: data.smartTopicTrend.items.map((t) => ({
+                    period: t.period,
+                    topics: t.topics.map((topic) => ({ name: topic.name, value: topic.value })),
+                })),
+            }
+            : null,
     };
 }
 export function serializeExplorerPayload(data) {
@@ -91,7 +103,7 @@ export function renderChartDeck(data) {
     const topicChart = themeCount > 0
         ? `<article class="viz-card kca-card--chart span-12">
       <h3>대화 테마 · c-TF-IDF</h3>
-      <p class="viz-hint">막대 = <strong>의미 주제</strong> 신호 비중(근사 %). 월별 메시지량은 「기간 비교」·아래 주제 카드의 월별 화제를 보세요.</p>
+      <p class="viz-hint">막대 = <strong>의미 주제</strong> 신호 비중(근사 %). 기간별 키워드 흐름은 아래 토픽 트렌드에서 보세요.</p>
       <div id="chart-topics" class="chart-box" role="img" aria-label="주제 테마 차트"></div>
     </article>`
         : "";
@@ -164,12 +176,13 @@ export function renderChartDeck(data) {
   </div>`;
 }
 function renderTopicTrendCard(data) {
-    if (data.topicTrend.length < 2)
+    const trend = data.smartTopicTrend;
+    if (!trend || trend.items.length < 2)
         return "";
     return `<article class="viz-card kca-card--chart span-12">
-      <h3>토픽 트랜드 · 월별 키워드</h3>
-      <p class="viz-hint">월별 상위 키워드 등장 횟수 추이. 스택드 에어리어 차트입니다.</p>
-      <div id="chart-topic-trend" class="chart-box" role="img" aria-label="토픽 트랜드 차트"></div>
+      <h3>${escapeHtml(trend.label)}</h3>
+      <p class="viz-hint">${escapeHtml(trend.hint)} 스택드 에어리어 차트입니다.</p>
+      <div id="chart-topic-trend" class="chart-box" role="img" aria-label="${escapeHtml(trend.label)} 차트"></div>
     </article>`;
 }
 function renderParticipantLegend(participants) {
@@ -668,13 +681,25 @@ export const CHARTS_INIT_SCRIPT = `
         showChartEmpty("chart-topics", "주제 테마가 충분하지 않습니다", "키워드 공기 패턴이 더 뚜렷할 때 주제 차트를 표시합니다.");
       }
 
-      if (data.topicTrend && data.topicTrend.length && document.getElementById("chart-topic-trend")) {
+      var smartTopicTrend = data.smartTopicTrend && data.smartTopicTrend.items && data.smartTopicTrend.items.length
+        ? data.smartTopicTrend
+        : { granularity: "monthly", label: "토픽 트렌드 · 기간별 키워드", hint: "기간별 상위 키워드 등장 횟수 변화입니다.", items: data.topicTrend || [] };
+      if (smartTopicTrend.items.length && document.getElementById("chart-topic-trend")) {
         var ttEl = document.getElementById("chart-topic-trend");
         var tg = layout(ttEl);
-        var periods = data.topicTrend.map(function (t) { return t.period; });
+        var periods = smartTopicTrend.items.map(function (t) {
+          if (smartTopicTrend.granularity === "daily") {
+            var p = t.period.split("-");
+            return p.length === 3 ? Number(p[1]) + "/" + Number(p[2]) : t.period;
+          }
+          if (smartTopicTrend.granularity === "weekly") {
+            return t.period.replace(/^\\d{4}-W/, "W");
+          }
+          return t.period;
+        });
         var allNames = [];
         var nameSet = {};
-        data.topicTrend.forEach(function (t) {
+        smartTopicTrend.items.forEach(function (t) {
           t.topics.forEach(function (topic) {
             if (!nameSet[topic.name]) {
               nameSet[topic.name] = true;
@@ -692,7 +717,7 @@ export const CHARTS_INIT_SCRIPT = `
             symbol: "circle",
             symbolSize: 4,
             emphasis: { focus: "series" },
-            data: data.topicTrend.map(function (t) {
+            data: smartTopicTrend.items.map(function (t) {
               var found = t.topics.find(function (topic) { return topic.name === name; });
               return found ? found.value : 0;
             }),
@@ -708,17 +733,29 @@ export const CHARTS_INIT_SCRIPT = `
           dark ? "#fb923c" : "#ea580c",
           dark ? "#f472b6" : "#be185d",
         ];
+        var ttLabelLimit = tg.w < 380 ? 6 : tg.w < 640 ? 9 : 14;
+        var ttLabelInterval = periods.length > ttLabelLimit ? Math.ceil(periods.length / ttLabelLimit) - 1 : 0;
+        var ttRotate = (smartTopicTrend.granularity === "daily" || smartTopicTrend.granularity === "weekly") && periods.length > ttLabelLimit ? 32 : 0;
         init("chart-topic-trend", Object.assign(baseOpt(), {
           grid: { left: tg.leftCat, right: tg.right, top: tg.top, bottom: Math.max(tg.bottom, 60) },
           tooltip: { trigger: "axis", backgroundColor: dark ? "#1c2128" : "#fff" },
           legend: { type: "scroll", bottom: 0, textStyle: { color: muted, fontSize: tg.fs }, pageIconColor: accent, pageTextStyle: { color: muted } },
-          xAxis: { type: "category", data: periods, axisLabel: { color: muted, fontSize: tg.fs } },
+          xAxis: {
+            type: "category",
+            data: periods,
+            axisLabel: {
+              color: muted,
+              fontSize: tg.fs,
+              rotate: ttRotate,
+              interval: ttLabelInterval,
+            },
+          },
           yAxis: { type: "value", axisLabel: { color: muted, fontSize: tg.fs }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
           color: ttColors,
           series: series,
         }));
       } else if (document.getElementById("chart-topic-trend")) {
-        showChartEmpty("chart-topic-trend", "월별 토픽 변화가 없습니다", "월별로 비교할 키워드 신호가 충분하지 않습니다.");
+        showChartEmpty("chart-topic-trend", "토픽 변화가 충분하지 않습니다", "일간·주간으로 비교할 키워드 신호가 더 쌓이면 표시합니다.");
       }
 
       if (hasSeries(data.domains) && document.getElementById("chart-domains")) {

@@ -103,8 +103,13 @@ async function runPlaywright() {
         if (metrics.scrollWidth > metrics.clientWidth + 2) {
           failures.push(`${label} horizontal overflow ${metrics.scrollWidth}>${metrics.clientWidth}`);
         }
-        if (viewport.w >= 1600 && metrics.mainWidth < metrics.clientWidth - 96) {
-          failures.push(`${label} main too narrow ${metrics.mainWidth}px for ${metrics.clientWidth}px viewport`);
+        if (viewport.w >= 1600) {
+          const expectedWideCanvas = Math.round(
+            Math.min(metrics.clientWidth - 48, Math.max(1440, Math.min(metrics.clientWidth * 0.86, 2320))),
+          );
+          if (metrics.mainWidth < expectedWideCanvas - 12) {
+            failures.push(`${label} main too narrow ${metrics.mainWidth}px for ${metrics.clientWidth}px viewport`);
+          }
         }
         const minExpected = Math.min(320, viewport.w - 32);
         if (metrics.minSectionWidth > 0 && metrics.minSectionWidth < minExpected) {

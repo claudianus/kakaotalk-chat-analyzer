@@ -15,6 +15,13 @@ export function topicsForDisplay(topics, daily) {
 export function topicsThemesOnly(topics) {
     return normalizeTopicPercents(topics).filter((t) => t.kind === "theme");
 }
+export function chooseTopicTrendGranularity(args) {
+    if (args.spanDays <= 31 || args.activeDays <= 14)
+        return "daily";
+    if (args.spanDays <= 180)
+        return "weekly";
+    return "monthly";
+}
 function normalizeTopicPercents(topics) {
     return topics.map((t) => ({
         ...t,

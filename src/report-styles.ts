@@ -149,6 +149,7 @@ export const REPORT_STYLES = `/* open-props — https://open-props.style/ (MIT) 
   --section-gap: clamp(20px, 3vw, 36px);
   --heading-gap: clamp(10px, 1.6vw, 16px);
   --content-pad: clamp(14px, 2.2vw, 24px);
+  --content-max: clamp(1440px, 86vw, 2320px);
 
   font-family: var(--kca-font-sans);
 }
@@ -452,9 +453,9 @@ body.kca-oled::after {
   border-radius: 4px;
 }
 
-/* ── Main: full-width premium report canvas ── */
+/* ── Main: wide premium report canvas ── */
 main {
-  width: calc(100% - (var(--content-pad) * 2));
+  width: min(calc(100% - (var(--content-pad) * 2)), var(--content-max));
   max-width: none;
   margin-inline: auto;
   padding: clamp(18px, 2.4vw, 34px) 0 clamp(48px, 6vw, 84px);
@@ -2735,7 +2736,7 @@ footer {
   .deck-nav-shell .deck-nav a {
     flex: 0 0 auto;
   }
-  main { width: calc(100% - 20px); padding-top: 20px; padding-bottom: 48px; }
+  main { width: min(calc(100% - 20px), var(--content-max)); padding-top: 20px; padding-bottom: 48px; }
 }
 
 @media (hover: none) {
@@ -2844,7 +2845,10 @@ footer {
 @supports (padding: env(safe-area-inset-bottom)) {
   footer { padding-bottom: env(safe-area-inset-bottom); }
   main {
-    width: calc(100% - max(var(--content-pad), env(safe-area-inset-left)) - max(var(--content-pad), env(safe-area-inset-right)));
+    width: min(
+      calc(100% - max(var(--content-pad), env(safe-area-inset-left)) - max(var(--content-pad), env(safe-area-inset-right))),
+      var(--content-max)
+    );
   }
 }
 

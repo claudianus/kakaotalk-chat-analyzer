@@ -33,6 +33,7 @@ import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
 import { semanticItemsToTopics } from "./embedding-topics.js";
 import { buildKeywordSeedTopics } from "./keyword-seed-topics.js";
 import { mergeTopicLanes } from "./topic-merge.js";
+import { chooseTopicTrendGranularity } from "./report-chart-util.js";
 import { buildHighlights, buildParticipantRoles, buildRoomEventStats, buildSenderLabels, computeDaypartPercents, computeDensityFromSpan, computeGini, computeRhythmScore, computeTop3Share, domainEntropyBits, getDomains, getParticipantStat, increment, inferRoomRelationship, longestDateStreak, maxSilenceGapDays, medianSorted, normalizeToken, pad2, round, splitMonthlyKeywordBuckets, top1ShareFromCounts, topCounts, topDailyLinkSpikes, typeRichnessFromKeywords, } from "./accumulator/aggregator-helpers.js";
 const ATTACHMENT_MARKERS = [
     "사진",
@@ -158,6 +159,115 @@ function buildDailyHotTopic(args) {
         lift,
         participants: args.participantAliases,
     };
+}
+function dateKeyToUtcMs(dateStr) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return Date.UTC(year, month - 1, day);
+}
+function isoWeekKey(dateStr) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const d = new Date(Date.UTC(year, month - 1, day));
+    // ISO week: the week belongs to the year containing its Thursday.
+    d.setUTCDate(d.getUTCDate() + 3 - ((d.getUTCDay() + 6) % 7));
+    const weekYear = d.getUTCFullYear();
+    const jan1 = new Date(Date.UTC(weekYear, 0, 1));
+    const weekNum = Math.ceil(((d.getTime() - jan1.getTime()) / 86_400_000 + 1) / 7);
+    return `${weekYear}-W${pad2(weekNum)}`;
+}
+function trendItemsFromBuckets(buckets, topicLimit = 6) {
+    return [...buckets.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([period, bucket]) => ({
+        period,
+        topics: bucket.topCounts(topicLimit).map((item) => ({ name: item.label, value: item.count })),
+    }))
+        .filter((t) => t.topics.length > 0);
+}
+function buildDailyTopicTrend(dailyKeywordBuckets) {
+    return trendItemsFromBuckets(dailyKeywordBuckets, 6);
+}
+function buildWeeklyTopicTrend(dailyKeywordBuckets) {
+    const weekBuckets = new Map();
+    for (const [dateStr, bucket] of dailyKeywordBuckets) {
+        const weekKey = isoWeekKey(dateStr);
+        let wb = weekBuckets.get(weekKey);
+        if (!wb) {
+            wb = new KeywordCounter();
+            weekBuckets.set(weekKey, wb);
+        }
+        for (const item of bucket.topCounts(20))
+            wb.addHits(item.label, item.count);
+    }
+    return trendItemsFromBuckets(weekBuckets, 6);
+}
+function buildMonthlyTopicTrend(dailyKeywordBuckets) {
+    const monthBuckets = new Map();
+    for (const [dateStr, bucket] of dailyKeywordBuckets) {
+        const monthKey = dateStr.slice(0, 7);
+        let mb = monthBuckets.get(monthKey);
+        if (!mb) {
+            mb = new KeywordCounter();
+            monthBuckets.set(monthKey, mb);
+        }
+        for (const item of bucket.topCounts(20))
+            mb.addHits(item.label, item.count);
+    }
+    return trendItemsFromBuckets(monthBuckets, 6);
+}
+function pickSmartTopicTrend(args) {
+    const preferred = chooseTopicTrendGranularity({
+        activeDays: args.activeDays,
+        spanDays: args.spanDays,
+    });
+    if (preferred === "daily" && args.daily.length >= 2) {
+        return {
+            granularity: "daily",
+            label: "토픽 트렌드 · 일간 키워드",
+            hint: "짧은 대화는 날짜별 상위 키워드 변화가 가장 의미 있습니다.",
+            items: args.daily,
+        };
+    }
+    if (preferred === "weekly" && args.weekly.length >= 2) {
+        return {
+            granularity: "weekly",
+            label: "토픽 트렌드 · 주간 키워드",
+            hint: "몇 주~몇 달 대화는 주차별 키워드 변화로 흐름을 봅니다.",
+            items: args.weekly,
+        };
+    }
+    if (preferred === "monthly" && args.monthly.length >= 2) {
+        return {
+            granularity: "monthly",
+            label: "토픽 트렌드 · 월간 키워드",
+            hint: "긴 보관 내역은 월 단위로 큰 흐름만 압축해 보여줍니다.",
+            items: args.monthly,
+        };
+    }
+    if (args.weekly.length >= 2) {
+        return {
+            granularity: "weekly",
+            label: "토픽 트렌드 · 주간 키워드",
+            hint: "주차별 상위 키워드 등장 횟수 변화입니다.",
+            items: args.weekly,
+        };
+    }
+    if (args.daily.length >= 2) {
+        return {
+            granularity: "daily",
+            label: "토픽 트렌드 · 일간 키워드",
+            hint: "날짜별 상위 키워드 등장 횟수 변화입니다.",
+            items: args.daily,
+        };
+    }
+    if (args.monthly.length >= 2) {
+        return {
+            granularity: "monthly",
+            label: "토픽 트렌드 · 월간 키워드",
+            hint: "긴 보관 내역은 월 단위로 큰 흐름만 압축해 보여줍니다.",
+            items: args.monthly,
+        };
+    }
+    return null;
 }
 /** 규칙 기반 감정 키워드 — 긍정/부정/중립 분류 */
 const POSITIVE_PATTERNS = [
@@ -1179,6 +1289,19 @@ export class ReportAggregator {
         const roomRelationship = honorificInsight
             ? inferRoomRelationship(honorificInsight)
             : undefined;
+        const dailyTopicTrend = buildDailyTopicTrend(this.dailyKeywordBuckets);
+        const weeklyTopicTrend = buildWeeklyTopicTrend(this.dailyKeywordBuckets);
+        const topicTrend = buildMonthlyTopicTrend(this.dailyKeywordBuckets);
+        const spanDays = dailySorted.length >= 2
+            ? Math.floor((dateKeyToUtcMs(dailySorted[dailySorted.length - 1].date) - dateKeyToUtcMs(dailySorted[0].date)) / 86_400_000) + 1
+            : dailySorted.length;
+        const smartTopicTrend = pickSmartTopicTrend({
+            daily: dailyTopicTrend,
+            weekly: weeklyTopicTrend,
+            monthly: topicTrend,
+            activeDays,
+            spanDays,
+        });
         return {
             generatedAt: new Date().toISOString(),
             privacy: this.privacy,
@@ -1263,54 +1386,9 @@ export class ReportAggregator {
             openChatBoilerplateExcluded: this.openChatBoilerplateExcluded,
             burstDetectionMethod,
             dailyHotTopics,
-            topicTrend: (() => {
-                const monthBuckets = new Map();
-                for (const [dateStr, bucket] of this.dailyKeywordBuckets) {
-                    const monthKey = dateStr.slice(0, 7);
-                    let mb = monthBuckets.get(monthKey);
-                    if (!mb) {
-                        mb = new KeywordCounter();
-                        monthBuckets.set(monthKey, mb);
-                    }
-                    for (const item of bucket.topCounts(20))
-                        mb.addHits(item.label, item.count);
-                }
-                return [...monthBuckets.entries()]
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .map(([period, bucket]) => ({
-                    period,
-                    topics: bucket.topCounts(6).map((item) => ({ name: item.label, value: item.count })),
-                }))
-                    .filter((t) => t.topics.length > 0);
-            })(),
-            weeklyTopicTrend: (() => {
-                // 일별 키워드 버킷 → ISO 주차별 집계
-                const weekBuckets = new Map();
-                for (const [dateStr, bucket] of this.dailyKeywordBuckets) {
-                    const [dy, dm, dd] = dateStr.split("-").map(Number);
-                    const d = new Date(Date.UTC(dy, dm - 1, dd));
-                    // ISO 주차: 목요일이 속한 연도의 주차
-                    d.setUTCDate(d.getUTCDate() + 3 - ((d.getUTCDay() + 6) % 7));
-                    const weekYear = d.getUTCFullYear();
-                    const jan1 = new Date(Date.UTC(weekYear, 0, 1));
-                    const weekNum = Math.ceil((((d.getTime() - jan1.getTime()) / 86_400_000) + 1) / 7);
-                    const weekKey = `${weekYear}-W${pad2(weekNum)}`;
-                    let wb = weekBuckets.get(weekKey);
-                    if (!wb) {
-                        wb = new KeywordCounter();
-                        weekBuckets.set(weekKey, wb);
-                    }
-                    for (const item of bucket.topCounts(20))
-                        wb.addHits(item.label, item.count);
-                }
-                return [...weekBuckets.entries()]
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .map(([period, bucket]) => ({
-                    period,
-                    topics: bucket.topCounts(6).map((item) => ({ name: item.label, value: item.count })),
-                }))
-                    .filter((t) => t.topics.length > 0);
-            })(),
+            topicTrend,
+            weeklyTopicTrend,
+            smartTopicTrend,
             dailySentiment,
             participantRoles,
             emojiInsight,

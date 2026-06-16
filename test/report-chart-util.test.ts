@@ -1,10 +1,20 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { isShortActivitySpan, topicsForDisplay } from "../src/report-chart-util.js";
+import {
+  chooseTopicTrendGranularity,
+  isShortActivitySpan,
+  topicsForDisplay,
+} from "../src/report-chart-util.js";
 import { escapeHtml } from "../src/report-util.js";
 import type { ReportTopic } from "../src/types.js";
 
 describe("report-chart-util", () => {
+  it("chooses topic trend granularity from report span", () => {
+    assert.equal(chooseTopicTrendGranularity({ activeDays: 8, spanDays: 12 }), "daily");
+    assert.equal(chooseTopicTrendGranularity({ activeDays: 40, spanDays: 90 }), "weekly");
+    assert.equal(chooseTopicTrendGranularity({ activeDays: 120, spanDays: 240 }), "monthly");
+  });
+
   it("hides period topics on short two-month spans", () => {
     const daily = [
       { date: "2026-04-13", count: 10 },
