@@ -26,4 +26,20 @@ export function showMonthlyChart(data) {
     const months = new Set(data.monthly.map((m) => m.date.slice(0, 7)));
     return months.size >= 6;
 }
+export function hasSentimentRollercoaster(data) {
+    return data.dailySentiment.length >= 3;
+}
+export function hasRhythmSilenceMap(data) {
+    return data.insights.sessionCount >= 2;
+}
+export function hasParticipantDynamics(data) {
+    return data.participants.length >= 2;
+}
+export function hasDaypartFingerprint(data) {
+    return data.hourly.some((c) => c > 0);
+}
+export function hasTopicFlow(data) {
+    return (Boolean(data.smartTopicTrend?.items.length && data.smartTopicTrend.items.length >= 2) ||
+        data.topics.length >= 2);
+}
 //# sourceMappingURL=report-section-visibility.js.map

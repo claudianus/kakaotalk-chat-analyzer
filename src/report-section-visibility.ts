@@ -36,3 +36,26 @@ export function showMonthlyChart(data: ReportData): boolean {
   const months = new Set(data.monthly.map((m) => m.date.slice(0, 7)));
   return months.size >= 6;
 }
+
+export function hasSentimentRollercoaster(data: ReportData): boolean {
+  return data.dailySentiment.length >= 3;
+}
+
+export function hasRhythmSilenceMap(data: ReportData): boolean {
+  return data.insights.sessionCount >= 2;
+}
+
+export function hasParticipantDynamics(data: ReportData): boolean {
+  return data.participants.length >= 2;
+}
+
+export function hasDaypartFingerprint(data: ReportData): boolean {
+  return data.hourly.some((c) => c > 0);
+}
+
+export function hasTopicFlow(data: ReportData): boolean {
+  return (
+    Boolean(data.smartTopicTrend?.items.length && data.smartTopicTrend.items.length >= 2) ||
+    data.topics.length >= 2
+  );
+}

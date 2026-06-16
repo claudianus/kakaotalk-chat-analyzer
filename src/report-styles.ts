@@ -3950,6 +3950,253 @@ body.kca-oled .theme-btn.kca-ripple {
   line-height: 1.5;
 }
 
+/* ── Sentiment Rollercoaster ── */
+.sentiment-sparkline {
+  display: block;
+  height: 90px;
+  padding: 10px 0 4px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.sentiment-sparkline svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.sentiment-sparkline polyline {
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sentiment-spike-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.sentiment-spike-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.sentiment-spike-list time {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  min-width: 74px;
+}
+.sentiment-spike-list .num {
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* ── Rhythm & Silence Map ── */
+.rhythm-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.rhythm-metric-grid > div {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--accent-grad-soft);
+}
+.rhythm-metric-grid > div b {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.rhythm-metric-grid > div .num {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.silence-bar {
+  display: flex;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--bar-bg);
+  margin-bottom: 10px;
+}
+.silence-seg { display: block; height: 100%; }
+.silence-seg--burst { background: var(--teal); }
+.silence-seg--gap { background: var(--rose); }
+.rhythm-readout { margin-bottom: 0; }
+
+/* ── Participant Dynamics ── */
+.dynamics-curve {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.dynamics-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 110px) 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.dynamics-label {
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dynamics-track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--bar-bg);
+  overflow: hidden;
+}
+.dynamics-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-grad);
+  min-width: 2px;
+}
+.dynamics-num {
+  font-weight: 800;
+  color: var(--accent);
+  min-width: 40px;
+  text-align: right;
+}
+.dynamics-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+}
+.dynamics-metric-grid > div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--accent-grad-soft);
+}
+.dynamics-metric-grid > div b {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.dynamics-metric-grid > div .num {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+/* ── Daypart Fingerprint ── */
+.daypart-fingerprint {
+  margin-bottom: 14px;
+}
+.daypart-fingerprint svg {
+  display: block;
+  width: 100%;
+  height: 120px;
+  overflow: visible;
+}
+.daypart-fingerprint rect {
+  fill: var(--accent);
+  opacity: 0.75;
+  transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+.daypart-fingerprint rect:hover { opacity: 1; }
+.daypart-fingerprint .daypart-peak {
+  fill: var(--warm);
+  opacity: 1;
+}
+.daypart-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  padding: 0 2px;
+}
+.daypart-peak-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+}
+.daypart-peak-summary > div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--accent-grad-soft);
+}
+.daypart-peak-summary > div b {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.daypart-peak-summary > div .num {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+/* ── Topic Flow ── */
+.topic-flow-table { font-size: 13px; }
+.topic-flow-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.topic-flow-row:last-child { border-bottom: none; }
+.topic-flow-row time {
+  white-space: nowrap;
+  font-weight: 800;
+  color: var(--muted);
+  font-size: 12px;
+  min-width: 70px;
+}
+.topic-flow-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.topic-flow-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border);
+  background: var(--topic-chip-bg);
+  color: var(--ink);
+}
+.topic-flow-chip strong,
+.topic-flow-chip small {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .sentiment-sparkline { height: 70px; }
+  .rhythm-metric-grid,
+  .dynamics-metric-grid,
+  .daypart-peak-summary { grid-template-columns: repeat(2, 1fr); }
+  .dynamics-bar { grid-template-columns: minmax(0, 80px) 1fr auto; }
+  .daypart-fingerprint svg { height: 90px; }
+  .topic-flow-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daypart-fingerprint rect { transition: none; }
+}
+
 
 /* 09-kca-llm-deck.css */
 /* LLM Story Deck v5 — Premium Glassmorphism */

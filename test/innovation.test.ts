@@ -69,6 +69,52 @@ describe("innovation layer", () => {
     assert.match(html, /class="kca-oled"/);
   });
 
+  it("renderReportHtml includes all 5 new innovation deck sections", () => {
+    const data = emptyReportData();
+    data.summary.totalMessages = 100;
+    data.summary.peakHour = 21;
+    data.summary.nightSharePercent = 15;
+    data.hourly = Array.from({ length: 24 }, (_, i) => (i === 21 ? 30 : i % 6 === 0 ? 2 : 0));
+    data.participants = [
+      { alias: "Alice", messages: 60, characters: 300, averageLength: 5, attachmentMessages: 0, linkMessages: 0, sharePercent: 60, characterSharePercent: 60, nightMessages: 5, maxConsecutive: 3 },
+      { alias: "Bob", messages: 40, characters: 200, averageLength: 5, attachmentMessages: 0, linkMessages: 0, sharePercent: 40, characterSharePercent: 40, nightMessages: 3, maxConsecutive: 2 },
+    ];
+    data.insights.sessionCount = 3;
+    data.insights.medianSessionMinutes = 25;
+    data.insights.maxSilenceBetweenActiveDays = 1;
+    data.insights.burstGapUnder1mPercent = 35;
+    data.insights.gapOver60mPercent = 40;
+    data.insights.participantGini = 0.2;
+    data.insights.top3ParticipantSharePercent = 100;
+    data.insights.monologueMessagesPercent = 10;
+    data.dailySentiment = [
+      { date: "2026-01-01", positive: 30, negative: 10, neutral: 60, energy: 20 },
+      { date: "2026-01-02", positive: 50, negative: 5, neutral: 45, energy: 45 },
+      { date: "2026-01-03", positive: 20, negative: 30, neutral: 50, energy: -10 },
+    ];
+    data.smartTopicTrend = {
+      granularity: "daily",
+      label: "일간 토픽 흐름",
+      hint: "날짜별 상위 키워드",
+      items: [
+        { period: "2026-01-01", topics: [{ name: "시작", value: 5 }] },
+        { period: "2026-01-02", topics: [{ name: "계속", value: 3 }] },
+      ],
+    };
+
+    const html = renderReportHtml(data);
+    assert.match(html, /id="s-sentiment"/);
+    assert.match(html, /id="s-rhythm"/);
+    assert.match(html, /id="s-dynamics"/);
+    assert.match(html, /id="s-daypart"/);
+    assert.match(html, /id="s-topicflow"/);
+    assert.match(html, /감정 롤러코스터/);
+    assert.match(html, /대화 리듬 & 침묵 지도/);
+    assert.match(html, /참여자 역학/);
+    assert.match(html, /시간대 지문/);
+    assert.match(html, /토픽 플로우/);
+  });
+
   it("period compare keyword shift", () => {
     const pc = buildPeriodCompare({
       activityArc: [{ id: "whole", label: "전체", messages: 10, activeDays: 2 }],

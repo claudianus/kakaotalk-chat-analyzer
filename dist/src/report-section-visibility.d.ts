@@ -6,3 +6,8 @@ export declare function hasExplorerSection(data: ReportData): boolean;
 export declare function hasBenchmarkSection(data: ReportData): boolean;
 export declare function hasCalendarHeatmap(data: ReportData): boolean;
 export declare function showMonthlyChart(data: ReportData): boolean;
+export declare function hasSentimentRollercoaster(data: ReportData): boolean;
+export declare function hasRhythmSilenceMap(data: ReportData): boolean;
+export declare function hasParticipantDynamics(data: ReportData): boolean;
+export declare function hasDaypartFingerprint(data: ReportData): boolean;
+export declare function hasTopicFlow(data: ReportData): boolean;
