@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { sanitizeLlmDeck, sanitizeLlmParagraphs } from "../src/llm-deck-validate.js";
+import { sanitizeLlmDeck, sanitizeLlmDeckWithAudit, sanitizeLlmParagraphs } from "../src/llm-deck-validate.js";
 import { emptyReportData } from "../src/report-empty.js";
 
 test("sanitizeLlmDeck drops moments without stat evidence", () => {
@@ -103,4 +103,52 @@ test("sanitizeLlmParagraphs drops generic and failure prose without data evidenc
     data,
   );
   assert.deepEqual(paras, ["클로드와 코덱스 이야기가 반복되며 AI 코딩 도구 흐름이 중심입니다."]);
+});
+
+test("sanitizeLlmParagraphs drops AI slop even when it sounds polished", () => {
+  const data = emptyReportData();
+  data.keywords = [{ label: "클로드", count: 120 }, { label: "코덱스", count: 100 }];
+  const paras = sanitizeLlmParagraphs(
+    [
+      "AI 분석 결과, 이 방은 압도적으로 흥미로운 다채로운 소통의 장입니다.",
+      "클로드와 코덱스가 반복되어 AI 코딩 도구 논의가 중심입니다.",
+    ],
+    data,
+  );
+  assert.deepEqual(paras, ["클로드와 코덱스가 반복되어 AI 코딩 도구 논의가 중심입니다."]);
+});
+
+test("sanitizeLlmDeckWithAudit records dropped unsupported claims and fallback", () => {
+  const data = emptyReportData();
+  data.keywords = [
+    { label: "클로드", count: 120 },
+    { label: "코덱스", count: 100 },
+    { label: "프롬프트", count: 80 },
+  ];
+  data.topics = [
+    { id: "t1", kind: "theme", title: "AI 코딩 도구", terms: ["클로드", "코덱스", "프롬프트"], messagePercent: 42 },
+  ];
+  const { insights, audit } = sanitizeLlmDeckWithAudit(
+    {
+      roomArchetype: {
+        name: "일반 대화방",
+        description: "다양한 이야기를 나누는 특별한 공간입니다.",
+        traits: ["다양함"],
+      },
+      insideJokes: [
+        { label: "그냥", whyFunny: "근거 없는 농담", evidenceKeywords: ["그냥"] },
+      ],
+      moments: [
+        { headline: "클로드 언급이 많았던 순간", statRef: "120" },
+      ],
+    },
+    data,
+  );
+  assert.equal(insights.roomArchetype?.name, "AI 코딩 실험실");
+  assert.equal(insights.insideJokes, undefined);
+  assert.equal(insights.moments?.length, 1);
+  assert.equal(audit.fallbackUsed, true);
+  assert.ok(audit.acceptedClaims >= 1);
+  assert.ok(audit.droppedClaims >= 2);
+  assert.ok(audit.validationWarnings.includes("unsupported_room_archetype"));
 });

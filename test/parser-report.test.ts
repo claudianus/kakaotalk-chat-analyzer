@@ -141,6 +141,47 @@ test("parses KakaoTalk CSV export with multiline continuation lines", async () =
   }
 });
 
+test("shared keyword display filter blocks discourse fillers from report buckets", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "kca-keyword-buckets-"));
+  const csvPath = join(dir, "chat.csv");
+  const rows = ["Date,User,Message"];
+  for (let day = 1; day <= 10; day += 1) {
+    const dd = String(day).padStart(2, "0");
+    rows.push(
+      `2026-05-${dd} 09:00:00,"Alice","그냥 근데 솔직히 아무튼 클로드 코덱스 프롬프트 자동화"`,
+      `2026-05-${dd} 10:00:00,"Bob","그냥 근데 클로드 코덱스 리포트 품질 검수"`,
+    );
+  }
+  await writeFile(csvPath, rows.join("\n"), "utf8");
+
+  try {
+    const parsed = await parseKakaoExport(csvPath);
+    const data = buildReportData(parsed, { privacy: "public-masked" });
+    const banned = new Set(["그냥", "근데", "솔직히", "아무튼"]);
+    const exposed = new Set<string>();
+    for (const topic of data.dailyHotTopics) {
+      for (const kw of topic.keywords) exposed.add(kw);
+      if (banned.has(topic.title)) exposed.add(topic.title);
+    }
+    for (const day of data.recentSnapshot?.week ?? []) {
+      for (const kw of day.keywords) exposed.add(kw);
+    }
+    for (const kw of data.recentSnapshot?.weekKeywords ?? []) exposed.add(kw);
+    for (const item of data.smartTopicTrend?.items ?? []) {
+      for (const topic of item.topics) exposed.add(topic.name);
+    }
+    for (const kw of data.periodCompare.keywordShift.head) exposed.add(kw);
+    for (const kw of data.periodCompare.keywordShift.tail) exposed.add(kw);
+
+    for (const word of banned) {
+      assert.equal(exposed.has(word), false, `${word} should not be displayed as a report keyword`);
+    }
+    assert.equal(data.recentSnapshot?.weekKeywords.includes("클로드"), true);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("public-anonymous privacy uses User 001 style labels", async () => {
   const dir = await mkdtemp(join(tmpdir(), "kca-anon-"));
   const csvPath = join(dir, "chat.csv");

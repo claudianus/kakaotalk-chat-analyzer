@@ -3,7 +3,7 @@ import { type Qwen35Size } from "./llm-qwen35.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import type { AnalysisBudgetTracker } from "./analysis-budget.js";
-import type { LlmInsights, ReportData, ReportTopic } from "./types.js";
+import type { LlmHarnessQuality, LlmInsights, ReportData, ReportTopic } from "./types.js";
 import type { RoomNarrative } from "./room-narrative.js";
 export type LlmSkipReasonCode = "disabled" | "gguf_missing" | "timeout" | "json_parse" | "inference_error";
 export interface LlmEnrichmentResult {
@@ -12,6 +12,7 @@ export interface LlmEnrichmentResult {
     narrative?: RoomNarrative;
     topics?: ReportTopic[];
     llmInsights?: LlmInsights;
+    llmQuality?: LlmHarnessQuality;
     skipReason?: string;
 }
 interface LlmCompletionOk {

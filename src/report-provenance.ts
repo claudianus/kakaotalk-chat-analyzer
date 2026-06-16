@@ -34,6 +34,7 @@ export interface BuildReportProvenanceOptions {
   llmUsed?: boolean;
   llmSkippedReason?: string;
   llmModelId?: string;
+  llmQuality?: ReportProvenance["analysis"]["llmQuality"];
   embeddingTopics?: boolean;
   budgetMs?: number;
   envOverrides?: string[];
@@ -116,6 +117,7 @@ export function buildReportProvenance(
       ...(options.llmUsed !== undefined ? { llmUsed: options.llmUsed } : {}),
       ...(options.llmSkippedReason ? { llmSkippedReason: options.llmSkippedReason } : {}),
       ...(options.llmModelId ? { llmModelId: options.llmModelId } : {}),
+      ...(options.llmQuality ?? data.llmQuality ? { llmQuality: options.llmQuality ?? data.llmQuality } : {}),
       ...(options.embeddingTopics !== undefined ? { embeddingTopics: options.embeddingTopics } : {}),
       quality: {
         deterministicSeed: `0x${KCA_DETERMINISTIC_SEED.toString(16)}`,
@@ -252,6 +254,14 @@ export function formatProvenanceDetails(provenance: ReportProvenance): string[] 
     lines.push(`LLM 보강: ${a.llmUsed ? "사용" : "미사용"}${model}`);
   }
   if (!a.llmUsed && a.llmSkippedReason) lines.push(`LLM 미사용 사유: ${a.llmSkippedReason}`);
+  if (a.llmQuality) {
+    const warnings = a.llmQuality.validationWarnings.length
+      ? ` · 경고 ${a.llmQuality.validationWarnings.length}건`
+      : "";
+    lines.push(
+      `LLM 하네스: schema ${a.llmQuality.schemaValid ? "ok" : "fail"} · accepted ${a.llmQuality.acceptedClaims} · dropped ${a.llmQuality.droppedClaims} · repair ${a.llmQuality.repairAttempts}${a.llmQuality.fallbackUsed ? " · rule fallback" : ""}${warnings}`,
+    );
+  }
   if (a.embeddingTopics !== undefined) {
     lines.push(`임베딩 주제 레인: ${a.embeddingTopics ? "on" : "off"}`);
   }
