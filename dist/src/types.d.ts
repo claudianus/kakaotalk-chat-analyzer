@@ -401,6 +401,13 @@ export interface TopicTrendItem {
         value: number;
     }[];
 }
+export type TopicTrendGranularity = "daily" | "weekly" | "monthly";
+export interface SmartTopicTrend {
+    granularity: TopicTrendGranularity;
+    label: string;
+    hint: string;
+    items: TopicTrendItem[];
+}
 export interface DailyHotTopic {
     date: string;
     title: string;
@@ -452,13 +459,6 @@ export interface RecentSnapshot {
     weekParticipants: number;
     /** 주간 상위 키워드 */
     weekKeywords: string[];
-}
-export interface TopicTrendItem {
-    period: string;
-    topics: {
-        name: string;
-        value: number;
-    }[];
 }
 export interface DailySentiment {
     date: string;
@@ -731,10 +731,12 @@ export interface ReportData {
     burstDetectionMethod: "heuristic" | "mad";
     /** 일별 핫토픽 (상위 키워드 + 요약) */
     dailyHotTopics: DailyHotTopic[];
-    /** 월별 토픽 트랜드 (근사적 — 상위 키워드 기반) */
+    /** 월별 토픽 트렌드 (긴 기간 fallback·호환용) */
     topicTrend: TopicTrendItem[];
-    /** 주간 토픽 트랜드 (일별 키워드 버킷 → ISO 주차 집계) */
+    /** 주간 토픽 트렌드 (일별 키워드 버킷 → ISO 주차 집계, 호환용) */
     weeklyTopicTrend: TopicTrendItem[];
+    /** 기간 길이에 맞춰 일간·주간·월간 중 자동 선택한 차트용 토픽 트렌드 */
+    smartTopicTrend: SmartTopicTrend | null;
     /** 일별 감정 점수 (긍정/부정/중립/에너지) */
     dailySentiment: DailySentiment[];
     participantRoles: ParticipantRole[];

@@ -109,10 +109,10 @@ export function renderReportHtml(data) {
           </div>
           <aside class="kca-dashboard-side" aria-label="주제 맵과 트렌드">
             <section class="kca-card kca-card--chart weekly-sparkline-card">
-              <h3>📈 주간 활동 트렌드</h3>
-              <p class="chart-hint">최근 주차별 활동량을 압축해서 보여줍니다.</p>
+              <h3>📈 최근 7일 활동</h3>
+              <p class="chart-hint">마지막 활동일 기준 일별 메시지 흐름을 압축해서 보여줍니다.</p>
               <div class="weekly-sparkline-container">
-                <div id="chart-weekly-sparkline" class="chart-box compact" role="img" aria-label="주간 활동 스파크라인"></div>
+                <div id="chart-weekly-sparkline" class="chart-box compact" role="img" aria-label="최근 7일 활동 스파크라인"></div>
               </div>
             </section>
             ${renderTopicMap(data)}
@@ -352,46 +352,24 @@ function renderSectionNav(data) {
   </nav>`;
 }
 function renderTopicTrendSection(data) {
-    const hasWeekly = data.weeklyTopicTrend.length >= 2;
-    const hasMonthly = data.topicTrend.length >= 2;
-    if (!hasWeekly && !hasMonthly)
+    const trend = data.smartTopicTrend;
+    if (!trend || trend.items.length < 2)
         return "";
-    let weeklyHtml = "";
-    if (hasWeekly) {
-        const rows = data.weeklyTopicTrend
-            .map((t) => `<tr data-observe><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
-            .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong data-countup="${topic.value}">${formatNumber(topic.value)}</strong></span>`)
-            .join("")}</td></tr>`)
-            .join("");
-        weeklyHtml = `<h3>📈 주간 토픽 트렌드</h3>
-      <p class="chart-hint">주차별 상위 키워드 등장 횟수 변화.</p>
-      <div class="glass-table-wrap" data-observe>
-        <table class="table table-glass">
-          <thead><tr><th>주차</th><th>상위 키워드</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
-    }
-    let monthlyHtml = "";
-    if (hasMonthly) {
-        const rows = data.topicTrend
-            .map((t) => `<tr data-observe><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
-            .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong data-countup="${topic.value}">${formatNumber(topic.value)}</strong></span>`)
-            .join("")}</td></tr>`)
-            .join("");
-        monthlyHtml = `<details class="trend-monthly-fold"><summary>📅 월별 토픽 트랜드 (접기)</summary>
-      <div class="glass-table-wrap">
-        <table class="table table-glass">
-          <thead><tr><th>기간</th><th>상위 키워드</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </details>`;
-    }
+    const periodHeader = trend.granularity === "daily" ? "날짜" : trend.granularity === "weekly" ? "주차" : "월";
+    const rows = trend.items
+        .map((t) => `<tr data-observe><td class="num">${escapeHtml(t.period)}</td><td>${t.topics
+        .map((topic) => `<span class="topic-chip">${escapeHtml(topic.name)} <strong data-countup="${topic.value}">${formatNumber(topic.value)}</strong></span>`)
+        .join("")}</td></tr>`)
+        .join("");
     return `<section id="s-topic-trend" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.054s">
-    <h2>📈 토픽 트렌드</h2>
-    ${weeklyHtml}
-    ${monthlyHtml}
+    <h2>📈 ${escapeHtml(trend.label)}</h2>
+    <p class="chart-hint">${escapeHtml(trend.hint)}</p>
+    <div class="glass-table-wrap" data-observe>
+      <table class="table table-glass">
+        <thead><tr><th>${escapeHtml(periodHeader)}</th><th>상위 키워드</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
   </section>`;
 }
 function renderHelpGlossary() {

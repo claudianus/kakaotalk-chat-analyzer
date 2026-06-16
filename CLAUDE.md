@@ -14,6 +14,7 @@
 - **Never push directly to `main`** for source, dist, package.json, or kcachat changes.
 - PR → cubic review → 0 issues + CI pass → `gh pr merge`
 - After merge: verify npm publish via GitHub Actions (`npm-publish.yml`), or publish locally (`npm test && npm publish --access public`, then `cd kcachat && npm install && npm publish --access public`).
+- For report/runtime/CLI behavior changes, do not stop at local verification unless the user explicitly says not to deploy. Finish with commit → PR → merge → deployment verification.
 
 ## Version Rules
 

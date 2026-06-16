@@ -144,6 +144,7 @@
   --section-gap: clamp(20px, 3vw, 36px);
   --heading-gap: clamp(10px, 1.6vw, 16px);
   --content-pad: clamp(14px, 2.2vw, 24px);
+  --content-max: clamp(1440px, 86vw, 2320px);
 
   font-family: var(--kca-font-sans);
 }

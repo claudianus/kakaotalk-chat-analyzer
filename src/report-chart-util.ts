@@ -1,4 +1,4 @@
-import type { DailyCount, ReportTopic } from "./types.js";
+import type { DailyCount, ReportTopic, TopicTrendGranularity } from "./types.js";
 
 /** 활동일 < 90일·활동 월 ≤ 2 — 월별 period 카드/차트는 기간 비교로 안내 */
 export function isShortActivitySpan(daily: DailyCount[]): boolean {
@@ -16,6 +16,15 @@ export function topicsForDisplay(topics: ReportTopic[], daily: DailyCount[]): Re
 
 export function topicsThemesOnly(topics: ReportTopic[]): ReportTopic[] {
   return normalizeTopicPercents(topics).filter((t) => t.kind === "theme");
+}
+
+export function chooseTopicTrendGranularity(args: {
+  activeDays: number;
+  spanDays: number;
+}): TopicTrendGranularity {
+  if (args.spanDays <= 31 || args.activeDays <= 14) return "daily";
+  if (args.spanDays <= 180) return "weekly";
+  return "monthly";
 }
 
 function normalizeTopicPercents(topics: ReportTopic[]): ReportTopic[] {

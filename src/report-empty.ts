@@ -149,6 +149,7 @@ export function emptyReportData(): ReportData {
     dailyHotTopics: [],
     topicTrend: [],
     weeklyTopicTrend: [],
+    smartTopicTrend: null,
     dailySentiment: [],
     participantRoles: [],
     emojiInsight: {

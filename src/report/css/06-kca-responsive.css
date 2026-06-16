@@ -98,7 +98,10 @@
 @supports (padding: env(safe-area-inset-bottom)) {
   footer { padding-bottom: env(safe-area-inset-bottom); }
   main {
-    width: calc(100% - max(var(--content-pad), env(safe-area-inset-left)) - max(var(--content-pad), env(safe-area-inset-right)));
+    width: min(
+      calc(100% - max(var(--content-pad), env(safe-area-inset-left)) - max(var(--content-pad), env(safe-area-inset-right))),
+      var(--content-max)
+    );
   }
 }
 

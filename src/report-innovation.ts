@@ -81,7 +81,7 @@ function renderPeriodCompareBlock(data: ReportData): string {
       : "";
   return `<section id="s-compare" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.05s" aria-label="기간 비교">
     <h2 class="section-glow">기간 비교</h2>
-    <p class="chart-hint">처음 7일·마지막 7일·전체와, 월별 키워드 <strong>전반/후반</strong> 차이입니다.</p>
+    <p class="chart-hint">처음 7일·마지막 7일·전체와, 대화 기간의 <strong>전반/후반</strong> 키워드 차이입니다.</p>
     ${renderLlmEraLabels(data)}
     <div class="period-grid">${slices}</div>
     ${shift}

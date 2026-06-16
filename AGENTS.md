@@ -24,6 +24,7 @@ PR → cubic 리뷰 → 이슈 0 + CI pass → `gh pr merge`만 허용.
 - 리뷰 이슈 미해결 상태에서 병합 금지
 
 머지 후 npm publish 확인: GitHub Actions(`npm-publish.yml`) 또는 로컬(`npm test && npm publish --access public`, `cd kcachat && npm install && npm publish --access public`).
+- 리포트/런타임/CLI 동작 변경은 사용자가 명시적으로 배포하지 말라고 하지 않는 한 **커밋 → PR → 머지 → 배포 확인**까지 완료한다. 로컬 리포트 재생성이나 브라우저 확인만으로 작업 완료 처리하지 않는다.
 
 **publish 실패 디버깅 (npm 토큰은 만료됨):**
 - `npm error 404 ... PUT .../kakaotalk-chat-analyzer`는 **권한이 아니라 인증 실패**(빈·만료 토큰)을 가린다. → `gh secret list`로 `NPM_TOKEN` 확인 → 없거나 오래됐으면 `bash scripts/sync-npm-token-to-gh.sh` 재실행 후 `gh run rerun <id> --failed`.
