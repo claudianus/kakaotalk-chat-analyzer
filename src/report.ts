@@ -55,11 +55,16 @@ import {
 } from "./report-provenance.js";
 import {
   hasBenchmarkSection,
+  hasCalendarHeatmap,
+  hasDaypartFingerprint,
   hasDyadSection,
   hasExplorerSection,
   hasNarrativeSection,
+  hasParticipantDynamics,
+  hasRhythmSilenceMap,
+  hasSentimentRollercoaster,
   hasTimelineSection,
-  hasCalendarHeatmap,
+  hasTopicFlow,
   showMonthlyChart,
 } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
@@ -382,6 +387,21 @@ function renderSectionNav(data: ReportData): string {
   const bench = hasBenchmarkSection(data)
     ? `<a href="#s-bench" data-kca-jump="s-bench">참고 벤치</a>`
     : "";
+  const sentiment = hasSentimentRollercoaster(data)
+    ? `<a href="#s-sentiment" data-kca-jump="s-sentiment">감정 롤러코스터</a>`
+    : "";
+  const rhythm = hasRhythmSilenceMap(data)
+    ? `<a href="#s-rhythm" data-kca-jump="s-rhythm">리듬 & 침묵</a>`
+    : "";
+  const dynamics = hasParticipantDynamics(data)
+    ? `<a href="#s-dynamics" data-kca-jump="s-dynamics">참여자 역학</a>`
+    : "";
+  const daypart = hasDaypartFingerprint(data)
+    ? `<a href="#s-daypart" data-kca-jump="s-daypart">시간대 지문</a>`
+    : "";
+  const topicflow = hasTopicFlow(data)
+    ? `<a href="#s-topicflow" data-kca-jump="s-topicflow">토픽 플로우</a>`
+    : "";
   return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
     <a href="#s-story" data-kca-jump="s-story">⓪ Wrapped</a>
@@ -396,6 +416,11 @@ function renderSectionNav(data: ReportData): string {
     ${explorer}
     ${bench}
     ${topicNavLink(data)}
+    ${sentiment}
+    ${rhythm}
+    ${dynamics}
+    ${daypart}
+    ${topicflow}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
     <a href="#s-viz" data-kca-jump="s-viz">④ 인터랙티브 차트</a>
     <a href="#s-charts" data-kca-jump="s-charts">⑤ 표·막대 모음</a>

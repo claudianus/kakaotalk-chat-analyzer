@@ -1,6 +1,6 @@
 import { timelineActivityRange } from "./event-spine.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
-import { hasBenchmarkSection } from "./report-section-visibility.js";
+import { hasBenchmarkSection, hasDaypartFingerprint, hasParticipantDynamics, hasRhythmSilenceMap, hasSentimentRollercoaster, hasTopicFlow, } from "./report-section-visibility.js";
 import { renderLlmDayMicroStories, renderLlmEraLabels, renderLlmRelationshipBeats, renderMemorableMomentsList, } from "./report-llm-deck.js";
 export function renderStoryTimelinePair(data) {
     const momentsList = renderMemorableMomentsList(data);
@@ -31,6 +31,11 @@ export function renderInnovationDeck(data) {
         renderPeriodCompareBlock(data),
         hasBenchmarkSection(data) ? renderBenchmarkBlock(data) : "",
         renderExplorerBlock(data),
+        hasSentimentRollercoaster(data) ? renderSentimentRollercoaster(data) : "",
+        hasRhythmSilenceMap(data) ? renderRhythmSilenceMap(data) : "",
+        hasParticipantDynamics(data) ? renderParticipantDynamics(data) : "",
+        hasDaypartFingerprint(data) ? renderDaypartFingerprint(data) : "",
+        hasTopicFlow(data) ? renderTopicFlow(data) : "",
     ].join("\n");
 }
 function renderTimelineHint(data) {
@@ -119,6 +124,164 @@ function renderExplorerBlock(data) {
     <div class="explorer-stats" id="kca-explorer-stats" aria-live="polite"></div>
     ${renderLlmDayMicroStories(data)}
     <div id="chart-explorer-daily" class="chart-box compact" role="img" aria-label="선택 기간 일별"></div>
+  </section>`;
+}
+function renderSentimentRollercoaster(data) {
+    const items = data.dailySentiment;
+    const width = 100;
+    const height = 40;
+    const padding = 2;
+    const minEnergy = -100;
+    const maxEnergy = 100;
+    const xStep = items.length > 1 ? width / (items.length - 1) : 0;
+    const points = items
+        .map((d, i) => {
+        const x = i * xStep;
+        const y = height - padding - ((d.energy - minEnergy) / (maxEnergy - minEnergy)) * (height - 2 * padding);
+        return `${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+        .join(" ");
+    const spikes = items
+        .slice(1)
+        .map((d, i) => ({
+        date: d.date,
+        change: Math.abs(d.energy - items[i].energy),
+        energy: d.energy,
+    }))
+        .sort((a, b) => b.change - a.change)
+        .slice(0, 3);
+    const spikeList = spikes
+        .map((s) => {
+        const direction = s.energy > 0 ? "긍정" : s.energy < 0 ? "부정" : "중립";
+        return `<li><time>${escapeHtml(s.date)}</time> <span class="num">${formatNumber(s.change)}%p</span> 변화 · ${direction} ${formatNumber(Math.abs(s.energy))}</li>`;
+    })
+        .join("");
+    return `<section id="s-sentiment" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.056s" aria-label="감정 롤러코스터">
+    <h2 class="section-glow">감정 롤러코스터</h2>
+    <p class="chart-hint">일별 감정 에너지(긍정-부정) 변화를 보여줍니다.</p>
+    <div class="sentiment-sparkline">
+      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="일별 감정 에너지 스파크라인">
+        <line x1="0" y1="${height / 2}" x2="${width}" y2="${height / 2}" stroke="var(--line)" stroke-width="0.5" />
+        <polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <ol class="sentiment-spike-list">${spikeList}</ol>
+  </section>`;
+}
+function renderRhythmSilenceMap(data) {
+    const ins = data.insights;
+    const maxSilence = ins.maxSilenceBetweenActiveDays ?? 0;
+    const burst = ins.burstGapUnder1mPercent ?? 0;
+    const gapOver60 = ins.gapOver60mPercent ?? 0;
+    let interpretation = "전반적으로 고른 템포를 유지한 대화입니다.";
+    if (burst >= 30 && gapOver60 >= 30) {
+        interpretation = "빠른 왕복과 긴 침묵이 교차하는 비동기·버스트 대화 패턴입니다.";
+    }
+    else if (burst >= 30) {
+        interpretation = "짧은 간격의 연속 대화가 많은 실시간형 리듬입니다.";
+    }
+    else if (gapOver60 >= 30) {
+        interpretation = "대부분 느긋한 간격으로 이어지는 비동기형 대화입니다.";
+    }
+    return `<section id="s-rhythm" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.057s" aria-label="대화 리듬과 침묵">
+    <h2 class="section-glow">대화 리듬 & 침묵 지도</h2>
+    <p class="chart-hint">세션과 응답 간격으로 본 대화의 템포와 침묵 패턴입니다.</p>
+    <div class="rhythm-metric-grid">
+      <div><b>세션 수</b><span class="num">${formatNumber(ins.sessionCount)}</span></div>
+      <div><b>세션 길이 중앙값</b><span class="num">${ins.medianSessionMinutes != null ? formatNumber(ins.medianSessionMinutes) + "분" : "—"}</span></div>
+      <div><b>최장 침묵</b><span class="num">${maxSilence > 0 ? formatNumber(maxSilence) + "일" : "—"}</span></div>
+      <div><b>1분 미만 버스트</b><span class="num">${formatNumber(burst)}%</span></div>
+      <div><b>60분 초과 간격</b><span class="num">${formatNumber(gapOver60)}%</span></div>
+    </div>
+    <div class="silence-bar" role="img" aria-label="빠른 응답과 긴 침묵 비율">
+      <span class="silence-seg silence-seg--burst" style="width:${burst.toFixed(2)}%"></span>
+      <span class="silence-seg silence-seg--gap" style="width:${gapOver60.toFixed(2)}%"></span>
+    </div>
+    <p class="rhythm-readout">${escapeHtml(interpretation)}</p>
+  </section>`;
+}
+function renderParticipantDynamics(data) {
+    const ins = data.insights;
+    const total = data.summary.totalMessages;
+    const bars = data.participants
+        .slice(0, 8)
+        .map((p) => {
+        const width = total > 0 ? (p.messages / total) * 100 : 0;
+        return `<div class="dynamics-bar" title="${escapeHtml(p.alias)} ${formatNumber(p.messages)}건">
+        <span class="dynamics-label">${escapeHtml(p.alias)}</span>
+        <span class="dynamics-track"><span class="dynamics-fill" style="width:${width.toFixed(2)}%"></span></span>
+        <span class="dynamics-num">${formatNumber(p.sharePercent)}%</span>
+      </div>`;
+    })
+        .join("");
+    return `<section id="s-dynamics" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.058s" aria-label="참여자 역학">
+    <h2 class="section-glow">참여자 역학</h2>
+    <p class="chart-hint">메시지 분포의 불평등과 독백 비율을 보여줍니다.</p>
+    <div class="dynamics-curve">${bars}</div>
+    <div class="dynamics-metric-grid">
+      <div><b>지니 계수</b><span class="num">${ins.participantGini != null ? ins.participantGini.toFixed(2) : "—"}</span></div>
+      <div><b>상위 3인 점유</b><span class="num">${formatNumber(ins.top3ParticipantSharePercent)}%</span></div>
+      <div><b>독백 메시지</b><span class="num">${formatNumber(ins.monologueMessagesPercent)}%</span></div>
+    </div>
+  </section>`;
+}
+function renderDaypartFingerprint(data) {
+    const hourly = data.hourly;
+    const maxCount = Math.max(...hourly, 1);
+    const width = 288;
+    const height = 64;
+    const barWidth = width / hourly.length;
+    const bars = hourly
+        .map((c, h) => {
+        const barHeight = (c / maxCount) * height;
+        const x = h * barWidth;
+        const y = height - barHeight;
+        const isPeak = h === data.summary.peakHour;
+        return `<rect class="daypart-bar ${isPeak ? "daypart-peak" : ""}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(barWidth - 1).toFixed(1)}" height="${barHeight.toFixed(1)}" rx="1" />`;
+    })
+        .join("");
+    const peakHour = data.summary.peakHour;
+    return `<section id="s-daypart" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.059s" aria-label="시간대 지문">
+    <h2 class="section-glow">시간대 지문</h2>
+    <p class="chart-hint">24시간 메시지 분포와 심야 비중입니다.</p>
+    <div class="daypart-fingerprint">
+      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="시간대별 메시지 분포">
+        ${bars}
+      </svg>
+      <div class="daypart-labels"><span>0</span><span>6</span><span>12</span><span>18</span><span>23</span></div>
+    </div>
+    <div class="daypart-peak-summary">
+      <div><b>피크 시간</b><span class="num">${peakHour != null ? formatNumber(peakHour) + "시" : "—"}</span></div>
+      <div><b>심야(23~05) 비중</b><span class="num">${formatNumber(data.summary.nightSharePercent)}%</span></div>
+    </div>
+  </section>`;
+}
+function renderTopicFlow(data) {
+    const trend = data.smartTopicTrend;
+    if (trend && trend.items.length >= 2) {
+        const rows = trend.items
+            .map((item) => {
+            const chips = item.topics
+                .slice(0, 3)
+                .map((t) => `<span class="topic-flow-chip" title="${escapeHtml(t.name)} ${formatNumber(t.value)}">${escapeHtml(t.name)}</span>`)
+                .join("");
+            return `<div class="topic-flow-row"><time>${escapeHtml(item.period)}</time><div class="topic-flow-chips">${chips}</div></div>`;
+        })
+            .join("");
+        return `<section id="s-topicflow" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.06s" aria-label="토픽 플로우">
+      <h2 class="section-glow">토픽 플로우</h2>
+      <p class="chart-hint">${escapeHtml(trend.label)} — ${escapeHtml(trend.hint)}</p>
+      <div class="topic-flow-table">${rows}</div>
+    </section>`;
+    }
+    const chips = data.topics
+        .slice(0, 5)
+        .map((t) => `<span class="topic-flow-chip">${escapeHtml(t.title)} <small>${formatNumber(t.messagePercent)}%</small></span>`)
+        .join("");
+    return `<section id="s-topicflow" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.06s" aria-label="토픽 플로우">
+    <h2 class="section-glow">토픽 플로우</h2>
+    <p class="chart-hint">대화에서 드러난 주요 주제들의 흐름입니다.</p>
+    <div class="topic-flow-table"><div class="topic-flow-row"><div class="topic-flow-chips">${chips}</div></div></div>
   </section>`;
 }
 //# sourceMappingURL=report-innovation.js.map
