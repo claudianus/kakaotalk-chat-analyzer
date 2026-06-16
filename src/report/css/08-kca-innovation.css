@@ -491,7 +491,9 @@
 .sww-day time { font-size: 11px; font-weight: 800; color: var(--muted); }
 .sww-icon { font-size: 28px; line-height: 1; }
 .sww-icon--sun { color: #f59e0b; }
+.sww-icon--partly-sunny { color: #fbbf24; }
 .sww-icon--cloud { color: #94a3b8; }
+.sww-icon--overcast { color: #64748b; }
 .sww-icon--rain { color: #3b82f6; }
 .sww-icon--storm { color: #a855f7; }
 .sww-label { font-size: 12px; font-weight: 700; color: var(--ink); }
@@ -595,6 +597,13 @@
   -webkit-box-orient: vertical;
 }
 .culture-count { font-size: 12px; color: var(--muted); }
+.culture-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+  word-break: break-all;
+}
+.culture-link:hover { text-decoration: underline; }
 .culture-laugh-badge {
   display: inline-flex;
   align-items: center;
