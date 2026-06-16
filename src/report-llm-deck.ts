@@ -440,3 +440,101 @@ export function renderRecentSnapshot(data: ReportData): string {
     <div class="recent-days-grid">${dayCardsHtml}</div>
   </section>`;
 }
+
+function mapSentimentWeather(
+  s: { positive: number; negative: number; neutral: number },
+  energy?: number,
+): { icon: string; cls: string; label: string } {
+  if (s.positive >= s.negative && s.positive >= s.neutral) {
+    return { icon: "☀️", cls: "sun", label: "맑음" };
+  }
+  if (s.negative > s.positive) {
+    if (energy != null && energy < -40) {
+      return { icon: "⚡", cls: "storm", label: "폭풍" };
+    }
+    return { icon: "🌧️", cls: "rain", label: "흐림" };
+  }
+  return { icon: "⛅", cls: "cloud", label: "구름" };
+}
+
+/** 최근 7일 감정 흐름을 날씨 아이콘으로 렌더링 */
+export function renderSentimentWeatherStrip(data: ReportData): string {
+  const sourceDays: Array<{
+    date: string;
+    sentiment: { positive: number; negative: number; neutral: number };
+    energy?: number;
+  }> =
+    data.recentSnapshot && data.recentSnapshot.week.length >= 3
+      ? data.recentSnapshot.week.map((d) => ({ date: d.date, sentiment: d.sentiment }))
+      : data.dailySentiment.map((d) => ({ date: d.date, sentiment: d, energy: d.energy }));
+
+  if (sourceDays.length < 3) return "";
+
+  const items = sourceDays
+    .slice(-7)
+    .map((d) => {
+      const w = mapSentimentWeather(d.sentiment, d.energy);
+      return `<article class="sww-day" data-observe role="listitem">
+        <time datetime="${escapeHtml(d.date)}">${escapeHtml(d.date.slice(5))}</time>
+        <span class="sww-icon sww-icon--${w.cls}" aria-label="${w.label}">${w.icon}</span>
+        <span class="sww-label">${w.label}</span>
+      </article>`;
+    })
+    .join("");
+
+  return `<section id="s-sentiment-weather" class="kca-section card kca-card--data sentiment-weather-strip anim-enter" data-observe style="--enter-delay:0.046s" aria-label="감정 날씨">
+    <h3 class="insight-sub">🌤️ 감정 날씨</h3>
+    <p class="chart-hint">최근 7일 감정 흐름을 날씨 아이콘으로 요약했어요.</p>
+    <div class="sww-row" role="list">${items}</div>
+  </section>`;
+}
+
+/** 반복 문구 + 방 밈을 하나의 타임라인 스트립으로 렌더링 */
+export function renderRoomCultureStrip(data: ReportData): string {
+  const repeated = data.repeatedPhrases.slice(0, 5).map((r) => ({
+    type: "phrase" as const,
+    date: r.peakDate ?? "",
+    label: r.label,
+    count: r.count,
+  }));
+  const jokes = (data.llmInsights?.insideJokes ?? []).slice(0, 5).map((j) => ({
+    type: "joke" as const,
+    date: "",
+    label: j.label,
+    why: j.whyFunny,
+  }));
+  if (repeated.length === 0 && jokes.length === 0) return "";
+
+  const phraseCards = repeated
+    .map(
+      (r) =>
+        `<article class="culture-card culture-card--phrase" data-observe role="listitem">
+          ${r.date ? `<time datetime="${escapeHtml(r.date)}">${escapeHtml(r.date.slice(5))}</time>` : ""}
+          <span class="culture-badge">반복</span>
+          <span class="culture-label">${escapeHtml(r.label)}</span>
+          <span class="culture-count">${formatNumber(r.count)}회</span>
+        </article>`,
+    )
+    .join("");
+
+  const jokeCards = jokes
+    .map(
+      (j) =>
+        `<article class="culture-card culture-card--joke" data-observe role="listitem" title="${escapeHtml(j.why)}">
+          <span class="culture-badge">밈</span>
+          <span class="culture-label">${escapeHtml(j.label)}</span>
+        </article>`,
+    )
+    .join("");
+
+  const laughBadge =
+    data.pureLaughMessages > 0
+      ? `<span class="culture-laugh-badge">😂 ${formatNumber(data.pureLaughMessages)}</span>`
+      : "";
+
+  return `<section id="s-culture" class="kca-section card kca-card--data room-culture-strip anim-enter" data-observe style="--enter-delay:0.061s" aria-label="방 밈 & 반복 문화">
+    <h3 class="insight-sub">🎭 방 밈 & 반복 문구 ${laughBadge}</h3>
+    <p class="chart-hint">자주 반복된 문구와 방 안에서만 통하는 밈을 타임라인으로 모았어요.</p>
+    <div class="culture-scroll" role="list">${phraseCards}${jokeCards}</div>
+  </section>`;
+}
