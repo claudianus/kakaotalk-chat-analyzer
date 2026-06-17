@@ -19,7 +19,7 @@ import {
   toProvenanceOptions,
 } from "../dist/src/analysis-effective-config.js";
 import { defaultKakaoCsvDir, listKakaoExports } from "../dist/src/kakao-export-discovery.js";
-import { buildReportProvenance } from "../dist/src/report-provenance.js";
+import { buildReportProvenance, patchReportProvenance } from "../dist/src/report-provenance.js";
 import { renderReportHtml } from "../dist/src/report.js";
 import { VERSION } from "../dist/src/version.js";
 
@@ -148,10 +148,16 @@ async function generateOne(csvPath, opts) {
       htmlBytes: 0,
     }),
   );
-  const html = renderReportHtml({ ...data, provenance });
+  let html = renderReportHtml({ ...data, provenance });
   assertHtmlStructure(html, slug);
   assertKeywordSanity(data, slug);
   assertTopicSanity(data, slug);
+
+  const htmlBytes = Buffer.byteLength(html, "utf8");
+  html = patchReportProvenance(html, {
+    ...provenance,
+    output: { ...(provenance.output || {}), htmlBytes },
+  });
 
   const htmlPath = join(outDir, "index.html");
   await writeFile(htmlPath, html, "utf8");

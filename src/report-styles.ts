@@ -2968,6 +2968,7 @@ footer {
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
+  padding-right: 20px;
 }
 .deck-nav-shell .deck-nav::-webkit-scrollbar {
   display: none;
