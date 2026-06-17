@@ -51,4 +51,13 @@ export function hasActivityRestRhythm(data) {
 export function hasRoomCultureStrip(data) {
     return (data.repeatedPhrases.length > 0 || (data.llmInsights?.insideJokes?.length ?? 0) > 0);
 }
+export function hasReplyLatencyFingerprint(data) {
+    return data.replyLatency != null && data.replyLatency.totalReplies >= 5;
+}
+export function hasQuestionAnswerTopology(data) {
+    return data.questionAnswer != null && data.questionAnswer.totalQuestions >= 3;
+}
+export function hasBurstAnatomy(data) {
+    return data.burstAnatomy.length > 0;
+}
 //# sourceMappingURL=report-section-visibility.js.map

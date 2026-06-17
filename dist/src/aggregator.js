@@ -403,6 +403,10 @@ export class ReportAggregator {
     runLen = 0;
     firstDate = null;
     lastDate = null;
+    replyLatencyByResponder = new Map();
+    pendingQuestions = [];
+    questionAnswerPairs = new Map();
+    answererCounts = new Map();
     constructor(filePath, privacy, top, options) {
         this.filePath = filePath;
         this.privacy = privacy;
@@ -630,12 +634,42 @@ export class ReportAggregator {
             if (this.prevMs !== null) {
                 const delta = ms - this.prevMs;
                 this.gapStats.add(delta);
+                // 응답 지연 지문: 직전 메시지가 다른 사람이면 현재 발신자의 응답 시간
+                if (this.prevSender !== null && record.sender !== this.prevSender) {
+                    const latencyMin = delta / 60_000;
+                    const list = this.replyLatencyByResponder.get(record.sender) ?? [];
+                    list.push(latencyMin);
+                    this.replyLatencyByResponder.set(record.sender, list);
+                }
             }
             this.sessionGapStats.addMessage(ms);
             this.prevMs = ms;
             if (this.prevSender !== null && record.sender !== this.prevSender) {
                 this.speakerSwitches += 1;
                 this.dyads.addReply(this.prevSender, record.sender);
+            }
+            // 질문-응답 토폴로지: 최근 질문에 다른 사람이 60분 내 답변하면 카운트
+            const isQuestion = msg.includes("?") || msg.includes("？");
+            if (this.prevSender !== null && record.sender !== this.prevSender && !isQuestion) {
+                const cutoff = ms - 60 * 60 * 1000;
+                const idx = this.pendingQuestions.findIndex((q) => !q.answered && q.asker !== record.sender && q.time >= cutoff);
+                if (idx >= 0) {
+                    const q = this.pendingQuestions[idx];
+                    q.answered = true;
+                    q.answerer = record.sender;
+                    q.latencyMinutes = (ms - q.time) / 60_000;
+                    const key = `${q.asker}\u0001${record.sender}`;
+                    const pair = this.questionAnswerPairs.get(key) ?? { questions: 0, latencies: [] };
+                    pair.questions += 1;
+                    pair.latencies.push(q.latencyMinutes);
+                    this.questionAnswerPairs.set(key, pair);
+                    increment(this.answererCounts, record.sender);
+                }
+            }
+            if (isQuestion) {
+                this.pendingQuestions.push({ asker: record.sender, time: ms, answered: false, answerer: null, latencyMinutes: null });
+                if (this.pendingQuestions.length > 50)
+                    this.pendingQuestions.shift();
             }
             if (PLAN_SIGNAL_RE.test(msg)) {
                 increment(this.dailyPlanSignals, dayKey);
@@ -1315,6 +1349,12 @@ export class ReportAggregator {
             activeDays,
             spanDays,
         });
+        // ── 응답 지연 지문 ──
+        const replyLatency = this.buildReplyLatencyFingerprint(aliases);
+        // ── 질문-응답 토폴로지 ──
+        const questionAnswer = this.buildQuestionAnswerTopology(aliases);
+        // ── 급증일 핵심 항체 ──
+        const burstAnatomy = this.buildBurstAnatomy(burstDays, avgDailyMessages, aliases);
         return {
             generatedAt: new Date().toISOString(),
             privacy: this.privacy,
@@ -1410,7 +1450,103 @@ export class ReportAggregator {
             roomRelationship,
             memorableMoments,
             recentSnapshot,
+            replyLatency,
+            questionAnswer,
+            burstAnatomy,
         };
+    }
+    buildReplyLatencyFingerprint(aliases) {
+        const allLatencies = [];
+        const responders = [];
+        for (const [rawSender, latencies] of this.replyLatencyByResponder) {
+            const alias = aliases.get(rawSender);
+            if (!alias || latencies.length === 0)
+                continue;
+            const sorted = [...latencies].sort((a, b) => a - b);
+            const median = medianSorted(sorted);
+            const p90 = sorted[Math.floor(sorted.length * 0.9)] ?? sorted[sorted.length - 1] ?? 0;
+            const fast = latencies.filter((x) => x < 1).length;
+            responders.push({
+                alias,
+                medianMinutes: round(median, 1),
+                p90Minutes: round(p90, 1),
+                replies: latencies.length,
+                fastRatePercent: round((fast / latencies.length) * 100, 1),
+            });
+            allLatencies.push(...latencies);
+        }
+        if (allLatencies.length === 0)
+            return null;
+        const sortedAll = [...allLatencies].sort((a, b) => a - b);
+        const totalFast = allLatencies.filter((x) => x < 1).length;
+        const totalNormal = allLatencies.filter((x) => x >= 1 && x <= 10).length;
+        const totalSlow = allLatencies.filter((x) => x > 10).length;
+        return {
+            roomMedianMinutes: round(medianSorted(sortedAll), 1),
+            roomP90Minutes: round(sortedAll[Math.floor(sortedAll.length * 0.9)] ?? sortedAll[sortedAll.length - 1] ?? 0, 1),
+            totalReplies: allLatencies.length,
+            fastRatePercent: round((totalFast / allLatencies.length) * 100, 1),
+            normalRatePercent: round((totalNormal / allLatencies.length) * 100, 1),
+            slowRatePercent: round((totalSlow / allLatencies.length) * 100, 1),
+            responders: responders.sort((a, b) => a.medianMinutes - b.medianMinutes),
+        };
+    }
+    buildQuestionAnswerTopology(aliases) {
+        const totalQuestions = this.questionMessages;
+        if (totalQuestions === 0)
+            return null;
+        const answered = this.pendingQuestions.filter((q) => q.answered).length + [...this.questionAnswerPairs.values()].reduce((s, p) => s + p.questions, 0);
+        // pendingQuestions는 이미 questionAnswerPairs에 반영됨 → 실제 답변은 pairs 기준
+        const actualAnswered = [...this.questionAnswerPairs.values()].reduce((s, p) => s + p.questions, 0);
+        const allLatencies = [];
+        for (const pair of this.questionAnswerPairs.values())
+            allLatencies.push(...pair.latencies);
+        const sortedLatencies = [...allLatencies].sort((a, b) => a - b);
+        const topPairs = [];
+        for (const [key, pair] of this.questionAnswerPairs) {
+            const [askerRaw, answererRaw] = key.split("\u0001");
+            const asker = aliases.get(askerRaw ?? "");
+            const answerer = aliases.get(answererRaw ?? "");
+            if (!asker || !answerer)
+                continue;
+            const sorted = [...pair.latencies].sort((a, b) => a - b);
+            topPairs.push({
+                asker,
+                answerer,
+                questions: pair.questions,
+                medianAnswerMinutes: round(medianSorted(sorted), 1),
+            });
+        }
+        topPairs.sort((a, b) => b.questions - a.questions);
+        const topAnswerers = [...this.answererCounts.entries()]
+            .map(([raw, answers]) => ({ alias: aliases.get(raw) ?? raw, answers }))
+            .filter((x) => x.alias)
+            .sort((a, b) => b.answers - a.answers);
+        return {
+            totalQuestions,
+            answeredQuestions: actualAnswered,
+            answerRatePercent: round((actualAnswered / Math.max(totalQuestions, 1)) * 100, 1),
+            medianAnswerMinutes: round(medianSorted(sortedLatencies), 1),
+            topAnswerers: topAnswerers.slice(0, 5),
+            topPairs: topPairs.slice(0, 6),
+        };
+    }
+    buildBurstAnatomy(burstDays, avgDailyMessages, aliases) {
+        return burstDays.slice(0, 5).map((d) => {
+            const senderMap = this.dailySenderCounts.get(d.date) ?? new Map();
+            const participants = topCounts(senderMap, 4).map((item) => aliases.get(item.label) ?? item.label);
+            const bucket = this.dailyKeywordBuckets.get(d.date);
+            const topKeywords = bucket ? bucket.topCounts(4).map((item) => item.label) : [];
+            const vsAverage = avgDailyMessages > 0 ? round(d.count / avgDailyMessages, 2) : 1;
+            return {
+                date: d.date,
+                messages: d.count,
+                participants,
+                topKeywords,
+                durationHours: null,
+                vsAverage,
+            };
+        });
     }
 }
 //# sourceMappingURL=aggregator.js.map

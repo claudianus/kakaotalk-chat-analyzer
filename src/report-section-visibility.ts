@@ -73,3 +73,15 @@ export function hasRoomCultureStrip(data: ReportData): boolean {
     data.repeatedPhrases.length > 0 || (data.llmInsights?.insideJokes?.length ?? 0) > 0
   );
 }
+
+export function hasReplyLatencyFingerprint(data: ReportData): boolean {
+  return data.replyLatency != null && data.replyLatency.totalReplies >= 5;
+}
+
+export function hasQuestionAnswerTopology(data: ReportData): boolean {
+  return data.questionAnswer != null && data.questionAnswer.totalQuestions >= 3;
+}
+
+export function hasBurstAnatomy(data: ReportData): boolean {
+  return data.burstAnatomy.length > 0;
+}
