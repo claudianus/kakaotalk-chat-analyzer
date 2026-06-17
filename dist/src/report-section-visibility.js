@@ -60,4 +60,7 @@ export function hasQuestionAnswerTopology(data) {
 export function hasBurstAnatomy(data) {
     return data.burstAnatomy.length > 0;
 }
+export function hasKeywordGravity(data) {
+    return data.keywordGravity.length >= 3;
+}
 //# sourceMappingURL=report-section-visibility.js.map

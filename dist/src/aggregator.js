@@ -407,6 +407,7 @@ export class ReportAggregator {
     pendingQuestions = [];
     questionAnswerPairs = new Map();
     answererCounts = new Map();
+    keywordGravityEvents = [];
     constructor(filePath, privacy, top, options) {
         this.filePath = filePath;
         this.privacy = privacy;
@@ -746,6 +747,7 @@ export class ReportAggregator {
                 if (!opts?.skipKeywords) {
                     const kwTokens = tokenizeForKeywords(msg);
                     this.applyKeywordTokens(kwTokens, `${record.date.year}-${pad2(record.date.month)}`, dayKey);
+                    this.updateKeywordGravity(kwTokens, ms);
                 }
                 if (!opts?.keywordsOnly) {
                     const kwOpts = {
@@ -1355,6 +1357,8 @@ export class ReportAggregator {
         const questionAnswer = this.buildQuestionAnswerTopology(aliases);
         // ── 급증일 핵심 항체 ──
         const burstAnatomy = this.buildBurstAnatomy(burstDays, avgDailyMessages, aliases);
+        // ── 키워드 중력 ──
+        const keywordGravity = this.buildKeywordGravity(keywords);
         return {
             generatedAt: new Date().toISOString(),
             privacy: this.privacy,
@@ -1453,6 +1457,7 @@ export class ReportAggregator {
             replyLatency,
             questionAnswer,
             burstAnatomy,
+            keywordGravity,
         };
     }
     buildReplyLatencyFingerprint(aliases) {
@@ -1547,6 +1552,68 @@ export class ReportAggregator {
                 vsAverage,
             };
         });
+    }
+    updateKeywordGravity(tokens, ms) {
+        const labels = displayKeywordTokens(tokens);
+        if (labels.length === 0)
+            return;
+        const uniqueLabels = [...new Set(labels)];
+        const windowMs = 10 * 60 * 1000;
+        const cutoff = ms - windowMs;
+        // 최근 등장한 키워드 이벤트들을 현재 메시지가 후속 메시지로 집계
+        for (const ev of this.keywordGravityEvents) {
+            if (ev.time < cutoff)
+                continue;
+            ev.followUps += 1;
+            ev.followUpMinutes.push((ms - ev.time) / 60_000);
+            for (const label of uniqueLabels) {
+                if (label === ev.label)
+                    continue;
+                increment(ev.coKeywords, label);
+            }
+        }
+        // 현재 메시지의 키워드를 새 이벤트로 추가
+        for (const label of uniqueLabels) {
+            this.keywordGravityEvents.push({
+                label,
+                time: ms,
+                followUps: 0,
+                followUpMinutes: [],
+                coKeywords: new Map(),
+            });
+        }
+        // 오래된 이벤트 정리 (메모리 상한)
+        while (this.keywordGravityEvents.length > 0 && this.keywordGravityEvents[0].time < cutoff) {
+            this.keywordGravityEvents.shift();
+        }
+    }
+    buildKeywordGravity(topKeywords) {
+        const byLabel = new Map();
+        for (const ev of this.keywordGravityEvents) {
+            const entry = byLabel.get(ev.label) ?? { appearances: 0, followUps: 0, minutes: [], coKeywords: new Map() };
+            entry.appearances += 1;
+            entry.followUps += ev.followUps;
+            entry.minutes.push(...ev.followUpMinutes);
+            for (const [kw, c] of ev.coKeywords)
+                increment(entry.coKeywords, kw, c);
+            byLabel.set(ev.label, entry);
+        }
+        const topSet = new Set(topKeywords.map((k) => k.label));
+        const results = [];
+        for (const [label, data] of byLabel) {
+            if (!topSet.has(label))
+                continue;
+            const sortedMinutes = [...data.minutes].sort((a, b) => a - b);
+            results.push({
+                label,
+                appearances: data.appearances,
+                followUpMessages: data.followUps,
+                gravity: round(data.followUps / Math.max(data.appearances, 1), 2),
+                medianFollowUpMinutes: round(medianSorted(sortedMinutes), 1),
+                topCoKeywords: topCounts(data.coKeywords, 3).map((item) => item.label),
+            });
+        }
+        return results.sort((a, b) => b.gravity - a.gravity || b.appearances - a.appearances);
     }
 }
 //# sourceMappingURL=aggregator.js.map

@@ -425,6 +425,17 @@ export interface BurstAnatomy {
   vsAverage: number;
 }
 
+/** 키워드 중력 — 특정 단어가 등장한 뒤 얼마나 많은 후속 메시지를 끌어당기는가 */
+export interface KeywordGravity {
+  label: string;
+  appearances: number;
+  followUpMessages: number;
+  gravity: number;
+  /** 평균 후속 메시지가 발생하기까지 걸린 시간(분) */
+  medianFollowUpMinutes: number;
+  topCoKeywords: string[];
+}
+
 export interface LlmRoomArchetype {
   name: string;
   description: string;
@@ -834,4 +845,6 @@ export interface ReportData {
   questionAnswer: QuestionAnswerTopology | null;
   /** 급증일 핵심 항체(참여자·키워드·지속시간) */
   burstAnatomy: BurstAnatomy[];
+  /** 키워드 중력 — 대화를 이끄는 핵심 단어 */
+  keywordGravity: KeywordGravity[];
 }

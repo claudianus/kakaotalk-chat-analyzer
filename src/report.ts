@@ -63,6 +63,7 @@ import {
   hasDaypartFingerprint,
   hasDyadSection,
   hasExplorerSection,
+  hasKeywordGravity,
   hasNarrativeSection,
   hasParticipantDynamics,
   hasQuestionAnswerTopology,
@@ -431,6 +432,9 @@ function renderSectionNav(data: ReportData): string {
   const burstAnatomy = hasBurstAnatomy(data)
     ? `<a href="#s-burst-anatomy" data-kca-jump="s-burst-anatomy">급증 항체</a>`
     : "";
+  const keywordGravity = hasKeywordGravity(data)
+    ? `<a href="#s-keyword-gravity" data-kca-jump="s-keyword-gravity">키워드 중력</a>`
+    : "";
   return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
     <a href="#s-story" data-kca-jump="s-story">⓪ Wrapped</a>
@@ -456,6 +460,7 @@ function renderSectionNav(data: ReportData): string {
     ${latency}
     ${qa}
     ${burstAnatomy}
+    ${keywordGravity}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
     <a href="#s-viz" data-kca-jump="s-viz">④ 인터랙티브 차트</a>
     <a href="#s-charts" data-kca-jump="s-charts">⑤ 표·막대 모음</a>

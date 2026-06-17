@@ -10,7 +10,7 @@ import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck, renderStoryTimelinePair } from "./report-innovation.js";
 import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderParticipantRoles, renderRecentSnapshot, renderRoomCultureStrip, renderSentimentWeatherStrip, } from "./report-llm-deck.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
-import { hasActivityRestRhythm, hasBenchmarkSection, hasBurstAnatomy, hasCalendarHeatmap, hasDaypartFingerprint, hasDyadSection, hasExplorerSection, hasNarrativeSection, hasParticipantDynamics, hasQuestionAnswerTopology, hasReplyLatencyFingerprint, hasRhythmSilenceMap, hasRoomCultureStrip, hasSentimentRollercoaster, hasSentimentWeatherStrip, hasTimelineSection, hasTopicFlow, } from "./report-section-visibility.js";
+import { hasActivityRestRhythm, hasBenchmarkSection, hasBurstAnatomy, hasCalendarHeatmap, hasDaypartFingerprint, hasDyadSection, hasExplorerSection, hasKeywordGravity, hasNarrativeSection, hasParticipantDynamics, hasQuestionAnswerTopology, hasReplyLatencyFingerprint, hasRhythmSilenceMap, hasRoomCultureStrip, hasSentimentRollercoaster, hasSentimentWeatherStrip, hasTimelineSection, hasTopicFlow, } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
 import { keywordSummaryTop } from "./report-config.js";
 import { VERSION } from "./version.js";
@@ -361,6 +361,9 @@ function renderSectionNav(data) {
     const burstAnatomy = hasBurstAnatomy(data)
         ? `<a href="#s-burst-anatomy" data-kca-jump="s-burst-anatomy">급증 항체</a>`
         : "";
+    const keywordGravity = hasKeywordGravity(data)
+        ? `<a href="#s-keyword-gravity" data-kca-jump="s-keyword-gravity">키워드 중력</a>`
+        : "";
     return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
     <a href="#s-story" data-kca-jump="s-story">⓪ Wrapped</a>
@@ -386,6 +389,7 @@ function renderSectionNav(data) {
     ${latency}
     ${qa}
     ${burstAnatomy}
+    ${keywordGravity}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
     <a href="#s-viz" data-kca-jump="s-viz">④ 인터랙티브 차트</a>
     <a href="#s-charts" data-kca-jump="s-charts">⑤ 표·막대 모음</a>

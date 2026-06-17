@@ -4493,6 +4493,48 @@ body.kca-oled .theme-btn.kca-ripple {
 }
 .burst-keyword { background: color-mix(in oklab, var(--accent) 14%, transparent); color: var(--accent); }
 
+/* ── Keyword Gravity ── */
+.kg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.kg-card {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.kg-label { font-size: 15px; font-weight: 900; color: var(--ink); }
+.kg-gravity { font-size: 18px; font-weight: 900; color: var(--accent); }
+.kg-bar { height: 8px; border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
+.kg-fill { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--teal), var(--accent)); }
+.kg-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.kg-co-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.kg-co {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
 @media (max-width: 640px) {
   .kca-hero-rhythm { gap: 12px; padding: 10px 14px; }
   .khr-number { font-size: 30px; }

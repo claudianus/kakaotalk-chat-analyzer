@@ -78,4 +78,21 @@ describe("innovation aggregate metrics", () => {
     assert.ok(burst.vsAverage > 1);
     assert.ok(burst.participants.includes("User 001"));
   });
+
+  it("computes keyword gravity", () => {
+    const agg = new ReportAggregator("test.csv", PRIVACY, 20);
+    agg.consume(makeRecord("2026-01-01 09:00:00", "A", "프로젝트 시작하자"));
+    agg.consume(makeRecord("2026-01-01 09:01:00", "B", "프로젝트 일정 알려줘"));
+    agg.consume(makeRecord("2026-01-01 09:02:00", "A", "프로젝트 내일 회의로 잡았어"));
+    agg.consume(makeRecord("2026-01-01 09:05:00", "B", "점심 뭐 먹을래?"));
+    agg.consume(makeRecord("2026-01-01 09:06:00", "A", "김치찌개"));
+    const data = agg.finalize({ filePath: "test.csv", encoding: "utf-8", physicalLines: 5, warningCount: 0 });
+
+    assert.ok(data.keywordGravity.length > 0);
+    const project = data.keywordGravity.find((k) => k.label === "프로젝트");
+    assert.ok(project);
+    assert.ok(project.appearances >= 3);
+    assert.ok(project.followUpMessages >= 2);
+    assert.ok(project.gravity > 0);
+  });
 });

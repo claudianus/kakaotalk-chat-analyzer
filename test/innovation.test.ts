@@ -124,6 +124,11 @@ describe("innovation layer", () => {
     data.burstAnatomy = [
       { date: "2026-01-02", messages: 50, participants: ["Alice", "Bob"], topKeywords: ["테스트"], durationHours: null, vsAverage: 2.5 },
     ];
+    data.keywordGravity = [
+      { label: "테스트", appearances: 10, followUpMessages: 25, gravity: 2.5, medianFollowUpMinutes: 2, topCoKeywords: ["확인"] },
+      { label: "회의", appearances: 8, followUpMessages: 16, gravity: 2, medianFollowUpMinutes: 3, topCoKeywords: ["일정"] },
+      { label: "배포", appearances: 5, followUpMessages: 8, gravity: 1.6, medianFollowUpMinutes: 5, topCoKeywords: [] },
+    ];
 
     const html = renderReportHtml(data);
     assert.match(html, /id="s-sentiment"/);
@@ -134,6 +139,7 @@ describe("innovation layer", () => {
     assert.match(html, /id="s-latency"/);
     assert.match(html, /id="s-qa"/);
     assert.match(html, /id="s-burst-anatomy"/);
+    assert.match(html, /id="s-keyword-gravity"/);
     assert.match(html, /감정 롤러코스터/);
     assert.match(html, /대화 리듬 & 침묵 지도/);
     assert.match(html, /참여자 역학/);
@@ -142,6 +148,7 @@ describe("innovation layer", () => {
     assert.match(html, /응답 지문/);
     assert.match(html, /질문-응답 지도/);
     assert.match(html, /급증 핵심 항체/);
+    assert.match(html, /키워드 중력/);
   });
 
   it("renderReportHtml has no duplicate element ids", () => {

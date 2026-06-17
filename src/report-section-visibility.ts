@@ -85,3 +85,7 @@ export function hasQuestionAnswerTopology(data: ReportData): boolean {
 export function hasBurstAnatomy(data: ReportData): boolean {
   return data.burstAnatomy.length > 0;
 }
+
+export function hasKeywordGravity(data: ReportData): boolean {
+  return data.keywordGravity.length >= 3;
+}

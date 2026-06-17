@@ -173,6 +173,7 @@ export function emptyReportData() {
         replyLatency: null,
         questionAnswer: null,
         burstAnatomy: [],
+        keywordGravity: [],
         explorer: { daily: [], hourly: [], monthly: [], range: { min: "", max: "" } },
     };
 }

@@ -17,3 +17,4 @@ export declare function hasRoomCultureStrip(data: ReportData): boolean;
 export declare function hasReplyLatencyFingerprint(data: ReportData): boolean;
 export declare function hasQuestionAnswerTopology(data: ReportData): boolean;
 export declare function hasBurstAnatomy(data: ReportData): boolean;
+export declare function hasKeywordGravity(data: ReportData): boolean;

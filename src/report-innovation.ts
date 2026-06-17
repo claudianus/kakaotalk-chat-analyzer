@@ -6,6 +6,7 @@ import {
   hasBenchmarkSection,
   hasBurstAnatomy,
   hasDaypartFingerprint,
+  hasKeywordGravity,
   hasParticipantDynamics,
   hasQuestionAnswerTopology,
   hasReplyLatencyFingerprint,
@@ -60,6 +61,7 @@ export function renderInnovationDeck(data: ReportData): string {
     hasReplyLatencyFingerprint(data) ? renderReplyLatencyFingerprint(data) : "",
     hasQuestionAnswerTopology(data) ? renderQuestionAnswerTopology(data) : "",
     hasBurstAnatomy(data) ? renderBurstAnatomy(data) : "",
+    hasKeywordGravity(data) ? renderKeywordGravity(data) : "",
   ].join("\n");
 }
 
@@ -525,6 +527,35 @@ function renderBurstAnatomy(data: ReportData): string {
     <h2 class="section-glow">급증 핵심 항체</h2>
     <p class="chart-hint">평소보다 메시지가 급증한 날의 <strong>참여자·핵심 키워드·평소 대비 배수</strong>입니다.</p>
     <div class="burst-anatomy-grid" role="list">${cards}</div>
+  </section>`;
+}
+
+function renderKeywordGravity(data: ReportData): string {
+  const items = data.keywordGravity.slice(0, 6);
+  const maxGravity = Math.max(...items.map((k) => k.gravity), 1);
+  const rows = items
+    .map((k) => {
+      const width = Math.min(100, (k.gravity / maxGravity) * 100);
+      const coChips = k.topCoKeywords.map((c) => `<span class="kg-co">${escapeHtml(c)}</span>`).join("");
+      return `<article class="kg-card" data-observe>
+        <div class="kg-header">
+          <span class="kg-label">${escapeHtml(k.label)}</span>
+          <span class="kg-gravity">${formatNumber(k.gravity)}</span>
+        </div>
+        <div class="kg-bar"><span class="kg-fill" style="width:${width.toFixed(2)}%"></span></div>
+        <div class="kg-meta">
+          <span>등장 ${formatNumber(k.appearances)}회</span>
+          <span>후속 ${formatNumber(k.followUpMessages)}건</span>
+          <span>중앙 ${formatNumber(k.medianFollowUpMinutes)}분</span>
+        </div>
+        ${coChips ? `<div class="kg-co-list">${coChips}</div>` : ""}
+      </article>`;
+    })
+    .join("");
+  return `<section id="s-keyword-gravity" class="kca-section card kca-card--data keyword-gravity anim-enter" data-observe style="--enter-delay:0.064s" aria-label="키워드 중력">
+    <h2 class="section-glow">키워드 중력</h2>
+    <p class="chart-hint">단어가 나온 뒤 <strong>10분 이내</strong>에 몇 개의 메시지가 이어지는지 — 대화를 끌어당기는 핵심 키워드입니다.</p>
+    <div class="kg-grid" role="list">${rows}</div>
   </section>`;
 }
 

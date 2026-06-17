@@ -554,6 +554,8 @@ export class ReportAggregator {
   private readonly questionAnswerPairs = new Map<string, { questions: number; latencies: number[] }>();
   private readonly answererCounts = new Map<string, number>();
 
+  private readonly keywordGravityEvents: { label: string; time: number; followUps: number; followUpMinutes: number[]; coKeywords: Map<string, number> }[] = [];
+
   constructor(filePath: string, privacy: PrivacyMode, top: number, options?: AggregatorOptions) {
     this.filePath = filePath;
     this.privacy = privacy;
@@ -921,6 +923,7 @@ export class ReportAggregator {
       if (!opts?.skipKeywords) {
         const kwTokens = tokenizeForKeywords(msg);
         this.applyKeywordTokens(kwTokens, `${record.date.year}-${pad2(record.date.month)}`, dayKey);
+        this.updateKeywordGravity(kwTokens, ms);
       }
         if (!opts?.keywordsOnly) {
           const kwOpts = {
@@ -1587,6 +1590,9 @@ export class ReportAggregator {
     // ── 급증일 핵심 항체 ──
     const burstAnatomy = this.buildBurstAnatomy(burstDays, avgDailyMessages, aliases);
 
+    // ── 키워드 중력 ──
+    const keywordGravity = this.buildKeywordGravity(keywords);
+
     return {
       generatedAt: new Date().toISOString(),
       privacy: this.privacy,
@@ -1690,6 +1696,7 @@ export class ReportAggregator {
       replyLatency,
       questionAnswer,
       burstAnatomy,
+      keywordGravity,
     };
   }
 
@@ -1786,6 +1793,69 @@ export class ReportAggregator {
         vsAverage,
       };
     });
+  }
+
+  private updateKeywordGravity(tokens: string[], ms: number): void {
+    const labels = displayKeywordTokens(tokens);
+    if (labels.length === 0) return;
+    const uniqueLabels = [...new Set(labels)];
+    const windowMs = 10 * 60 * 1000;
+    const cutoff = ms - windowMs;
+
+    // 최근 등장한 키워드 이벤트들을 현재 메시지가 후속 메시지로 집계
+    for (const ev of this.keywordGravityEvents) {
+      if (ev.time < cutoff) continue;
+      ev.followUps += 1;
+      ev.followUpMinutes.push((ms - ev.time) / 60_000);
+      for (const label of uniqueLabels) {
+        if (label === ev.label) continue;
+        increment(ev.coKeywords, label);
+      }
+    }
+
+    // 현재 메시지의 키워드를 새 이벤트로 추가
+    for (const label of uniqueLabels) {
+      this.keywordGravityEvents.push({
+        label,
+        time: ms,
+        followUps: 0,
+        followUpMinutes: [],
+        coKeywords: new Map<string, number>(),
+      });
+    }
+
+    // 오래된 이벤트 정리 (메모리 상한)
+    while (this.keywordGravityEvents.length > 0 && this.keywordGravityEvents[0]!.time < cutoff) {
+      this.keywordGravityEvents.shift();
+    }
+  }
+
+  private buildKeywordGravity(topKeywords: CountItem[]): import("./types.js").KeywordGravity[] {
+    const byLabel = new Map<string, { appearances: number; followUps: number; minutes: number[]; coKeywords: Map<string, number> }>();
+    for (const ev of this.keywordGravityEvents) {
+      const entry = byLabel.get(ev.label) ?? { appearances: 0, followUps: 0, minutes: [], coKeywords: new Map<string, number>() };
+      entry.appearances += 1;
+      entry.followUps += ev.followUps;
+      entry.minutes.push(...ev.followUpMinutes);
+      for (const [kw, c] of ev.coKeywords) increment(entry.coKeywords, kw, c);
+      byLabel.set(ev.label, entry);
+    }
+
+    const topSet = new Set(topKeywords.map((k) => k.label));
+    const results: import("./types.js").KeywordGravity[] = [];
+    for (const [label, data] of byLabel) {
+      if (!topSet.has(label)) continue;
+      const sortedMinutes = [...data.minutes].sort((a, b) => a - b);
+      results.push({
+        label,
+        appearances: data.appearances,
+        followUpMessages: data.followUps,
+        gravity: round(data.followUps / Math.max(data.appearances, 1), 2),
+        medianFollowUpMinutes: round(medianSorted(sortedMinutes), 1),
+        topCoKeywords: topCounts(data.coKeywords, 3).map((item) => item.label),
+      });
+    }
+    return results.sort((a, b) => b.gravity - a.gravity || b.appearances - a.appearances);
   }
 }
 

@@ -175,6 +175,7 @@ export function emptyReportData(): ReportData {
     replyLatency: null,
     questionAnswer: null,
     burstAnatomy: [],
+    keywordGravity: [],
     explorer: { daily: [], hourly: [], monthly: [], range: { min: "", max: "" } },
   };
 }
