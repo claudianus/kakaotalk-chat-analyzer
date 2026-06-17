@@ -617,6 +617,124 @@
   margin-left: 6px;
 }
 
+/* ── Reply Latency Fingerprint ── */
+.latency-fingerprint .latency-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.latency-summary > div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+}
+.latency-summary > div b { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.latency-summary > div .num { font-size: 17px; font-weight: 900; color: var(--ink); }
+.latency-stacked {
+  display: flex;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: var(--line);
+}
+.latency-seg { display: block; height: 100%; }
+.latency-seg--fast { background: var(--teal); }
+.latency-seg--normal { background: var(--accent); }
+.latency-seg--slow { background: var(--coral); }
+.latency-rows { display: flex; flex-direction: column; gap: 10px; }
+.latency-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 56px;
+  align-items: center;
+  gap: 10px;
+}
+.latency-alias { font-size: 13px; font-weight: 800; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.latency-track { height: 8px; border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
+.latency-fill { height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--teal), var(--accent)); }
+.latency-num { font-size: 12px; font-weight: 800; color: var(--muted); text-align: right; }
+
+/* ── Question-Answer Topology ── */
+.qa-topology .qa-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.qa-summary > div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+}
+.qa-summary > div b { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.qa-summary > div .num { font-size: 17px; font-weight: 900; color: var(--ink); }
+.qa-pair-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.qa-pair-card {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.qa-pair { font-size: 13px; font-weight: 800; color: var(--accent); }
+.qa-metric { display: flex; justify-content: space-between; font-size: 12px; }
+.qa-metric span { color: var(--muted); }
+.qa-metric strong { color: var(--ink); }
+.qa-answerers h4 { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 800; }
+.qa-answerer-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.qa-answerer-chip {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--warm) 14%, transparent);
+  color: var(--warm);
+}
+.qa-answerer-chip strong { margin-left: 4px; }
+
+/* ── Burst Anatomy ── */
+.burst-anatomy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.burst-anatomy-card {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.burst-anatomy-card time { font-size: 11px; font-weight: 800; color: var(--muted); }
+.burst-metric { display: flex; justify-content: space-between; font-size: 13px; }
+.burst-metric span { color: var(--muted); }
+.burst-metric strong { color: var(--ink); font-weight: 900; }
+.burst-row { display: flex; flex-direction: column; gap: 6px; }
+.burst-row > span { font-size: 11px; color: var(--muted); font-weight: 800; }
+.burst-participants, .burst-keywords { display: flex; flex-wrap: wrap; gap: 6px; }
+.burst-participant, .burst-keyword {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  color: var(--ink);
+}
+.burst-keyword { background: color-mix(in oklab, var(--accent) 14%, transparent); color: var(--accent); }
+
 @media (max-width: 640px) {
   .kca-hero-rhythm { gap: 12px; padding: 10px 14px; }
   .khr-number { font-size: 30px; }
@@ -624,4 +742,6 @@
   .arr-metrics { grid-template-columns: repeat(2, 1fr); }
   .sww-day { min-width: 64px; padding: 10px 6px; }
   .sww-icon { font-size: 24px; }
+  .latency-summary, .qa-summary { grid-template-columns: 1fr; }
+  .latency-row { grid-template-columns: 70px 1fr 50px; }
 }

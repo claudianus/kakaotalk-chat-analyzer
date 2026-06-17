@@ -357,6 +357,52 @@ export interface ReportTimelineEvent {
     metric?: number;
     jumpId?: string;
 }
+/** 개인별 응답 지연 통계 — 상대가 말한 뒤 내가 답할 때까지 걸린 시간 */
+export interface ResponderLatency {
+    alias: string;
+    medianMinutes: number;
+    p90Minutes: number;
+    replies: number;
+    fastRatePercent: number;
+}
+/** 방 전체 응답 지연 지문 */
+export interface ReplyLatencyFingerprint {
+    roomMedianMinutes: number;
+    roomP90Minutes: number;
+    totalReplies: number;
+    fastRatePercent: number;
+    normalRatePercent: number;
+    slowRatePercent: number;
+    responders: ResponderLatency[];
+}
+/** 질문-응답 쌍 통계 */
+export interface QuestionAnswerPair {
+    asker: string;
+    answerer: string;
+    questions: number;
+    medianAnswerMinutes: number;
+}
+/** 질문-응답 토폴로지 */
+export interface QuestionAnswerTopology {
+    totalQuestions: number;
+    answeredQuestions: number;
+    answerRatePercent: number;
+    medianAnswerMinutes: number;
+    topAnswerers: {
+        alias: string;
+        answers: number;
+    }[];
+    topPairs: QuestionAnswerPair[];
+}
+/** 급증일 핵심 통계(핵심 참여자·키워드·지속시간) */
+export interface BurstAnatomy {
+    date: string;
+    messages: number;
+    participants: string[];
+    topKeywords: string[];
+    durationHours: number | null;
+    vsAverage: number;
+}
 export interface LlmRoomArchetype {
     name: string;
     description: string;
@@ -760,4 +806,10 @@ export interface ReportData {
     memorableMoments: MemorableMoment[];
     /** 최근 7일 + 리포트 당일 상세 스냅샷 */
     recentSnapshot?: RecentSnapshot;
+    /** 응답 지연 지문 — 누가 얼마나 빨리 답하는가 */
+    replyLatency: ReplyLatencyFingerprint | null;
+    /** 질문-응답 토폴로지 — 누가 묻고 누가 답하는가 */
+    questionAnswer: QuestionAnswerTopology | null;
+    /** 급증일 핵심 항체(참여자·키워드·지속시간) */
+    burstAnatomy: BurstAnatomy[];
 }

@@ -58,12 +58,15 @@ import {
 import {
   hasActivityRestRhythm,
   hasBenchmarkSection,
+  hasBurstAnatomy,
   hasCalendarHeatmap,
   hasDaypartFingerprint,
   hasDyadSection,
   hasExplorerSection,
   hasNarrativeSection,
   hasParticipantDynamics,
+  hasQuestionAnswerTopology,
+  hasReplyLatencyFingerprint,
   hasRhythmSilenceMap,
   hasRoomCultureStrip,
   hasSentimentRollercoaster,
@@ -419,6 +422,15 @@ function renderSectionNav(data: ReportData): string {
   const culture = hasRoomCultureStrip(data)
     ? `<a href="#s-culture" data-kca-jump="s-culture">방 밈</a>`
     : "";
+  const latency = hasReplyLatencyFingerprint(data)
+    ? `<a href="#s-latency" data-kca-jump="s-latency">응답 지문</a>`
+    : "";
+  const qa = hasQuestionAnswerTopology(data)
+    ? `<a href="#s-qa" data-kca-jump="s-qa">질문-응답</a>`
+    : "";
+  const burstAnatomy = hasBurstAnatomy(data)
+    ? `<a href="#s-burst-anatomy" data-kca-jump="s-burst-anatomy">급증 항체</a>`
+    : "";
   return `<nav class="deck-nav anim-enter" aria-label="섹션 바로가기" style="--enter-delay:0.02s">
     <span class="deck-nav-h">빠른 이동</span>
     <a href="#s-story" data-kca-jump="s-story">⓪ Wrapped</a>
@@ -441,6 +453,9 @@ function renderSectionNav(data: ReportData): string {
     ${daypart}
     ${topicflow}
     ${culture}
+    ${latency}
+    ${qa}
+    ${burstAnatomy}
     <a href="#s-ai" data-kca-jump="s-ai">③ 분위기·리듬</a>
     <a href="#s-viz" data-kca-jump="s-viz">④ 인터랙티브 차트</a>
     <a href="#s-charts" data-kca-jump="s-charts">⑤ 표·막대 모음</a>
@@ -1150,7 +1165,7 @@ function renderSentimentInline(sentiment: NonNullable<ReportData["sentiment"]>, 
   const neutralCaveat = hasExpressionRisk && sentiment.neutralPercent >= 90
     ? `<p class="chart-hint tone-caveat">감정 분류의 중립은 명시적인 긍정·부정 감정어가 적다는 뜻입니다. 비속·공격 표현은 아래 별도 지표에 반영했습니다.</p>`
     : "";
-  return `<div id="s-sentiment" class="tone-block">
+  return `<div id="s-sentiment-tone" class="tone-block">
     <h3 class="insight-sub">감정 분류(샘플 ${formatNumber(sentiment.sampleSize)}건)</h3>
     <p class="chart-hint">긍정 <strong>${sentiment.positivePercent}%</strong> · 중립 <strong>${sentiment.neutralPercent}%</strong> · 부정 <strong>${sentiment.negativePercent}%</strong> · compound <strong>${sentiment.compoundScore}</strong> (${compoundLabel})</p>
     ${neutralCaveat}

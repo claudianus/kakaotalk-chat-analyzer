@@ -106,6 +106,10 @@ export declare class ReportAggregator {
     private runLen;
     private firstDate;
     private lastDate;
+    private readonly replyLatencyByResponder;
+    private readonly pendingQuestions;
+    private readonly questionAnswerPairs;
+    private readonly answererCounts;
     constructor(filePath: string, privacy: PrivacyMode, top: number, options?: AggregatorOptions);
     /** 스트리밍 1패스 후 실제 건수로 리저보어 상한 보정(추정치 과소 시) */
     ensureSampleCaps(messageCount: number): void;
@@ -142,4 +146,7 @@ export declare class ReportAggregator {
     }): void;
     private bumpSystemNotice;
     finalize(meta: FinalizeSourceMeta, finalizeOpts?: FinalizeOptions): ReportData;
+    private buildReplyLatencyFingerprint;
+    private buildQuestionAnswerTopology;
+    private buildBurstAnatomy;
 }

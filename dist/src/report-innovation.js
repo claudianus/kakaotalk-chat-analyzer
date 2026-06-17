@@ -1,6 +1,6 @@
 import { timelineActivityRange } from "./event-spine.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
-import { hasActivityRestRhythm, hasBenchmarkSection, hasDaypartFingerprint, hasParticipantDynamics, hasRhythmSilenceMap, hasSentimentRollercoaster, hasTopicFlow, } from "./report-section-visibility.js";
+import { hasActivityRestRhythm, hasBenchmarkSection, hasBurstAnatomy, hasDaypartFingerprint, hasParticipantDynamics, hasQuestionAnswerTopology, hasReplyLatencyFingerprint, hasRhythmSilenceMap, hasSentimentRollercoaster, hasTopicFlow, } from "./report-section-visibility.js";
 import { renderLlmDayMicroStories, renderLlmEraLabels, renderLlmRelationshipBeats, renderMemorableMomentsList, } from "./report-llm-deck.js";
 export function renderStoryTimelinePair(data) {
     const momentsList = renderMemorableMomentsList(data);
@@ -37,6 +37,9 @@ export function renderInnovationDeck(data) {
         hasParticipantDynamics(data) ? renderParticipantDynamics(data) : "",
         hasDaypartFingerprint(data) ? renderDaypartFingerprint(data) : "",
         hasTopicFlow(data) ? renderTopicFlow(data) : "",
+        hasReplyLatencyFingerprint(data) ? renderReplyLatencyFingerprint(data) : "",
+        hasQuestionAnswerTopology(data) ? renderQuestionAnswerTopology(data) : "",
+        hasBurstAnatomy(data) ? renderBurstAnatomy(data) : "",
     ].join("\n");
 }
 function renderTimelineHint(data) {
@@ -387,6 +390,86 @@ export function renderActivityRestRhythm(data) {
       <div><b>최장 활동 연속</b><span class="num">${formatNumber(data.summary.longestActiveStreakDays)}일</span></div>
       <div><b>최장 침묵</b><span class="num">${formatNumber(data.insights.maxSilenceBetweenActiveDays ?? 0)}일</span></div>
     </div>
+  </section>`;
+}
+function renderReplyLatencyFingerprint(data) {
+    const latency = data.replyLatency;
+    const total = latency.totalReplies;
+    const distribution = [
+        { label: "1분 미만", pct: latency.fastRatePercent, cls: "fast" },
+        { label: "1~10분", pct: latency.normalRatePercent, cls: "normal" },
+        { label: "10분 초과", pct: latency.slowRatePercent, cls: "slow" },
+    ];
+    const stacked = distribution
+        .map((d) => `<span class="latency-seg latency-seg--${d.cls}" style="width:${d.pct.toFixed(2)}%" title="${escapeHtml(d.label)} ${formatNumber(d.pct)}%"></span>`)
+        .join("");
+    const maxMedian = Math.max(...latency.responders.map((r) => r.medianMinutes), 1);
+    const rows = latency.responders
+        .map((r) => {
+        const width = Math.min(100, (r.medianMinutes / maxMedian) * 100);
+        return `<div class="latency-row" title="${escapeHtml(r.alias)}: 중앙값 ${formatNumber(r.medianMinutes)}분, P90 ${formatNumber(r.p90Minutes)}분, ${formatNumber(r.replies)}건">
+        <span class="latency-alias">${escapeHtml(r.alias)}</span>
+        <span class="latency-track"><span class="latency-fill" style="width:${width.toFixed(2)}%"></span></span>
+        <span class="latency-num">${formatNumber(r.medianMinutes)}분</span>
+      </div>`;
+    })
+        .join("");
+    return `<section id="s-latency" class="kca-section card kca-card--data latency-fingerprint anim-enter" data-observe style="--enter-delay:0.061s" aria-label="응답 지연 지문">
+    <h2 class="section-glow">응답 지문</h2>
+    <p class="chart-hint">상대가 말한 뒤 내가 답할 때까지 걸린 시간 — <strong>누가 가장 빨리 반응</strong>하는지 보여줍니다.</p>
+    <div class="latency-summary">
+      <div><b>방 중앙값</b><span class="num">${formatNumber(latency.roomMedianMinutes)}분</span></div>
+      <div><b>P90</b><span class="num">${formatNumber(latency.roomP90Minutes)}분</span></div>
+      <div><b>총 응답</b><span class="num">${formatNumber(total)}건</span></div>
+    </div>
+    <div class="latency-stacked" role="img" aria-label="응답 속도 분포">${stacked}</div>
+    <div class="latency-rows">${rows}</div>
+  </section>`;
+}
+function renderQuestionAnswerTopology(data) {
+    const qa = data.questionAnswer;
+    const pairCards = qa.topPairs
+        .slice(0, 4)
+        .map((p) => `<article class="qa-pair-card" data-observe>
+      <div class="qa-pair">${escapeHtml(p.asker)} → ${escapeHtml(p.answerer)}</div>
+      <div class="qa-metric"><span>질문</span><strong>${formatNumber(p.questions)}건</strong></div>
+      <div class="qa-metric"><span>중앙 답변 시간</span><strong>${formatNumber(p.medianAnswerMinutes)}분</strong></div>
+    </article>`)
+        .join("");
+    const answererChips = qa.topAnswerers
+        .slice(0, 4)
+        .map((a) => `<span class="qa-answerer-chip">${escapeHtml(a.alias)} <strong>${formatNumber(a.answers)}</strong></span>`)
+        .join("");
+    return `<section id="s-qa" class="kca-section card kca-card--data qa-topology anim-enter" data-observe style="--enter-delay:0.062s" aria-label="질문-응답 지도">
+    <h2 class="section-glow">질문-응답 지도</h2>
+    <p class="chart-hint">물음표 메시지 뒤 60분 이내에 다른 참여자가 답한 흐름입니다.</p>
+    <div class="qa-summary">
+      <div><b>총 질문</b><span class="num">${formatNumber(qa.totalQuestions)}건</span></div>
+      <div><b>답변율</b><span class="num">${formatNumber(qa.answerRatePercent)}%</span></div>
+      <div><b>중앙 답변 시간</b><span class="num">${formatNumber(qa.medianAnswerMinutes)}분</span></div>
+    </div>
+    <div class="qa-pair-grid" role="list">${pairCards}</div>
+    <div class="qa-answerers"><h4>🏆 상위 답변자</h4><div class="qa-answerer-chips">${answererChips}</div></div>
+  </section>`;
+}
+function renderBurstAnatomy(data) {
+    const cards = data.burstAnatomy
+        .map((b) => {
+        const participants = b.participants.map((p) => `<span class="burst-participant">${escapeHtml(p)}</span>`).join("");
+        const keywords = b.topKeywords.map((k) => `<span class="burst-keyword">${escapeHtml(k)}</span>`).join("");
+        return `<article class="burst-anatomy-card" data-observe>
+        <time datetime="${escapeHtml(b.date)}">${escapeHtml(b.date)}</time>
+        <div class="burst-metric"><span>메시지</span><strong>${formatNumber(b.messages)}건</strong></div>
+        <div class="burst-metric"><span>평소 대비</span><strong>${formatNumber(b.vsAverage)}배</strong></div>
+        <div class="burst-row"><span>참여자</span><div class="burst-participants">${participants}</div></div>
+        <div class="burst-row"><span>핵심 키워드</span><div class="burst-keywords">${keywords}</div></div>
+      </article>`;
+    })
+        .join("");
+    return `<section id="s-burst-anatomy" class="kca-section card kca-card--data burst-anatomy anim-enter" data-observe style="--enter-delay:0.063s" aria-label="급증 핵심 항체">
+    <h2 class="section-glow">급증 핵심 항체</h2>
+    <p class="chart-hint">평소보다 메시지가 급증한 날의 <strong>참여자·핵심 키워드·평소 대비 배수</strong>입니다.</p>
+    <div class="burst-anatomy-grid" role="list">${cards}</div>
   </section>`;
 }
 function parseYmdTs(date) {

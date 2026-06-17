@@ -69,7 +69,7 @@ describe("innovation layer", () => {
     assert.match(html, /class="kca-oled"/);
   });
 
-  it("renderReportHtml includes all 5 new innovation deck sections", () => {
+  it("renderReportHtml includes all 8 new innovation deck sections", () => {
     const data = emptyReportData();
     data.summary.totalMessages = 100;
     data.summary.peakHour = 21;
@@ -101,6 +101,29 @@ describe("innovation layer", () => {
         { period: "2026-01-02", topics: [{ name: "계속", value: 3 }] },
       ],
     };
+    data.replyLatency = {
+      roomMedianMinutes: 2.5,
+      roomP90Minutes: 12,
+      totalReplies: 50,
+      fastRatePercent: 40,
+      normalRatePercent: 45,
+      slowRatePercent: 15,
+      responders: [
+        { alias: "Alice", medianMinutes: 1.5, p90Minutes: 8, replies: 25, fastRatePercent: 60 },
+        { alias: "Bob", medianMinutes: 4, p90Minutes: 18, replies: 25, fastRatePercent: 20 },
+      ],
+    };
+    data.questionAnswer = {
+      totalQuestions: 10,
+      answeredQuestions: 8,
+      answerRatePercent: 80,
+      medianAnswerMinutes: 3,
+      topAnswerers: [{ alias: "Alice", answers: 5 }],
+      topPairs: [{ asker: "Bob", answerer: "Alice", questions: 5, medianAnswerMinutes: 2 }],
+    };
+    data.burstAnatomy = [
+      { date: "2026-01-02", messages: 50, participants: ["Alice", "Bob"], topKeywords: ["테스트"], durationHours: null, vsAverage: 2.5 },
+    ];
 
     const html = renderReportHtml(data);
     assert.match(html, /id="s-sentiment"/);
@@ -108,11 +131,81 @@ describe("innovation layer", () => {
     assert.match(html, /id="s-dynamics"/);
     assert.match(html, /id="s-daypart"/);
     assert.match(html, /id="s-topicflow"/);
+    assert.match(html, /id="s-latency"/);
+    assert.match(html, /id="s-qa"/);
+    assert.match(html, /id="s-burst-anatomy"/);
     assert.match(html, /감정 롤러코스터/);
     assert.match(html, /대화 리듬 & 침묵 지도/);
     assert.match(html, /참여자 역학/);
     assert.match(html, /시간대 지문/);
     assert.match(html, /토픽 플로우/);
+    assert.match(html, /응답 지문/);
+    assert.match(html, /질문-응답 지도/);
+    assert.match(html, /급증 핵심 항체/);
+  });
+
+  it("renderReportHtml has no duplicate element ids", () => {
+    const data = emptyReportData();
+    data.summary.totalMessages = 100;
+    data.summary.peakHour = 21;
+    data.summary.nightSharePercent = 15;
+    data.hourly = Array.from({ length: 24 }, (_, i) => (i === 21 ? 30 : i % 6 === 0 ? 2 : 0));
+    data.dailySentiment = [
+      { date: "2026-01-01", positive: 30, negative: 10, neutral: 60, energy: 20 },
+      { date: "2026-01-02", positive: 50, negative: 5, neutral: 45, energy: 45 },
+      { date: "2026-01-03", positive: 20, negative: 30, neutral: 50, energy: -10 },
+    ];
+    data.sentiment = {
+      sampleSize: 100,
+      positivePercent: 40,
+      negativePercent: 10,
+      neutralPercent: 50,
+      compoundScore: 15,
+      bySender: [],
+    };
+    data.recentSnapshot = {
+      lastDate: "2026-01-01",
+      reportDay: "2026-01-01",
+      today: null,
+      weekTotal: 50,
+      weekVsOverall: 1.2,
+      weekParticipants: 5,
+      weekKeywords: ["테스트"],
+      week: [
+        {
+          date: "2026-01-01",
+          messageCount: 10,
+          activeParticipants: 2,
+          topSenders: [{ alias: "A", count: 6 }],
+          vsAvg: 1,
+          keywords: ["키워드"],
+          sentiment: { positive: 3, negative: 1, neutral: 6 },
+          hourly: Array.from({ length: 24 }, () => 0),
+          peakHour: 21,
+        },
+      ],
+    };
+    data.dailyHotTopics = [
+      {
+        date: "2026-01-01",
+        title: "테스트",
+        summary: "요약",
+        keywords: ["키워드"],
+        evidence: [],
+        messageCount: 10,
+        lift: 1.2,
+        participants: ["A"],
+      },
+    ];
+
+    const html = renderReportHtml(data);
+    const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
+    const seen = new Map<string, number>();
+    for (const id of ids) seen.set(id, (seen.get(id) ?? 0) + 1);
+    const dups = [...seen.entries()].filter(([, count]) => count > 1);
+    assert.deepEqual(dups, [], `duplicate ids: ${dups.map(([id, n]) => `${id}×${n}`).join(", ")}`);
+    assert.equal((html.match(/href="#s-wrapped"[^>]*>⓪ Wrapped/g) ?? []).length, 1);
+    assert.match(html, /id="s-recent"/);
   });
 
   it("period compare keyword shift", () => {
