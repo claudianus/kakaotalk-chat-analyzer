@@ -262,6 +262,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.24.79** | **가로 막대 일괄 수정** — `display:block` 누락 보강(키워드·토픽·핫토픽 등) · 중첩 `data-observe`로 fill이 `opacity:0`이던 문제(첨부유형·샵검색·도메인 등) |
 | **0.24.78** | **샵검색·카운트 막대 수정** — `renderCountBars` `.bar-fill`에 `display:block` 추가 (샵검색 키워드 등 빈 막대) |
 | **0.24.77** | **참여자·응답속도 막대 수정** — `누가 얼마나 말하나`·`누가 빨리 답하나` 가로 막대가 빈 트랙으로 보이던 CSS(`display:block`) 수정 |
 | **0.24.76** | **차트 가독성** — 워드클라우드 HTML 노이즈 필터·막대 기본 · 스파크라인 막대 폴백 · 네트워크 노드·엣지 강화 |

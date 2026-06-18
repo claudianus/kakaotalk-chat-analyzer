@@ -169,6 +169,7 @@
   margin: 6px 0;
 }
 .hot-topic-bar-fill {
+  display: block;
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--accent-grad);

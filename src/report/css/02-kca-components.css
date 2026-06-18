@@ -446,6 +446,7 @@
   position: relative;
 }
 .kw-bar-fill {
+  display: block;
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--kw-bar-fill);
@@ -465,6 +466,7 @@
 .count-bar-label { flex: 0 0 auto; font-size: var(--font-size-small); color: var(--ink); min-width: 60px; }
 .count-bar-track { flex: 1; height: 8px; border-radius: var(--radius-pill); background: var(--bar-bg); overflow: hidden; }
 .count-bar-fill {
+  display: block;
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--accent-grad-soft);
@@ -1260,7 +1262,13 @@ footer {
 .topic-badge.period { background: color-mix(in oklab, var(--accent2) 15%, transparent); color: var(--accent2); }
 .topic-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
 .topic-bar { height: 4px; border-radius: var(--radius-pill); background: var(--bar-bg); overflow: hidden; margin-bottom: 4px; }
-.topic-bar-fill { height: 100%; border-radius: var(--radius-pill); background: var(--accent-grad-soft); transition: width 0.8s var(--ease-out); }
+.topic-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent-grad-soft);
+  transition: width 0.8s var(--ease-out);
+}
 .topic-pct { font-size: 11px; color: var(--muted); font-weight: 600; }
 .topic-card--lg { grid-column: span 2; }
 @media (max-width: 640px) { .topic-card--lg { grid-column: span 1; } }

@@ -666,6 +666,11 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   opacity: 1;
   transform: translateY(0);
 }
+/* Bar fills 등 자식에 data-observe가 중복되면 부모만 보여도 fill이 opacity:0 — 트랙만 빈 막대로 보임 */
+[data-observe].is-visible [data-observe] {
+  opacity: 1;
+  transform: none;
+}
 
 /* CountUp animation target */
 [data-countup] {
@@ -1168,6 +1173,7 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   position: relative;
 }
 .kw-bar-fill {
+  display: block;
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--kw-bar-fill);
@@ -1187,6 +1193,7 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 .count-bar-label { flex: 0 0 auto; font-size: var(--font-size-small); color: var(--ink); min-width: 60px; }
 .count-bar-track { flex: 1; height: 8px; border-radius: var(--radius-pill); background: var(--bar-bg); overflow: hidden; }
 .count-bar-fill {
+  display: block;
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--accent-grad-soft);
@@ -1982,7 +1989,13 @@ footer {
 .topic-badge.period { background: color-mix(in oklab, var(--accent2) 15%, transparent); color: var(--accent2); }
 .topic-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
 .topic-bar { height: 4px; border-radius: var(--radius-pill); background: var(--bar-bg); overflow: hidden; margin-bottom: 4px; }
-.topic-bar-fill { height: 100%; border-radius: var(--radius-pill); background: var(--accent-grad-soft); transition: width 0.8s var(--ease-out); }
+.topic-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent-grad-soft);
+  transition: width 0.8s var(--ease-out);
+}
 .topic-pct { font-size: 11px; color: var(--muted); font-weight: 600; }
 .topic-card--lg { grid-column: span 2; }
 @media (max-width: 640px) { .topic-card--lg { grid-column: span 1; } }
@@ -5214,6 +5227,7 @@ body.kca-oled .theme-btn.kca-ripple {
   margin: 6px 0;
 }
 .hot-topic-bar-fill {
+  display: block;
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--accent-grad);

@@ -156,6 +156,19 @@ describe("innovation layer", () => {
     assert.match(REPORT_STYLES, /\.dynamics-fill\s*\{[^}]*display:\s*block/);
     assert.match(REPORT_STYLES, /\.latency-fill\s*\{[^}]*display:\s*block/);
     assert.match(REPORT_STYLES, /\.bar-fill\s*\{[^}]*display:\s*block/);
+    assert.match(REPORT_STYLES, /\.kw-bar-fill\s*\{[^}]*display:\s*block/);
+    assert.match(REPORT_STYLES, /\.count-bar-fill\s*\{[^}]*display:\s*block/);
+    assert.match(REPORT_STYLES, /\.topic-bar-fill\s*\{[^}]*display:\s*block/);
+    assert.match(REPORT_STYLES, /\.hot-topic-bar-fill\s*\{[^}]*display:\s*block/);
+    assert.match(REPORT_STYLES, /\[data-observe\]\.is-visible \[data-observe\]/);
+  });
+
+  it("renderCountBars keeps data-observe on container only (not bar-fill)", () => {
+    const data = emptyReportData();
+    data.attachments = [{ label: "사진", count: 12 }];
+    const html = renderReportHtml(data);
+    assert.match(html, /class="bars" data-observe/);
+    assert.doesNotMatch(html, /class="bar-fill"[^>]*data-observe/);
   });
 
   it("renderReportHtml has no duplicate element ids", () => {
