@@ -1,5 +1,5 @@
+import { isAiSlopText } from "./llm-slop.js";
 const KEYWORD_POOL_MAX = 80;
-const AI_SLOP_TEXT_RE = /(?:AI 분석 결과|압도적|압도적인|흥미로운|흥미롭게도|다채로운|놀라운|놀랍게도|풍부한 대화|의미 있는 대화|다양한 이야기를 나누는|시사합니다|특별한 공간입니다|활발한 소통의 장)/i;
 const GENERIC_ARCHETYPE_NAMES = new Set([
     "chatroom",
     "chatroom(이름 미전송)",
@@ -56,7 +56,7 @@ export function isLlmGarbageText(value) {
         return true;
     if (LLM_FAILURE_TEXT_RE.test(v))
         return true;
-    if (AI_SLOP_TEXT_RE.test(v))
+    if (isAiSlopText(v))
         return true;
     // 통계 숫자만 나열 (쉼표·공백·%·숫자 외 문자 없음)
     if (/^[\d\s,%\.]+$/.test(v))

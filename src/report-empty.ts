@@ -172,6 +172,7 @@ export function emptyReportData(): ReportData {
     },
     memorableMoments: [],
     recentSnapshot: undefined,
+    recentPeriodInsights: undefined,
     replyLatency: null,
     questionAnswer: null,
     burstAnatomy: [],

@@ -29,6 +29,7 @@ import { buildEventSpine } from "./event-spine.js";
 import { analyzeHonorificStyle } from "./honorific-analyzer.js";
 import { buildRoomNarrative } from "./room-narrative.js";
 import { buildPeriodCompare } from "./period-compare.js";
+import { buildRecentPeriodInsights } from "./recent-period-stats.js";
 import { buildBenchmarkBandsFromValues } from "./benchmark-bands.js";
 import { semanticItemsToTopics } from "./embedding-topics.js";
 import { buildKeywordSeedTopics } from "./keyword-seed-topics.js";
@@ -1260,6 +1261,25 @@ export class ReportAggregator {
                 weekKeywords,
             };
         }
+        let recentPeriodInsights;
+        if (recentSnapshot && recentSnapshot.weekTotal > 0) {
+            recentPeriodInsights = buildRecentPeriodInsights({
+                recentSnapshot,
+                dailySenderCounts: this.dailySenderCounts,
+                dailyHourly: this.dailyHourly,
+                daily: this.daily,
+                aliases,
+                whole: {
+                    top3ParticipantSharePercent,
+                    participantGini,
+                    weekendSharePercent,
+                    nightSharePercent,
+                    avgDailyMessages,
+                    participants: participantStats.length,
+                    totalMessages: total,
+                },
+            });
+        }
         const memorableMoments = extractMemorableMoments({
             daily: dailySorted,
             dailySentiment,
@@ -1462,6 +1482,7 @@ export class ReportAggregator {
             roomRelationship,
             memorableMoments,
             recentSnapshot,
+            recentPeriodInsights,
             replyLatency,
             questionAnswer,
             burstAnatomy,

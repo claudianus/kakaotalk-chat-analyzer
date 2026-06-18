@@ -261,25 +261,41 @@ function renderRhythmSilenceMap(data) {
 }
 function renderParticipantDynamics(data) {
     const ins = data.insights;
-    const total = data.summary.totalMessages;
-    const bars = data.participants
-        .slice(0, 10)
-        .map((p) => {
-        const width = total > 0 ? (p.messages / total) * 100 : 0;
-        return `<div class="dynamics-bar" title="${escapeHtml(p.alias)} ${formatNumber(p.messages)}건">
+    const weekSenders = data.recentPeriodInsights?.weekTopSenders ?? [];
+    const weekTotal = data.recentSnapshot?.weekTotal ?? 0;
+    const useWeek = weekSenders.length >= 3 && weekTotal > 0;
+    const bars = useWeek
+        ? weekSenders
+            .map((p) => {
+            const width = weekTotal > 0 ? (p.count / weekTotal) * 100 : 0;
+            return `<div class="dynamics-bar" title="${escapeHtml(p.alias)} ${formatNumber(p.count)}건">
         <span class="dynamics-label">${escapeHtml(p.alias)}</span>
         <span class="dynamics-track"><span class="dynamics-fill" style="width:${width.toFixed(2)}%"></span></span>
         <span class="dynamics-num">${formatNumber(p.sharePercent)}%</span>
       </div>`;
-    })
-        .join("");
+        })
+            .join("")
+        : data.participants
+            .slice(0, 10)
+            .map((p) => {
+            const total = data.summary.totalMessages;
+            const width = total > 0 ? (p.messages / total) * 100 : 0;
+            return `<div class="dynamics-bar" title="${escapeHtml(p.alias)} ${formatNumber(p.messages)}건">
+        <span class="dynamics-label">${escapeHtml(p.alias)}</span>
+        <span class="dynamics-track"><span class="dynamics-fill" style="width:${width.toFixed(2)}%"></span></span>
+        <span class="dynamics-num">${formatNumber(p.sharePercent)}%</span>
+      </div>`;
+        })
+            .join("");
+    const weekTop3 = data.recentPeriodInsights?.metrics.find((m) => m.key === "top3")?.week ?? null;
+    const weekGini = data.recentPeriodInsights?.metrics.find((m) => m.key === "gini")?.week ?? null;
     return `<section id="s-dynamics" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.058s" aria-label="누가 얼마나 말하나">
     <h2 class="section-glow">누가 얼마나 말하나</h2>
-    <p class="chart-hint">메시지 상위 10명 비중 — 막대가 길수록 더 많이 말했습니다.</p>
+    <p class="chart-hint">${useWeek ? "최근 7일" : "전체"} 기준 메시지 상위 10명 — 막대가 길수록 더 많이 말했습니다.</p>
     <div class="dynamics-curve">${bars}</div>
     <div class="dynamics-metric-grid">
-      <div><b>지니 계수</b><span class="num">${ins.participantGini != null ? ins.participantGini.toFixed(2) : "—"}</span></div>
-      <div><b>상위 3인 점유</b><span class="num">${formatNumber(ins.top3ParticipantSharePercent)}%</span></div>
+      <div><b>지니 계수</b><span class="num">${ins.participantGini != null ? ins.participantGini.toFixed(2) : "—"}${weekGini && weekGini !== "—" ? ` · 7d ${weekGini}` : ""}</span></div>
+      <div><b>상위 3인 점유</b><span class="num">${formatNumber(ins.top3ParticipantSharePercent)}%${weekTop3 ? ` · 7d ${weekTop3}` : ""}</span></div>
       <div><b>독백 메시지</b><span class="num">${formatNumber(ins.monologueMessagesPercent)}%</span></div>
     </div>
   </section>`;

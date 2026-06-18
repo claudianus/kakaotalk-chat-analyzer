@@ -30,6 +30,13 @@ export function buildLlmPromptPayload(data, opts) {
     const bullets = data.highlights.slice(0, compact ? 8 : 15);
     if (bullets.length)
         lines.push(`하이라이트: ${bullets.join(" / ")}`);
+    const snap = data.recentSnapshot;
+    if (snap && snap.weekTotal > 0) {
+        lines.push(`최근7일: ${snap.weekTotal}건 · 참여 ${snap.weekParticipants}명 · 일평균 ${Math.round(snap.weekTotal / 7)}건 · 전체 대비 ${snap.weekVsOverall}배`);
+        if (snap.weekKeywords.length) {
+            lines.push(`최근7일키워드: ${snap.weekKeywords.slice(0, compact ? 4 : 6).join(", ")}`);
+        }
+    }
     if (!compact && data.interaction?.topPairs?.length) {
         const pairs = data.interaction.topPairs
             .slice(0, 6)
@@ -83,7 +90,8 @@ const TASK_CHECKLIST = `작업 순서(내부적으로만 따르고 출력하지 
 const OUTPUT_RULES = `출력 규칙(최우선):
 - 마크다운 fence·설명·영어 오류 메시지 금지
 - 입력에 없는 숫자·키워드 창작 금지
-- paragraphs 각 120자 이내, **강조**만 허용`;
+- paragraphs 각 120자 이내, **강조**만 허용
+- AI 슬롭·빈말 금지(흥미롭게도, 다채로운, 활발한 소통의 장, delve, tapestry, it's worth noting 등)`;
 const FULL_SCHEMA_HINT = `선택 키: topicTitles, topicProposals, insightBullets, shopSearchSummary, dyadInsight,
 roomArchetype{name,description,traits[]}, moments[{headline,statRef}], relationshipBeats[{pair,beat,role}],
 episodeCards, eraLabels, insideJokes, characterCards, dayMicroStories, shareLine, hashtags, counterfactuals.

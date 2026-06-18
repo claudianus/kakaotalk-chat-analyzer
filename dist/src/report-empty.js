@@ -170,6 +170,7 @@ export function emptyReportData() {
         },
         memorableMoments: [],
         recentSnapshot: undefined,
+        recentPeriodInsights: undefined,
         replyLatency: null,
         questionAnswer: null,
         burstAnatomy: [],

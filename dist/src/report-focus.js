@@ -1,4 +1,5 @@
 import { escapeHtml, formatNumber } from "./report-util.js";
+import { renderWeekTopSendersStrip } from "./report-period-metrics.js";
 function sumHourly(hourly) {
     return hourly.reduce((a, b) => a + b, 0);
 }
@@ -59,6 +60,7 @@ export function renderRecentFocusDeck(data) {
       ${renderFocusColumn("최근 24시간", "24h", today, todayPeak ? escapeHtml(todayPeak) : undefined)}
       ${renderFocusColumn("최근 7일", "7d", weekFocus, escapeHtml(weekExtra))}
     </div>
+    ${renderWeekTopSendersStrip(data)}
   </section>`;
 }
 //# sourceMappingURL=report-focus.js.map
