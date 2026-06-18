@@ -5,6 +5,7 @@ import { buildPeriodCompare } from "../src/period-compare.js";
 import { buildRoomNarrative } from "../src/room-narrative.js";
 import { emptyReportData } from "../src/report-empty.js";
 import { renderReportHtml } from "../src/report.js";
+import { REPORT_STYLES } from "../src/report-styles.js";
 
 describe("innovation layer", () => {
   it("buildRoomNarrative returns paragraphs", () => {
@@ -149,6 +150,11 @@ describe("innovation layer", () => {
     assert.match(html, /질문-응답 지도/);
     assert.match(html, /대화가 몰린 날/);
     assert.match(html, /키워드 중력/);
+  });
+
+  it("participant dynamics and latency bar fills use display:block", () => {
+    assert.match(REPORT_STYLES, /\.dynamics-fill\s*\{[^}]*display:\s*block/);
+    assert.match(REPORT_STYLES, /\.latency-fill\s*\{[^}]*display:\s*block/);
   });
 
   it("renderReportHtml has no duplicate element ids", () => {
