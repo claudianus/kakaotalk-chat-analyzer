@@ -1002,7 +1002,7 @@ function renderParticipants(participants: ParticipantStat[]): string {
           <span class="participant-name">${escapeHtml(p.alias)}</span>
         </div>
         <div class="participant-card-body">
-          <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%" data-observe></div></div></div>
+          <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%"></div></div></div>
           <div class="participant-card-stats">
             <span class="participant-count"><strong data-countup="${p.messages}">${formatNumber(p.messages)}</strong>건</span>
             <span class="participant-pct">${p.sharePercent}%</span>
@@ -1050,7 +1050,7 @@ function renderParticipantsByCharacters(participants: ParticipantStat[]): string
           <span class="participant-name">${escapeHtml(p.alias)}</span>
         </div>
         <div class="participant-card-body">
-          <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%" data-observe></div></div></div>
+          <div class="participant-bar"><div class="kw-bar"><div class="kw-bar-fill" style="width:${barW}%"></div></div></div>
           <div class="participant-card-stats">
             <span class="participant-count"><strong data-countup="${p.characters}">${formatNumber(p.characters)}</strong>자</span>
             <span class="participant-pct">${p.characterSharePercent}%</span>
@@ -1228,7 +1228,7 @@ function renderTopicMap(data: ReportData): string {
       return `<article class="topic-card" data-observe>
         <header>${kind}<strong>${escapeHtml(t.title)}</strong></header>
         <div class="topic-chips">${chips}</div>
-        <div class="topic-bar"><div class="topic-bar-fill" style="width:${barW}%" data-observe></div></div>
+        <div class="topic-bar"><div class="topic-bar-fill" style="width:${barW}%"></div></div>
         <span class="topic-pct">약 <span data-countup="${t.messagePercent}">${t.messagePercent}</span>%</span>
       </article>`;
     })
@@ -1360,7 +1360,7 @@ function renderCountBars(items: CountItem[]): string {
             ? " · 빈도+특이어"
             : "";
       const title = `${item.label} — 메시지 ${formatNumber(item.count)}건${laneTip}`;
-      return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(title)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${width}%" data-observe></span></span><span class="bar-value" data-countup="${item.count}">${formatNumber(item.count)}</span></div>`;
+      return `<div class="bar-row"><span class="bar-label" title="${escapeHtml(title)}">${escapeHtml(item.label)}</span><span class="bar-track"><span class="bar-fill" style="width:${width}%"></span></span><span class="bar-value" data-countup="${item.count}">${formatNumber(item.count)}</span></div>`;
     })
     .join("")}</div>`;
 }

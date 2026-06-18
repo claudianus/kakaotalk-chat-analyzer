@@ -326,6 +326,11 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   opacity: 1;
   transform: translateY(0);
 }
+/* Bar fills 등 자식에 data-observe가 중복되면 부모만 보여도 fill이 opacity:0 — 트랙만 빈 막대로 보임 */
+[data-observe].is-visible [data-observe] {
+  opacity: 1;
+  transform: none;
+}
 
 /* CountUp animation target */
 [data-countup] {
