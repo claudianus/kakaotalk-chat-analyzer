@@ -45,7 +45,43 @@ export function formatReplyGapMinutes(minutes: number | null): string {
   return `${Math.round(minutes)}분`;
 }
 
+const MASK_PLACEHOLDER_PREFIX = "\uE000kca";
+const MASK_PLACEHOLDER_SUFFIX = "\uE001";
+
+/** 프라이버시 마스킹 닉네임(김*철, 김***영, 김* 등) — 마크다운 ** 파싱 전 보호 */
+const MASKED_DISPLAY_NAME_RE =
+  /(?<![\p{L}\p{N}])(?:[\p{L}\p{N}]\*{1,6}[\p{L}\p{N}](?![\p{L}\p{N}])|[\p{L}\p{N}]\*(?![\p{L}\p{N}*]))/gu;
+
+function normalizeMarkdownAsterisks(text: string): string {
+  return text.replace(/[\uFF0A\u2217\u2731]/g, "*");
+}
+
+function protectMaskedDisplayNames(text: string): { text: string; tokens: string[] } {
+  const tokens: string[] = [];
+  const protectedText = text.replace(MASKED_DISPLAY_NAME_RE, (match) => {
+    const idx = tokens.length;
+    tokens.push(match);
+    return `${MASK_PLACEHOLDER_PREFIX}${idx}${MASK_PLACEHOLDER_SUFFIX}`;
+  });
+  return { text: protectedText, tokens };
+}
+
+function restoreMaskedDisplayNames(html: string, tokens: string[]): string {
+  let out = html;
+  for (let i = 0; i < tokens.length; i++) {
+    const placeholder = `${MASK_PLACEHOLDER_PREFIX}${i}${MASK_PLACEHOLDER_SUFFIX}`;
+    out = out.split(placeholder).join(escapeHtml(tokens[i]!));
+  }
+  return out;
+}
+
+/** LLM·서사 텍스트: **강조** 마크다운 + 마스킹 닉네임 안전 렌더 */
 export function renderHighlightLine(line: string): string {
-  const parts = line.split("**");
-  return parts.map((part, i) => (i % 2 === 1 ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part))).join("");
+  const normalized = normalizeMarkdownAsterisks(line);
+  const { text: protectedText, tokens } = protectMaskedDisplayNames(normalized);
+  const parts = protectedText.split("**");
+  const html = parts
+    .map((part, i) => (i % 2 === 1 ? `<strong>${escapeHtml(part)}</strong>` : escapeHtml(part)))
+    .join("");
+  return restoreMaskedDisplayNames(html, tokens);
 }
