@@ -1,7 +1,12 @@
 import type { ReportData } from "./types.js";
+import type { LlmSchemaTier } from "./llm-schema.js";
+import type { Qwen35Size } from "./llm-qwen35.js";
 
 export interface BuildLlmPromptOptions {
   compact?: boolean;
+  /** harness repair attempt — 이전 실패 피드백 */
+  repairFeedback?: string;
+  schemaTier?: LlmSchemaTier;
 }
 
 /** LLM 입력 — 원문 메시지·PII 없이 통계·키워드·주제만 */
@@ -20,6 +25,15 @@ export function buildLlmPromptPayload(data: ReportData, opts?: BuildLlmPromptOpt
   const kwLimit = compact ? 12 : 25;
   const kw = data.keywords.slice(0, kwLimit).map((k) => `${k.label}(${k.count})`);
   if (kw.length) lines.push(`키워드: ${kw.join(", ")}`);
+  if (compact) {
+    const evidence = data.keywords
+      .slice(0, 4)
+      .map((k) => k.label)
+      .filter((l) => l.length >= 2);
+    if (evidence.length) {
+      lines.push(`증거 키워드(문장에 반드시 포함): ${evidence.join(", ")}`);
+    }
+  }
 
   const topicLimit = compact ? 6 : 12;
   const topics = data.topics
@@ -80,35 +94,116 @@ export function buildLlmPromptPayload(data: ReportData, opts?: BuildLlmPromptOpt
     }
   }
 
+  const repair = opts?.repairFeedback?.trim();
+  if (repair) {
+    lines.push("");
+    lines.push(`[수정 지시] ${repair.slice(0, 480)}`);
+  }
+
   return lines.join("\n");
 }
 
-export const LLM_SYSTEM_PROMPT = `당신은 카카오톡 대화방 통계 리포트 편집자입니다.
-사용자 메시지 원문은 없습니다. 통계만 보고 JSON 객체 하나만 출력하세요. 다른 텍스트·마크다운 fence·설명 금지.
-필수 키: paragraphs (2~3개 문자열).
-선택 키: topicTitles, topicProposals, insightBullets, shopSearchSummary, dyadInsight,
-roomArchetype{name,description,traits[]}, moments[{headline,statRef}], relationshipBeats[{pair,beat,role}],
-episodeCards[{period,title,tagline,emoji}], eraLabels[{label,detail}], insideJokes[{label,whyFunny,evidenceKeywords[]}(키워드 목록 단어만)],
-characterCards[{alias,tagline,statHook}], dayMicroStories[{date,line}], shareLine, hashtags[], counterfactuals[{text}](가상 유머).
-topicProposals·insideJokes의 evidence는 입력 키워드에 있는 단어만.
-moments의 statRef 숫자는 입력 통계·하이라이트에 있는 것만.
-paragraphs는 2~3개, 각 120자 이내, 마크다운 **강조**만 허용.
-insightBullets 2~4개(숫자는 입력에 있는 것만).
+const TASK_CHECKLIST = `작업 순서(내부적으로만 따르고 출력하지 말 것):
+1) 입력 키워드·통계 숫자 확인
+2) paragraphs 2~3개 — 키워드·숫자를 문장에 포함
+3) insightBullets 2~4개 — 입력에 있는 숫자만
+4) roomArchetype.name/description/traits 작성
+5) JSON 객체 하나만 출력`;
 
-올바른 출력 예시(입력 통계는 예시이며 실제 입력과 다름):
-{
-  "paragraphs": [
-    "이 방은 **AI 도구**에 대한 열정적인 토론 공간입니다. 클로드와 코덱스가 핵심 키워드로, 개발자들의 실무 고민이 오갑니다.",
-    "참여는 소수에게 집중되지만(지니 0.85), 핵심 멤버 간 응답이 활발해 **정보 공유형** 커뮤니티의 특징을 보입니다."
-  ],
-  "roomArchetype": {
-    "name": "AI 개발자 살롱",
-    "description": "새로운 AI 도구를 탐구하고 서로의 경험을 공유하는 공간",
-    "traits": ["AI 도구", "실무 중심", "정보 공유"]
-  },
-  "moments": [
-    {"headline": "클로드 코드 출시일 대화 폭증", "statRef": "5월 15일 4,200건"}
-  ]
+const OUTPUT_RULES = `출력 규칙(최우선):
+- 마크다운 fence·설명·영어 오류 메시지 금지
+- 입력에 없는 숫자·키워드 창작 금지
+- paragraphs 각 120자 이내, **강조**만 허용`;
+
+const FULL_SCHEMA_HINT = `선택 키: topicTitles, topicProposals, insightBullets, shopSearchSummary, dyadInsight,
+roomArchetype{name,description,traits[]}, moments[{headline,statRef}], relationshipBeats[{pair,beat,role}],
+episodeCards, eraLabels, insideJokes, characterCards, dayMicroStories, shareLine, hashtags, counterfactuals.
+topicProposals·insideJokes evidence는 입력 키워드에 있는 단어만. moments statRef는 입력 통계·하이라이트 숫자만.`;
+
+const COMPACT_SCHEMA_HINT = `필수: paragraphs(2~3), insightBullets(2~4), roomArchetype.
+선택: topicProposals(최대 2개, terms는 입력 키워드만).`;
+
+const MINIMAL_SCHEMA_HINT = `필수 키만: paragraphs(2~3), insightBullets(2~4), roomArchetype{name,description,traits[]}.`;
+
+/** 티어·모델 크기별 system prompt — STROT식 작업 분해 + 규칙 recency */
+export function buildLlmSystemPrompt(opts?: {
+  tier?: LlmSchemaTier;
+  size?: Qwen35Size;
+}): string {
+  const tier = opts?.tier ?? "full";
+  const schemaHint =
+    tier === "minimal"
+      ? MINIMAL_SCHEMA_HINT
+      : tier === "compact"
+        ? COMPACT_SCHEMA_HINT
+        : FULL_SCHEMA_HINT;
+  const slmNote =
+    opts?.size === "0.8B" || opts?.size === "2B"
+      ? "소형 모델이므로 짧고 단순한 JSON만 출력하세요.\n"
+      : "";
+
+  return `당신은 카카오톡 대화방 통계 리포트 편집자입니다.
+사용자 메시지에 원문 대화는 없습니다. 통계·키워드만 근거로 JSON을 작성합니다.
+${slmNote}${schemaHint}
+
+${TASK_CHECKLIST}
+
+${OUTPUT_RULES}`;
 }
 
-절대로 JSON 외의 텍스트를 출력하지 마세요. "This is not correct" 같은 오류 메시지도 금지.`;
+/** @deprecated buildLlmSystemPrompt({ tier: "full" }) 사용 */
+export const LLM_SYSTEM_PROMPT = buildLlmSystemPrompt({ tier: "full" });
+
+function topKeywords(data: ReportData, limit = 4): string[] {
+  return data.keywords
+    .map((k) => k.label.trim())
+    .filter((l) => l.length >= 2)
+    .slice(0, limit);
+}
+
+/** 도메인 매칭 micro few-shot — SLM에서 정적 예시보다 효과적 */
+export function buildLlmKeywordMicroExample(data: ReportData): string {
+  const kw = topKeywords(data, 2);
+  if (kw.length < 2) return "";
+  const [a, b] = kw;
+  const n = data.summary.totalMessages;
+  const p = data.summary.participants;
+  return `형식 참고(입력과 무관한 예시 구조):
+{"paragraphs":["이 방은 **${a}**와 **${b}**가 중심인 대화입니다.","참여자 ${p}명·메시지 ${n}건 규모입니다."],"insightBullets":["상위 키워드가 ${a}·${b}에 집중됩니다."],"roomArchetype":{"name":"${a} 크루","description":"${a}와 ${b} 중심의 정보 공유","traits":["${a}","${b}"]}}`;
+}
+
+/** fill-in-the-blank JSON skeleton — constrained decoding 보조 */
+export function buildLlmOutputSkeleton(data: ReportData, tier: LlmSchemaTier): string {
+  const kw = topKeywords(data, 3);
+  const kwHint = kw.length ? kw.join(", ") : "키워드";
+  const n = data.summary.totalMessages;
+  const p = data.summary.participants;
+  if (tier === "minimal") {
+    return `[출력 틀] 아래 구조를 입력 통계로 채우세요. 다른 키는 생략.
+{"paragraphs":["**${kwHint}** 관련 첫 문단(${n}건·${p}명 반영)","두 번째 문단"],"insightBullets":["...","..."],"roomArchetype":{"name":"...","description":"...","traits":["..."]}}`;
+  }
+  if (tier === "compact") {
+    return `[출력 틀] 필수 키를 채우고 topicProposals는 선택(최대 2).
+{"paragraphs":["...","..."],"insightBullets":["..."],"roomArchetype":{"name":"...","description":"...","traits":["..."]},"topicProposals":[{"title":"...","terms":["${kw[0] ?? "키워드"}"]}]}`;
+  }
+  return "";
+}
+
+/** 통계 payload + skeleton + micro few-shot 조립 */
+export function assembleLlmUserPrompt(data: ReportData, opts?: BuildLlmPromptOptions): string {
+  const tier = opts?.schemaTier ?? (opts?.compact ? "minimal" : "full");
+  const parts = [buildLlmPromptPayload(data, opts)];
+  const skeleton = buildLlmOutputSkeleton(data, tier);
+  if (skeleton) {
+    parts.push("");
+    parts.push(skeleton);
+  }
+  if ((tier === "minimal" || tier === "compact") && !opts?.repairFeedback?.trim()) {
+    const micro = buildLlmKeywordMicroExample(data);
+    if (micro) {
+      parts.push("");
+      parts.push(micro);
+    }
+  }
+  return parts.join("\n");
+}

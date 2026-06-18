@@ -155,4 +155,58 @@ export function buildKcaLlmJsonSchema() {
         },
     };
 }
+/** 사후 파싱용 — grammar보다 완화 (paragraphs 1개도 허용) */
+export function buildKcaLlmJsonParseSchema() {
+    const schema = structuredClone(buildKcaLlmJsonSchema());
+    if (schema.properties?.paragraphs) {
+        schema.properties.paragraphs.minItems = 1;
+    }
+    return schema;
+}
+const SCHEMA_TIER_KEYS = {
+    minimal: ["paragraphs", "insightBullets", "roomArchetype"],
+    compact: ["paragraphs", "insightBullets", "roomArchetype", "topicProposals"],
+    full: [
+        "topicTitles",
+        "topicProposals",
+        "paragraphs",
+        "insightBullets",
+        "shopSearchSummary",
+        "dyadInsight",
+        "roomArchetype",
+        "moments",
+        "relationshipBeats",
+        "episodeCards",
+        "eraLabels",
+        "insideJokes",
+        "characterCards",
+        "dayMicroStories",
+        "shareLine",
+        "hashtags",
+        "counterfactuals",
+    ],
+};
+/** 티어별 JSON Schema — constrained decoding 부담 축소 */
+export function buildKcaLlmJsonSchemaTier(tier) {
+    const full = buildKcaLlmJsonSchema();
+    const properties = {};
+    for (const key of SCHEMA_TIER_KEYS[tier]) {
+        const prop = full.properties[key];
+        if (prop)
+            properties[key] = structuredClone(prop);
+    }
+    if (tier === "compact" && properties.topicProposals) {
+        const tp = properties.topicProposals;
+        tp.maxItems = 2;
+    }
+    return { type: "object", properties };
+}
+/** 모델 크기·repair 단계에 맞는 grammar 스키마 */
+export function resolveLlmSchemaTier(args) {
+    if (args.compact || args.repairAttempt)
+        return "minimal";
+    if (args.modelSize === "0.8B" || args.modelSize === "2B")
+        return "compact";
+    return "full";
+}
 //# sourceMappingURL=llm-schema.js.map

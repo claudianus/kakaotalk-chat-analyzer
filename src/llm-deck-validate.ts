@@ -249,6 +249,7 @@ export function sanitizeLlmDeckWithAudit(parsed: LlmJsonShape, data: ReportData)
     if (fallback) {
       out.roomArchetype = fallback;
       audit.fallbackUsed = true;
+      recordAccept(audit, 1);
     }
   }
 

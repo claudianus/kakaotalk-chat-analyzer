@@ -1,4 +1,4 @@
-import { getKcaLlmGrammar, getLlamaForKca, resolveLlmSamplingParams, } from "./llm-llama-core.js";
+import { getKcaLlmGrammar, getLlamaForKca, resolveLlmContextSize, resolveLlmMaxTokens, resolveLlmSamplingParams, } from "./llm-llama-core.js";
 function raceTimeout(promise, timeoutMs, label) {
     let timeoutHandle;
     return Promise.race([
@@ -13,21 +13,22 @@ function raceTimeout(promise, timeoutMs, label) {
 }
 /** child·in-process 공용 — node-llama-cpp 직접 호출 */
 export async function runLlamaPromptInProcess(options) {
-    const { modelPath, prompt, maxTokens = 768, inferTimeoutMs, loadTimeoutMs, grammarJsonSchema } = options;
+    const { modelPath, prompt, maxTokens = resolveLlmMaxTokens(), inferTimeoutMs, loadTimeoutMs, grammarJsonSchema, } = options;
     const mod = "node-llama-cpp";
     const { LlamaChatSession } = await import(mod);
     const llama = await getLlamaForKca();
     const grammar = grammarJsonSchema
         ? await llama.createGrammarForJsonSchema(grammarJsonSchema)
         : await getKcaLlmGrammar(llama);
-    const sampling = resolveLlmSamplingParams();
+    const sampling = resolveLlmSamplingParams(options.sampling);
     let model;
     let context;
     try {
         model = await raceTimeout(llama.loadModel({ modelPath }), loadTimeoutMs, "LLM load timeout");
-        context = await raceTimeout(model.createContext({ contextSize: 4096 }), Math.min(loadTimeoutMs, 30_000), "LLM context timeout");
+        context = await raceTimeout(model.createContext({ contextSize: resolveLlmContextSize() }), Math.min(loadTimeoutMs, 30_000), "LLM context timeout");
         const session = new LlamaChatSession({
             contextSequence: context.getSequence(),
+            systemPrompt: options.systemPrompt,
         });
         const reply = await raceTimeout(session.prompt(prompt, {
             maxTokens,

@@ -1,7 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { LlamaGpuMode } from "./llm-llama-core.js";
+import type { LlamaGpuMode, LlmSamplingOverride } from "./llm-llama-core.js";
 
 export type LlmInferFailureKind = "segfault" | "timeout" | "error";
 
@@ -14,6 +14,9 @@ export interface LlmInferRequest {
   gpu: LlamaGpuMode;
   /** JSON Schema for grammar-constrained generation */
   grammarJsonSchema?: unknown;
+  /** chat template system role */
+  systemPrompt?: string;
+  sampling?: LlmSamplingOverride;
 }
 
 export type LlmInferResponse =

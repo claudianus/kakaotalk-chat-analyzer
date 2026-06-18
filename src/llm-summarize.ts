@@ -1,20 +1,17 @@
 import { stat } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
-import { buildLlmPromptPayload, LLM_SYSTEM_PROMPT } from "./llm-input.js";
+import { assembleLlmUserPrompt, buildLlmSystemPrompt } from "./llm-input.js";
 import { ggufPathForSize } from "./llm-cache.js";
 import {
   llmInferTimeoutMs,
   llmLoadTimeoutMs,
   resolveLlmRunPlan,
-  canRetryLlmRam,
-  minFreeGbForLlmRetry,
   type LlmRunPlan,
 } from "./llm-policy.js";
 import { ensureLlmGgufReady } from "./llm-ensure.js";
 import {
   downgradeQwen35Size,
   qwen35DisplayLabel,
-  qwen35Entry,
   type Qwen35Size,
 } from "./llm-qwen35.js";
 import { probeMachineProfileSync } from "./analysis-capability.js";
@@ -31,11 +28,13 @@ import {
   sanitizeLlmParagraphsWithAudit,
   textHasLlmEvidence,
 } from "./llm-deck-validate.js";
-import { buildKcaLlmJsonSchema } from "./llm-schema.js";
+import { buildKcaLlmJsonSchemaTier, resolveLlmSchemaTier } from "./llm-schema.js";
 import type { LlmHarnessQuality, LlmInsights, ReportData, ReportTopic } from "./types.js";
 import type { RoomNarrative } from "./room-narrative.js";
+import { isLlmMockEnabled, runLlmMockCompletion } from "./llm-mock.js";
 import { resolveLlmGpuForInfer } from "./llm-gpu-policy.js";
 import { runLlamaPrompt, LlmInferProcessError } from "./llm-runtime.js";
+import { resolveLlmMaxTokens, resolveLlmSamplingForStructured, type LlamaGpuMode } from "./llm-llama-core.js";
 
 export type LlmSkipReasonCode =
   | "disabled"
@@ -78,20 +77,23 @@ function debugLlmRaw(raw: string, label: string): void {
 }
 
 async function runOllama(
-  prompt: string,
+  systemPrompt: string,
+  userPrompt: string,
   plan: LlmRunPlan,
   size: Qwen35Size,
   timeoutMs: number,
+  sampling: { temperature: number; topP: number },
 ): Promise<string> {
   const host = process.env.KCA_OLLAMA_HOST?.trim() || "http://127.0.0.1:11434";
   const model = process.env.KCA_OLLAMA_MODEL?.trim() || plan.ollamaModel;
   if (!model) throw new Error("Ollama model 미설정");
   const body = {
     model,
-    prompt: `${LLM_SYSTEM_PROMPT}\n\n---\n\n${prompt}`,
+    system: systemPrompt,
+    prompt: userPrompt,
     stream: false,
     format: "json",
-    options: { num_predict: 768, temperature: 0.7, top_p: 0.8 },
+    options: { num_predict: resolveLlmMaxTokens(), temperature: sampling.temperature, top_p: sampling.topP },
   };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -132,10 +134,11 @@ function buildLlamaInferAttempts(size: Qwen35Size): LlamaInferAttempt[] {
 }
 
 async function runNodeLlamaOnce(
-  prompt: string,
+  data: ReportData,
   size: Qwen35Size,
   plan: LlmRunPlan,
   gpu: LlamaInferAttempt["gpu"],
+  llmOpts?: Pick<LlmCompletionOpts, "compact" | "repairFeedback" | "temperature">,
 ): Promise<string> {
   const ready = await ensureLlmGgufReady(size);
   const modelPath = ggufPathForSize(size);
@@ -146,30 +149,53 @@ async function runNodeLlamaOnce(
   }
   await stat(modelPath);
 
-  const fullPrompt = `${LLM_SYSTEM_PROMPT}\n\n---\n\n${prompt}`;
+  const repairAttempt = !!llmOpts?.repairFeedback?.trim();
+  const schemaTier = resolveLlmSchemaTier({
+    modelSize: size,
+    compact: llmOpts?.compact ?? false,
+    repairAttempt,
+  });
+  const systemPrompt = buildLlmSystemPrompt({ tier: schemaTier, size });
+  const userPrompt = assembleLlmUserPrompt(data, {
+    compact: llmOpts?.compact,
+    repairFeedback: llmOpts?.repairFeedback,
+    schemaTier,
+  });
+  const sampling = resolveLlmSamplingForStructured({
+    size,
+    repairAttempt,
+    override: llmOpts?.temperature !== undefined ? { temperature: llmOpts.temperature } : undefined,
+  });
+
   return runLlamaPrompt({
     modelPath,
-    prompt: fullPrompt,
-    maxTokens: 768,
+    systemPrompt,
+    prompt: userPrompt,
+    maxTokens: resolveLlmMaxTokens(),
     loadTimeoutMs: llmLoadTimeoutMs(size),
     inferTimeoutMs: llmInferTimeoutMs(size, plan),
     gpu,
-    grammarJsonSchema: buildKcaLlmJsonSchema(),
+    grammarJsonSchema: buildKcaLlmJsonSchemaTier(schemaTier),
+    sampling,
   });
 }
 
 async function runNodeLlama(
-  prompt: string,
+  data: ReportData,
   size: Qwen35Size,
   plan: LlmRunPlan,
+  singleShot?: { gpu: LlamaGpuMode; llmOpts?: Pick<LlmCompletionOpts, "compact" | "repairFeedback" | "temperature"> },
 ): Promise<string> {
+  if (singleShot) {
+    return runNodeLlamaOnce(data, size, plan, singleShot.gpu, singleShot.llmOpts);
+  }
   const attempts = buildLlamaInferAttempts(size);
   let lastError = "LLM 추론 실패";
 
   for (let i = 0; i < attempts.length; i += 1) {
     const att = attempts[i]!;
     try {
-      const text = await runNodeLlamaOnce(prompt, att.size, plan, att.gpu);
+      const text = await runNodeLlamaOnce(data, att.size, plan, att.gpu);
       if (att.label !== "primary") {
         const gpuNote = att.gpu === "none" ? "CPU" : att.gpu;
         process.stderr.write(
@@ -198,42 +224,6 @@ async function runNodeLlama(
   throw new Error(lastError);
 }
 
-async function runMockLlm(): Promise<string> {
-  if (process.env.KCA_LLM_MOCK === "invalid") {
-    return "서사만 한국어로 씁니다. JSON 아님.";
-  }
-  return JSON.stringify({
-    topicTitles: [{ i: 0, title: "모의 LLM 주제" }],
-    topicProposals: [
-      {
-        title: "AI 코딩 도구",
-        terms: ["클로드", "코덱스", "토큰"],
-        keywordEvidence: ["클로드", "코덱스"],
-      },
-    ],
-    paragraphs: [
-      "**통계 기반** 서사 첫 문단입니다.",
-      "두 번째 문단은 규칙 기반 서사를 보강합니다.",
-    ],
-    insightBullets: ["모의 인사이트: 상위 키워드가 개발·AI 도구에 집중됩니다."],
-    shopSearchSummary: "샵검색 태그는 소수이며 환율·계산기 등 실용 주제가 보입니다.",
-    dyadInsight: "상위 두 명이 대화 허브 역할을 합니다.",
-    roomArchetype: {
-      name: "야근 크루",
-      description: "밤에 몰아 치는 개발·AI 잡담 방",
-      traits: ["심야", "키워드 집중", "응답 빠름"],
-    },
-    moments: [{ headline: "가장 바빴던 순간", statRef: "10000" }],
-    relationshipBeats: [{ pair: "A→B", beat: "질문을 던지고 답을 받는 허브", role: "질문러" }],
-    episodeCards: [
-      { period: "1막", title: "첫 불꽃", tagline: "키워드가 모이기 시작", emoji: "🔥" },
-    ],
-    eraLabels: [{ label: "1막: 초반 키워드", detail: "후반과 다른 화제" }],
-    shareLine: "우리 방 올해의 대화 리듬을 숫자로 정리했어요",
-    hashtags: ["카톡리포트", "kca", "대화통계"],
-  });
-}
-
 function classifyError(error: unknown): { code: LlmSkipReasonCode; message: string } {
   const msg = error instanceof Error ? error.message : String(error);
   if (msg.includes("GGUF 없음")) return { code: "gguf_missing", message: msg };
@@ -241,10 +231,21 @@ function classifyError(error: unknown): { code: LlmSkipReasonCode; message: stri
   return { code: "inference_error", message: msg };
 }
 
+export interface LlmCompletionOpts {
+  compact?: boolean;
+  sizeOverride?: Qwen35Size;
+  gpuOverride?: LlamaGpuMode;
+  temperature?: number;
+  /** 하네스가 attempt ladder를 담당 — 내부 GPU/downgrade ladder 생략 */
+  harnessSingleShot?: boolean;
+  /** 이전 attempt 실패 피드백 — repair 프롬프트에 포함 */
+  repairFeedback?: string;
+}
+
 export async function runLlmCompletion(
   data: ReportData,
   plan: LlmRunPlan,
-  opts?: { compact?: boolean; sizeOverride?: Qwen35Size },
+  opts?: LlmCompletionOpts,
 ): Promise<LlmCompletionResult> {
   if (!plan.enabled) {
     return {
@@ -266,18 +267,54 @@ export async function runLlmCompletion(
     };
   }
 
-  const prompt = buildLlmPromptPayload(data, { compact: opts?.compact });
+  const repairAttempt = !!opts?.repairFeedback?.trim();
+  const schemaTier = resolveLlmSchemaTier({
+    modelSize: size,
+    compact: opts?.compact ?? false,
+    repairAttempt,
+  });
+  const systemPrompt = buildLlmSystemPrompt({ tier: schemaTier, size });
+  const userPrompt = assembleLlmUserPrompt(data, {
+    compact: opts?.compact,
+    repairFeedback: opts?.repairFeedback,
+    schemaTier,
+  });
+  const sampling = resolveLlmSamplingForStructured({
+    size,
+    repairAttempt,
+    override: opts?.temperature !== undefined ? { temperature: opts.temperature } : undefined,
+  });
   const inferMs = llmInferTimeoutMs(size, plan);
   const started = performance.now();
 
   try {
     let raw: string;
-    if (process.env.KCA_LLM_MOCK === "1" || process.env.KCA_LLM_MOCK === "invalid") {
-      raw = await runMockLlm();
+    if (isLlmMockEnabled()) {
+      raw = await runLlmMockCompletion();
     } else if (process.env.KCA_LLM_BACKEND?.trim().toLowerCase() === "ollama") {
-      raw = await runOllama(prompt, plan, size, inferMs + llmLoadTimeoutMs(size));
+      raw = await runOllama(systemPrompt, userPrompt, plan, size, inferMs + llmLoadTimeoutMs(size), sampling);
     } else {
-      raw = await runNodeLlama(prompt, size, plan);
+      const singleShot =
+        opts?.harnessSingleShot && opts.gpuOverride
+          ? {
+              gpu: opts.gpuOverride,
+              llmOpts: {
+                compact: opts.compact,
+                repairFeedback: opts.repairFeedback,
+                temperature: opts.temperature,
+              },
+            }
+          : opts?.harnessSingleShot
+            ? {
+                gpu: resolveLlmGpuForInfer(probeMachineProfileSync(), size),
+                llmOpts: {
+                  compact: opts.compact,
+                  repairFeedback: opts.repairFeedback,
+                  temperature: opts.temperature,
+                },
+              }
+            : undefined;
+      raw = await runNodeLlama(data, size, plan, singleShot);
     }
     const elapsedMs = Math.round(performance.now() - started);
     debugLlmRaw(raw, `${qwen35DisplayLabel(size)} ok ${elapsedMs}ms`);
@@ -392,7 +429,7 @@ function toHarnessQuality(
   };
 }
 
-function buildEnrichmentFromParsed(
+export function buildEnrichmentFromParsed(
   data: ReportData,
   parsed: LlmJsonShape,
   plan: LlmRunPlan,
@@ -422,15 +459,11 @@ function buildEnrichmentFromParsed(
   };
 }
 
-function parseCompletionRaw(raw: string): LlmJsonShape | null {
+export function parseCompletionRaw(raw: string): LlmJsonShape | null {
   return parseLlmJsonResponse(raw, null);
 }
 
-function hasAcceptedLlmClaims(result: LlmEnrichmentResult): boolean {
-  return (result.llmQuality?.acceptedClaims ?? 0) > 0;
-}
-
-function schemaFailureQuality(repairAttempts = 0): LlmHarnessQuality {
+export function schemaFailureQuality(repairAttempts = 0): LlmHarnessQuality {
   return {
     schemaValid: false,
     acceptedClaims: 0,
@@ -441,7 +474,7 @@ function schemaFailureQuality(repairAttempts = 0): LlmHarnessQuality {
   };
 }
 
-function llmRetryBudgetSkipReason(budget?: AnalysisBudgetTracker): string | undefined {
+export function llmRetryBudgetSkipReason(budget?: AnalysisBudgetTracker): string | undefined {
   if (!budget?.shouldSkip("llm_retry")) return undefined;
   const remainSec = Math.round(budget.remainingMs() / 1000);
   return `예산 부족 (LLM 재시도, 남은 ~${remainSec}s)`;
@@ -470,142 +503,8 @@ export async function applyLlmEnrichment(
   }
 
   try {
-    const primary = await runLlmCompletion(data, plan);
-    if (primary.ok) {
-      const parsed = parseCompletionRaw(primary.raw);
-      let primaryValidationFailure: LlmHarnessQuality | undefined;
-      if (parsed) {
-        const result = buildEnrichmentFromParsed(data, parsed, plan);
-        if (hasAcceptedLlmClaims(result)) return result;
-        primaryValidationFailure = result.llmQuality;
-        process.stderr.write(
-          `[kca] LLM 검증 실패 (accepted 0, dropped ${result.llmQuality?.droppedClaims ?? 0}) — compact repair 재시도\n`,
-        );
-      } else {
-        process.stderr.write(
-          `[kca] LLM JSON 파싱 실패 (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms) — compact 재시도\n`,
-        );
-        debugLlmRaw(primary.raw, "parse_fail primary");
-      }
-
-      const reprobe = probeMachineProfileSync();
-      if (!canRetryLlmRam(reprobe, primary.size)) {
-        const prefix = parsed ? "LLM 검증 실패" : "JSON 파싱 실패";
-        const skipReason = `${prefix} (${qwen35DisplayLabel(primary.size)}, ${primary.elapsedMs}ms); 재시도 건너뜀 (free ${reprobe.freeMemGb}GB < ${minFreeGbForLlmRetry()}GB)`;
-        process.stderr.write(`[kca] LLM ${skipReason} — 규칙 기반 서사 유지\n`);
-        return {
-          used: false,
-          plan,
-          skipReason,
-          llmQuality: primaryValidationFailure ?? schemaFailureQuality(),
-        };
-      }
-      const budgetSkip = llmRetryBudgetSkipReason(budget);
-      if (budgetSkip) {
-        process.stderr.write(`[kca] LLM ${budgetSkip} — 규칙 기반 서사 유지\n`);
-        return {
-          used: false,
-          plan,
-          skipReason: budgetSkip,
-          llmQuality: primaryValidationFailure ?? schemaFailureQuality(),
-        };
-      }
-
-      const retry = await runLlmCompletion(data, plan, {
-        compact: true,
-        sizeOverride: primary.size,
-      });
-      if (!retry.ok) {
-        return { used: false, plan, skipReason: retry.skipReason };
-      }
-      const parsedRetry = parseCompletionRaw(retry.raw);
-      if (!parsedRetry) {
-        debugLlmRaw(retry.raw, "parse_fail retry");
-        return {
-          used: false,
-          plan,
-          skipReason: `JSON 파싱 실패 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms)`,
-          llmQuality: schemaFailureQuality(1),
-        };
-      }
-      const repaired = buildEnrichmentFromParsed(data, parsedRetry, plan, 1);
-      if (!hasAcceptedLlmClaims(repaired)) {
-        return {
-          used: false,
-          plan,
-          skipReason: `LLM 검증 실패 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms, accepted 0)`,
-          llmQuality: repaired.llmQuality,
-        };
-      }
-      process.stderr.write(
-        `[kca] LLM compact repair 성공 (${qwen35DisplayLabel(retry.size)}, ${retry.elapsedMs}ms)\n`,
-      );
-      return repaired;
-    }
-
-    if (primary.code !== "timeout") {
-      return { used: false, plan, skipReason: primary.skipReason };
-    }
-
-    if (plan.size === "0.8B") {
-      return { used: false, plan, skipReason: primary.skipReason };
-    }
-
-    const reprobe = probeMachineProfileSync();
-    const retrySize: Qwen35Size = "0.8B";
-    if (!canRetryLlmRam(reprobe, retrySize)) {
-      return {
-        used: false,
-        plan,
-        skipReason: `${primary.skipReason}; 재시도 건너뜀 (free ${reprobe.freeMemGb}GB)`,
-      };
-    }
-    const budgetSkip = llmRetryBudgetSkipReason(budget);
-    if (budgetSkip) {
-      return { used: false, plan, skipReason: `${primary.skipReason}; ${budgetSkip}` };
-    }
-
-    const retryPlan: LlmRunPlan = {
-      ...plan,
-      size: retrySize,
-      reason: `${plan.reason} → 재시도 ${qwen35DisplayLabel(retrySize)} compact (timeout)`,
-      timeoutMs: qwen35Entry(retrySize).timeoutMs,
-    };
-    const retry = await runLlmCompletion(data, retryPlan, {
-      compact: true,
-      sizeOverride: retrySize,
-    });
-    if (!retry.ok) {
-      return {
-        used: false,
-        plan,
-        skipReason: `${primary.skipReason}; 재시도: ${retry.skipReason}`,
-      };
-    }
-
-    const parsedRetry = parseCompletionRaw(retry.raw);
-    if (!parsedRetry) {
-      process.stderr.write(
-        `[kca] LLM JSON 파싱 실패 (${qwen35DisplayLabel(retrySize)}, ${retry.elapsedMs}ms) — 규칙 기반 서사 유지\n`,
-      );
-      debugLlmRaw(retry.raw, "parse_fail timeout retry");
-      return {
-        used: false,
-        plan,
-        skipReason: `JSON 파싱 실패 (${qwen35DisplayLabel(retrySize)}, ${retry.elapsedMs}ms)`,
-        llmQuality: schemaFailureQuality(1),
-      };
-    }
-    const repaired = buildEnrichmentFromParsed(data, parsedRetry, plan, 1);
-    if (!hasAcceptedLlmClaims(repaired)) {
-      return {
-        used: false,
-        plan,
-        skipReason: `LLM 검증 실패 (${qwen35DisplayLabel(retrySize)}, ${retry.elapsedMs}ms, accepted 0)`,
-        llmQuality: repaired.llmQuality,
-      };
-    }
-    return repaired;
+    const { runLlmHarness } = await import("./llm-harness.js");
+    return await runLlmHarness(data, plan, budget);
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     process.stderr.write(`[kca] LLM 건너뜀 — ${msg}\n`);

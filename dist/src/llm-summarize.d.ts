@@ -3,8 +3,10 @@ import { type Qwen35Size } from "./llm-qwen35.js";
 import type { AnalysisPresetName } from "./analysis-preset.js";
 import type { BuildReportOptions } from "./analyze-pool.js";
 import type { AnalysisBudgetTracker } from "./analysis-budget.js";
+import { type LlmJsonShape } from "./llm-json.js";
 import type { LlmHarnessQuality, LlmInsights, ReportData, ReportTopic } from "./types.js";
 import type { RoomNarrative } from "./room-narrative.js";
+import { type LlamaGpuMode } from "./llm-llama-core.js";
 export type LlmSkipReasonCode = "disabled" | "gguf_missing" | "timeout" | "json_parse" | "inference_error";
 export interface LlmEnrichmentResult {
     used: boolean;
@@ -29,10 +31,21 @@ interface LlmCompletionFail {
     elapsedMs: number;
 }
 type LlmCompletionResult = LlmCompletionOk | LlmCompletionFail;
-export declare function runLlmCompletion(data: ReportData, plan: LlmRunPlan, opts?: {
+export interface LlmCompletionOpts {
     compact?: boolean;
     sizeOverride?: Qwen35Size;
-}): Promise<LlmCompletionResult>;
+    gpuOverride?: LlamaGpuMode;
+    temperature?: number;
+    /** 하네스가 attempt ladder를 담당 — 내부 GPU/downgrade ladder 생략 */
+    harnessSingleShot?: boolean;
+    /** 이전 attempt 실패 피드백 — repair 프롬프트에 포함 */
+    repairFeedback?: string;
+}
+export declare function runLlmCompletion(data: ReportData, plan: LlmRunPlan, opts?: LlmCompletionOpts): Promise<LlmCompletionResult>;
+export declare function buildEnrichmentFromParsed(data: ReportData, parsed: LlmJsonShape, plan: LlmRunPlan, repairAttempts?: number): LlmEnrichmentResult;
+export declare function parseCompletionRaw(raw: string): LlmJsonShape | null;
+export declare function schemaFailureQuality(repairAttempts?: number): LlmHarnessQuality;
+export declare function llmRetryBudgetSkipReason(budget?: AnalysisBudgetTracker): string | undefined;
 export interface LlmEnrichmentRunContext {
     budget?: AnalysisBudgetTracker;
     llmPlan?: LlmRunPlan;

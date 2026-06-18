@@ -1,0 +1,45 @@
+import { diagnoseLlmJsonParseFailure } from "./llm-json.js";
+const INFERENCE_HINTS = {
+    timeout: "출력을 짧게 — paragraphs 2개와 insightBullets 2개 위주로 JSON만 출력하세요.",
+    inference_error: "JSON 객체 하나만 출력하세요. 설명·fence 금지.",
+    gguf_missing: "모델 로드 실패 — 출력 형식과 무관합니다.",
+    json_parse: "유효한 JSON 객체 하나만 출력하세요.",
+    disabled: "LLM 비활성",
+};
+function topEvidenceKeywords(data, limit = 4) {
+    return data.keywords
+        .map((k) => k.label.trim())
+        .filter((l) => l.length >= 2)
+        .slice(0, limit);
+}
+export function buildValidationRepairFeedback(data, llmQuality) {
+    const evidence = topEvidenceKeywords(data);
+    const warnings = llmQuality?.validationWarnings?.slice(0, 4) ?? [];
+    const dropped = llmQuality?.droppedClaims ?? 0;
+    const parts = [
+        `이전 JSON은 파싱됐지만 검증 실패(accepted 0, dropped ${dropped}).`,
+        evidence.length ? `문장에 반드시 넣을 키워드: ${evidence.join(", ")}` : "",
+        warnings.length ? `탈락 사유: ${warnings.join(", ")}` : "",
+        "paragraphs 2~3개, insightBullets 2~4개, roomArchetype.name/description에 위 키워드·입력 통계 숫자를 포함하세요.",
+        "AI 슬롭·일반론·영어 오류 메시지 금지.",
+    ];
+    return parts.filter(Boolean).join(" ");
+}
+export function buildInferenceRepairFeedback(code, skipReason) {
+    const hint = INFERENCE_HINTS[code] ?? "JSON 객체 하나만 다시 출력하세요.";
+    const tail = skipReason ? ` (${skipReason.slice(0, 120)})` : "";
+    return `이전 추론 실패 [${code}]. ${hint}${tail}`;
+}
+export function buildHarnessRepairFeedback(args) {
+    if (args.kind === "parse_fail") {
+        const detail = args.raw ? diagnoseLlmJsonParseFailure(args.raw) : "JSON 파싱 실패";
+        const evidence = topEvidenceKeywords(args.data);
+        const evidenceHint = evidence.length ? ` 키워드 포함: ${evidence.join(", ")}.` : "";
+        return `${detail}.${evidenceHint} 마크다운 fence·설명 없이 JSON만 출력하세요.`;
+    }
+    if (args.kind === "validation_fail") {
+        return buildValidationRepairFeedback(args.data, args.llmQuality);
+    }
+    return buildInferenceRepairFeedback(args.inferenceCode ?? "inference_error", args.skipReason);
+}
+//# sourceMappingURL=llm-harness-feedback.js.map

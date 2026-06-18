@@ -262,6 +262,8 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.24.71** | **SLM 추론 엔진 개선** — JSON 스키마 티어링(minimal/compact/full) · system/user 프롬프트 분리 · 동적 few-shot·출력 skeleton · 모델별 structured 샘플링 |
+| **0.24.70** | **LLM 하네스 Phase 2** — 실패 원인(parse/검증/추론)을 repair 프롬프트 `[수정 지시]`로 피드백 · ajv+jsonrepair 파싱 · maxTokens 2048 · harness 매트릭스·bench 확장 |
 | **0.24.66** | **키워드 중력 추가** — 단어 등장 후 10분 이내 후속 메시지 수로 대화 끌어당김 측정 · 공기 키워드 시각화 · deck-nav 연결 |
 | **0.24.65** | **데이터 기반 Innovation Deck 3종 추가** — 응답 지문(누가 얼마나 빨리 답하는가) · 질문-응답 지도(Q&A 토폴로지) · 급증 핵심 항체(급증일 참여자·키워드·평소 대비) · aggregator 단위 테스트 |
 | **0.24.64** | **리포트 Innovation Deck 품질 개선** — 응답 케미스트리 중복 쌍 제거 · 방 밈/반복 문구 URL 도메인 링크화 · 감정 날씨 점수 기반 5단계 세분화 · CSS 마이크로 개선 |

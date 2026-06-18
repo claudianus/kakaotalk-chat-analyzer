@@ -1,3 +1,5 @@
+import type { Qwen35Size } from "./llm-qwen35.js";
+
 /** node-llama-cpp GbnfJsonSchema subset — kca LLM enrichment 출력 */
 export function buildKcaLlmJsonSchema() {
   const shortStr = { type: "string", maxLength: 120 };
@@ -154,4 +156,70 @@ export function buildKcaLlmJsonSchema() {
       },
     },
   } as const;
+}
+
+/** 사후 파싱용 — grammar보다 완화 (paragraphs 1개도 허용) */
+export function buildKcaLlmJsonParseSchema() {
+  const schema = structuredClone(buildKcaLlmJsonSchema()) as {
+    properties?: { paragraphs?: { minItems?: number } };
+  };
+  if (schema.properties?.paragraphs) {
+    schema.properties.paragraphs.minItems = 1;
+  }
+  return schema;
+}
+
+/** grammar·프롬프트 복잡도 — SLM은 minimal/compact가 JSONSchemaBench 기준 유리 */
+export type LlmSchemaTier = "full" | "compact" | "minimal";
+
+const SCHEMA_TIER_KEYS: Record<LlmSchemaTier, string[]> = {
+  minimal: ["paragraphs", "insightBullets", "roomArchetype"],
+  compact: ["paragraphs", "insightBullets", "roomArchetype", "topicProposals"],
+  full: [
+    "topicTitles",
+    "topicProposals",
+    "paragraphs",
+    "insightBullets",
+    "shopSearchSummary",
+    "dyadInsight",
+    "roomArchetype",
+    "moments",
+    "relationshipBeats",
+    "episodeCards",
+    "eraLabels",
+    "insideJokes",
+    "characterCards",
+    "dayMicroStories",
+    "shareLine",
+    "hashtags",
+    "counterfactuals",
+  ],
+};
+
+/** 티어별 JSON Schema — constrained decoding 부담 축소 */
+export function buildKcaLlmJsonSchemaTier(tier: LlmSchemaTier) {
+  const full = buildKcaLlmJsonSchema() as {
+    properties: Record<string, unknown>;
+  };
+  const properties: Record<string, unknown> = {};
+  for (const key of SCHEMA_TIER_KEYS[tier]) {
+    const prop = full.properties[key];
+    if (prop) properties[key] = structuredClone(prop);
+  }
+  if (tier === "compact" && properties.topicProposals) {
+    const tp = properties.topicProposals as { maxItems?: number };
+    tp.maxItems = 2;
+  }
+  return { type: "object", properties };
+}
+
+/** 모델 크기·repair 단계에 맞는 grammar 스키마 */
+export function resolveLlmSchemaTier(args: {
+  modelSize: Qwen35Size;
+  compact: boolean;
+  repairAttempt: boolean;
+}): LlmSchemaTier {
+  if (args.compact || args.repairAttempt) return "minimal";
+  if (args.modelSize === "0.8B" || args.modelSize === "2B") return "compact";
+  return "full";
 }
