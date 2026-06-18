@@ -1708,6 +1708,7 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   overflow: hidden;
 }
 .bar-fill {
+  display: block;
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--kw-bar-fill);

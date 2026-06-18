@@ -155,6 +155,7 @@ describe("innovation layer", () => {
   it("participant dynamics and latency bar fills use display:block", () => {
     assert.match(REPORT_STYLES, /\.dynamics-fill\s*\{[^}]*display:\s*block/);
     assert.match(REPORT_STYLES, /\.latency-fill\s*\{[^}]*display:\s*block/);
+    assert.match(REPORT_STYLES, /\.bar-fill\s*\{[^}]*display:\s*block/);
   });
 
   it("renderReportHtml has no duplicate element ids", () => {
