@@ -193,6 +193,34 @@
 }
 
 /* ── Sentiment Rollercoaster ── */
+.sentiment-coaster-frame {
+  width: 100%;
+  margin: 6px 0 10px;
+  padding: 8px 10px 4px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--accent) 4%, var(--glass));
+  border: 1px solid var(--glass-border);
+}
+.sentiment-coaster-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.sentiment-coaster-area {
+  fill: color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.sentiment-coaster-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sentiment-dot { stroke: var(--panel-solid); stroke-width: 1; }
+.sentiment-dot--pos { fill: var(--teal); }
+.sentiment-dot--neg { fill: var(--coral); }
+.sentiment-dot--mid { fill: var(--muted); }
 .sentiment-sparkline {
   display: block;
   height: 90px;

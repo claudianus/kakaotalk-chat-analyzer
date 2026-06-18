@@ -90,7 +90,7 @@
 }
 .narrative-quote-card p { margin: 0; padding-left: 12px; font-size: 14px; line-height: 1.6; }
 
-.sentiment-coaster-svg { width: 100%; height: 120px; display: block; }
+.sentiment-coaster-svg { width: 100%; height: auto; display: block; }
 .sentiment-coaster-legend {
   display: flex; flex-wrap: wrap; gap: 8px 14px;
   font-size: 11px; color: var(--muted); margin-top: 8px;

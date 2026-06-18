@@ -1690,17 +1690,21 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 .day-burst { border: 2px solid var(--warm); }
 
 /* ── Bars ── */
-.bars { display: flex; flex-direction: column; gap: 4px; }
-.bar-row {
+.bars {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 0 2px 4px;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 112px) 1fr minmax(40px, auto);
   align-items: center;
-  gap: 8px;
+  column-gap: 12px;
   padding: 3px 0;
 }
 .bar-label {
-  flex: 0 0 auto;
-  min-width: 60px;
-  max-width: 120px;
+  min-width: 0;
   font-size: var(--font-size-small);
   color: var(--ink);
   overflow: hidden;
@@ -1708,7 +1712,7 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
   white-space: nowrap;
 }
 .bar-track {
-  flex: 1;
+  min-width: 0;
   height: 6px;
   border-radius: var(--radius-pill);
   background: var(--bar-bg);
@@ -3977,6 +3981,34 @@ body.kca-oled .theme-btn.kca-ripple {
 }
 
 /* ── Sentiment Rollercoaster ── */
+.sentiment-coaster-frame {
+  width: 100%;
+  margin: 6px 0 10px;
+  padding: 8px 10px 4px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--accent) 4%, var(--glass));
+  border: 1px solid var(--glass-border);
+}
+.sentiment-coaster-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.sentiment-coaster-area {
+  fill: color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.sentiment-coaster-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sentiment-dot { stroke: var(--panel-solid); stroke-width: 1; }
+.sentiment-dot--pos { fill: var(--teal); }
+.sentiment-dot--neg { fill: var(--coral); }
+.sentiment-dot--mid { fill: var(--muted); }
 .sentiment-sparkline {
   display: block;
   height: 90px;
@@ -5789,7 +5821,7 @@ body.kca-oled .theme-btn.kca-ripple {
 }
 .narrative-quote-card p { margin: 0; padding-left: 12px; font-size: 14px; line-height: 1.6; }
 
-.sentiment-coaster-svg { width: 100%; height: 120px; display: block; }
+.sentiment-coaster-svg { width: 100%; height: auto; display: block; }
 .sentiment-coaster-legend {
   display: flex; flex-wrap: wrap; gap: 8px 14px;
   font-size: 11px; color: var(--muted); margin-top: 8px;

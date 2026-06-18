@@ -198,9 +198,9 @@ function renderExplorerBlock(data: ReportData): string {
 
 function renderSentimentRollercoaster(data: ReportData): string {
   const items = data.dailySentiment;
-  const width = 100;
-  const height = 48;
-  const padding = 4;
+  const padding = 8;
+  const height = 72;
+  const width = Math.max(200, items.length * 10);
   const energies = items.map((d) => d.energy);
   const minEnergy = Math.min(...energies, -15);
   const maxEnergy = Math.max(...energies, 15);
@@ -221,7 +221,7 @@ function renderSentimentRollercoaster(data: ReportData): string {
       const x = padding + i * xStep;
       const y = yFor(d.energy);
       const cls = d.energy > 10 ? "pos" : d.energy < -10 ? "neg" : "mid";
-      return `<circle class="sentiment-dot sentiment-dot--${cls}" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="2.2"><title>${escapeHtml(d.date)}: ${d.energy}</title></circle>`;
+      return `<circle class="sentiment-dot sentiment-dot--${cls}" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3"><title>${escapeHtml(d.date)}: ${d.energy}</title></circle>`;
     })
     .join("");
 
@@ -245,12 +245,14 @@ function renderSentimentRollercoaster(data: ReportData): string {
   return `<section id="s-sentiment" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.056s" aria-label="감정 롤러코스터">
     <h2 class="section-glow">감정 롤러코스터</h2>
     <p class="chart-hint">날마다 긍정·부정 톤이 얼마나 올랐다 내려갔는지 — 점이 높을수록 분위기가 가벼웠던 날입니다.</p>
-    <svg class="sentiment-coaster-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="일별 감정 에너지">
-      <line x1="${padding}" y1="${yFor(0).toFixed(2)}" x2="${width - padding}" y2="${yFor(0).toFixed(2)}" stroke="var(--line)" stroke-width="0.6" stroke-dasharray="2 2" />
-      <polygon points="${areaPoints}" fill="color-mix(in oklab, var(--accent) 22%, transparent)" />
-      <polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <div class="sentiment-coaster-frame">
+    <svg class="sentiment-coaster-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-label="일별 감정 에너지">
+      <line x1="${padding}" y1="${yFor(0).toFixed(2)}" x2="${width - padding}" y2="${yFor(0).toFixed(2)}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke" />
+      <polygon points="${areaPoints}" class="sentiment-coaster-area" />
+      <polyline points="${points}" class="sentiment-coaster-line" vector-effect="non-scaling-stroke" />
       ${dots}
     </svg>
+    </div>
     <div class="sentiment-coaster-legend">
       <span>기준선 = 중립</span>
       <span class="sentiment-coaster-dot">● 높음=가벼움</span>
