@@ -227,8 +227,8 @@ test("buildParticipantRoles returns distinctive role cards for top participants"
     new Map([["U7", 90]]),
     aliases,
   );
-  assert.ok(roles.length <= 12);
-  assert.ok(roles.length >= 4);
+  assert.ok(roles.length <= 15);
+  assert.ok(roles.length >= 10);
   assert.equal(roles.some((r) => r.role === "조력형"), false);
 });
 

@@ -35,6 +35,7 @@ import {
 } from "./report-ux.js";
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck, renderStoryTimelinePair } from "./report-innovation.js";
+import { renderRecentFocusDeck } from "./report-focus.js";
 import {
   renderDailyHotTopics,
   renderLlmArchetypeBanner,
@@ -133,14 +134,14 @@ export function renderReportHtml(data: ReportData): string {
           </div>
         </div>
         ${renderHeroRhythmCard(data)}
-        <div class="badge-row">
-          <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
-          <span class="badge">인코딩: ${escapeHtml(data.source.encoding)}</span>
-          <span class="badge">경고: ${data.source.warnings}건</span>
-        </div>
-        <div class="kca-hero-meta-shell" aria-label="리포트 상세 정보">
-          <p class="kca-hero-meta-heading">리포트 상세 정보</p>
-          <div class="kca-hero-meta">
+        <details class="kca-hero-meta-disclosure">
+          <summary>리포트 상세 정보</summary>
+          <div class="kca-hero-meta" aria-label="리포트 상세 정보">
+            <div class="badge-row">
+              <span class="badge">프라이버시: ${escapeHtml(privacyLabel(data.privacy))}</span>
+              <span class="badge">인코딩: ${escapeHtml(data.source.encoding)}</span>
+              <span class="badge">경고: ${data.source.warnings}건</span>
+            </div>
             <p><strong>생성 시각</strong> ${escapeHtml(formatTimestamp(data.generatedAt))}</p>
             ${data.buildTiming ? `<p><strong>생성 소요</strong> ${escapeHtml(formatBuildTiming(data.buildTiming))}</p>` : ""}
             <p><strong>첫 메시지</strong> ${escapeHtml(data.summary.firstMessage ?? "—")}</p>
@@ -148,15 +149,16 @@ export function renderReportHtml(data: ReportData): string {
             ${renderProvenanceSideCard(data)}
             ${renderProvenanceDetailsBlock(data)}
           </div>
-        </div>
+        </details>
       </div>
     </header>
     ${renderLlmArchetypeBanner(data)}
     <div class="kca-report-flow">
+      ${renderRecentFocusDeck(data)}
       ${renderFactMatrix(data)}
 
       <section class="kca-section-cluster kca-section-cluster--recent anim-enter" data-observe style="--enter-delay:0.04s" aria-label="최근 활동과 핫토픽">
-        <div class="kca-section-kicker">Live Pulse</div>
+        <div class="kca-section-kicker">최근</div>
         <h2 class="zone-title">⏰ 최근 활동</h2>
         <div class="kca-dashboard-grid kca-dashboard-grid--recent">
           <div class="kca-dashboard-main">
@@ -170,7 +172,7 @@ export function renderReportHtml(data: ReportData): string {
       </section>
 
       <section class="kca-section-cluster kca-section-cluster--insights anim-enter" data-observe style="--enter-delay:0.05s" aria-label="핵심 인사이트">
-        <div class="kca-section-kicker">Executive Insight</div>
+        <div class="kca-section-kicker">한눈에</div>
         <h2 class="zone-title">📊 핵심 인사이트</h2>
         <div class="kca-dashboard-grid kca-dashboard-grid--insight">
           <div class="kca-dashboard-main">
@@ -191,7 +193,7 @@ export function renderReportHtml(data: ReportData): string {
       </section>
 
       <section class="kca-section-cluster kca-section-cluster--story anim-enter" data-observe style="--enter-delay:0.055s" aria-label="스토리와 참여자">
-        <div class="kca-section-kicker">Story Layer</div>
+        <div class="kca-section-kicker">사람들</div>
         ${renderStorySections(data)}
         ${renderLlmEpisodeStrip(data)}
         ${renderLlmCharacterCards(data)}
@@ -201,7 +203,7 @@ export function renderReportHtml(data: ReportData): string {
       </section>
 
       <section class="kca-section-cluster kca-section-cluster--viz anim-enter" data-observe style="--enter-delay:0.06s" aria-label="상세 데이터 시각화">
-        <div class="kca-section-kicker">Interactive Analytics</div>
+        <div class="kca-section-kicker">차트</div>
         ${renderChartDeck(data)}
       </section>
     </div>
@@ -430,7 +432,7 @@ function renderSectionNav(data: ReportData): string {
     ? `<a href="#s-qa" data-kca-jump="s-qa">질문-응답</a>`
     : "";
   const burstAnatomy = hasBurstAnatomy(data)
-    ? `<a href="#s-burst-anatomy" data-kca-jump="s-burst-anatomy">급증 항체</a>`
+    ? `<a href="#s-burst-anatomy" data-kca-jump="s-burst-anatomy">몰린 날</a>`
     : "";
   const keywordGravity = hasKeywordGravity(data)
     ? `<a href="#s-keyword-gravity" data-kca-jump="s-keyword-gravity">키워드 중력</a>`
@@ -515,18 +517,6 @@ function renderHelpGlossary(): string {
 function renderFactMatrix(data: ReportData): string {
   const s = data.summary;
   const ins = data.insights;
-  const heroKpis: [string, string, string, number | string][] = [
-    ["💬", "총 메시지", formatNumber(s.totalMessages), s.totalMessages],
-    ["👥", "참여자", formatNumber(s.participants), s.participants],
-    ["📅", "활동일", formatNumber(s.activeDays), s.activeDays],
-    ["⚡", "일평균", String(s.messagesPerActiveDay), s.messagesPerActiveDay],
-  ];
-  const heroHtml = heroKpis
-    .map(([icon, label, value, raw]) => `<div class="fact-hero-cell" data-observe>
-      <b>${icon} ${escapeHtml(label)}</b>
-      <span data-countup="${raw}">${escapeHtml(value)}</span>
-    </div>`)
-    .join("");
 
   const core: [string, string][] = [
     ["피크 시각", s.peakHour === null ? "—" : `${s.peakHour}시`],
@@ -553,8 +543,6 @@ function renderFactMatrix(data: ReportData): string {
   return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>📊 핵심 숫자</h2>
     ${renderSampleBadge(data)}
-    ${renderAnalysisQualityRail(data)}
-    <div class="fact-hero-strip" aria-label="핵심 KPI" data-observe>${heroHtml}</div>
     <div class="fact-grid fact-grid--all" data-observe>${factInner}</div>
   </section>`;
 }
@@ -729,23 +717,32 @@ function renderHonorificInsight(honorific: ReportData["honorificInsight"]): stri
     insufficient: "판별 표본 부족",
   };
   const roomLabel = styleLabels[honorific.roomStyle] ?? honorific.roomStyle;
-  const participantHtml = honorific.participants
-    .slice(0, 5)
+  const rows = honorific.participants
+    .slice(0, 10)
     .map((p) => {
+      const formalPct = p.dominantStyle === "insufficient" ? 0 : Math.round(p.honorificRatio * 100);
+      const casualPct = p.dominantStyle === "insufficient" ? 0 : Math.round((1 - p.honorificRatio) * 100);
+      const neutralPct = p.neutralRatio !== undefined ? Math.round(p.neutralRatio * 100) : 0;
       const style = styleLabels[p.dominantStyle] ?? p.dominantStyle;
-      const totalSample = p.sampleCount ? ` · 전체 ${formatNumber(p.sampleCount)}건` : "";
-      const styledSample = p.styledSampleCount !== undefined ? ` · 판별 ${formatNumber(p.styledSampleCount)}건` : "";
-      const neutral = p.neutralRatio !== undefined ? ` · 중립 ${Math.round(p.neutralRatio * 100)}%` : "";
-      const ratio = p.dominantStyle === "insufficient" ? "판별 보류" : `존칭 ${Math.round(p.honorificRatio * 100)}%`;
-      return `<span class="honorific-stat">${escapeHtml(p.alias)}: ${escapeHtml(style)} (${escapeHtml(ratio)}${escapeHtml(totalSample)}${escapeHtml(styledSample)}${escapeHtml(neutral)})</span>`;
+      const label =
+        p.dominantStyle === "insufficient"
+          ? "표본 부족"
+          : `${style} ${formalPct >= casualPct ? formalPct : casualPct}%`;
+      return `<div class="honorific-bar-row" title="${escapeHtml(p.alias)}: ${escapeHtml(label)}">
+        <span class="honorific-alias">${escapeHtml(p.alias)}</span>
+        <div class="honorific-track" role="meter" aria-valuenow="${formalPct}" aria-valuemin="0" aria-valuemax="100" aria-label="${escapeHtml(p.alias)} 존칭 ${formalPct}%">
+          <span class="honorific-seg honorific-seg--formal" style="width:${formalPct}%"></span>
+          <span class="honorific-seg honorific-seg--casual" style="width:${casualPct}%"></span>
+          ${neutralPct > 0 ? `<span class="honorific-seg honorific-seg--neutral" style="width:${neutralPct}%"></span>` : ""}
+        </div>
+        <span class="honorific-pct">${escapeHtml(label)}</span>
+      </div>`;
     })
-    .join(" ");
+    .join("");
   return `<div class="honorific-insight-card" style="margin-top:14px">
     <h3 class="insight-sub">높임법 분석</h3>
-    <p class="chart-hint">이 방은 대체로 <strong>${roomLabel}</strong> 스타일을 사용해요.</p>
-    <div class="honorific-participants" style="display:flex;flex-wrap:wrap;gap:10px;margin:8px 0;font-size:13px">
-      ${participantHtml}
-    </div>
+    <p class="chart-hint">이 방은 대체로 <strong>${escapeHtml(roomLabel)}</strong> 톤 · 말 많은 상위 10명</p>
+    <div class="honorific-bars">${rows}</div>
   </div>`;
 }
 
@@ -756,35 +753,6 @@ function renderSampleBadge(data: ReportData): string {
       ? `${s.firstMessage.slice(0, 10)} ~ ${s.lastMessage.slice(0, 10)}`
       : "기간 미상";
   return `<p class="stat-sample-badge" role="note"><span class="stat-sample-k">📋 표본</span> <strong>${escapeHtml(formatNumber(s.totalMessages))}</strong>건 · <strong>${escapeHtml(formatNumber(s.participants))}</strong>명 · 활동 <strong>${escapeHtml(formatNumber(s.activeDays))}</strong>일 <span class="stat-sample-range">${escapeHtml(range)}</span></p>`;
-}
-
-function renderAnalysisQualityRail(data: ReportData): string {
-  const q = data.provenance?.analysis.quality;
-  const total = Math.max(data.summary.totalMessages, 1);
-  const warnings = q?.parseWarnings ?? data.source.warnings;
-  const warningRate = q?.warningRatePercent ?? Number(((warnings / total) * 100).toFixed(3));
-  const excluded = q?.openChatBoilerplateExcluded ?? data.openChatBoilerplateExcluded;
-  const excludedRate = q?.openChatBoilerplateExcludedPercent ?? Number(((excluded / total) * 100).toFixed(3));
-  const seed = q?.deterministicSeed ?? "deterministic";
-  const sem = q?.semanticSampleCap
-    ? `시맨틱 cap ${formatNumber(q.semanticSampleCap)}`
-    : data.summary.usedSemanticKeywords
-      ? "시맨틱 사용"
-      : "시맨틱 미사용";
-  const items: [string, string, string][] = [
-    ["재현성", seed, "샘플링·클러스터링 seed"],
-    ["파싱 경고", `${formatNumber(warnings)}건`, `${warningRate}%`],
-    ["품질 레인", sem, data.summary.usedSentimentAnalysis ? "감정 분석 사용" : "감정 분석 미사용"],
-    ["노이즈 제외", `${formatNumber(excluded)}건`, `${excludedRate}%`],
-  ];
-  return `<div class="analysis-quality-rail" aria-label="분석 신뢰도 요약">
-    ${items
-      .map(
-        ([label, value, detail]) =>
-          `<span class="analysis-quality-pill"><b>${escapeHtml(label)}</b><strong>${escapeHtml(value)}</strong><em>${escapeHtml(detail)}</em></span>`,
-      )
-      .join("")}
-  </div>`;
 }
 
 function giniMetricSub(gini: number | null, participants: number): string {

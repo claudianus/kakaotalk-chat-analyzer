@@ -76,6 +76,7 @@ import type { ExplorerPayload, ParticipantRole } from "./types.js";
 
 import {
   buildHighlights,
+  buildDaySnapshotHeadline,
   buildParticipantRoles,
   buildRoomEventStats,
   buildSenderLabels,
@@ -1451,6 +1452,14 @@ export class ReportAggregator {
           vsAvg,
           hotTopicSummary: hotTopic?.summary,
           evidence: hotTopic?.evidence,
+          headline: buildDaySnapshotHeadline({
+            messageCount: dayCount,
+            vsAvg,
+            topSenders,
+            keywords,
+            peakHour,
+            activeParticipants: senderMap?.size ?? 0,
+          }),
         });
 
         weekTotal += dayCount;

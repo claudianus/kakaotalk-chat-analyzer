@@ -262,6 +262,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.24.73** | **리포트 UX 밀도·최근 집중** — QHD 폭 상한(1440px) · 기술 지표(재현성·파싱 경고 등) 제거 · 상세정보 접기 · 지금 이 방(24h·7d) · 캐릭터/역할 TOP10 · 한국어 라벨 정리 |
 | **0.24.72** | **리포트 마크다운 렌더 수정** — LLM `**강조**`가 볼드로 표시 · 마스킹 닉네임(`김*철`)과 마크다운 `**` 충돌 방지 · 서사·핫토픽·기억 순간 등 렌더 경로 통일 |
 | **0.24.71** | **SLM 추론 엔진 개선** — JSON 스키마 티어링(minimal/compact/full) · system/user 프롬프트 분리 · 동적 few-shot·출력 skeleton · 모델별 structured 샘플링 |
 | **0.24.70** | **LLM 하네스 Phase 2** — 실패 원인(parse/검증/추론)을 repair 프롬프트 `[수정 지시]`로 피드백 · ajv+jsonrepair 파싱 · maxTokens 2048 · harness 매트릭스·bench 확장 |

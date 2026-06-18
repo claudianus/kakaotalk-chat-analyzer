@@ -544,6 +544,8 @@ export interface DailySnapshot {
   vsAvg: number;
   hotTopicSummary?: string;
   evidence?: string[];
+  /** 일별 한 줄 요약 (최근 스냅샷용) */
+  headline?: string;
 }
 
 /** 최근 7일 + 리포트 당일(24h) 스냅샷 */

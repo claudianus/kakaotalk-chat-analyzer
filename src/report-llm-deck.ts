@@ -1,5 +1,6 @@
 import type { DailySnapshot, ParticipantRole, RecentSnapshot, ReportData } from "./types.js";
 import { escapeHtml, formatNumber, renderHighlightLine } from "./report-util.js";
+import { resolveCharacterCards } from "./report-character-cards.js";
 
 export function hasLlmStoryDeck(data: ReportData): boolean {
   const ins = data.llmInsights;
@@ -66,7 +67,10 @@ export function renderLlmMomentsBlock(data: ReportData): string {
   const hasNarrative = data.narrative.paragraphs.length > 0 || Boolean(ins);
   if (!hasNarrative) return "";
   const paras = data.narrative.paragraphs
-    .map((p) => `<p class="narrative-p">${renderHighlightLine(p)}</p>`)
+    .map(
+      (p) =>
+        `<article class="narrative-quote-card" data-observe><p>${renderHighlightLine(p)}</p></article>`,
+    )
     .join("");
   const momentCards = (moments ?? [])
     .map(
@@ -83,7 +87,7 @@ export function renderLlmMomentsBlock(data: ReportData): string {
   return `<section id="s-narrative" class="kca-section card kca-card--story narrative-card anim-enter" style="--enter-delay:0.04s" aria-label="방 이야기" data-observe>
     <h2 class="section-glow">② 방 이야기</h2>
     <p class="chart-hint">${hint}</p>
-    <div class="narrative-body">${paras}</div>
+    <div class="narrative-quote-grid">${paras}</div>
     ${momentCards ? `<div class="llm-moments-grid" role="list">${momentCards}</div>` : ""}
     ${renderLlmDeckExtras(ins)}
   </section>`;
@@ -128,12 +132,12 @@ export function renderLlmRelationshipBeats(data: ReportData): string {
         `<li class="llm-beat-card" data-observe><strong>${escapeHtml(b.pair)}</strong>${b.role ? ` <em>${escapeHtml(b.role)}</em>` : ""}<span>${renderHighlightLine(b.beat)}</span></li>`,
     )
     .join("");
-  return `<div class="llm-rel-beats"><h3 class="insight-sub">💕 관계 드라마</h3><ul class="llm-beat-list">${rows}</ul></div>`;
+  return `<div class="llm-rel-beats"><h3 class="insight-sub">💕 자주 엮이는 쌍</h3><ul class="llm-beat-list">${rows}</ul></div>`;
 }
 
 export function renderLlmCharacterCards(data: ReportData): string {
-  const cards = data.llmInsights?.characterCards;
-  if (!cards?.length) return "";
+  const cards = resolveCharacterCards(data);
+  if (cards.length === 0) return "";
   const inner = cards
     .map(
       (c) =>
@@ -146,6 +150,7 @@ export function renderLlmCharacterCards(data: ReportData): string {
     .join("");
   return `<section id="s-characters" class="kca-section llm-char-grid anim-enter" style="--enter-delay:0.042s" aria-label="캐릭터 카드" data-observe>
     <h2 class="llm-strip-title">👥 캐릭터 카드</h2>
+    <p class="chart-hint">메시지 상위 10명 — 말 많은 사람을 먼저 봅니다.</p>
     <div class="llm-char-row" role="list">${inner}</div>
   </section>`;
 }
@@ -171,7 +176,7 @@ export function renderLlmEraLabels(data: ReportData): string {
         `<li data-observe><strong>${escapeHtml(e.label)}</strong><span>${renderHighlightLine(e.detail)}</span></li>`,
     )
     .join("");
-  return `<div class="llm-era-labels" data-observe><h3 class="insight-sub">⏳ 키워드 시대</h3><ul>${rows}</ul></div>`;
+  return `<div class="llm-era-labels" data-observe><h3 class="insight-sub">⏳ 말이 바뀐 시기</h3><ul>${rows}</ul></div>`;
 }
 
 export function renderLlmDayMicroStories(data: ReportData): string {
@@ -255,10 +260,14 @@ export function renderParticipantRoles(data: ReportData): string {
   const roles = data.participantRoles;
   if (!roles || roles.length === 0) return "";
 
-  const ROLE_MIN_CONFIDENCE = 0.82;
+  const ROLE_MIN_CONFIDENCE = 0.78; // 표시용 — 상위 10명은 항상 포함
 
   const roleEmoji: Record<string, string> = {
     주도형: "👑",
+    "핵심 멤버": "⭐",
+    "말 많은 1위": "🥇",
+    "활동 멤버": "💬",
+    꾸준형: "📌",
     긴글러: "✍️",
     "분위기 메이커": "😂",
     리액션러: "⚡",
@@ -270,6 +279,10 @@ export function renderParticipantRoles(data: ReportData): string {
 
   const roleDesc: Record<string, string> = {
     주도형: "흐름 주도",
+    "핵심 멤버": "상위권 참여",
+    "말 많은 1위": "메시지 1위",
+    "활동 멤버": "꾸준 참여",
+    꾸준형: "자주 말함",
     긴글러: "맥락 설명",
     "분위기 메이커": "웃음 신호",
     리액션러: "빠른 반응",
@@ -297,11 +310,11 @@ export function renderParticipantRoles(data: ReportData): string {
     })
     .join("");
 
-  const countLine = `메시지 상위 <strong>${roles.length}명</strong> · 패턴 신뢰도 ${Math.round(ROLE_MIN_CONFIDENCE * 100)}% 이상`;
+  const countLine = `메시지 상위 <strong>10명</strong>은 항상 포함 · 그 외 뚜렷한 패턴만 추가 (최대 ${roles.length}명)`;
   return `<section id="s-participant-roles" class="kca-section participant-roles-section anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할" data-observe>
     <div class="participant-roles-head">
       <h2 class="llm-strip-title">👥 참여자 역할</h2>
-      <p class="chart-hint role-selection-hint">메시지 수 상위 참여자부터 검사해, 웃음·심야·링크·연속 발화 등 <strong>통계적으로 두드러진 행동</strong>이 감지된 경우만 최대 12명까지 표시합니다. (${countLine})</p>
+      <p class="chart-hint role-selection-hint">말 많은 사람부터 역할을 붙입니다. ${countLine}</p>
     </div>
     <div class="participant-roles-grid" role="list">${cards}</div>
   </section>`;
@@ -370,15 +383,23 @@ function renderMiniHourlyBar(hourly: number[], highlightHour: number | null): st
       return `<span class="recent-hourly-bar__seg${hl}" style="--h:${pct}%" title="${h}시: ${count}건"></span>`;
     })
     .join("");
-  return `<div class="recent-hourly-bar" aria-label="시간대 분포">${bars}</div>`;
+  const peakLabel =
+    highlightHour !== null ? `가장 붐빈 ${highlightHour}시` : "시간대별 메시지 수";
+  return `<div class="recent-chart-block">
+    <div class="recent-chart-label"><span>⏰ ${peakLabel}</span><span>0~23시</span></div>
+    <div class="recent-hourly-bar" aria-label="시간대 분포">${bars}</div>
+  </div>`;
 }
 
 /** 감정 비율을 인라인 바로 렌더링 */
 function renderSentimentInlineSmall(s: { positive: number; negative: number; neutral: number }): string {
-  return `<span class="recent-sentiment-bar" title="긍정 ${s.positive}% · 부정 ${s.negative}% · 중립 ${s.neutral}%">
-    <span class="recent-sentiment-bar__pos" style="width:${s.positive}%"></span>
-    <span class="recent-sentiment-bar__neg" style="width:${s.negative}%"></span>
-  </span>`;
+  return `<div class="recent-chart-block">
+    <div class="recent-chart-label"><span>😊 감정 비율</span><span class="recent-sentiment-legend">초록=긍정 · 빨강=부정</span></div>
+    <span class="recent-sentiment-bar" title="긍정 ${s.positive}% · 부정 ${s.negative}% · 중립 ${s.neutral}%">
+      <span class="recent-sentiment-bar__pos" style="width:${s.positive}%"></span>
+      <span class="recent-sentiment-bar__neg" style="width:${s.negative}%"></span>
+    </span>
+  </div>`;
 }
 
 /** 하루 스냅샷 카드 */
@@ -399,6 +420,7 @@ function renderDaySnapshotCard(day: DailySnapshot, isToday: boolean): string {
       ${day.peakHour !== null ? `<span>피크 ${day.peakHour}시</span>` : ""}
       <span>평균 대비 ${day.vsAvg}배</span>
     </div>
+    ${day.headline ? `<p class="recent-day-headline">${escapeHtml(day.headline)}</p>` : ""}
     ${kws ? `<div class="recent-day-kws">${kws}</div>` : ""}
     ${senders ? `<p class="recent-day-senders">주도: ${senders}</p>` : ""}
     ${renderSentimentInlineSmall(day.sentiment)}
