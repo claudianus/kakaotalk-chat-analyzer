@@ -5775,21 +5775,74 @@ body.kca-oled .theme-btn.kca-ripple {
 .kca-hero-meta-disclosure .kca-hero-meta { padding: 10px 14px 14px; }
 
 .honorific-bars { display: grid; gap: 10px; margin-top: 10px; }
+.honorific-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.honorific-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.honorific-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.honorific-swatch--formal { background: linear-gradient(90deg, var(--accent), var(--cyan)); }
+.honorific-swatch--casual { background: linear-gradient(90deg, var(--warm), var(--rose)); }
+.honorific-swatch--neutral { background: color-mix(in oklab, var(--muted) 45%, transparent); }
+.honorific-legend-hint { font-size: 10px; color: color-mix(in oklab, var(--muted) 80%, transparent); }
 .honorific-bar-row {
   display: grid;
-  grid-template-columns: minmax(64px, 88px) 1fr auto;
-  gap: 8px;
+  grid-template-columns: minmax(64px, 88px) 1fr minmax(108px, 1fr);
+  gap: 8px 10px;
   align-items: center;
 }
 .honorific-alias { font-size: 13px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .honorific-track {
-  display: flex; height: 10px; border-radius: 999px; overflow: hidden;
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
   background: var(--bar-bg);
+}
+.honorific-seg {
+  display: block;
+  height: 100%;
+  flex: 0 0 auto;
+  min-width: 0;
 }
 .honorific-seg--formal { background: linear-gradient(90deg, var(--accent), var(--cyan)); }
 .honorific-seg--casual { background: linear-gradient(90deg, var(--warm), var(--rose)); }
 .honorific-seg--neutral { background: color-mix(in oklab, var(--muted) 40%, transparent); }
-.honorific-pct { font-size: 11px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+.honorific-seg--empty {
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--muted) 18%, transparent),
+    color-mix(in oklab, var(--muted) 18%, transparent) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+.honorific-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 1.35;
+  min-width: 0;
+}
+.honorific-dominant { color: var(--ink); font-size: 12px; }
+.honorific-detail { color: var(--muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.honorific-bar-row--insufficient .honorific-dominant { color: var(--muted); }
 
 .recent-chart-block { margin-top: 10px; }
 .recent-chart-label {

@@ -45,6 +45,9 @@ describe("honorific insight", () => {
     assert.equal(html.includes("판단 보류"), false);
     assert.match(html, /honorific-bar-row/);
     assert.match(html, /존칭/);
+    assert.match(html, /honorific-legend/);
+    assert.match(html, /말끝 패턴/);
+    assert.match(html, /존칭 \d+% · 반말/);
   });
 
   it("still defers when there are too few discriminative messages", () => {
