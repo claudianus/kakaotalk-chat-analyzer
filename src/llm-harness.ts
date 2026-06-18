@@ -2,7 +2,7 @@ import { probeMachineProfileSync } from "./analysis-capability.js";
 import type { AnalysisBudgetTracker } from "./analysis-budget.js";
 import { resolveLlmGpuForInfer } from "./llm-gpu-policy.js";
 import type { LlmRunPlan } from "./llm-policy.js";
-import { canRetryLlmRam } from "./llm-policy.js";
+import { canRetryLlmRam, minFreeGbForLlmRetry } from "./llm-policy.js";
 import type { LlamaGpuMode } from "./llm-llama-core.js";
 import { qwen35DisplayLabel, type Qwen35Size } from "./llm-qwen35.js";
 import type { LlmHarnessAttemptRecord, LlmHarnessQuality, LlmInsights, ReportData } from "./types.js";
@@ -125,7 +125,12 @@ function recordAttempt(
 function canRunHarnessRetry(index: number, size: Qwen35Size, budget?: AnalysisBudgetTracker): string | undefined {
   if (index === 0) return undefined;
   const profile = probeMachineProfileSync();
-  if (!canRetryLlmRam(profile, size)) {
+  if (isLlmMockEnabled()) {
+    const floor = minFreeGbForLlmRetry();
+    if (profile.freeMemGb < floor) {
+      return `free ${profile.freeMemGb}GB`;
+    }
+  } else if (!canRetryLlmRam(profile, size)) {
     return `free ${profile.freeMemGb}GB`;
   }
   return llmRetryBudgetSkipReason(budget);

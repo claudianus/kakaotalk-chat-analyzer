@@ -1,6 +1,6 @@
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolveLlmGpuForInfer } from "./llm-gpu-policy.js";
-import { canRetryLlmRam } from "./llm-policy.js";
+import { canRetryLlmRam, minFreeGbForLlmRetry } from "./llm-policy.js";
 import { qwen35DisplayLabel } from "./llm-qwen35.js";
 import { buildEnrichmentFromParsed, llmRetryBudgetSkipReason, parseCompletionRaw, runLlmCompletion, schemaFailureQuality, } from "./llm-summarize.js";
 import { isLlmMockEnabled, resetLlmMockCallIndex } from "./llm-mock.js";
@@ -99,7 +99,13 @@ function canRunHarnessRetry(index, size, budget) {
     if (index === 0)
         return undefined;
     const profile = probeMachineProfileSync();
-    if (!canRetryLlmRam(profile, size)) {
+    if (isLlmMockEnabled()) {
+        const floor = minFreeGbForLlmRetry();
+        if (profile.freeMemGb < floor) {
+            return `free ${profile.freeMemGb}GB`;
+        }
+    }
+    else if (!canRetryLlmRam(profile, size)) {
         return `free ${profile.freeMemGb}GB`;
     }
     return llmRetryBudgetSkipReason(budget);
