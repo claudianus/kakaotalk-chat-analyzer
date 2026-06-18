@@ -41,8 +41,8 @@ export function renderLlmEpisodeStrip(data) {
         .map((c) => `<article class="llm-episode-card" role="listitem" data-observe>
       <span class="llm-episode-emoji" aria-hidden="true">${escapeHtml(c.emoji)}</span>
       <p class="llm-episode-period">${escapeHtml(c.period)}</p>
-      <h3 class="llm-episode-title">${escapeHtml(c.title)}</h3>
-      <p class="llm-episode-tagline">${escapeHtml(c.tagline)}</p>
+      <h3 class="llm-episode-title">${renderHighlightLine(c.title)}</h3>
+      <p class="llm-episode-tagline">${renderHighlightLine(c.tagline)}</p>
     </article>`)
         .join("");
     return `<section id="s-episodes" class="kca-section llm-episode-strip anim-enter" style="--enter-delay:0.035s" aria-label="시즌 에피소드" data-observe>
@@ -120,8 +120,8 @@ export function renderLlmCharacterCards(data) {
     const inner = cards
         .map((c) => `<article class="llm-char-card" role="listitem" data-observe>
       <h3>${escapeHtml(c.alias)}</h3>
-      <p>${escapeHtml(c.tagline)}</p>
-      <span class="llm-char-stat">${escapeHtml(c.statHook)}</span>
+      <p>${renderHighlightLine(c.tagline)}</p>
+      <span class="llm-char-stat">${renderHighlightLine(c.statHook)}</span>
     </article>`)
         .join("");
     return `<section id="s-characters" class="kca-section llm-char-grid anim-enter" style="--enter-delay:0.042s" aria-label="캐릭터 카드" data-observe>
@@ -134,7 +134,7 @@ export function renderLlmInsideJokes(data) {
     if (!jokes?.length)
         return "";
     const chips = jokes
-        .map((j) => `<span class="llm-meme-chip" title="${escapeHtml(j.whyFunny)}" data-observe>${escapeHtml(j.label)}</span>`)
+        .map((j) => `<span class="llm-meme-chip" title="${escapeHtml(j.whyFunny)}" data-observe>${renderHighlightLine(j.label)}</span>`)
         .join("");
     return `<div class="llm-meme-row" aria-label="방 밈" data-observe><h3 class="insight-sub">😂 방 밈</h3><div class="llm-meme-chips">${chips}</div></div>`;
 }
@@ -143,7 +143,7 @@ export function renderLlmEraLabels(data) {
     if (!eras?.length)
         return "";
     const rows = eras
-        .map((e) => `<li data-observe><strong>${escapeHtml(e.label)}</strong><span>${escapeHtml(e.detail)}</span></li>`)
+        .map((e) => `<li data-observe><strong>${escapeHtml(e.label)}</strong><span>${renderHighlightLine(e.detail)}</span></li>`)
         .join("");
     return `<div class="llm-era-labels" data-observe><h3 class="insight-sub">⏳ 키워드 시대</h3><ul>${rows}</ul></div>`;
 }
@@ -182,9 +182,9 @@ export function renderDailyHotTopics(data) {
           <time class="hot-topic-date" datetime="${escapeHtml(t.date)}">${escapeHtml(t.date)}</time>
           ${burstBadge}
         </div>
-        <h3 class="hot-topic-title">${escapeHtml(t.title ?? "대화 흐름")}</h3>
+        <h3 class="hot-topic-title">${renderHighlightLine(t.title ?? "대화 흐름")}</h3>
         ${keywords ? `<div class="hot-topic-kws">${keywords}</div>` : ""}
-        <p class="hot-topic-summary">${escapeHtml(t.summary)}</p>
+        <p class="hot-topic-summary">${renderHighlightLine(t.summary)}</p>
         ${evidence ? `<ul class="hot-topic-evidence">${evidence}</ul>` : ""}
         <div class="hot-topic-bar"><div class="hot-topic-bar-fill" style="width:${barW}%"></div></div>
         <div class="hot-topic-footer">
@@ -210,7 +210,7 @@ export function renderLlmShareFooter(data) {
         .map((h) => `<span class="llm-hash">#${escapeHtml(h)}</span>`)
         .join(" ");
     const cf = (ins.counterfactuals ?? [])
-        .map((c) => `<p class="llm-counterfactual"><em>가상</em> ${escapeHtml(c.text)}</p>`)
+        .map((c) => `<p class="llm-counterfactual"><em>가상</em> ${renderHighlightLine(c.text)}</p>`)
         .join("");
     return `<div class="llm-share-block" data-observe>
     ${ins.shareLine ? `<p class="llm-share-line">${renderHighlightLine(ins.shareLine)}</p>` : ""}
@@ -298,8 +298,8 @@ export function renderMemorableMomentsList(data) {
         <time datetime="${escapeHtml(m.date)}">${escapeHtml(m.date)}</time>
         <span class="moment-icon" aria-hidden="true">${icon}</span>
         <div class="moment-body">
-          <strong class="moment-title">${escapeHtml(m.title)}</strong>
-          <span class="moment-desc">${escapeHtml(m.description)}</span>
+          <strong class="moment-title">${renderHighlightLine(m.title)}</strong>
+          <span class="moment-desc">${renderHighlightLine(m.description)}</span>
           ${evidenceHtml}
           ${keywordsHtml}
         </div>
@@ -359,7 +359,7 @@ function renderDaySnapshotCard(day, isToday) {
     ${senders ? `<p class="recent-day-senders">주도: ${senders}</p>` : ""}
     ${renderSentimentInlineSmall(day.sentiment)}
     ${renderMiniHourlyBar(day.hourly, day.peakHour)}
-    ${day.hotTopicSummary ? `<p class="recent-day-summary">${escapeHtml(day.hotTopicSummary)}</p>` : ""}
+    ${day.hotTopicSummary ? `<p class="recent-day-summary">${renderHighlightLine(day.hotTopicSummary)}</p>` : ""}
     ${evidence ? `<ul class="recent-day-evidence">${evidence}</ul>` : ""}
   </article>`;
 }
@@ -455,7 +455,7 @@ export function renderRoomCultureStrip(data) {
             const host = urlMatch[1] ?? "";
             return `<a class="culture-link" href="${escapeHtml(label)}" target="_blank" rel="noopener noreferrer">🔗 ${escapeHtml(host)}</a>`;
         }
-        const withLinks = escapeHtml(label).replace(/(https?:\/\/[^\s<]+)/g, (url) => `<a class="culture-link" href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+        const withLinks = renderHighlightLine(label).replace(/(https?:\/\/[^\s<]+)/g, (url) => `<a class="culture-link" href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
         return withLinks;
     }
     const phraseCards = repeated
