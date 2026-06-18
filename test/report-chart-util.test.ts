@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, it, test } from "node:test";
 import {
   chooseTopicTrendGranularity,
   isShortActivitySpan,
+  keywordsForCloud,
   topicsForDisplay,
 } from "../src/report-chart-util.js";
 import { escapeHtml } from "../src/report-util.js";
@@ -64,4 +65,16 @@ describe("escapeHtml (chart tooltip XSS prevention)", () => {
     assert.equal(escapeHtml("User 001"), "User 001");
     assert.equal(escapeHtml("안녕하세요"), "안녕하세요");
   });
+});
+
+test("keywordsForCloud filters shop-search boilerplate", () => {
+  const out = keywordsForCloud([
+    { label: "사이트", count: 680 },
+    { label: "요약입니다", count: 646 },
+    { label: "클로드", count: 501, keywordLane: "both" },
+    { label: "arxiv", count: 120, keywordLane: "bm25" },
+  ]);
+  const labels = out.map((k) => k.label);
+  assert.ok(labels.includes("클로드"));
+  assert.ok(!labels.includes("요약입니다"));
 });

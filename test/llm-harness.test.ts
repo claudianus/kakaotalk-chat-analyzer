@@ -87,3 +87,37 @@ test("applyLlmEnrichment harness retries invalid JSON via mock", async () => {
     else process.env.KCA_LLM = prevLlm;
   }
 });
+
+test("applyLlmEnrichment applies rule fallback when all harness attempts fail", async () => {
+  const prevMock = process.env.KCA_LLM_MOCK;
+  const prevLlm = process.env.KCA_LLM;
+  const prevMinFree = process.env.KCA_LLM_MIN_FREE_GB;
+  process.env.KCA_LLM = "1";
+  process.env.KCA_LLM_MOCK = "invalid";
+  process.env.KCA_LLM_MIN_FREE_GB = "0";
+  try {
+    const data = emptyReportData();
+    data.keywords = [
+      { label: "클로드", count: 120 },
+      { label: "코덱스", count: 100 },
+    ];
+    data.topics = [
+      { id: "t0", kind: "theme", title: "AI 도구", terms: ["클로드", "코덱스"], messagePercent: 20 },
+    ];
+    data.highlights = ["총 1200건", "참여자 8명"];
+    const result = await applyLlmEnrichment(data, { preset: "custom" }, 10_000, {
+      llmPlan: { enabled: true, size: "0.8B", reason: "rule fallback test", timeoutMs: 45_000 },
+    });
+    assert.equal(result.used, true);
+    assert.equal(result.llmQuality?.fallbackUsed, true);
+    assert.ok(result.llmInsights?.roomArchetype?.name);
+    assert.ok(result.llmQuality?.attempts?.some((a) => a.label === "rule-fallback" && a.ok));
+  } finally {
+    if (prevMock === undefined) delete process.env.KCA_LLM_MOCK;
+    else process.env.KCA_LLM_MOCK = prevMock;
+    if (prevLlm === undefined) delete process.env.KCA_LLM;
+    else process.env.KCA_LLM = prevLlm;
+    if (prevMinFree === undefined) delete process.env.KCA_LLM_MIN_FREE_GB;
+    else process.env.KCA_LLM_MIN_FREE_GB = prevMinFree;
+  }
+});

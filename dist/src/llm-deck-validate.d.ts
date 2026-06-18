@@ -1,6 +1,6 @@
 import type { ReportData } from "./types.js";
 import type { LlmJsonShape } from "./llm-json.js";
-import type { LlmInsights } from "./types.js";
+import type { LlmInsights, LlmRoomArchetype } from "./types.js";
 export interface LlmValidationAudit {
     acceptedClaims: number;
     droppedClaims: number;
@@ -19,6 +19,7 @@ export declare function mergeLlmValidationAudits(...audits: LlmValidationAudit[]
 /** LLM 출력의 템플릿 잔여물·오류 메시지·JSON 키 필터링 */
 export declare function isLlmGarbageText(value: string): boolean;
 export declare function textHasLlmEvidence(value: string, data: ReportData, kw?: Set<string>): boolean;
+export declare function fallbackRoomArchetype(data: ReportData): LlmRoomArchetype | undefined;
 export declare function sanitizeLlmParagraphsWithAudit(paragraphs: string[] | undefined, data: ReportData): SanitizedLlmParagraphs;
 export declare function sanitizeLlmParagraphs(paragraphs: string[] | undefined, data: ReportData): string[];
 export declare function sanitizeLlmDeckWithAudit(parsed: LlmJsonShape, data: ReportData): SanitizedLlmDeck;

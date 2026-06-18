@@ -1,7 +1,7 @@
 import type { AnalysisBudgetTracker } from "./analysis-budget.js";
 import type { LlmRunPlan } from "./llm-policy.js";
-import type { LlamaGpuMode } from "./llm-llama-core.js";
 import { type Qwen35Size } from "./llm-qwen35.js";
+import type { LlamaGpuMode } from "./llm-llama-core.js";
 import type { ReportData } from "./types.js";
 import { type LlmEnrichmentResult } from "./llm-summarize.js";
 export interface LlmHarnessAttemptSpec {

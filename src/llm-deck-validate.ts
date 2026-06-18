@@ -193,7 +193,7 @@ function topEvidenceTerms(data: ReportData, limit = 4): string[] {
     .slice(0, limit);
 }
 
-function fallbackRoomArchetype(data: ReportData): LlmRoomArchetype | undefined {
+export function fallbackRoomArchetype(data: ReportData): LlmRoomArchetype | undefined {
   const terms = topEvidenceTerms(data, 4);
   if (terms.length < 2) return undefined;
   const firstTopic = data.topics.find((t) => t.kind === "theme") ?? data.topics[0];

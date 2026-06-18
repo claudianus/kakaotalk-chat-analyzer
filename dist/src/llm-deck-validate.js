@@ -196,7 +196,7 @@ function topEvidenceTerms(data, limit = 4) {
     })
         .slice(0, limit);
 }
-function fallbackRoomArchetype(data) {
+export function fallbackRoomArchetype(data) {
     const terms = topEvidenceTerms(data, 4);
     if (terms.length < 2)
         return undefined;

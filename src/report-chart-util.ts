@@ -1,4 +1,25 @@
-import type { DailyCount, ReportTopic, TopicTrendGranularity } from "./types.js";
+import type { CountItem, DailyCount, ReportTopic, TopicTrendGranularity } from "./types.js";
+
+const CLOUD_BOILERPLATE_RE =
+  /^(?:사이트|요약|short|oursophy|short oursophy|사이트 요약|요약입니다)(?:\s|$)/i;
+
+/** 워드클라우드용 — 샵검색·요약 boilerplate·초단어 노이즈 제거 */
+export function keywordsForCloud(keywords: CountItem[], limit = 100): { label: string; count: number }[] {
+  const filtered = keywords.filter((k) => {
+    const label = k.label.trim();
+    if (label.length < 2) return false;
+    if (CLOUD_BOILERPLATE_RE.test(label)) return false;
+    if (/^요약/.test(label) && label.length <= 8) return false;
+    return true;
+  });
+  const pool = filtered.length > 0 ? filtered : keywords;
+  const scored = [...pool].sort((a, b) => {
+    const laneBoost = (k: CountItem) =>
+      k.keywordLane === "bm25" ? 3 : k.keywordLane === "both" ? 2 : k.keywordLane === "freq" ? 0 : 1;
+    return laneBoost(b) - laneBoost(a) || b.count - a.count;
+  });
+  return scored.slice(0, limit).map((k) => ({ label: k.label, count: k.count }));
+}
 
 /** 활동일 < 90일·활동 월 ≤ 2 — 월별 period 카드/차트는 기간 비교로 안내 */
 export function isShortActivitySpan(daily: DailyCount[]): boolean {
