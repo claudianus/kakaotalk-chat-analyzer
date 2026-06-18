@@ -171,6 +171,32 @@ describe("innovation layer", () => {
     assert.doesNotMatch(html, /class="bar-fill"[^>]*data-observe/);
   });
 
+  it("sentiment rollercoaster svg keeps aspect ratio (no stretch distortion)", () => {
+    const data = emptyReportData();
+    data.dailySentiment = [
+      { date: "2026-01-01", positive: 30, negative: 10, neutral: 60, energy: 12 },
+      { date: "2026-01-02", positive: 20, negative: 30, neutral: 50, energy: -18 },
+      { date: "2026-01-03", positive: 40, negative: 5, neutral: 55, energy: 22 },
+    ];
+    data.sentiment = {
+      sampleSize: 100,
+      positivePercent: 40,
+      negativePercent: 10,
+      neutralPercent: 50,
+      compoundScore: 15,
+      bySender: [],
+    };
+    const html = renderReportHtml(data);
+    assert.match(html, /preserveAspectRatio="xMidYMid meet"/);
+    assert.doesNotMatch(html, /preserveAspectRatio="none"/);
+    assert.match(html, /class="sentiment-coaster-frame"/);
+  });
+
+  it("count bars use grid layout for aligned tracks", () => {
+    assert.match(REPORT_STYLES, /\.bar-row\s*\{[^}]*display:\s*grid/);
+    assert.match(REPORT_STYLES, /\.bar-row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*112px\)/);
+  });
+
   it("renderReportHtml has no duplicate element ids", () => {
     const data = emptyReportData();
     data.summary.totalMessages = 100;

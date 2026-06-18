@@ -262,6 +262,7 @@ cd kakaotalk-chat-analyzer && npm install && npm run build && npm test
 
 | 버전 | 요약 |
 |------|------|
+| **0.24.80** | **감정 롤러코스터·카운트 막대 정렬** — SVG 비율 왜곡(`preserveAspectRatio`)·점 색상 수정 · 도메인·샵검색 등 `bar-row` 그리드 정렬 |
 | **0.24.79** | **가로 막대 일괄 수정** — `display:block` 누락 보강(키워드·토픽·핫토픽 등) · 중첩 `data-observe`로 fill이 `opacity:0`이던 문제(첨부유형·샵검색·도메인 등) |
 | **0.24.78** | **샵검색·카운트 막대 수정** — `renderCountBars` `.bar-fill`에 `display:block` 추가 (샵검색 키워드 등 빈 막대) |
 | **0.24.77** | **참여자·응답속도 막대 수정** — `누가 얼마나 말하나`·`누가 빨리 답하나` 가로 막대가 빈 트랙으로 보이던 CSS(`display:block`) 수정 |

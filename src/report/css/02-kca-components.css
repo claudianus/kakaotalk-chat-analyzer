@@ -963,17 +963,21 @@
 .day-burst { border: 2px solid var(--warm); }
 
 /* ── Bars ── */
-.bars { display: flex; flex-direction: column; gap: 4px; }
-.bar-row {
+.bars {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 0 2px 4px;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 112px) 1fr minmax(40px, auto);
   align-items: center;
-  gap: 8px;
+  column-gap: 12px;
   padding: 3px 0;
 }
 .bar-label {
-  flex: 0 0 auto;
-  min-width: 60px;
-  max-width: 120px;
+  min-width: 0;
   font-size: var(--font-size-small);
   color: var(--ink);
   overflow: hidden;
@@ -981,7 +985,7 @@
   white-space: nowrap;
 }
 .bar-track {
-  flex: 1;
+  min-width: 0;
   height: 6px;
   border-radius: var(--radius-pill);
   background: var(--bar-bg);
