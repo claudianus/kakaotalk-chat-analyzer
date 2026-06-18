@@ -1,4 +1,4 @@
-import { isShortActivitySpan, keywordsForCloud, topicsThemesOnly } from "./report-chart-util.js";
+import { cloudChartMode, isShortActivitySpan, keywordsForCloud, topicsThemesOnly } from "./report-chart-util.js";
 import { hasCalendarHeatmap, showMonthlyChart } from "./report-section-visibility.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
 /** @deprecated preconnect는 report-head.ts REPORT_HEAD_LINKS 사용 */
@@ -26,6 +26,7 @@ export function buildChartPayload(data) {
         keywords: data.keywords,
         keywordsDistinctive: data.keywordsDistinctive,
         cloudKeywords: keywordsForCloud(data.keywords),
+        cloudChartMode: cloudChartMode(data.keywords),
         domains: data.domains.slice(0, 24),
         participants: data.participants.slice(0, 24).map((p) => ({
             alias: p.alias,
@@ -516,21 +517,39 @@ export const CHARTS_INIT_SCRIPT = `
         var sparkEl = document.getElementById("chart-weekly-sparkline");
         var sg = layout(sparkEl);
         var last7 = data.daily.slice(-7);
-        init("chart-weekly-sparkline", Object.assign(baseOpt(), {
-          grid: { left: sg.left, right: sg.right, top: sg.top + 8, bottom: sg.bottom },
-          xAxis: { type: "category", data: last7.map(function (d) { return d.date.slice(5); }), axisLabel: { color: muted, fontSize: sg.fs } },
-          yAxis: { type: "value", axisLabel: { color: muted }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
-          series: [{
-            type: "line",
-            data: last7.map(function (d) { return d.count; }),
-            smooth: true,
-            symbol: "circle",
-            symbolSize: 6,
-            lineStyle: { width: 3, color: accent },
-            areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: accent20 }, { offset: 1, color: "transparent" }] } },
-            itemStyle: { color: accent, borderColor: dark ? "#0f1219" : "#fff", borderWidth: 2 },
-          }],
-        }));
+        var sparkCounts = last7.map(function (d) { return d.count; });
+        var sparkMax = Math.max.apply(null, sparkCounts.concat([1]));
+        var activeSpark = sparkCounts.filter(function (c) { return c > 0; }).length;
+        var sparkLabels = last7.map(function (d) { return d.date.slice(5); });
+        if (activeSpark < 3 || sparkMax < 12) {
+          init("chart-weekly-sparkline", Object.assign(baseOpt(), {
+            grid: { left: Math.max(sg.leftCat, 48), right: sg.right, top: sg.top + 4, bottom: sg.bottom },
+            xAxis: { type: "category", data: sparkLabels, axisLabel: { color: muted, fontSize: sg.fs } },
+            yAxis: { type: "value", axisLabel: { color: muted, fontSize: sg.fs }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
+            series: [{
+              type: "bar",
+              data: sparkCounts,
+              barMaxWidth: 28,
+              itemStyle: { color: accent, borderRadius: [4, 4, 0, 0] },
+            }],
+          }));
+        } else {
+          init("chart-weekly-sparkline", Object.assign(baseOpt(), {
+            grid: { left: sg.left, right: sg.right, top: sg.top + 8, bottom: sg.bottom },
+            xAxis: { type: "category", data: sparkLabels, axisLabel: { color: muted, fontSize: sg.fs } },
+            yAxis: { type: "value", min: 0, axisLabel: { color: muted }, splitLine: { lineStyle: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" } } },
+            series: [{
+              type: "line",
+              data: sparkCounts,
+              smooth: true,
+              symbol: "circle",
+              symbolSize: 8,
+              lineStyle: { width: 4, color: accent },
+              areaStyle: { opacity: 0.32, color: accent },
+              itemStyle: { color: accent, borderColor: dark ? "#0f1219" : "#fff", borderWidth: 2 },
+            }],
+          }));
+        }
       } else if (document.getElementById("chart-weekly-sparkline")) {
         showChartEmpty("chart-weekly-sparkline", "최근 활동 추이가 없습니다", "활동일 데이터가 있어야 주간 스파크라인을 그립니다.");
       }
@@ -631,37 +650,7 @@ export const CHARTS_INIT_SCRIPT = `
         var cloud = data.cloudKeywords.slice(0, 100).map(function (k) {
           return { name: k.label, value: k.count };
         });
-        var sizeLo = cg.w < 380 ? 10 : 12;
-        var sizeHi = cg.w < 380 ? 34 : cg.w < 640 ? 46 : 56;
-        var cloudOk = false;
-        try {
-          init("chart-kw-cloud", {
-            textStyle: baseOpt().textStyle,
-            tooltip: { show: true },
-            series: [{
-              type: "wordCloud",
-              shape: "circle",
-              gridSize: cg.w < 380 ? 8 : 6,
-              sizeRange: [sizeLo, sizeHi],
-              rotationRange: [-45, 45],
-              textStyle: {
-                fontFamily: "Pretendard, Apple SD Gothic Neo, sans-serif",
-                color: function (p) {
-                  var palette = dark ? ["#3ee8c5", "#818cf8", "#fbbf24", "#fb923c", "#f472b6"] : ["#0f6b5c", "#4f46e5", "#b8860b", "#c45c2a", "#be185d"];
-                  var name = (p && p.name) ? String(p.name) : "";
-                  var h = 0;
-                  for (var i = 0; i < name.length; i += 1) h = Math.imul(h ^ name.charCodeAt(i), 16777619);
-                  return palette[Math.abs(h) % palette.length];
-                },
-              },
-              data: cloud,
-            }],
-          });
-          cloudOk = true;
-        } catch (cloudErr) {
-          console.error("[kca-chart] chart-kw-cloud", cloudErr);
-        }
-        if (!cloudOk) {
+        function renderCloudBarChart() {
           var topKw = cloud.slice(0, 15);
           init("chart-kw-cloud", Object.assign(baseOpt(), {
             grid: { left: Math.max(cg.leftCat, 72), right: cg.right, top: cg.top, bottom: cg.bottom },
@@ -669,14 +658,50 @@ export const CHARTS_INIT_SCRIPT = `
             yAxis: {
               type: "category",
               data: topKw.map(function (k) { return k.name; }).reverse(),
-              axisLabel: { color: text, fontSize: cg.fs },
+              axisLabel: { color: text, fontSize: cg.fs, width: cg.w < 480 ? 64 : 96, overflow: "truncate" },
             },
             series: [{
               type: "bar",
               data: topKw.map(function (k) { return k.value; }).reverse(),
+              barMaxWidth: 22,
               itemStyle: { color: accent, borderRadius: [0, 6, 6, 0] },
             }],
           }));
+        }
+        if (data.cloudChartMode === "bar") {
+          renderCloudBarChart();
+        } else {
+          var sizeLo = cg.w < 380 ? 14 : 16;
+          var sizeHi = cg.w < 380 ? 42 : cg.w < 640 ? 54 : 64;
+          var cloudOk = false;
+          try {
+            init("chart-kw-cloud", {
+              textStyle: baseOpt().textStyle,
+              tooltip: { show: true },
+              series: [{
+                type: "wordCloud",
+                shape: "circle",
+                gridSize: cg.w < 380 ? 6 : 4,
+                sizeRange: [sizeLo, sizeHi],
+                rotationRange: [-30, 30],
+                textStyle: {
+                  fontFamily: "Pretendard, Apple SD Gothic Neo, sans-serif",
+                  color: function (p) {
+                    var palette = dark ? ["#3ee8c5", "#818cf8", "#fbbf24", "#fb923c", "#f472b6"] : ["#0f6b5c", "#4f46e5", "#b8860b", "#c45c2a", "#be185d"];
+                    var name = (p && p.name) ? String(p.name) : "";
+                    var h = 0;
+                    for (var i = 0; i < name.length; i += 1) h = Math.imul(h ^ name.charCodeAt(i), 16777619);
+                    return palette[Math.abs(h) % palette.length];
+                  },
+                },
+                data: cloud,
+              }],
+            });
+            cloudOk = true;
+          } catch (cloudErr) {
+            console.error("[kca-chart] chart-kw-cloud", cloudErr);
+          }
+          if (!cloudOk) renderCloudBarChart();
         }
       } else if (document.getElementById("chart-kw-cloud")) {
         showChartEmpty("chart-kw-cloud", "키워드 신호가 부족합니다", "짧은 대화이거나 필터링 후 남은 본문 키워드가 거의 없습니다.");
@@ -888,8 +913,8 @@ export const CHARTS_INIT_SCRIPT = `
           }
         }
 
-        // 기본 임계값: 데이터 기반 자동 설정 (최대값의 2%, 최소 2)
-        var defaultThreshold = Math.max(2, Math.min(10, Math.floor(maxLink * 0.02)));
+        // 기본 임계값: 데이터 기반 자동 설정 (최대값의 1%, 최소 1)
+        var defaultThreshold = Math.max(1, Math.min(8, Math.floor(maxLink * 0.01)));
         var currentThreshold = defaultThreshold;
         var networkChart = null;
 
@@ -914,8 +939,7 @@ export const CHARTS_INIT_SCRIPT = `
           // 노드: 응답 총량 기반 크기, 원형 배치
           var nodes = indices.map(function (idx) {
             var totalReplies = replyCounts[idx] || 0;
-            // 면적 인식 고려 sqrt 스케일링, 최소 22px ~ 최대 68px
-            var size = Math.max(22, Math.min(68, Math.sqrt(totalReplies + 1) * 3.2));
+            var size = Math.max(34, Math.min(92, Math.sqrt(totalReplies + 1) * 4.5));
             return {
               name: aliases[idx],
               value: totalReplies,
@@ -924,6 +948,10 @@ export const CHARTS_INIT_SCRIPT = `
               label: { show: true }
             };
           });
+
+          if (links.length < 8 && allLinks.length > 0 && threshold > 1) {
+            links = allLinks.slice().sort(function (a, b) { return b.value - a.value; }).slice(0, 40);
+          }
 
           if (links.length === 0 && allLinks.length > 0) {
             // 엣지 없으면 노드만 표시 (빈 원형 다이어그램)
@@ -939,9 +967,9 @@ export const CHARTS_INIT_SCRIPT = `
               target: l.target,
               value: l.value,
               lineStyle: {
-                width: Math.max(1, Math.min(10, (l.value / maxLink) * 8)),
-                curveness: 0.3,
-                opacity: Math.max(0.2, Math.min(0.8, (l.value / maxLink)))
+                width: Math.max(2, Math.min(14, (l.value / maxLink) * 10)),
+                curveness: 0.28,
+                opacity: Math.max(0.5, Math.min(0.95, (l.value / maxLink) * 0.85 + 0.2))
               }
             };
           });
@@ -975,7 +1003,8 @@ export const CHARTS_INIT_SCRIPT = `
             itemStyle: {
               borderColor: dark ? "#1c2128" : "#fff",
               borderWidth: 2,
-              color: dark ? "#5ee8ff" : "#0f6b5c"
+              color: dark ? "#5ee8ff" : "#0f6b5c",
+              opacity: 0.92
             },
             label: {
               show: true,
@@ -994,9 +1023,9 @@ export const CHARTS_INIT_SCRIPT = `
             },
             labelLayout: { hideOverlap: true },
             lineStyle: {
-              color: dark ? "rgba(94,232,255,0.5)" : "rgba(15,107,92,0.45)",
-              curveness: 0.3,
-              opacity: 0.55
+              color: dark ? "rgba(94,232,255,0.72)" : "rgba(15,107,92,0.62)",
+              curveness: 0.28,
+              opacity: 0.72
             },
             emphasis: {
               focus: "adjacency",

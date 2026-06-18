@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it, test } from "node:test";
 import {
   chooseTopicTrendGranularity,
+  cloudChartMode,
+  isCloudNoiseLabel,
   isShortActivitySpan,
   keywordsForCloud,
   topicsForDisplay,
@@ -77,4 +79,29 @@ test("keywordsForCloud filters shop-search boilerplate", () => {
   const labels = out.map((k) => k.label);
   assert.ok(labels.includes("클로드"));
   assert.ok(!labels.includes("요약입니다"));
+});
+
+test("keywordsForCloud filters HTML scrape tokens", () => {
+  const out = keywordsForCloud([
+    { label: "articleview html", count: 52 },
+    { label: "html idxno", count: 52 },
+    { label: "프레임 워크", count: 40 },
+    { label: "클로드", count: 501, keywordLane: "both" },
+  ]);
+  const labels = out.map((k) => k.label);
+  assert.ok(!labels.includes("articleview html"));
+  assert.ok(labels.includes("프레임 워크"));
+});
+
+test("cloudChartMode prefers bar for noisy keywords", () => {
+  assert.equal(
+    cloudChartMode([
+      { label: "articleview html", count: 52 },
+      { label: "html idxno", count: 50 },
+      { label: "short", count: 40 },
+      { label: "oursophy", count: 38 },
+    ]),
+    "bar",
+  );
+  assert.equal(isCloudNoiseLabel("articleview html"), true);
 });
