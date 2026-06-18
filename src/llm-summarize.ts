@@ -469,7 +469,7 @@ export function schemaFailureQuality(repairAttempts = 0): LlmHarnessQuality {
     acceptedClaims: 0,
     droppedClaims: 0,
     repairAttempts,
-    fallbackUsed: true,
+    fallbackUsed: false,
     validationWarnings: ["schema_or_json_parse_failed"],
   };
 }

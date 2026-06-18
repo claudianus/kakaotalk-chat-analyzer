@@ -1,10 +1,12 @@
 import { probeMachineProfileSync } from "./analysis-capability.js";
 import { resolveLlmGpuForInfer } from "./llm-gpu-policy.js";
 import { canRetryLlmRam, minFreeGbForLlmRetry } from "./llm-policy.js";
-import { qwen35DisplayLabel } from "./llm-qwen35.js";
+import { effectiveLlmHeadroomGb } from "./llm-resolve.js";
+import { qwen35Entry, qwen35DisplayLabel } from "./llm-qwen35.js";
 import { buildEnrichmentFromParsed, llmRetryBudgetSkipReason, parseCompletionRaw, runLlmCompletion, schemaFailureQuality, } from "./llm-summarize.js";
 import { isLlmMockEnabled, resetLlmMockCallIndex } from "./llm-mock.js";
 import { buildHarnessRepairFeedback, } from "./llm-harness-feedback.js";
+import { buildRuleBasedLlmFallback } from "./llm-rule-fallback.js";
 export function buildHarnessAttemptLadder(plan) {
     const size = plan.size ?? "0.8B";
     const profile = probeMachineProfileSync();
@@ -95,10 +97,21 @@ function recordAttempt(attempts, spec, args) {
         repairFeedback: args.repairFeedback,
     });
 }
-function canRunHarnessRetry(index, size, budget) {
+function canRunHarnessRetry(index, size, budget, priorAttempts) {
     if (index === 0)
         return undefined;
     const profile = probeMachineProfileSync();
+    const hadInferenceFail = priorAttempts?.some((a) => !a.ok && (a.code === "inference_error" || a.code === "timeout" || a.code === "gguf_missing"));
+    if (hadInferenceFail && size === "0.8B") {
+        const headroom = effectiveLlmHeadroomGb(profile);
+        const need = qwen35Entry("0.8B").minHeadroomGb;
+        if (headroom >= need)
+            return llmRetryBudgetSkipReason(budget);
+        if (headroom >= need - 1) {
+            process.stderr.write(`[kca] LLM 하네스: 추론 실패 후 0.8B CPU 시도 (headroom ${headroom}GB)\n`);
+            return llmRetryBudgetSkipReason(budget);
+        }
+    }
     if (isLlmMockEnabled()) {
         const floor = minFreeGbForLlmRetry();
         if (profile.freeMemGb < floor) {
@@ -125,7 +138,7 @@ export async function runLlmHarness(data, plan, budget) {
     for (let i = 0; i < ladder.length; i += 1) {
         const spec = ladder[i];
         const repairFeedback = i > 0 ? nextRepairFeedback : undefined;
-        const retryBlock = canRunHarnessRetry(i, spec.size, budget);
+        const retryBlock = canRunHarnessRetry(i, spec.size, budget, attempts);
         if (retryBlock) {
             const isBudget = retryBlock.includes("예산");
             recordAttempt(attempts, spec, {
@@ -214,6 +227,19 @@ export async function runLlmHarness(data, plan, budget) {
         process.stderr.write(`[kca] LLM 검증 실패 (${spec.label}, accepted ${accepted}, dropped ${dropped}) — 다음 attempt\n`);
     }
     if (lastFailure) {
+        const ruleFallback = buildRuleBasedLlmFallback(data, plan, {
+            repairAttempts,
+            reason: lastFailure.skipReason,
+        });
+        if (isHarnessSuccess(ruleFallback)) {
+            process.stderr.write("[kca] LLM 하네스 실패 — 규칙 기반 fallback deck 적용\n");
+            recordAttempt(attempts, { label: "rule-fallback", compact: true, size: plan.size ?? "0.8B" }, {
+                ok: true,
+                accepted: ruleFallback.llmQuality?.acceptedClaims,
+                code: undefined,
+            });
+            return attachHarnessAttempts({ ...ruleFallback, used: true }, attempts, repairAttempts);
+        }
         return attachHarnessAttempts(lastFailure, attempts, repairAttempts);
     }
     return {

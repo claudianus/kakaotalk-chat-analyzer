@@ -1,4 +1,4 @@
-import { isShortActivitySpan, topicsThemesOnly } from "./report-chart-util.js";
+import { isShortActivitySpan, keywordsForCloud, topicsThemesOnly } from "./report-chart-util.js";
 import { hasCalendarHeatmap, showMonthlyChart } from "./report-section-visibility.js";
 import type { ReportData } from "./types.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
@@ -23,6 +23,7 @@ export interface ChartPayload {
   daily: { date: string; count: number }[];
   keywords: { label: string; count: number }[];
   keywordsDistinctive: { label: string; count: number }[];
+  cloudKeywords: { label: string; count: number }[];
   domains: { label: string; count: number }[];
   participants: { alias: string; messages: number; sharePercent: number }[];
   participantsByCharacters: { alias: string; characters: number; characterSharePercent: number }[];
@@ -68,6 +69,7 @@ export function buildChartPayload(data: ReportData): ChartPayload {
     daily: data.daily,
     keywords: data.keywords,
     keywordsDistinctive: data.keywordsDistinctive,
+    cloudKeywords: keywordsForCloud(data.keywords),
     domains: data.domains.slice(0, 24),
     participants: data.participants.slice(0, 24).map((p) => ({
       alias: p.alias,
@@ -678,36 +680,59 @@ export const CHARTS_INIT_SCRIPT = `
         showChartEmpty("chart-daily-heat", "일별 활동 데이터가 없습니다", "활동일이 확인되면 히트맵을 표시합니다.");
       }
 
-      if (hasSeries(data.keywords) && document.getElementById("chart-kw-cloud")) {
+      if (hasSeries(data.cloudKeywords) && document.getElementById("chart-kw-cloud")) {
         var cloudEl = document.getElementById("chart-kw-cloud");
         var cg = layout(cloudEl);
-        var cloud = data.keywords.slice(0, 100).map(function (k) {
+        var cloud = data.cloudKeywords.slice(0, 100).map(function (k) {
           return { name: k.label, value: k.count };
         });
         var sizeLo = cg.w < 380 ? 10 : 12;
         var sizeHi = cg.w < 380 ? 34 : cg.w < 640 ? 46 : 56;
-        init("chart-kw-cloud", {
-          textStyle: baseOpt().textStyle,
-          tooltip: { show: true },
-          series: [{
-            type: "wordCloud",
-            shape: "circle",
-            gridSize: cg.w < 380 ? 8 : 6,
-            sizeRange: [sizeLo, sizeHi],
-            rotationRange: [-45, 45],
-            textStyle: {
-              fontFamily: "Pretendard, Apple SD Gothic Neo, sans-serif",
-              color: function (p) {
-                var palette = dark ? ["#3ee8c5", "#818cf8", "#fbbf24", "#fb923c", "#f472b6"] : ["#0f6b5c", "#4f46e5", "#b8860b", "#c45c2a", "#be185d"];
-                var name = (p && p.name) ? String(p.name) : "";
-                var h = 0;
-                for (var i = 0; i < name.length; i += 1) h = Math.imul(h ^ name.charCodeAt(i), 16777619);
-                return palette[Math.abs(h) % palette.length];
+        var cloudOk = false;
+        try {
+          init("chart-kw-cloud", {
+            textStyle: baseOpt().textStyle,
+            tooltip: { show: true },
+            series: [{
+              type: "wordCloud",
+              shape: "circle",
+              gridSize: cg.w < 380 ? 8 : 6,
+              sizeRange: [sizeLo, sizeHi],
+              rotationRange: [-45, 45],
+              textStyle: {
+                fontFamily: "Pretendard, Apple SD Gothic Neo, sans-serif",
+                color: function (p) {
+                  var palette = dark ? ["#3ee8c5", "#818cf8", "#fbbf24", "#fb923c", "#f472b6"] : ["#0f6b5c", "#4f46e5", "#b8860b", "#c45c2a", "#be185d"];
+                  var name = (p && p.name) ? String(p.name) : "";
+                  var h = 0;
+                  for (var i = 0; i < name.length; i += 1) h = Math.imul(h ^ name.charCodeAt(i), 16777619);
+                  return palette[Math.abs(h) % palette.length];
+                },
               },
+              data: cloud,
+            }],
+          });
+          cloudOk = true;
+        } catch (cloudErr) {
+          console.error("[kca-chart] chart-kw-cloud", cloudErr);
+        }
+        if (!cloudOk) {
+          var topKw = cloud.slice(0, 15);
+          init("chart-kw-cloud", Object.assign(baseOpt(), {
+            grid: { left: Math.max(cg.leftCat, 72), right: cg.right, top: cg.top, bottom: cg.bottom },
+            xAxis: { type: "value", axisLabel: { color: muted, fontSize: cg.fs } },
+            yAxis: {
+              type: "category",
+              data: topKw.map(function (k) { return k.name; }).reverse(),
+              axisLabel: { color: text, fontSize: cg.fs },
             },
-            data: cloud,
-          }],
-        });
+            series: [{
+              type: "bar",
+              data: topKw.map(function (k) { return k.value; }).reverse(),
+              itemStyle: { color: accent, borderRadius: [0, 6, 6, 0] },
+            }],
+          }));
+        }
       } else if (document.getElementById("chart-kw-cloud")) {
         showChartEmpty("chart-kw-cloud", "키워드 신호가 부족합니다", "짧은 대화이거나 필터링 후 남은 본문 키워드가 거의 없습니다.");
       }
@@ -716,6 +741,10 @@ export const CHARTS_INIT_SCRIPT = `
         var sentEl = document.getElementById("chart-sentiment");
         var sg = layout(sentEl);
         var s = data.sentiment;
+        var sentSignal = (s.positivePercent || 0) + (s.negativePercent || 0);
+        if (sentSignal < 0.5) {
+          showChartEmpty("chart-sentiment", "감정 신호가 거의 없습니다", "긍정·부정 비중이 1% 미만이라 중립 100%에 가깝습니다. 수치만 참고하세요.");
+        } else {
         init("chart-sentiment", Object.assign(baseOpt(), {
           tooltip: { trigger: "item", formatter: "{b}: {c}%" },
           legend: { bottom: 0, textStyle: { color: muted, fontSize: sg.fs } },
@@ -731,6 +760,7 @@ export const CHARTS_INIT_SCRIPT = `
             label: { color: text, fontSize: sg.fs },
           }],
         }));
+        }
       } else if (document.getElementById("chart-sentiment")) {
         showChartEmpty("chart-sentiment", "감정 분석이 꺼져 있습니다", "프리셋이나 환경에 따라 감정 모델이 생략될 수 있습니다.");
       }
