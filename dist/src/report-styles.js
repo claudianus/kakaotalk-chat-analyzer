@@ -4071,6 +4071,7 @@ body.kca-oled .theme-btn.kca-ripple {
   overflow: hidden;
 }
 .dynamics-fill {
+  display: block;
   height: 100%;
   border-radius: inherit;
   background: var(--accent-grad);
@@ -4423,7 +4424,12 @@ body.kca-oled .theme-btn.kca-ripple {
 }
 .latency-alias { font-size: 13px; font-weight: 800; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .latency-track { height: 8px; border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
-.latency-fill { height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--teal), var(--accent)); }
+.latency-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--teal), var(--accent));
+}
 .latency-num { font-size: 12px; font-weight: 800; color: var(--muted); text-align: right; }
 
 /* ── Question-Answer Topology ── */
