@@ -108,7 +108,13 @@
 }
 .recent-day-header time { font-size: 13px; font-weight: 750; color: var(--ink); }
 .recent-day-count { font-size: 14px; font-weight: 800; color: var(--accent); }
-.recent-day-burst { font-size: 14px; }
+.recent-day-headline {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  font-weight: 600;
+}
 .recent-day-meta {
   display: flex;
   flex-wrap: wrap;

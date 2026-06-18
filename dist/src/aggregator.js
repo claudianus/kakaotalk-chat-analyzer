@@ -34,7 +34,7 @@ import { semanticItemsToTopics } from "./embedding-topics.js";
 import { buildKeywordSeedTopics } from "./keyword-seed-topics.js";
 import { mergeTopicLanes } from "./topic-merge.js";
 import { chooseTopicTrendGranularity } from "./report-chart-util.js";
-import { buildHighlights, buildParticipantRoles, buildRoomEventStats, buildSenderLabels, computeDaypartPercents, computeDensityFromSpan, computeGini, computeRhythmScore, computeTop3Share, domainEntropyBits, getDomains, getParticipantStat, increment, inferRoomRelationship, longestDateStreak, maxSilenceGapDays, medianSorted, normalizeToken, pad2, round, splitMonthlyKeywordBuckets, top1ShareFromCounts, topCounts, topDailyLinkSpikes, typeRichnessFromKeywords, } from "./accumulator/aggregator-helpers.js";
+import { buildHighlights, buildDaySnapshotHeadline, buildParticipantRoles, buildRoomEventStats, buildSenderLabels, computeDaypartPercents, computeDensityFromSpan, computeGini, computeRhythmScore, computeTop3Share, domainEntropyBits, getDomains, getParticipantStat, increment, inferRoomRelationship, longestDateStreak, maxSilenceGapDays, medianSorted, normalizeToken, pad2, round, splitMonthlyKeywordBuckets, top1ShareFromCounts, topCounts, topDailyLinkSpikes, typeRichnessFromKeywords, } from "./accumulator/aggregator-helpers.js";
 const ATTACHMENT_MARKERS = [
     "사진",
     "동영상",
@@ -1229,6 +1229,14 @@ export class ReportAggregator {
                     vsAvg,
                     hotTopicSummary: hotTopic?.summary,
                     evidence: hotTopic?.evidence,
+                    headline: buildDaySnapshotHeadline({
+                        messageCount: dayCount,
+                        vsAvg,
+                        topSenders,
+                        keywords,
+                        peakHour,
+                        activeParticipants: senderMap?.size ?? 0,
+                    }),
                 });
                 weekTotal += dayCount;
             }

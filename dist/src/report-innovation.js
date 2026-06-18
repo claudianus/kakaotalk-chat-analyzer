@@ -171,18 +171,30 @@ function renderExplorerBlock(data) {
 function renderSentimentRollercoaster(data) {
     const items = data.dailySentiment;
     const width = 100;
-    const height = 40;
-    const padding = 2;
-    const minEnergy = -100;
-    const maxEnergy = 100;
-    const xStep = items.length > 1 ? width / (items.length - 1) : 0;
+    const height = 48;
+    const padding = 4;
+    const energies = items.map((d) => d.energy);
+    const minEnergy = Math.min(...energies, -15);
+    const maxEnergy = Math.max(...energies, 15);
+    const span = Math.max(maxEnergy - minEnergy, 20);
+    const xStep = items.length > 1 ? (width - padding * 2) / (items.length - 1) : 0;
+    const yFor = (energy) => height - padding - ((energy - minEnergy) / span) * (height - padding * 2);
     const points = items
         .map((d, i) => {
-        const x = i * xStep;
-        const y = height - padding - ((d.energy - minEnergy) / (maxEnergy - minEnergy)) * (height - 2 * padding);
+        const x = padding + i * xStep;
+        const y = yFor(d.energy);
         return `${x.toFixed(2)},${y.toFixed(2)}`;
     })
         .join(" ");
+    const areaPoints = `${padding},${height - padding} ${points} ${padding + (items.length - 1) * xStep},${height - padding}`;
+    const dots = items
+        .map((d, i) => {
+        const x = padding + i * xStep;
+        const y = yFor(d.energy);
+        const cls = d.energy > 10 ? "pos" : d.energy < -10 ? "neg" : "mid";
+        return `<circle class="sentiment-dot sentiment-dot--${cls}" cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="2.2"><title>${escapeHtml(d.date)}: ${d.energy}</title></circle>`;
+    })
+        .join("");
     const spikes = items
         .slice(1)
         .map((d, i) => ({
@@ -195,17 +207,22 @@ function renderSentimentRollercoaster(data) {
     const spikeList = spikes
         .map((s) => {
         const direction = s.energy > 0 ? "긍정" : s.energy < 0 ? "부정" : "중립";
-        return `<li><time>${escapeHtml(s.date)}</time> <span class="num">${formatNumber(s.change)}%p</span> 변화 · ${direction} ${formatNumber(Math.abs(s.energy))}</li>`;
+        return `<li><time>${escapeHtml(s.date)}</time> <span class="num">${formatNumber(s.change)}%p</span> 변화 · ${direction}</li>`;
     })
         .join("");
     return `<section id="s-sentiment" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.056s" aria-label="감정 롤러코스터">
     <h2 class="section-glow">감정 롤러코스터</h2>
-    <p class="chart-hint">일별 감정 에너지(긍정-부정) 변화를 보여줍니다.</p>
-    <div class="sentiment-sparkline">
-      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="일별 감정 에너지 스파크라인">
-        <line x1="0" y1="${height / 2}" x2="${width}" y2="${height / 2}" stroke="var(--line)" stroke-width="0.5" />
-        <polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
+    <p class="chart-hint">날마다 긍정·부정 톤이 얼마나 올랐다 내려갔는지 — 점이 높을수록 분위기가 가벼웠던 날입니다.</p>
+    <svg class="sentiment-coaster-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="일별 감정 에너지">
+      <line x1="${padding}" y1="${yFor(0).toFixed(2)}" x2="${width - padding}" y2="${yFor(0).toFixed(2)}" stroke="var(--line)" stroke-width="0.6" stroke-dasharray="2 2" />
+      <polygon points="${areaPoints}" fill="color-mix(in oklab, var(--accent) 22%, transparent)" />
+      <polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      ${dots}
+    </svg>
+    <div class="sentiment-coaster-legend">
+      <span>기준선 = 중립</span>
+      <span class="sentiment-coaster-dot">● 높음=가벼움</span>
+      <span class="sentiment-coaster-dot">● 낮음=무거움</span>
     </div>
     <ol class="sentiment-spike-list">${spikeList}</ol>
   </section>`;
@@ -246,7 +263,7 @@ function renderParticipantDynamics(data) {
     const ins = data.insights;
     const total = data.summary.totalMessages;
     const bars = data.participants
-        .slice(0, 8)
+        .slice(0, 10)
         .map((p) => {
         const width = total > 0 ? (p.messages / total) * 100 : 0;
         return `<div class="dynamics-bar" title="${escapeHtml(p.alias)} ${formatNumber(p.messages)}건">
@@ -256,9 +273,9 @@ function renderParticipantDynamics(data) {
       </div>`;
     })
         .join("");
-    return `<section id="s-dynamics" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.058s" aria-label="참여자 역학">
-    <h2 class="section-glow">참여자 역학</h2>
-    <p class="chart-hint">메시지 분포의 불평등과 독백 비율을 보여줍니다.</p>
+    return `<section id="s-dynamics" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.058s" aria-label="누가 얼마나 말하나">
+    <h2 class="section-glow">누가 얼마나 말하나</h2>
+    <p class="chart-hint">메시지 상위 10명 비중 — 막대가 길수록 더 많이 말했습니다.</p>
     <div class="dynamics-curve">${bars}</div>
     <div class="dynamics-metric-grid">
       <div><b>지니 계수</b><span class="num">${ins.participantGini != null ? ins.participantGini.toFixed(2) : "—"}</span></div>
@@ -393,6 +410,22 @@ export function renderActivityRestRhythm(data) {
     </div>
   </section>`;
 }
+function sampleLatencyResponders(responders, target = 30) {
+    if (responders.length <= target)
+        return responders;
+    const sorted = [...responders].sort((a, b) => b.replies - a.replies);
+    const top = sorted.slice(0, 10);
+    const rest = sorted.slice(10);
+    const slots = target - top.length;
+    const picked = [];
+    for (let i = 0; i < slots; i++) {
+        const idx = Math.min(rest.length - 1, Math.floor((i + 0.5) * (rest.length / slots)));
+        const cand = rest[idx];
+        if (cand && !picked.includes(cand))
+            picked.push(cand);
+    }
+    return [...top, ...picked].sort((a, b) => a.medianMinutes - b.medianMinutes);
+}
 function renderReplyLatencyFingerprint(data) {
     const latency = data.replyLatency;
     const total = latency.totalReplies;
@@ -402,12 +435,13 @@ function renderReplyLatencyFingerprint(data) {
         { label: "10분 초과", pct: latency.slowRatePercent, cls: "slow" },
     ];
     const stacked = distribution
-        .map((d) => `<span class="latency-seg latency-seg--${d.cls}" style="width:${d.pct.toFixed(2)}%" title="${escapeHtml(d.label)} ${formatNumber(d.pct)}%"></span>`)
+        .map((d) => `<span class="latency-seg latency-seg--${d.cls}" style="width:${Math.max(d.pct, 0.5).toFixed(2)}%" title="${escapeHtml(d.label)} ${formatNumber(d.pct)}%"></span>`)
         .join("");
-    const maxMedian = Math.max(...latency.responders.map((r) => r.medianMinutes), 1);
-    const rows = latency.responders
+    const display = sampleLatencyResponders(latency.responders);
+    const maxMedian = Math.max(...display.map((r) => r.medianMinutes), 0.01);
+    const rows = display
         .map((r) => {
-        const width = Math.min(100, (r.medianMinutes / maxMedian) * 100);
+        const width = r.medianMinutes <= 0 ? 0 : Math.max(10, Math.min(100, (r.medianMinutes / maxMedian) * 100));
         return `<div class="latency-row" title="${escapeHtml(r.alias)}: 중앙값 ${formatNumber(r.medianMinutes)}분, P90 ${formatNumber(r.p90Minutes)}분, ${formatNumber(r.replies)}건">
         <span class="latency-alias">${escapeHtml(r.alias)}</span>
         <span class="latency-track"><span class="latency-fill" style="width:${width.toFixed(2)}%"></span></span>
@@ -415,16 +449,19 @@ function renderReplyLatencyFingerprint(data) {
       </div>`;
     })
         .join("");
-    return `<section id="s-latency" class="kca-section card kca-card--data latency-fingerprint anim-enter" data-observe style="--enter-delay:0.061s" aria-label="응답 지연 지문">
-    <h2 class="section-glow">응답 지문</h2>
-    <p class="chart-hint">상대가 말한 뒤 내가 답할 때까지 걸린 시간 — <strong>누가 가장 빨리 반응</strong>하는지 보여줍니다.</p>
+    const sampledNote = latency.responders.length > display.length
+        ? ` <small>(상위 10명 + 구간 샘플 ${display.length}명)</small>`
+        : "";
+    return `<section id="s-latency" class="kca-section card kca-card--data latency-fingerprint anim-enter" data-observe style="--enter-delay:0.061s" aria-label="누가 빨리 답하나">
+    <h2 class="section-glow">누가 빨리 답하나</h2>
+    <p class="chart-hint">상대가 말한 뒤 내가 답할 때까지 걸린 시간 — 막대가 길수록 더 늦게 답하는 편입니다.${sampledNote}</p>
     <div class="latency-summary">
       <div><b>방 중앙값</b><span class="num">${formatNumber(latency.roomMedianMinutes)}분</span></div>
       <div><b>P90</b><span class="num">${formatNumber(latency.roomP90Minutes)}분</span></div>
       <div><b>총 응답</b><span class="num">${formatNumber(total)}건</span></div>
     </div>
     <div class="latency-stacked" role="img" aria-label="응답 속도 분포">${stacked}</div>
-    <div class="latency-rows">${rows}</div>
+    <div class="latency-rows latency-rows--sampled">${rows}</div>
   </section>`;
 }
 function renderQuestionAnswerTopology(data) {
@@ -467,9 +504,9 @@ function renderBurstAnatomy(data) {
       </article>`;
     })
         .join("");
-    return `<section id="s-burst-anatomy" class="kca-section card kca-card--data burst-anatomy anim-enter" data-observe style="--enter-delay:0.063s" aria-label="급증 핵심 항체">
-    <h2 class="section-glow">급증 핵심 항체</h2>
-    <p class="chart-hint">평소보다 메시지가 급증한 날의 <strong>참여자·핵심 키워드·평소 대비 배수</strong>입니다.</p>
+    return `<section id="s-burst-anatomy" class="kca-section card kca-card--data burst-anatomy anim-enter" data-observe style="--enter-delay:0.063s" aria-label="대화가 몰린 날">
+    <h2 class="section-glow">대화가 몰린 날</h2>
+    <p class="chart-hint">평소보다 메시지가 훨씬 많았던 날 — 누가 말했고 무슨 주제였는지 모아봤어요.</p>
     <div class="burst-anatomy-grid" role="list">${cards}</div>
   </section>`;
 }

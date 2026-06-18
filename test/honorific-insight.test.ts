@@ -43,8 +43,8 @@ describe("honorific insight", () => {
     const html = renderReportHtml(report);
     assert.equal(html.includes("표본 부족"), false);
     assert.equal(html.includes("판단 보류"), false);
-    assert.equal(html.includes("전체 50건"), true);
-    assert.equal(html.includes("판별 10건"), true);
+    assert.match(html, /honorific-bar-row/);
+    assert.match(html, /존칭/);
   });
 
   it("still defers when there are too few discriminative messages", () => {

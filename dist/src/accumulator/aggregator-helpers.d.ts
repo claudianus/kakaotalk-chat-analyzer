@@ -71,6 +71,17 @@ export declare function buildRoomEventStats(total: number, c: RoomEventCounts, s
     untaggedNotices: number;
 }): import("../types.js").RoomEventStats;
 export declare function buildParticipantRoles(participants: ParticipantStat[], laughBySender: Map<string, number>, shortBySender: Map<string, number>, aliases: Map<string, string>): ParticipantRole[];
+export declare function buildDaySnapshotHeadline(day: {
+    messageCount: number;
+    vsAvg: number;
+    topSenders: {
+        alias: string;
+        count: number;
+    }[];
+    keywords: string[];
+    peakHour: number | null;
+    activeParticipants: number;
+}): string;
 export declare function formatDayMdHighlight(ymd: string): string;
 export declare function buildHighlights(input: {
     total: number;

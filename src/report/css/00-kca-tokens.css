@@ -139,12 +139,13 @@
   --card-border: var(--line);
   --card-shadow: var(--shadow);
   --card-radius: var(--radius-card);
-  --card-pad: clamp(18px, 2.8vw, 28px);
-  --card-pad-sm: clamp(12px, 2vw, 18px);
-  --section-gap: clamp(20px, 3vw, 36px);
-  --heading-gap: clamp(10px, 1.6vw, 16px);
-  --content-pad: clamp(14px, 2.2vw, 24px);
-  --content-max: clamp(1440px, 86vw, 2320px);
+  --card-pad: clamp(14px, 2vw, 22px);
+  --card-pad-sm: clamp(10px, 1.6vw, 14px);
+  --section-gap: clamp(16px, 2.2vw, 28px);
+  --heading-gap: clamp(8px, 1.2vw, 12px);
+  --content-pad: clamp(12px, 1.8vw, 20px);
+  /* QHD(2560) 이상에서도 콘텐츠 폭은 1440px로 고정 — 4K에서 과도한 여백 방지 */
+  --content-max: min(1440px, calc(100vw - (var(--content-pad) * 2)));
 
   font-family: var(--kca-font-sans);
 }

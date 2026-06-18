@@ -142,12 +142,12 @@ describe("innovation layer", () => {
     assert.match(html, /id="s-keyword-gravity"/);
     assert.match(html, /감정 롤러코스터/);
     assert.match(html, /대화 리듬 & 침묵 지도/);
-    assert.match(html, /참여자 역학/);
+    assert.match(html, /누가 얼마나 말하나/);
     assert.match(html, /시간대 지문/);
     assert.match(html, /토픽 플로우/);
-    assert.match(html, /응답 지문/);
+    assert.match(html, /누가 빨리 답하나/);
     assert.match(html, /질문-응답 지도/);
-    assert.match(html, /급증 핵심 항체/);
+    assert.match(html, /대화가 몰린 날/);
     assert.match(html, /키워드 중력/);
   });
 
