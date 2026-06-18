@@ -4,6 +4,7 @@ import type { MachineProfile } from "../src/analysis-capability.js";
 import { canRetryLlmRam, minFreeGbForLlmRetry } from "../src/llm-resolve.js";
 import { buildKcaLlmJsonSchema } from "../src/llm-schema.js";
 import { isLlmGrammarEnabled } from "../src/llm-grammar.js";
+import { resolveLlmContextSize, resolveLlmMaxTokens } from "../src/llm-llama-core.js";
 
 function profile(freeMemGb: number, availableMemGb = 16): MachineProfile {
   return {
@@ -73,5 +74,26 @@ test("isLlmGrammarEnabled off when KCA_LLM_GRAMMAR=0", () => {
   } finally {
     if (prev === undefined) delete process.env.KCA_LLM_GRAMMAR;
     else process.env.KCA_LLM_GRAMMAR = prev;
+  }
+});
+
+test("resolveLlmMaxTokens defaults to 2048 and respects env", () => {
+  const prevMax = process.env.KCA_LLM_MAX_TOKENS;
+  const prevCtx = process.env.KCA_LLM_CONTEXT_SIZE;
+  delete process.env.KCA_LLM_MAX_TOKENS;
+  delete process.env.KCA_LLM_CONTEXT_SIZE;
+  try {
+    assert.equal(resolveLlmMaxTokens(), 2048);
+    assert.equal(resolveLlmContextSize(), 8192);
+    process.env.KCA_LLM_MAX_TOKENS = "3072";
+    assert.equal(resolveLlmMaxTokens(), 3072);
+    assert.equal(resolveLlmContextSize(), 8192);
+    process.env.KCA_LLM_CONTEXT_SIZE = "12288";
+    assert.equal(resolveLlmContextSize(), 12288);
+  } finally {
+    if (prevMax === undefined) delete process.env.KCA_LLM_MAX_TOKENS;
+    else process.env.KCA_LLM_MAX_TOKENS = prevMax;
+    if (prevCtx === undefined) delete process.env.KCA_LLM_CONTEXT_SIZE;
+    else process.env.KCA_LLM_CONTEXT_SIZE = prevCtx;
   }
 });

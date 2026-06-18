@@ -36,10 +36,12 @@ async function main(): Promise<void> {
     const text = await runLlamaPromptInProcess({
       modelPath: req.modelPath,
       prompt: req.prompt,
+      systemPrompt: req.systemPrompt,
       maxTokens: req.maxTokens,
       inferTimeoutMs: req.inferTimeoutMs,
       loadTimeoutMs: req.loadTimeoutMs,
       grammarJsonSchema: req.grammarJsonSchema,
+      sampling: req.sampling,
     });
     writeResponse({ ok: true, text });
     process.exit(0);

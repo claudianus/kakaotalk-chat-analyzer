@@ -261,6 +261,12 @@ export function formatProvenanceDetails(provenance: ReportProvenance): string[] 
     lines.push(
       `LLM 하네스: schema ${a.llmQuality.schemaValid ? "ok" : "fail"} · accepted ${a.llmQuality.acceptedClaims} · dropped ${a.llmQuality.droppedClaims} · repair ${a.llmQuality.repairAttempts}${a.llmQuality.fallbackUsed ? " · rule fallback" : ""}${warnings}`,
     );
+    if (a.llmQuality.attempts?.length) {
+      const summary = a.llmQuality.attempts
+        .map((t) => `${t.label}:${t.ok ? "ok" : t.code ?? "fail"}`)
+        .join(" → ");
+      lines.push(`LLM attempt: ${summary}`);
+    }
   }
   if (a.embeddingTopics !== undefined) {
     lines.push(`임베딩 주제 레인: ${a.embeddingTopics ? "on" : "off"}`);

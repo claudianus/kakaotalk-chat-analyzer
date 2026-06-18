@@ -451,6 +451,17 @@ export interface LlmDayMicroStory {
     date: string;
     line: string;
 }
+export interface LlmHarnessAttemptRecord {
+    label: string;
+    ok: boolean;
+    code?: string;
+    accepted?: number;
+    dropped?: number;
+    elapsedMs?: number;
+    freeRamGb?: number;
+    /** 다음 attempt에 전달된 수정 지시 요약 */
+    repairFeedback?: string;
+}
 export interface LlmHarnessQuality {
     schemaValid: boolean;
     acceptedClaims: number;
@@ -458,6 +469,7 @@ export interface LlmHarnessQuality {
     repairAttempts: number;
     fallbackUsed: boolean;
     validationWarnings: string[];
+    attempts?: LlmHarnessAttemptRecord[];
 }
 export interface TopicTrendItem {
     period: string;

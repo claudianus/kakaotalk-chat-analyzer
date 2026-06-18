@@ -56,11 +56,14 @@ export interface LlmJsonShape {
         text?: string;
     }[];
 }
+export { validateLlmJsonShape, llmJsonValidationErrors } from "./llm-json-validate.js";
 /** 첫 `{`부터 중괄호 깊이로 닫는 `}` 위치 (문자열 내부 무시) */
 export declare function findBalancedJsonEnd(text: string, start: number): number;
-/** LLM 응답에서 JSON 객체 추출 (thinking·fence·서문 허용) */
+/** LLM 응답에서 JSON 객체 추출 (thinking·fence·서문·truncation repair) */
 export declare function extractLlmJsonObject(text: string): LlmJsonShape | null;
-/** grammar.parse 1차, heuristic 2차 */
+/** parse 실패 원인 — harness repair 프롬프트용 */
+export declare function diagnoseLlmJsonParseFailure(raw: string): string;
+/** grammar.parse 1차, extract+repair+Ajv 2차 */
 export declare function parseLlmJsonResponse(raw: string, grammar: {
     parse: (json: string) => unknown;
 } | null | undefined): LlmJsonShape | null;

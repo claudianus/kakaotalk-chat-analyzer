@@ -1,7 +1,7 @@
 import { runLlamaPromptInProcess } from "./llm-infer-internal.js";
-import { applyGgmlMetalCompatibilityEnv, resolveLlamaGpuMode, resolveLlmSamplingParams, } from "./llm-llama-core.js";
+import { applyGgmlMetalCompatibilityEnv, resolveLlamaGpuMode, resolveLlmSamplingParams, resolveLlmSamplingForStructured, } from "./llm-llama-core.js";
 import { LlmInferProcessError, runLlmInChildProcess, } from "./llm-subprocess.js";
-export { applyGgmlMetalCompatibilityEnv, resolveLlamaGpuMode, resolveLlmSamplingParams, };
+export { applyGgmlMetalCompatibilityEnv, resolveLlamaGpuMode, resolveLlmSamplingParams, resolveLlmSamplingForStructured, };
 export { LlmInferProcessError };
 /** GGUF 추론 — 기본 child 격리 (`KCA_LLM_IN_PROCESS=1` 시 in-process) */
 export async function runLlamaPrompt(options) {
@@ -12,10 +12,13 @@ export async function runLlamaPrompt(options) {
     const res = await runLlmInChildProcess({
         modelPath: options.modelPath,
         prompt: options.prompt,
+        systemPrompt: options.systemPrompt,
         maxTokens: options.maxTokens,
         inferTimeoutMs: options.inferTimeoutMs,
         loadTimeoutMs: options.loadTimeoutMs,
         gpu,
+        grammarJsonSchema: options.grammarJsonSchema,
+        sampling: options.sampling,
     });
     if (res.ok)
         return res.text;

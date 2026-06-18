@@ -1,3 +1,4 @@
+import type { Qwen35Size } from "./llm-qwen35.js";
 /** node-llama-cpp GbnfJsonSchema subset — kca LLM enrichment 출력 */
 export declare function buildKcaLlmJsonSchema(): {
     readonly type: "object";
@@ -255,3 +256,24 @@ export declare function buildKcaLlmJsonSchema(): {
         };
     };
 };
+/** 사후 파싱용 — grammar보다 완화 (paragraphs 1개도 허용) */
+export declare function buildKcaLlmJsonParseSchema(): {
+    properties?: {
+        paragraphs?: {
+            minItems?: number;
+        };
+    };
+};
+/** grammar·프롬프트 복잡도 — SLM은 minimal/compact가 JSONSchemaBench 기준 유리 */
+export type LlmSchemaTier = "full" | "compact" | "minimal";
+/** 티어별 JSON Schema — constrained decoding 부담 축소 */
+export declare function buildKcaLlmJsonSchemaTier(tier: LlmSchemaTier): {
+    type: string;
+    properties: Record<string, unknown>;
+};
+/** 모델 크기·repair 단계에 맞는 grammar 스키마 */
+export declare function resolveLlmSchemaTier(args: {
+    modelSize: Qwen35Size;
+    compact: boolean;
+    repairAttempt: boolean;
+}): LlmSchemaTier;

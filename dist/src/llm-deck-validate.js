@@ -250,6 +250,7 @@ export function sanitizeLlmDeckWithAudit(parsed, data) {
         if (fallback) {
             out.roomArchetype = fallback;
             audit.fallbackUsed = true;
+            recordAccept(audit, 1);
         }
     }
     const rawMoments = parsed.moments ?? [];

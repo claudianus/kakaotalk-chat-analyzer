@@ -3,6 +3,7 @@ import {
   applyGgmlMetalCompatibilityEnv,
   resolveLlamaGpuMode,
   resolveLlmSamplingParams,
+  resolveLlmSamplingForStructured,
   type LlamaGpuMode,
   type RunLlamaPromptOptions,
 } from "./llm-llama-core.js";
@@ -16,6 +17,7 @@ export {
   applyGgmlMetalCompatibilityEnv,
   resolveLlamaGpuMode,
   resolveLlmSamplingParams,
+  resolveLlmSamplingForStructured,
   type LlamaGpuMode,
   type RunLlamaPromptOptions,
 };
@@ -33,10 +35,13 @@ export async function runLlamaPrompt(options: RunLlamaPromptOptions): Promise<st
   const res = await runLlmInChildProcess({
     modelPath: options.modelPath,
     prompt: options.prompt,
+    systemPrompt: options.systemPrompt,
     maxTokens: options.maxTokens,
     inferTimeoutMs: options.inferTimeoutMs,
     loadTimeoutMs: options.loadTimeoutMs,
     gpu,
+    grammarJsonSchema: options.grammarJsonSchema,
+    sampling: options.sampling,
   });
 
   if (res.ok) return res.text;
