@@ -1,6 +1,7 @@
 import type { DailySnapshot, RecentSnapshot, ReportData } from "./types.js";
 import { buildDaySnapshotHeadline } from "./accumulator/aggregator-helpers.js";
 import { escapeHtml, formatNumber } from "./report-util.js";
+import { renderWeekTopSendersStrip } from "./report-period-metrics.js";
 
 function sumHourly(hourly: number[]): number {
   return hourly.reduce((a, b) => a + b, 0);
@@ -74,5 +75,6 @@ export function renderRecentFocusDeck(data: ReportData): string {
       ${renderFocusColumn("최근 24시간", "24h", today, todayPeak ? escapeHtml(todayPeak) : undefined)}
       ${renderFocusColumn("최근 7일", "7d", weekFocus, escapeHtml(weekExtra))}
     </div>
+    ${renderWeekTopSendersStrip(data)}
   </section>`;
 }

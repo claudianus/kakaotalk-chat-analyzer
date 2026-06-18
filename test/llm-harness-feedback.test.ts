@@ -36,6 +36,8 @@ test("buildValidationRepairFeedback mentions warnings and keywords", () => {
   assert.match(feedback, /검증 실패/);
   assert.match(feedback, /클로드/);
   assert.match(feedback, /키워드 증거 부족/);
+  assert.match(feedback, /AI 슬롭/);
+  assert.match(feedback, /흥미롭게도/);
 });
 
 test("buildInferenceRepairFeedback for timeout", () => {

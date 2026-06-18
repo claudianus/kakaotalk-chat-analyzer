@@ -520,6 +520,21 @@ export interface DailySnapshot {
     /** 일별 한 줄 요약 (최근 스냅샷용) */
     headline?: string;
 }
+export interface RecentPeriodMetricRow {
+    key: string;
+    label: string;
+    whole: string;
+    week: string;
+}
+/** 전체 vs 최근 7일 병렬 지표 */
+export interface RecentPeriodInsights {
+    weekTopSenders: {
+        alias: string;
+        count: number;
+        sharePercent: number;
+    }[];
+    metrics: RecentPeriodMetricRow[];
+}
 /** 최근 7일 + 리포트 당일(24h) 스냅샷 */
 export interface RecentSnapshot {
     /** 스냅샷 기준 마지막 날짜 (YYYY-MM-DD) */
@@ -830,6 +845,8 @@ export interface ReportData {
     memorableMoments: MemorableMoment[];
     /** 최근 7일 + 리포트 당일 상세 스냅샷 */
     recentSnapshot?: RecentSnapshot;
+    /** 전체 vs 최근 7일 비교 지표·주간 상위 참여자 */
+    recentPeriodInsights?: RecentPeriodInsights;
     /** 응답 지연 지문 — 누가 얼마나 빨리 답하는가 */
     replyLatency: ReplyLatencyFingerprint | null;
     /** 질문-응답 토폴로지 — 누가 묻고 누가 답하는가 */

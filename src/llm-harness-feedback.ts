@@ -1,4 +1,5 @@
 import { diagnoseLlmJsonParseFailure } from "./llm-json.js";
+import { AI_SLOP_EXAMPLE_PHRASES } from "./llm-slop.js";
 import type { LlmHarnessQuality, ReportData } from "./types.js";
 
 export type HarnessInferenceCode =
@@ -37,7 +38,7 @@ export function buildValidationRepairFeedback(
     evidence.length ? `문장에 반드시 넣을 키워드: ${evidence.join(", ")}` : "",
     warnings.length ? `탈락 사유: ${warnings.join(", ")}` : "",
     "paragraphs 2~3개, insightBullets 2~4개, roomArchetype.name/description에 위 키워드·입력 통계 숫자를 포함하세요.",
-    "AI 슬롭·일반론·영어 오류 메시지 금지.",
+    `AI 슬롭·일반론 금지(예: ${AI_SLOP_EXAMPLE_PHRASES.slice(0, 5).join(", ")}). 구체 키워드·입력 통계만.`,
   ];
   return parts.filter(Boolean).join(" ");
 }

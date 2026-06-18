@@ -9,6 +9,7 @@ import { REPORT_EXPLORER_SCRIPT, REPORT_UX_SCRIPT, renderTopChrome, topicNavLink
 import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck, renderStoryTimelinePair } from "./report-innovation.js";
 import { renderRecentFocusDeck } from "./report-focus.js";
+import { renderPeriodMetricsComparison, renderWeekTopSendersStrip } from "./report-period-metrics.js";
 import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderParticipantRoles, renderRecentSnapshot, renderRoomCultureStrip, renderSentimentWeatherStrip, } from "./report-llm-deck.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
 import { hasActivityRestRhythm, hasBenchmarkSection, hasBurstAnatomy, hasCalendarHeatmap, hasDaypartFingerprint, hasDyadSection, hasExplorerSection, hasKeywordGravity, hasNarrativeSection, hasParticipantDynamics, hasQuestionAnswerTopology, hasReplyLatencyFingerprint, hasRhythmSilenceMap, hasRoomCultureStrip, hasSentimentRollercoaster, hasSentimentWeatherStrip, hasTimelineSection, hasTopicFlow, } from "./report-section-visibility.js";
@@ -442,27 +443,23 @@ function renderFactMatrix(data) {
     const core = [
         ["피크 시각", s.peakHour === null ? "—" : `${s.peakHour}시`],
         ["최장 연속일", `${s.longestActiveStreakDays}일`],
-        ["상위3 점유", `${ins.top3ParticipantSharePercent}%`],
-        ["참여 지니", ins.participantGini === null ? "—" : String(ins.participantGini)],
-        ["주말%", `${ins.weekendSharePercent}%`],
-        ["심야%", `${s.nightSharePercent}%`],
         ["응답 간격", formatReplyGapMinutes(s.medianReplyGapMinutes)],
         ["화자전환·100", String(ins.speakerSwitchRatePer100)],
     ];
     const extra = [
-        ["응답 상위10%", ins.replyGapP90Minutes === null ? "—" : formatReplyGapMinutes(ins.replyGapP90Minutes)],
-        ["평균 길이", `${s.averageMessageLength}자`],
         ["링크 메시지", formatNumber(s.messagesWithLinks)],
         ["첨부 메시지", formatNumber(s.messagesWithAttachments)],
         ["이모지 메시지", formatNumber(s.emojiMessages)],
-        ["최장 무활동", `${ins.maxSilenceBetweenActiveDays ?? 0}일`],
+        ["총 메시지", formatNumber(s.totalMessages)],
     ];
     const factInner = [...core, ...extra]
         .map(([k, v]) => `<div class="fact-cell" data-observe><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
         .join("");
+    const compare = renderPeriodMetricsComparison(data);
     return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>📊 핵심 숫자</h2>
     ${renderSampleBadge(data)}
+    ${compare}
     <div class="fact-grid fact-grid--all" data-observe>${factInner}</div>
   </section>`;
 }
@@ -470,7 +467,8 @@ function renderParticipantsFold(data) {
     const n = data.participants.length;
     if (n === 0)
         return "";
-    return panel(`참여자 랭킹 · 전체 ${formatNumber(n)}`, "메시지 수 기준 참여자 랭킹.", renderParticipants(data.participants));
+    const weekStrip = renderWeekTopSendersStrip(data);
+    return panel(`참여자 랭킹 · 전체 ${formatNumber(n)}`, "메시지 수 기준 참여자 랭킹. 최근 7일 순위는 아래 별도 표시.", `${weekStrip}${renderParticipants(data.participants)}`);
 }
 function linkEntropyMetric(data, ins) {
     const linkMsgs = data.participants.reduce((s, p) => s + p.linkMessages, 0);
@@ -483,11 +481,8 @@ function renderInsightDeck(data) {
     const sessionMetric = insMetric("💬 대화 세션", ins.avgMessagesPerSession === null
         ? `${ins.sessionCount}개`
         : `${ins.sessionCount}개 / 평균 ${ins.avgMessagesPerSession}건`, "30분 이상 침묵으로 구분");
-    const giniStr = ins.participantGini === null ? "—" : String(ins.participantGini);
     const p90 = formatReplyGapMinutes(ins.replyGapP90Minutes);
     const silence = ins.maxSilenceBetweenActiveDays === null ? "—" : `${ins.maxSilenceBetweenActiveDays}일`;
-    const entropy = ins.linkDomainEntropyBits === null ? "—" : `${ins.linkDomainEntropyBits} bit`;
-    const density = ins.densityMessagesPerCalendarDay === null ? "—" : String(ins.densityMessagesPerCalendarDay);
     const daypartBar = ins.daypartPercents
         .map((d) => {
         const w = Math.max(0, d.percent);
@@ -515,11 +510,8 @@ function renderInsightDeck(data) {
       </div>
     </div>
     <div class="insight-grid" data-observe>
-      ${insMetric("📊 주말 비중", `${ins.weekendSharePercent}%`, "토·일 메시지 비율")}
-      ${insMetric("👥 참여 지니", giniStr, giniMetricSub(ins.participantGini, data.summary.participants))}
       ${insMetric("⏱️ 응답 상위10%", p90, "느린 쪽 10% 구간")}
       ${insMetric("⏸️ 최장 공백", silence, "활동일 사이 최대 휴지")}
-      ${insMetric("🏆 상위3 점유", `${ins.top3ParticipantSharePercent}%`, top3MetricSub(ins.top3ParticipantSharePercent, ins.participantGini))}
       ${insMetric("🔄 화자 전환", `${ins.speakerSwitchRatePer100}/100`, "100메시지당 말바꿈")}
       ${linkEntropyMetric(data, ins)}
       ${insMetric("❓ 질문 수", `${ins.questionLikeMessagesPer100}/100`, "100메시지당 물음표 포함")}
@@ -528,7 +520,6 @@ function renderInsightDeck(data) {
       ${insMetric("📈 최고 활동일", `${ins.peakDaySharePercent}%`, "전체 중 일별 최대 비중")}
       ${insMetric("🔗 고유 도메인", String(ins.uniqueDomainCount), "서로 다른 링크 도메인")}
       ${insMetric("📝 평균 길이", `${data.summary.averageMessageLength}자`, "메시지당 평균 글자 수")}
-      ${insMetric("🌙 심야 비중", `${data.summary.nightSharePercent}%`, "23시~05시 메시지 비율")}
     </div>
     ${renderLlmInsideJokes(data)}
     <div class="insight-aux-grid" data-observe>
