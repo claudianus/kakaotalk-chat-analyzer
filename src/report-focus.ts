@@ -68,7 +68,7 @@ export function renderRecentFocusDeck(data: ReportData): string {
 
   const weekExtra = `일평균 ${formatNumber(Math.round(week.weekTotal / 7))}건 · 전체 대비 ${week.weekVsOverall}배`;
 
-  return `<section id="s-recent-focus" class="kca-section card kca-card--focus recent-focus-deck anim-enter" data-observe style="--enter-delay:0.02s" aria-label="최근 집중 분석">
+  return `<section id="s-recent-focus" class="kca-section card kca-card--focus kca-shot-block recent-focus-deck anim-enter" data-observe style="--enter-delay:0.02s" aria-label="최근 집중 분석">
     <h2 class="zone-title">🔥 지금 이 방</h2>
     <p class="chart-hint">멀리 간 과거보다 <strong>최근 24시간·7일</strong>을 먼저 봅니다.</p>
     <div class="focus-cols">
