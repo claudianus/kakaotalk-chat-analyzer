@@ -258,55 +258,110 @@ const PARTICIPANT_ROLE_TOP_REQUIRED = 10;
 const PARTICIPANT_ROLE_MAX = 15;
 const PARTICIPANT_ROLE_MIN_CONFIDENCE = 0.82;
 const PARTICIPANT_ROLE_FALLBACK_CONFIDENCE = 0.78;
-function pickParticipantRole(p, rank, laughRate, laughCount, shortRate, shortCount, nightRate, attachRate, linkRate, avgLengthOverall) {
+function collectRoleCandidates(p, rank, laughRate, laughCount, shortRate, shortCount, nightRate, attachRate, linkRate, avgLengthOverall) {
     const candidates = [];
     if (rank === 0 && p.sharePercent >= 15) {
-        candidates.push({ role: "주도형", confidence: 0.92, reason: `메시지 ${p.sharePercent}%로 흐름을 이끔`, score: p.sharePercent + 30 });
+        candidates.push({ role: "주도형", confidence: 0.92, reason: `전체 ${p.sharePercent}% · ${formatCompactNumber(p.messages)}건으로 흐름 주도`, score: p.sharePercent + 30 });
+    }
+    if (rank === 1 && p.sharePercent >= 8) {
+        candidates.push({ role: "핵심 멤버", confidence: 0.88, reason: `2위 · ${p.sharePercent}%로 상위권 지지`, score: p.sharePercent + 22 });
+    }
+    if (rank === 2 && p.sharePercent >= 5) {
+        candidates.push({ role: "브론즈 코어", confidence: 0.86, reason: `3위 · ${formatCompactNumber(p.messages)}건으로 중심층`, score: p.sharePercent + 18 });
     }
     if (rank > 0 && rank < 3 && p.sharePercent >= 10) {
         candidates.push({ role: "핵심 멤버", confidence: 0.86, reason: `상위 ${rank + 1}위 · ${p.sharePercent}%`, score: p.sharePercent + 20 });
     }
     if (p.averageLength >= Math.max(28, avgLengthOverall * 1.45)) {
-        candidates.push({ role: "긴글러", confidence: 0.88, reason: `평균 ${p.averageLength}자로 설명이 길음`, score: p.averageLength });
+        candidates.push({ role: "긴글러", confidence: 0.88, reason: `평균 ${p.averageLength}자 — 맥락·설명 비중 큼`, score: p.averageLength });
     }
     if (laughRate >= 0.12 && laughCount >= 8) {
-        candidates.push({ role: "분위기 메이커", confidence: 0.86, reason: `웃음 반응 ${Math.round(laughRate * 100)}%`, score: laughRate * 100 });
+        candidates.push({ role: "분위기 메이커", confidence: 0.86, reason: `ㅋㅋ·웃음 반응 ${Math.round(laughRate * 100)}% (${laughCount}건)`, score: laughRate * 100 });
     }
     if (shortRate >= 0.22 && shortCount >= 12) {
-        candidates.push({ role: "리액션러", confidence: 0.84, reason: `짧은 답 ${Math.round(shortRate * 100)}%`, score: shortRate * 100 });
+        candidates.push({ role: "리액션러", confidence: 0.84, reason: `짧은 답 ${Math.round(shortRate * 100)}% — 빠른 호응`, score: shortRate * 100 });
     }
     if (linkRate >= 0.08 && p.linkMessages >= 8) {
-        candidates.push({ role: "자료 공유자", confidence: 0.84, reason: `링크 ${p.linkMessages}건`, score: linkRate * 100 });
+        candidates.push({ role: "자료 공유자", confidence: 0.84, reason: `링크 ${p.linkMessages}건 · 큐레이션`, score: linkRate * 100 });
     }
     if (attachRate >= 0.1 && p.attachmentMessages >= 8) {
-        candidates.push({ role: "첨부 장인", confidence: 0.82, reason: `첨부 ${p.attachmentMessages}건`, score: attachRate * 100 });
+        candidates.push({ role: "첨부 장인", confidence: 0.82, reason: `첨부 ${p.attachmentMessages}건 · 시각 자료`, score: attachRate * 100 });
     }
     if (nightRate >= 0.25 && p.nightMessages >= 10) {
-        candidates.push({ role: "심야 상주자", confidence: 0.82, reason: `심야 ${p.nightMessages}건`, score: nightRate * 100 });
+        candidates.push({ role: "심야 상주자", confidence: 0.82, reason: `심야 ${p.nightMessages}건 (${Math.round(nightRate * 100)}%)`, score: nightRate * 100 });
     }
     if (p.maxConsecutive >= 10) {
-        candidates.push({ role: "연속 발화자", confidence: 0.82, reason: `최대 ${p.maxConsecutive}연속 발화`, score: p.maxConsecutive * 3 });
+        candidates.push({ role: "연속 발화자", confidence: 0.82, reason: `최대 ${p.maxConsecutive}연속 — 몰입 대화`, score: p.maxConsecutive * 3 });
     }
     if (p.sharePercent >= 5 && p.sharePercent < 12 && rank >= 3) {
-        candidates.push({ role: "꾸준형", confidence: 0.8, reason: `${p.messages}건으로 자주 참여`, score: p.messages });
+        candidates.push({ role: "꾸준형", confidence: 0.8, reason: `${rank + 1}위 · ${formatCompactNumber(p.messages)}건 꾸준 참여`, score: p.messages });
+    }
+    if (rank >= 3 && rank < 7) {
+        candidates.push({ role: "활동 멤버", confidence: 0.79, reason: `${rank + 1}위 · 비중 ${p.sharePercent}%`, score: p.messages * 0.8 });
     }
     candidates.sort((a, b) => b.score - a.score);
-    return candidates[0] ?? null;
+    const seen = new Set();
+    return candidates.filter((c) => {
+        if (seen.has(c.role))
+            return false;
+        seen.add(c.role);
+        return true;
+    });
 }
-function fallbackParticipantRole(p, rank) {
-    if (rank === 0) {
-        return {
+function pickParticipantRole(p, rank, laughRate, laughCount, shortRate, shortCount, nightRate, attachRate, linkRate, avgLengthOverall, usedRoles) {
+    const candidates = collectRoleCandidates(p, rank, laughRate, laughCount, shortRate, shortCount, nightRate, attachRate, linkRate, avgLengthOverall);
+    return candidates.find((c) => !usedRoles.has(c.role)) ?? null;
+}
+function fallbackParticipantRole(p, rank, usedRoles) {
+    const variants = [
+        {
             role: "말 많은 1위",
             confidence: PARTICIPANT_ROLE_FALLBACK_CONFIDENCE,
-            reason: `${p.messages}건 · ${p.sharePercent}%`,
+            reason: `${formatCompactNumber(p.messages)}건 · ${p.sharePercent}%`,
             score: p.messages,
-        };
+        },
+        {
+            role: "핵심 멤버",
+            confidence: PARTICIPANT_ROLE_FALLBACK_CONFIDENCE,
+            reason: `${rank + 1}위 · ${p.sharePercent}%`,
+            score: p.messages - 0.5,
+        },
+        {
+            role: "꾸준형",
+            confidence: PARTICIPANT_ROLE_FALLBACK_CONFIDENCE - 0.01,
+            reason: `${rank + 1}위 · ${formatCompactNumber(p.messages)}건`,
+            score: p.messages - 1,
+        },
+        {
+            role: "활동 멤버",
+            confidence: PARTICIPANT_ROLE_FALLBACK_CONFIDENCE - 0.02,
+            reason: `${rank + 1}위 · 비중 ${p.sharePercent}%`,
+            score: p.messages - 2,
+        },
+        {
+            role: "참여자",
+            confidence: PARTICIPANT_ROLE_FALLBACK_CONFIDENCE - 0.03,
+            reason: `평균 ${p.averageLength}자 · ${p.sharePercent}%`,
+            score: p.messages - 3,
+        },
+        {
+            role: "멤버",
+            confidence: PARTICIPANT_ROLE_FALLBACK_CONFIDENCE - 0.04,
+            reason: `첨부 ${p.attachmentMessages} · 링크 ${p.linkMessages}`,
+            score: p.messages - 4,
+        },
+    ];
+    if (rank === 0) {
+        return variants[0];
     }
+    const fresh = variants.find((v) => !usedRoles.has(v.role));
+    if (fresh)
+        return fresh;
     return {
-        role: "활동 멤버",
-        confidence: PARTICIPANT_ROLE_FALLBACK_CONFIDENCE,
-        reason: `${p.messages}건 · ${p.sharePercent}%`,
-        score: p.messages,
+        role: `${rank + 1}위 멤버`,
+        confidence: PARTICIPANT_ROLE_FALLBACK_CONFIDENCE - 0.05,
+        reason: `${formatCompactNumber(p.messages)}건 · ${p.sharePercent}%`,
+        score: p.messages - 5,
     };
 }
 export function buildParticipantRoles(participants, laughBySender, shortBySender, aliases) {
@@ -316,6 +371,7 @@ export function buildParticipantRoles(participants, laughBySender, shortBySender
     const avgLengthOverall = participants.reduce((sum, p) => sum + p.averageLength, 0) / participants.length;
     const results = [];
     const used = new Set();
+    const usedRoles = new Set();
     const evalOne = (p, rank, force) => {
         if (used.has(p.alias))
             return;
@@ -323,13 +379,14 @@ export function buildParticipantRoles(participants, laughBySender, shortBySender
         const laughCount = rawAlias ? (laughBySender.get(rawAlias) ?? 0) : 0;
         const shortCount = rawAlias ? (shortBySender.get(rawAlias) ?? 0) : 0;
         const msg = Math.max(p.messages, 1);
-        const picked = pickParticipantRole(p, rank, laughCount / msg, laughCount, shortCount / msg, shortCount, p.nightMessages / msg, p.attachmentMessages / msg, p.linkMessages / msg, avgLengthOverall) ?? (force ? fallbackParticipantRole(p, rank) : null);
+        const picked = pickParticipantRole(p, rank, laughCount / msg, laughCount, shortCount / msg, shortCount, p.nightMessages / msg, p.attachmentMessages / msg, p.linkMessages / msg, avgLengthOverall, usedRoles) ?? (force ? fallbackParticipantRole(p, rank, usedRoles) : null);
         if (!picked)
             return;
         if (!force && picked.confidence < PARTICIPANT_ROLE_MIN_CONFIDENCE)
             return;
         results.push({ alias: p.alias, role: picked.role, confidence: picked.confidence, reason: picked.reason });
         used.add(p.alias);
+        usedRoles.add(picked.role);
     };
     sortedByMessages.slice(0, PARTICIPANT_ROLE_TOP_REQUIRED).forEach((p, i) => evalOne(p, i, true));
     for (let i = PARTICIPANT_ROLE_TOP_REQUIRED; i < sortedByMessages.length; i++) {

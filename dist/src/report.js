@@ -10,7 +10,7 @@ import { topicsForDisplay } from "./report-chart-util.js";
 import { renderInnovationDeck, renderStoryTimelinePair } from "./report-innovation.js";
 import { renderRecentFocusDeck } from "./report-focus.js";
 import { renderPeriodMetricsComparison, renderWeekTopSendersStrip } from "./report-period-metrics.js";
-import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmDayMicroStories, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderParticipantRoles, renderRecentSnapshot, renderRoomCultureStrip, renderSentimentWeatherStrip, } from "./report-llm-deck.js";
+import { renderDailyHotTopics, renderLlmArchetypeBanner, renderLlmCharacterCards, renderLlmEpisodeStrip, renderLlmEraLabels, renderLlmInsideJokes, renderLlmMomentsBlock, renderLlmRelationshipBeats, renderLlmShareFooter, renderParticipantRoles, renderRecentSnapshot, renderRoomCultureStrip, renderSentimentWeatherStrip, } from "./report-llm-deck.js";
 import { formatGeneratorLine, formatProvenanceDetails, } from "./report-provenance.js";
 import { hasActivityRestRhythm, hasBenchmarkSection, hasBurstAnatomy, hasCalendarHeatmap, hasDaypartFingerprint, hasDyadSection, hasExplorerSection, hasKeywordGravity, hasNarrativeSection, hasParticipantDynamics, hasQuestionAnswerTopology, hasReplyLatencyFingerprint, hasRhythmSilenceMap, hasRoomCultureStrip, hasSentimentRollercoaster, hasSentimentWeatherStrip, hasTimelineSection, hasTopicFlow, } from "./report-section-visibility.js";
 import { openChatProfileFromReport } from "./open-chat-profile.js";
@@ -91,84 +91,42 @@ export function renderReportHtml(data) {
       ${renderRecentFocusDeck(data)}
       ${renderFactMatrix(data)}
 
-      <section class="kca-section-cluster kca-section-cluster--recent anim-enter" data-observe style="--enter-delay:0.04s" aria-label="최근 활동과 핫토픽">
-        <div class="kca-section-kicker">최근</div>
-        <h2 class="zone-title">⏰ 최근 활동</h2>
-        <div class="kca-dashboard-grid kca-dashboard-grid--recent">
-          <div class="kca-dashboard-main">
-            ${renderRecentSnapshot(data)}
-            ${hasSentimentWeatherStrip(data) ? renderSentimentWeatherStrip(data) : ""}
-          </div>
-          <aside class="kca-dashboard-side" aria-label="최근 핫토픽">
-            ${renderDailyHotTopics(data)}
-          </aside>
-        </div>
-      </section>
+      ${renderRecentSnapshot(data)}
+      ${hasSentimentWeatherStrip(data) ? renderSentimentWeatherStrip(data) : ""}
+      ${renderDailyHotTopics(data)}
 
-      <section class="kca-section-cluster kca-section-cluster--insights anim-enter" data-observe style="--enter-delay:0.05s" aria-label="핵심 인사이트">
-        <div class="kca-section-kicker">한눈에</div>
-        <h2 class="zone-title">📊 핵심 인사이트</h2>
-        <div class="kca-dashboard-grid kca-dashboard-grid--insight">
-          <div class="kca-dashboard-main">
-            ${renderInsightDeck(data)}
-          </div>
-          <aside class="kca-dashboard-side" aria-label="주제 맵과 트렌드">
-            <section class="kca-card kca-card--chart weekly-sparkline-card">
-              <h3>📈 최근 7일 활동</h3>
-              <p class="chart-hint">마지막 활동일 기준 일별 메시지 흐름을 압축해서 보여줍니다.</p>
-              <div class="weekly-sparkline-container">
-                <div id="chart-weekly-sparkline" class="chart-box compact" role="img" aria-label="최근 7일 활동 스파크라인"></div>
-              </div>
-            </section>
-            ${renderTopicMap(data)}
-            ${renderTopicTrendSection(data)}
-          </aside>
-        </div>
-      </section>
+      ${renderInsightDeck(data)}
+      ${renderWeeklySparklineSection()}
+      ${renderTopicMap(data)}
+      ${renderTopicTrendSection(data)}
 
-      <section class="kca-section-cluster kca-section-cluster--story anim-enter" data-observe style="--enter-delay:0.055s" aria-label="스토리와 참여자">
-        <div class="kca-section-kicker">사람들</div>
-        ${renderStorySections(data)}
-        ${renderLlmEpisodeStrip(data)}
-        ${renderLlmCharacterCards(data)}
-        ${renderParticipantRoles(data)}
-        ${renderLlmRelationshipBeats(data)}
-        ${renderLlmEraLabels(data)}
-      </section>
+      ${renderStorySections(data)}
+      ${renderLlmEpisodeStrip(data)}
+      ${renderLlmCharacterCards(data)}
+      ${renderParticipantRoles(data)}
+      ${renderLlmRelationshipBeats(data)}
+      ${renderLlmEraLabels(data)}
 
-      <section class="kca-section-cluster kca-section-cluster--viz anim-enter" data-observe style="--enter-delay:0.06s" aria-label="상세 데이터 시각화">
-        <div class="kca-section-kicker">차트</div>
-        ${renderChartDeck(data)}
-      </section>
-    </div>
+      ${renderChartDeck(data)}
 
-    ${renderOpenChatInsightCard(data)}
-    ${renderShopSearchPromoted(data)}
-    ${renderLlmMomentsBlock(data)}
-    ${renderLlmDayMicroStories(data)}
-    ${renderStoryTimelinePair(data)}
-    ${renderInnovationDeck(data)}
+      ${renderOpenChatInsightCard(data)}
+      ${renderShopSearchPromoted(data)}
+      ${renderLlmMomentsBlock(data)}
+      ${renderStoryTimelinePair(data)}
+      ${renderInnovationDeck(data)}
 
-    <div id="s-charts" class="kca-section anim-enter" data-observe style="--enter-delay:0.07s">
-    ${hasCalendarHeatmap(data)
+      ${hasCalendarHeatmap(data)
         ? ""
-        : `<section class="kca-card--data kca-section" style="margin-bottom:var(--section-gap)">
-      ${panel("일별 활동 (CSS)", "칸 색 = 메시지 밀도.", renderDaily(data.daily, data.burstDays))}
-    </section>`}
-    <section class="grid smart kca-section kca-data-grid" style="margin-bottom:var(--section-gap)">
-      ${renderParticipantsFold(data)}
-      ${panel(`글자 수 랭킹 · 상위 ${formatNumber(Math.min(data.participantsByCharacters.length, 40))}`, "건수가 아닌 글자 수 기준 랭킹.", renderParticipantsByCharacters(data.participantsByCharacters))}
-    </section>
-
-    <section class="grid smart kca-section kca-data-grid kca-data-grid--compact" style="margin-bottom:var(--section-gap)">
+        : panel("일별 활동 (CSS)", "칸 색 = 메시지 밀도.", renderDaily(data.daily, data.burstDays), { id: "s-charts" })}
+      ${renderParticipantsFold(data, hasCalendarHeatmap(data) ? { id: "s-charts" } : undefined)}
+      ${panel(`글자 수 랭킹 · 상위 ${formatNumber(Math.min(data.participantsByCharacters.length, 10))}`, "건수가 아닌 글자 수 기준 랭킹.", renderParticipantsByCharacters(data.participantsByCharacters))}
       ${panel("첨부 유형", "사진·동영상 등 유형별 비중.", renderCountBars(data.attachments))}
       ${renderToneSignalsPanel(data)}
-      ${panel("자주 나온 도메인", "공유 링크 호스트 상위", renderCountBars(data.domains.slice(0, 24)))}
+      ${panel("자주 나온 도메인", "공유 링크 호스트 상위", renderCountBars(data.domains.slice(0, 10)))}
       ${panel("카카오톡 시스템·운영 알림", "입·퇴장, 삭제·가림, 강퇴 등 시스템 문구 집계.", renderRoomEvents(data.roomEvents, data.summary.totalMessages, data.roomPulse))}
       ${panel("리액션·반복 문구", "ㅋㅋ 전용 메시지 + 3회 이상 반복 문장.", renderReactionsPanel(data))}
-    </section>
-    ${renderRoomCultureStrip(data)}
-    ${renderShopSearchSection(data, false)}
+      ${renderRoomCultureStrip(data)}
+      ${renderShopSearchSection(data, false)}
     </div>
 
     ${renderHelpGlossary()}
@@ -322,7 +280,7 @@ function renderSectionNav(data) {
         ? `<a href="#s-narrative" data-kca-jump="s-narrative">② 방 이야기</a>`
         : "";
     const timeline = hasTimelineSection(data) || (data.memorableMoments?.length ?? 0) > 0
-        ? `<a href="#s-story-pair" data-kca-jump="s-story-pair">스토리</a>`
+        ? `<a href="#s-moments-timeline" data-kca-jump="s-moments-timeline">스토리</a>`
         : "";
     const dyad = hasDyadSection(data) ? `<a href="#s-dyad" data-kca-jump="s-dyad">상호작용</a>` : "";
     const explorer = hasExplorerSection(data)
@@ -456,25 +414,34 @@ function renderFactMatrix(data) {
         .map(([k, v]) => `<div class="fact-cell" data-observe><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`)
         .join("");
     const compare = renderPeriodMetricsComparison(data);
-    return `<section id="s-facts" class="kca-section card kca-card--fact fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
+    return `<section id="s-facts" class="kca-section card kca-card--fact kca-shot-block fact-card anim-enter" aria-label="핵심 지표 요약" style="--enter-delay:0.03s">
     <h2>📊 핵심 숫자</h2>
     ${renderSampleBadge(data)}
     ${compare}
     <div class="fact-grid fact-grid--all" data-observe>${factInner}</div>
   </section>`;
 }
-function renderParticipantsFold(data) {
+function renderParticipantsFold(data, opts) {
     const n = data.participants.length;
     if (n === 0)
         return "";
     const weekStrip = renderWeekTopSendersStrip(data);
-    return panel(`참여자 랭킹 · 전체 ${formatNumber(n)}`, "메시지 수 기준 참여자 랭킹. 최근 7일 순위는 아래 별도 표시.", `${weekStrip}${renderParticipants(data.participants)}`);
+    return panel(`참여자 랭킹 · 전체 ${formatNumber(n)}`, "메시지 수 기준 참여자 랭킹. 최근 7일 순위는 아래 별도 표시.", `${weekStrip}${renderParticipants(data.participants)}`, opts);
 }
 function linkEntropyMetric(data, ins) {
     const linkMsgs = data.participants.reduce((s, p) => s + p.linkMessages, 0);
     if (linkMsgs < 5 || ins.linkDomainEntropyBits === null)
         return "";
     return insMetric("링크 다양성", `${ins.linkDomainEntropyBits} bit`, "공유 사이트 종류");
+}
+function renderWeeklySparklineSection() {
+    return `<section id="s-weekly-sparkline" class="kca-section card kca-card--chart kca-shot-block weekly-sparkline-card anim-enter" data-observe style="--enter-delay:0.052s" aria-label="최근 7일 활동 스파크라인">
+    <h2>📈 최근 7일 활동</h2>
+    <p class="chart-hint">마지막 활동일 기준 일별 메시지 흐름입니다. 막대가 높을수록 그날 대화가 많았습니다.</p>
+    <div class="weekly-sparkline-container">
+      <div id="chart-weekly-sparkline" class="chart-box compact" role="img" aria-label="최근 7일 활동 스파크라인"></div>
+    </div>
+  </section>`;
 }
 function renderInsightDeck(data) {
     const ins = data.insights;
@@ -492,8 +459,7 @@ function renderInsightDeck(data) {
         .join("");
     const scatter = renderParticipantScatter(data.participants);
     const pace = data.conversationPace;
-    const richness = ins.lexicalTypeRichnessPercent === null ? "—" : `${ins.lexicalTypeRichnessPercent}%`;
-    return `<section id="s-ai" class="kca-section card kca-card--insight insight-hero anim-enter" style="--enter-delay:0.05s">
+    const metrics = `<section id="s-ai" class="kca-section card kca-card--insight kca-shot-block insight-hero anim-enter" data-observe style="--enter-delay:0.05s">
     <div class="pace-ribbon" role="note">
       <strong>${escapeHtml(pace.emoji)} ${escapeHtml(pace.label)}</strong>
       <span>${escapeHtml(pace.detail)}</span>
@@ -522,11 +488,24 @@ function renderInsightDeck(data) {
       ${insMetric("📝 평균 길이", `${data.summary.averageMessageLength}자`, "메시지당 평균 글자 수")}
     </div>
     ${renderLlmInsideJokes(data)}
+  </section>`;
+    const emoji = `<section id="s-ai-emoji" class="kca-section card kca-card--insight kca-shot-block anim-enter" data-observe style="--enter-delay:0.051s" aria-label="이모지 분석">
+    <h2>😊 이모지·말투</h2>
+    <p class="chart-hint">이모지 사용 패턴과 참여자별 이모지 통계입니다.</p>
     <div class="insight-aux-grid" data-observe>
       ${renderEmojiInsight(data.emojiInsight)}
       ${renderParticipantEmojiStats(data.participantEmojiStats)}
-      ${renderHonorificInsight(data.honorificInsight)}
     </div>
+  </section>`;
+    const honorificSection = data.honorificInsight && data.honorificInsight.participants.length > 0
+        ? `<section id="s-ai-honorific" class="kca-section card kca-card--insight kca-shot-block anim-enter" data-observe style="--enter-delay:0.0515s" aria-label="높임법 분석">
+    <h2>🗣️ 높임법</h2>
+    <p class="chart-hint">존칭·반말·판별 불가 비율을 참여자별로 보여줍니다.</p>
+    ${renderHonorificInsight(data.honorificInsight)}
+  </section>`
+        : "";
+    const rhythm = `<section id="s-ai-rhythm" class="kca-section card kca-card--insight kca-shot-block anim-enter" data-observe style="--enter-delay:0.052s" aria-label="시간대·참여자 맵">
+    <h2>🕐 시간대·참여 분포</h2>
     <div class="insight-split" data-observe>
       <div>
         <h3 class="insight-sub">하루 시간대 비중</h3>
@@ -543,12 +522,13 @@ function renderInsightDeck(data) {
       </div>
     </div>
   </section>`;
+    return metrics + emoji + honorificSection + rhythm;
 }
 function renderParticipantEmojiStats(participantEmojiStats) {
     if (participantEmojiStats.length === 0)
         return "";
     const rows = participantEmojiStats
-        .slice(0, 10)
+        .slice(0, 6)
         .map((p) => {
         const topEmojisHtml = p.topEmojis
             .map((item) => `${escapeHtml(item.emoji)}(${formatNumber(item.count)})`)
@@ -634,7 +614,7 @@ function renderHonorificInsight(honorific) {
     <li><i class="honorific-swatch honorific-swatch--neutral"></i>판별 불가 <span class="honorific-legend-hint">ㅋㅋ·짧은 답장 등</span></li>
   </ul>`;
     const rows = honorific.participants
-        .slice(0, 10)
+        .slice(0, 6)
         .map((p) => {
         const shares = honorificBarPercents(p);
         const style = styleLabels[p.dominantStyle] ?? p.dominantStyle;
@@ -781,8 +761,13 @@ function renderHeroRhythmCard(data) {
     </div>
   </div>`;
 }
-function panel(title, hint, content) {
-    return `<div class="card"><h3 class="panel-title">${escapeHtml(title)}</h3><p class="chart-hint" style="margin-top:-4px">${escapeHtml(hint)}</p>${content}</div>`;
+function panel(title, hint, content, opts) {
+    const idAttr = opts?.id ? ` id="${escapeHtml(opts.id)}"` : "";
+    return `<section${idAttr} class="kca-section card kca-shot-block kca-shot-panel anim-enter" data-observe aria-label="${escapeHtml(title)}">
+    <h3 class="panel-title">${escapeHtml(title)}</h3>
+    <p class="chart-hint" style="margin-top:-4px">${escapeHtml(hint)}</p>
+    ${content}
+  </section>`;
 }
 function renderSelfServeCallout() {
     const gh = "https://github.com/claudianus/kakaotalk-chat-analyzer";
@@ -901,7 +886,7 @@ function renderParticipants(participants) {
         return `<span class="rank-badge rank-default">${i + 1}</span>`;
     };
     const cards = participants
-        .slice(0, 20)
+        .slice(0, 10)
         .map((p, i) => {
         const barW = Math.round((p.messages / maxMsg) * 100);
         return `<div class="participant-card" data-observe>
@@ -948,7 +933,7 @@ function renderParticipantsByCharacters(participants) {
         return `<span class="rank-badge rank-default">${i + 1}</span>`;
     };
     const cards = participants
-        .slice(0, 20)
+        .slice(0, 10)
         .map((p, i) => {
         const barW = Math.round((p.characters / maxChars) * 100);
         return `<div class="participant-card" data-observe>
@@ -1092,10 +1077,11 @@ function renderTopicMap(data) {
     if (displayTopics.length === 0)
         return "";
     const shortSpan = displayTopics.length < data.topics.length;
-    const themes = displayTopics.filter((t) => t.kind === "theme");
-    const periods = displayTopics.filter((t) => t.kind === "period");
+    const themes = displayTopics.filter((t) => t.kind === "theme").slice(0, 4);
+    const periods = displayTopics.filter((t) => t.kind === "period").slice(0, 3);
     const maxPct = Math.max(...displayTopics.map((t) => t.messagePercent), 1);
     const renderCards = (items) => items
+        .slice(0, 5)
         .map((t) => {
         const kind = t.kind === "period"
             ? `<span class="topic-badge period">${escapeHtml(t.periodLabel ?? "기간")}</span>`
@@ -1125,7 +1111,7 @@ function renderTopicMap(data) {
     const hint = shortSpan
         ? "짧은 기간은 <strong>월 비중</strong>이 주제로 보일 수 있어요. 「기간 비교」를 확인하세요."
         : `그래프·키워드·임베딩 신호로 추출. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
-    return `<section id="s-topics" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.052s">
+    return `<section id="s-topics" class="kca-section card kca-card--data kca-shot-block anim-enter" data-observe style="--enter-delay:0.052s">
     <h2>🗺️ 이 방의 주제 맵</h2>
     <p class="chart-hint">${hint}</p>
     ${themeBlock}
@@ -1146,7 +1132,7 @@ function renderOpenChatInsightCard(data) {
             .map((t) => escapeHtml(t.label))
             .join(" · ")}</p>`
         : "";
-    return `<section id="s-openchat" class="kca-section card kca-card--data openchat-card anim-enter" data-observe style="--enter-delay:0.038s" aria-label="오픈채팅 추정 인사이트">
+    return `<section id="s-openchat" class="kca-section card kca-card--data kca-shot-block openchat-card anim-enter" data-observe style="--enter-delay:0.038s" aria-label="오픈채팅 추정 인사이트">
     <h2 class="section-glow">🏠 오픈채팅 <span class="bench-estimate-tag">추정</span></h2>
     <p class="chart-hint">입·퇴장 비중·운영 알림 패턴으로 <strong>오픈채팅형</strong> 방일 가능성이 있습니다(자동 추정).</p>
     <ul class="openchat-stats">
@@ -1173,7 +1159,7 @@ function renderShopSearchSection(data, promoted = false) {
     if (promoted === false && openChatProfileFromReport(data).likely)
         return "";
     if (topics.length === 0) {
-        return `<section class="kca-section">${panel("샵검색 키워드", `시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건이 있으나, <code>샵검색:</code> 형식에서 #주제를 추출하지 못했습니다. 보내기 형식이 바뀌었을 수 있습니다.`, '<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>')}</section>`;
+        return panel("샵검색 키워드", `시스템 알림 <strong>${formatNumber(noticeCount)}</strong>건이 있으나, <code>샵검색:</code> 형식에서 #주제를 추출하지 못했습니다. 보내기 형식이 바뀌었을 수 있습니다.`, '<p style="margin:0;color:var(--muted);font-size:13px">데이터가 없습니다.</p>', { id: "s-shopsearch" });
     }
     const extractions = ev.shopSearchTagExtractions;
     const unique = ev.shopSearchUniqueTags;
@@ -1183,7 +1169,7 @@ function renderShopSearchSection(data, promoted = false) {
         ? `<div class="kca-debug-shop"><h3>미추출 샘플 (디버그)</h3><ul>${data.shopSearchMissSamples.map((s) => `<li><code>${escapeHtml(s)}</code></li>`).join("")}</ul></div>`
         : "";
     const title = promoted ? "샵검색 키워드 (오픈채팅)" : "샵검색 키워드";
-    return `<section id="s-shopsearch" class="kca-section">${panel(title, "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote + debug)}</section>`;
+    return panel(title, "카카오톡 샵검색으로 공유된 #주제입니다.", renderCountBars(topics) + footnote + debug, { id: "s-shopsearch" });
 }
 function renderKeywordCssFold(data) {
     const topN = keywordSummaryTop();

@@ -267,8 +267,11 @@ export function renderParticipantRoles(data: ReportData): string {
   const roleEmoji: Record<string, string> = {
     주도형: "👑",
     "핵심 멤버": "⭐",
+    "브론즈 코어": "🥉",
     "말 많은 1위": "🥇",
     "활동 멤버": "💬",
+    참여자: "🙋",
+    멤버: "👤",
     꾸준형: "📌",
     긴글러: "✍️",
     "분위기 메이커": "😂",
@@ -282,8 +285,11 @@ export function renderParticipantRoles(data: ReportData): string {
   const roleDesc: Record<string, string> = {
     주도형: "흐름 주도",
     "핵심 멤버": "상위권 참여",
+    "브론즈 코어": "3위 중심층",
     "말 많은 1위": "메시지 1위",
     "활동 멤버": "꾸준 참여",
+    참여자: "대화 참여",
+    멤버: "방 멤버",
     꾸준형: "자주 말함",
     긴글러: "맥락 설명",
     "분위기 메이커": "웃음 신호",
@@ -295,9 +301,10 @@ export function renderParticipantRoles(data: ReportData): string {
   };
 
   const cards = roles
+    .slice(0, 10)
     .map((r: ParticipantRole) => {
-      const emoji = roleEmoji[r.role] ?? "💬";
-      const desc = roleDesc[r.role] ?? r.role;
+      const emoji = roleEmoji[r.role] ?? (/\d+위 멤버$/.test(r.role) ? "🔢" : "💬");
+      const desc = roleDesc[r.role] ?? (/\d+위 멤버$/.test(r.role) ? "순위별 멤버" : r.role);
       return `<article class="participant-role-card" role="listitem" data-role="${escapeHtml(r.role)}" data-observe>
         <div class="role-card-header">
           <span class="role-emoji" aria-hidden="true">${emoji}</span>
@@ -410,7 +417,7 @@ function renderDaySnapshotCard(day: DailySnapshot, isToday: boolean): string {
   const label = isToday ? "📍 리포트 당일" : day.date;
   const kws = day.keywords.slice(0, 4).map((k) => `<span class="recent-day-kw">${escapeHtml(k)}</span>`).join("");
   const senders = day.topSenders.slice(0, 3).map((s) => `${escapeHtml(s.alias)}(${s.count})`).join(" · ");
-  const evidence = (day.evidence ?? []).slice(0, 2).map((e) => `<li>${escapeHtml(e)}</li>`).join("");
+  const evidence = (day.evidence ?? []).slice(0, 1).map((e) => `<li>${escapeHtml(e)}</li>`).join("");
   return `<article class="${cls}" data-observe>
     <div class="recent-day-header">
       <time datetime="${escapeHtml(day.date)}">${escapeHtml(label)}</time>
@@ -436,7 +443,6 @@ export function renderRecentSnapshot(data: ReportData): string {
   const snap = data.recentSnapshot;
   if (!snap || snap.week.length === 0) return "";
 
-  // 주간 요약
   const weekKws = snap.weekKeywords.slice(0, 6).map((k) => `<span class="recent-day-kw">${escapeHtml(k)}</span>`).join("");
   const summaryHtml = `<div class="recent-week-summary" data-observe>
     <div class="recent-week-stats">
@@ -448,22 +454,34 @@ export function renderRecentSnapshot(data: ReportData): string {
     ${weekKws ? `<div class="recent-week-kws">주간 키워드: ${weekKws}</div>` : ""}
   </div>`;
 
-  // 리포트 당일 카드 (크게)
   const todayHtml = snap.today ? renderDaySnapshotCard(snap.today, true) : "";
-
-  // 7일 일별 카드 (오늘 제외한 6일)
-  const weekDays = (snap.today ? snap.week.slice(0, 6) : snap.week).slice(0, 4);
+  const weekDays = (snap.today ? snap.week.slice(0, 6) : snap.week).slice(0, 2);
   const weekMore = snap.week.length > weekDays.length ? ` <small>· 최근 ${weekDays.length}일만 표시</small>` : "";
   const dayCardsHtml = weekDays.map((d) => renderDaySnapshotCard(d, false)).join("");
 
-  return `<section id="s-recent" class="kca-section recent-snapshot-section kca-shot-block anim-enter" style="--enter-delay:0.035s" aria-label="최근 활동 스냅샷" data-observe>
+  const sections: string[] = [
+    `<section id="s-recent" class="kca-section recent-snapshot-section kca-shot-block kca-shot-block--compact anim-enter" style="--enter-delay:0.035s" aria-label="최근 활동 요약" data-observe>
     <h2 class="llm-strip-title">⏰ 최근 활동 스냅샷</h2>
-    <p class="recent-section-hint">리포트 기준 최근 7일간 활동이에요. 최근일수록 기억에 많이 남으니 자세히 봐요.</p>
+    <p class="recent-section-hint">리포트 기준 최근 7일 요약이에요. 당일·일별 카드는 아래 섹션에서 이어집니다.</p>
     ${summaryHtml}
-    ${todayHtml ? `<h3 class="recent-today-heading">리포트 당일 (24h)</h3>${todayHtml}` : ""}
-    <h3 class="recent-week-heading">최근 7일${weekMore}</h3>
-    <div class="recent-days-grid">${dayCardsHtml}</div>
-  </section>`;
+  </section>`,
+  ];
+
+  if (todayHtml) {
+    sections.push(`<section id="s-recent-today" class="kca-section recent-snapshot-section kca-shot-block anim-enter" style="--enter-delay:0.036s" aria-label="리포트 당일" data-observe>
+    <h2 class="llm-strip-title">📍 리포트 당일 (24h)</h2>
+    ${todayHtml}
+  </section>`);
+  }
+
+  if (dayCardsHtml) {
+    sections.push(`<section id="s-recent-week" class="kca-section recent-snapshot-section kca-shot-block anim-enter" style="--enter-delay:0.037s" aria-label="최근 일별 활동" data-observe>
+    <h2 class="llm-strip-title">📅 최근 일별${weekMore}</h2>
+    <div class="recent-days-grid recent-days-grid--shot">${dayCardsHtml}</div>
+  </section>`);
+  }
+
+  return sections.join("\n");
 }
 
 function mapSentimentWeather(

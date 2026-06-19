@@ -153,6 +153,11 @@
   background: var(--line);
   width: 100%;
 }
+.recent-sentiment-bar__pos,
+.recent-sentiment-bar__neg {
+  display: block;
+  height: 100%;
+}
 .recent-sentiment-bar__pos {
   background: linear-gradient(90deg, color-mix(in oklab, #4caf50 80%, transparent), color-mix(in oklab, #66bb6a 70%, transparent));
   height: 100%;

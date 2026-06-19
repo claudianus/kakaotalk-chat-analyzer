@@ -1360,7 +1360,8 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 .participant-row:last-child { border-bottom: none; }
 .participant-rank { font-size: var(--font-size-small); color: var(--muted); font-weight: 700; min-width: 24px; }
 .participant-name { flex: 1; font-weight: 650; font-size: var(--font-size-body); }
-.participant-bar { width: 120px; }
+.participant-bar { width: 100%; max-width: 120px; }
+.participant-bar .kw-bar { width: 100%; }
 .participant-count { font-size: var(--font-size-small); color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; min-width: 48px; text-align: right; }
 .participant-pct { font-size: var(--font-size-small); color: var(--accent); font-weight: 700; min-width: 48px; text-align: right; }
 
@@ -2708,6 +2709,8 @@ footer {
 }
 .kw-bar-cell { padding-left: 6px; padding-right: 6px; }
 .kw-bar-track {
+  width: 100%;
+  min-width: 3.5rem;
   height: 9px;
   background: var(--bar-bg);
   border-radius: var(--radius-pill);
@@ -2997,7 +3000,8 @@ footer {
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
-  padding-right: 20px;
+  padding-right: 48px;
+  scroll-padding-inline-end: 24px;
 }
 .deck-nav-shell .deck-nav::-webkit-scrollbar {
   display: none;
@@ -5692,6 +5696,11 @@ body.kca-oled .theme-btn.kca-ripple {
   background: var(--line);
   width: 100%;
 }
+.recent-sentiment-bar__pos,
+.recent-sentiment-bar__neg {
+  display: block;
+  height: 100%;
+}
 .recent-sentiment-bar__pos {
   background: linear-gradient(90deg, color-mix(in oklab, #4caf50 80%, transparent), color-mix(in oklab, #66bb6a 70%, transparent));
   height: 100%;
@@ -5988,6 +5997,20 @@ html {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
+.recent-days-grid--shot {
+  grid-template-columns: 1fr !important;
+}
+.kca-shot-block--compact .recent-week-summary {
+  margin-bottom: 0;
+}
+.kca-shot-block .recent-day-evidence,
+.kca-shot-block .recent-day-summary {
+  display: none;
+}
+.kca-shot-block .recent-day-card {
+  max-height: min(52vh, 420px);
+  overflow: hidden;
+}
 
 /* 핫토픽: 2열, 프레임 높이 제한 */
 .hot-topics-grid {
@@ -6076,6 +6099,27 @@ html {
   .hot-topics-grid,
   .recent-snapshot-section .recent-days-grid {
     grid-template-columns: 1fr;
+  }
+
+  .kca-shot-block .participant-roles-grid,
+  .kca-shot-block .topic-grid,
+  .kca-shot-block .topic-group {
+    max-height: min(68vh, 560px);
+    overflow: hidden;
+  }
+
+  .kca-shot-block.recent-focus-deck .focus-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .kca-shot-block .insight-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kca-shot-block .narrative-quote-grid,
+  .kca-shot-block .llm-moments-grid {
+    max-height: min(58vh, 460px);
   }
 }
 

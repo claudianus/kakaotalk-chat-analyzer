@@ -633,7 +633,8 @@
 .participant-row:last-child { border-bottom: none; }
 .participant-rank { font-size: var(--font-size-small); color: var(--muted); font-weight: 700; min-width: 24px; }
 .participant-name { flex: 1; font-weight: 650; font-size: var(--font-size-body); }
-.participant-bar { width: 120px; }
+.participant-bar { width: 100%; max-width: 120px; }
+.participant-bar .kw-bar { width: 100%; }
 .participant-count { font-size: var(--font-size-small); color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; min-width: 48px; text-align: right; }
 .participant-pct { font-size: var(--font-size-small); color: var(--accent); font-weight: 700; min-width: 48px; text-align: right; }
 

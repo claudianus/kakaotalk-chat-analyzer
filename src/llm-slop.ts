@@ -6,6 +6,9 @@ const AI_SLOP_PATTERNS: RegExp[] = [
   /(?:delve|robust|seamless|pivotal|foster|tapestry|vibrant|crucial|underscore|showcase|elevate)/i,
   /(?:navigate|realm|interplay|multifaceted|landscape|leverage|utilize|embark|testament)/i,
   /(?:moreover|furthermore|in conclusion|it'?s worth noting|at its core|serves as|stands as)/i,
+  /(?:꾸준히\s*(?:대화|참여|소통)|활발(?:히|한)\s*(?:참여|소통|대화)|대화에\s*기여(?:하는)?\s*멤버)/i,
+  /(?:핵심적인?\s*역할|소통의\s*핵심|분위기(?:를|을)\s*이끄|흐름(?:을|을)\s*이끄)/i,
+  /(?:의미\s*있는\s*참여|따뜻한\s*에너지|긍정적인?\s*에너지|다양한\s*관점)/i,
 ];
 
 export const AI_SLOP_EXAMPLE_PHRASES = [
