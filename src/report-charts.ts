@@ -298,7 +298,7 @@ function renderKeywordRankedList(items: { label: string; count: number }[]): str
         <td class="kw-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</td>
         <td class="kw-bar-cell">
           <div class="kw-bar-track" role="meter" aria-valuenow="${item.count}" aria-valuemin="0" aria-valuemax="${max}" aria-label="${escapeHtml(item.label)} 메시지 ${formatNumber(item.count)}건">
-            <span class="${fillClass}" style="width:${width}%"></span>
+            <div class="${fillClass}" style="width:${width}%"></div>
           </div>
         </td>
         <td class="num">${formatNumber(item.count)}</td>

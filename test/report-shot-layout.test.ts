@@ -45,6 +45,50 @@ describe("report shot-frame layout", () => {
     assert.match(html, /data-kca-jump="s-moments-timeline"/);
   });
 
+  it("splits recent snapshot into shot sections", () => {
+    const data = emptyReportData();
+    data.recentSnapshot = {
+      lastDate: "2026-01-07",
+      reportDay: "2026-01-07",
+      weekTotal: 100,
+      weekVsOverall: 1.2,
+      weekParticipants: 5,
+      weekKeywords: ["키워드"],
+      today: {
+        date: "2026-01-07",
+        messageCount: 20,
+        activeParticipants: 3,
+        peakHour: 14,
+        vsAvg: 1.5,
+        keywords: ["a"],
+        topSenders: [{ alias: "A", count: 10 }],
+        hourly: Array(24).fill(1),
+        sentiment: { positive: 40, negative: 10, neutral: 50 },
+        headline: "오늘",
+        hotTopicSummary: "요약",
+        evidence: ["근거"],
+      },
+      week: [
+        {
+          date: "2026-01-06",
+          messageCount: 15,
+          activeParticipants: 2,
+          peakHour: 10,
+          vsAvg: 1.1,
+          keywords: ["b"],
+          topSenders: [],
+          hourly: Array(24).fill(0),
+          sentiment: { positive: 30, negative: 20, neutral: 50 },
+        },
+      ],
+    };
+    const html = renderReportHtml(data);
+    assert.match(html, /id="s-recent"/);
+    assert.match(html, /id="s-recent-today"/);
+    assert.match(html, /id="s-recent-week"/);
+    assert.match(html, /id="s-ai-emoji"/);
+  });
+
   it("renders data panels as individual shot sections", () => {
     const data = emptyReportData();
     data.attachments = [{ label: "사진", count: 3 }];

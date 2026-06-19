@@ -97,6 +97,20 @@ html {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
+.recent-days-grid--shot {
+  grid-template-columns: 1fr !important;
+}
+.kca-shot-block--compact .recent-week-summary {
+  margin-bottom: 0;
+}
+.kca-shot-block .recent-day-evidence,
+.kca-shot-block .recent-day-summary {
+  display: none;
+}
+.kca-shot-block .recent-day-card {
+  max-height: min(52vh, 420px);
+  overflow: hidden;
+}
 
 /* 핫토픽: 2열, 프레임 높이 제한 */
 .hot-topics-grid {
@@ -185,5 +199,26 @@ html {
   .hot-topics-grid,
   .recent-snapshot-section .recent-days-grid {
     grid-template-columns: 1fr;
+  }
+
+  .kca-shot-block .participant-roles-grid,
+  .kca-shot-block .topic-grid,
+  .kca-shot-block .topic-group {
+    max-height: min(68vh, 560px);
+    overflow: hidden;
+  }
+
+  .kca-shot-block.recent-focus-deck .focus-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .kca-shot-block .insight-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kca-shot-block .narrative-quote-grid,
+  .kca-shot-block .llm-moments-grid {
+    max-height: min(58vh, 460px);
   }
 }

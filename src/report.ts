@@ -591,15 +591,22 @@ function renderInsightDeck(data: ReportData): string {
     </div>
     ${renderLlmInsideJokes(data)}
   </section>`;
-  const people = `<section id="s-ai-people" class="kca-section card kca-card--insight kca-shot-block anim-enter" data-observe style="--enter-delay:0.051s" aria-label="이모지·높임법">
-    <h2>👥 말투·이모지</h2>
-    <p class="chart-hint">이모지 사용과 높임법(존칭·반말) 패턴입니다.</p>
+  const emoji = `<section id="s-ai-emoji" class="kca-section card kca-card--insight kca-shot-block anim-enter" data-observe style="--enter-delay:0.051s" aria-label="이모지 분석">
+    <h2>😊 이모지·말투</h2>
+    <p class="chart-hint">이모지 사용 패턴과 참여자별 이모지 통계입니다.</p>
     <div class="insight-aux-grid" data-observe>
       ${renderEmojiInsight(data.emojiInsight)}
       ${renderParticipantEmojiStats(data.participantEmojiStats)}
-      ${renderHonorificInsight(data.honorificInsight)}
     </div>
   </section>`;
+  const honorificSection =
+    data.honorificInsight && data.honorificInsight.participants.length > 0
+      ? `<section id="s-ai-honorific" class="kca-section card kca-card--insight kca-shot-block anim-enter" data-observe style="--enter-delay:0.0515s" aria-label="높임법 분석">
+    <h2>🗣️ 높임법</h2>
+    <p class="chart-hint">존칭·반말·판별 불가 비율을 참여자별로 보여줍니다.</p>
+    ${renderHonorificInsight(data.honorificInsight)}
+  </section>`
+      : "";
   const rhythm = `<section id="s-ai-rhythm" class="kca-section card kca-card--insight kca-shot-block anim-enter" data-observe style="--enter-delay:0.052s" aria-label="시간대·참여자 맵">
     <h2>🕐 시간대·참여 분포</h2>
     <div class="insight-split" data-observe>
@@ -621,13 +628,13 @@ function renderInsightDeck(data: ReportData): string {
       </div>
     </div>
   </section>`;
-  return metrics + people + rhythm;
+  return metrics + emoji + honorificSection + rhythm;
 }
 
 function renderParticipantEmojiStats(participantEmojiStats: ReportData["participantEmojiStats"]): string {
   if (participantEmojiStats.length === 0) return "";
   const rows = participantEmojiStats
-    .slice(0, 10)
+    .slice(0, 6)
     .map((p) => {
       const topEmojisHtml = p.topEmojis
         .map((item) => `${escapeHtml(item.emoji)}(${formatNumber(item.count)})`)
@@ -719,7 +726,7 @@ function renderHonorificInsight(honorific: ReportData["honorificInsight"]): stri
     <li><i class="honorific-swatch honorific-swatch--neutral"></i>판별 불가 <span class="honorific-legend-hint">ㅋㅋ·짧은 답장 등</span></li>
   </ul>`;
   const rows = honorific.participants
-    .slice(0, 10)
+    .slice(0, 6)
     .map((p) => {
       const shares = honorificBarPercents(p);
       const style = styleLabels[p.dominantStyle] ?? p.dominantStyle;
@@ -1233,12 +1240,13 @@ function renderTopicMap(data: ReportData): string {
   const displayTopics = topicsForDisplay(data.topics, data.daily);
   if (displayTopics.length === 0) return "";
   const shortSpan = displayTopics.length < data.topics.length;
-  const themes = displayTopics.filter((t) => t.kind === "theme");
-  const periods = displayTopics.filter((t) => t.kind === "period");
+  const themes = displayTopics.filter((t) => t.kind === "theme").slice(0, 4);
+  const periods = displayTopics.filter((t) => t.kind === "period").slice(0, 3);
   const maxPct = Math.max(...displayTopics.map((t) => t.messagePercent), 1);
   const renderCards = (items: typeof displayTopics) =>
     items
-    .map((t) => {
+      .slice(0, 5)
+      .map((t) => {
       const kind =
         t.kind === "period"
           ? `<span class="topic-badge period">${escapeHtml(t.periodLabel ?? "기간")}</span>`
@@ -1271,7 +1279,7 @@ function renderTopicMap(data: ReportData): string {
   const hint = shortSpan
     ? "짧은 기간은 <strong>월 비중</strong>이 주제로 보일 수 있어요. 「기간 비교」를 확인하세요."
     : `그래프·키워드·임베딩 신호로 추출. 비율은 해당 토큰이 잡힌 메시지 비중(근사)입니다.${sparseThemes}`;
-  return `<section id="s-topics" class="kca-section card kca-card--data anim-enter" data-observe style="--enter-delay:0.052s">
+  return `<section id="s-topics" class="kca-section card kca-card--data kca-shot-block anim-enter" data-observe style="--enter-delay:0.052s">
     <h2>🗺️ 이 방의 주제 맵</h2>
     <p class="chart-hint">${hint}</p>
     ${themeBlock}

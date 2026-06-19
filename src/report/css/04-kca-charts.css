@@ -304,6 +304,8 @@
 }
 .kw-bar-cell { padding-left: 6px; padding-right: 6px; }
 .kw-bar-track {
+  width: 100%;
+  min-width: 3.5rem;
   height: 9px;
   background: var(--bar-bg);
   border-radius: var(--radius-pill);
