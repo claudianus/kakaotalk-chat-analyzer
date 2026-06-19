@@ -230,6 +230,11 @@ test("buildParticipantRoles returns distinctive role cards for top participants"
   assert.ok(roles.length <= 15);
   assert.ok(roles.length >= 10);
   assert.equal(roles.some((r) => r.role === "조력형"), false);
+  const roleTypes = roles.map((r) => r.role);
+  const uniqueRoles = new Set(roleTypes);
+  assert.ok(uniqueRoles.size >= Math.min(8, roleTypes.length), `roles collapsed: ${roleTypes.join(", ")}`);
+  const reasons = roles.map((r) => r.reason);
+  assert.ok(new Set(reasons).size >= Math.min(6, reasons.length), `reasons too repetitive: ${reasons.join(" | ")}`);
 });
 
 test("extractMemorableMoments avoids milestone walls and keeps topic evidence", () => {

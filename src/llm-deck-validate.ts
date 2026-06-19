@@ -325,8 +325,14 @@ export function sanitizeLlmDeckWithAudit(parsed: LlmJsonShape, data: ReportData)
 
   const rawChars = parsed.characterCards ?? [];
   const chars = rawChars
-    .filter((c) => c.alias?.trim() && textHasLlmEvidence(`${c.tagline ?? ""} ${c.statHook ?? ""}`, data, kw))
-    .slice(0, 3)
+    .filter(
+      (c) =>
+        c.alias?.trim() &&
+        textHasLlmEvidence(`${c.tagline ?? ""} ${c.statHook ?? ""}`, data, kw) &&
+        !isAiSlopText(c.tagline ?? "") &&
+        !isAiSlopText(c.statHook ?? ""),
+    )
+    .slice(0, 10)
     .map((c) => ({
       alias: c.alias!.trim().slice(0, 32),
       tagline: (c.tagline ?? "").trim().slice(0, 80),

@@ -267,8 +267,11 @@ export function renderParticipantRoles(data: ReportData): string {
   const roleEmoji: Record<string, string> = {
     주도형: "👑",
     "핵심 멤버": "⭐",
+    "브론즈 코어": "🥉",
     "말 많은 1위": "🥇",
     "활동 멤버": "💬",
+    참여자: "🙋",
+    멤버: "👤",
     꾸준형: "📌",
     긴글러: "✍️",
     "분위기 메이커": "😂",
@@ -282,8 +285,11 @@ export function renderParticipantRoles(data: ReportData): string {
   const roleDesc: Record<string, string> = {
     주도형: "흐름 주도",
     "핵심 멤버": "상위권 참여",
+    "브론즈 코어": "3위 중심층",
     "말 많은 1위": "메시지 1위",
     "활동 멤버": "꾸준 참여",
+    참여자: "대화 참여",
+    멤버: "방 멤버",
     꾸준형: "자주 말함",
     긴글러: "맥락 설명",
     "분위기 메이커": "웃음 신호",
@@ -297,8 +303,8 @@ export function renderParticipantRoles(data: ReportData): string {
   const cards = roles
     .slice(0, 10)
     .map((r: ParticipantRole) => {
-      const emoji = roleEmoji[r.role] ?? "💬";
-      const desc = roleDesc[r.role] ?? r.role;
+      const emoji = roleEmoji[r.role] ?? (/\d+위 멤버$/.test(r.role) ? "🔢" : "💬");
+      const desc = roleDesc[r.role] ?? (/\d+위 멤버$/.test(r.role) ? "순위별 멤버" : r.role);
       return `<article class="participant-role-card" role="listitem" data-role="${escapeHtml(r.role)}" data-observe>
         <div class="role-card-header">
           <span class="role-emoji" aria-hidden="true">${emoji}</span>

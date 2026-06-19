@@ -25,7 +25,7 @@ export function renderLlmArchetypeBanner(data) {
     const fallbackHtml = !hasTraits
         ? `<div class="llm-trait-row llm-trait-row--fallback"><span class="llm-trait-chip llm-trait-chip--fallback">${escapeHtml(arch.name)}의 특징적인 대화 패턴</span></div>`
         : "";
-    return `<section id="s-archetype" class="kca-section llm-archetype-banner anim-enter" style="--enter-delay:0.025s" aria-label="방 아키타입" data-observe>
+    return `<section id="s-archetype" class="kca-section llm-archetype-banner kca-shot-block anim-enter" style="--enter-delay:0.025s" aria-label="방 아키타입" data-observe>
     <div class="llm-archetype-inner">
       <p class="llm-archetype-kicker">🎭 이 방의 얼굴</p>
       <h2 class="llm-archetype-name">${escapeHtml(arch.name)}</h2>
@@ -46,7 +46,7 @@ export function renderLlmEpisodeStrip(data) {
       <p class="llm-episode-tagline">${renderHighlightLine(c.tagline)}</p>
     </article>`)
         .join("");
-    return `<section id="s-episodes" class="kca-section llm-episode-strip anim-enter" style="--enter-delay:0.035s" aria-label="시즌 에피소드" data-observe>
+    return `<section id="s-episodes" class="kca-section llm-episode-strip kca-shot-block anim-enter" style="--enter-delay:0.035s" aria-label="시즌 에피소드" data-observe>
     <h2 class="llm-strip-title">🎬 시즌 에피소드</h2>
     <div class="llm-episode-scroll" role="list">${inner}</div>
   </section>`;
@@ -69,7 +69,7 @@ export function renderLlmMomentsBlock(data) {
     const hint = data.summary.usedLlmAnalysis
         ? "통계·키워드를 입력한 <strong>로컬 LLM</strong>이 보강(원문 미포함)."
         : "규칙·통계만으로 만든 요약.";
-    return `<section id="s-narrative" class="kca-section card kca-card--story narrative-card anim-enter" style="--enter-delay:0.04s" aria-label="방 이야기" data-observe>
+    return `<section id="s-narrative" class="kca-section card kca-card--story kca-shot-block narrative-card anim-enter" style="--enter-delay:0.04s" aria-label="방 이야기" data-observe>
     <h2 class="section-glow">② 방 이야기</h2>
     <p class="chart-hint">${hint}</p>
     <div class="narrative-quote-grid">${paras}</div>
@@ -125,7 +125,7 @@ export function renderLlmCharacterCards(data) {
       <span class="llm-char-stat">${renderHighlightLine(c.statHook)}</span>
     </article>`)
         .join("");
-    return `<section id="s-characters" class="kca-section llm-char-grid anim-enter" style="--enter-delay:0.042s" aria-label="캐릭터 카드" data-observe>
+    return `<section id="s-characters" class="kca-section llm-char-grid kca-shot-block anim-enter" style="--enter-delay:0.042s" aria-label="캐릭터 카드" data-observe>
     <h2 class="llm-strip-title">👥 캐릭터 카드</h2>
     <p class="chart-hint">메시지 상위 10명 — 말 많은 사람을 먼저 봅니다.</p>
     <div class="llm-char-row" role="list">${inner}</div>
@@ -154,6 +154,7 @@ export function renderLlmDayMicroStories(data) {
     if (!days?.length)
         return "";
     const rows = days
+        .slice(0, 4)
         .map((d) => `<li data-observe><time datetime="${escapeHtml(d.date)}">${escapeHtml(d.date)}</time> ${renderHighlightLine(d.line)}</li>`)
         .join("");
     return `<div class="llm-day-stories" data-observe><h3 class="insight-sub">📅 그날의 방</h3><ul>${rows}</ul></div>`;
@@ -195,11 +196,12 @@ export function renderDailyHotTopics(data) {
         </div>
       </article>`;
     };
-    const rows = topics.map((t) => renderTopic(t)).join("");
-    return `<section id="s-hot-topics" class="kca-section hot-topics-section anim-enter" style="--enter-delay:0.045s" aria-label="이 날의 핫토픽" data-observe>
+    const rows = topics.slice(0, 4).map((t) => renderTopic(t)).join("");
+    const more = topics.length > 4 ? ` <span class="hot-topics-more">외 ${topics.length - 4}일</span>` : "";
+    return `<section id="s-hot-topics" class="kca-section hot-topics-section kca-shot-block anim-enter" style="--enter-delay:0.045s" aria-label="이 날의 핫토픽" data-observe>
     <div class="hot-topics-head">
       <h2 class="llm-strip-title">🔥 이 날의 핫토픽</h2>
-      <span class="hot-topics-count">전체 ${topics.length}일</span>
+      <span class="hot-topics-count">전체 ${topics.length}일${more}</span>
     </div>
     <div class="hot-topics-grid" role="list">${rows}</div>
   </section>`;
@@ -228,8 +230,11 @@ export function renderParticipantRoles(data) {
     const roleEmoji = {
         주도형: "👑",
         "핵심 멤버": "⭐",
+        "브론즈 코어": "🥉",
         "말 많은 1위": "🥇",
         "활동 멤버": "💬",
+        참여자: "🙋",
+        멤버: "👤",
         꾸준형: "📌",
         긴글러: "✍️",
         "분위기 메이커": "😂",
@@ -242,8 +247,11 @@ export function renderParticipantRoles(data) {
     const roleDesc = {
         주도형: "흐름 주도",
         "핵심 멤버": "상위권 참여",
+        "브론즈 코어": "3위 중심층",
         "말 많은 1위": "메시지 1위",
         "활동 멤버": "꾸준 참여",
+        참여자: "대화 참여",
+        멤버: "방 멤버",
         꾸준형: "자주 말함",
         긴글러: "맥락 설명",
         "분위기 메이커": "웃음 신호",
@@ -254,9 +262,10 @@ export function renderParticipantRoles(data) {
         "연속 발화자": "긴 흐름 유지",
     };
     const cards = roles
+        .slice(0, 10)
         .map((r) => {
-        const emoji = roleEmoji[r.role] ?? "💬";
-        const desc = roleDesc[r.role] ?? r.role;
+        const emoji = roleEmoji[r.role] ?? (/\d+위 멤버$/.test(r.role) ? "🔢" : "💬");
+        const desc = roleDesc[r.role] ?? (/\d+위 멤버$/.test(r.role) ? "순위별 멤버" : r.role);
         return `<article class="participant-role-card" role="listitem" data-role="${escapeHtml(r.role)}" data-observe>
         <div class="role-card-header">
           <span class="role-emoji" aria-hidden="true">${emoji}</span>
@@ -271,7 +280,7 @@ export function renderParticipantRoles(data) {
     })
         .join("");
     const countLine = `메시지 상위 <strong>10명</strong>은 항상 포함 · 그 외 뚜렷한 패턴만 추가 (최대 ${roles.length}명)`;
-    return `<section id="s-participant-roles" class="kca-section participant-roles-section anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할" data-observe>
+    return `<section id="s-participant-roles" class="kca-section participant-roles-section kca-shot-block anim-enter" style="--enter-delay:0.03s" aria-label="참여자 역할" data-observe>
     <div class="participant-roles-head">
       <h2 class="llm-strip-title">👥 참여자 역할</h2>
       <p class="chart-hint role-selection-hint">말 많은 사람부터 역할을 붙입니다. ${countLine}</p>
@@ -322,7 +331,7 @@ export function renderMemorableMoments(data) {
     const list = renderMemorableMomentsList(data);
     if (!list)
         return "";
-    return `<section id="s-memorable-moments" class="kca-section memorable-moments-section anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간" data-observe>
+    return `<section id="s-memorable-moments" class="kca-section memorable-moments-section kca-shot-block anim-enter" style="--enter-delay:0.04s" aria-label="기억에 남는 순간" data-observe>
     <h2 class="llm-strip-title">✨ 기억에 남는 순간</h2>
     ${list}
   </section>`;
@@ -360,7 +369,7 @@ function renderDaySnapshotCard(day, isToday) {
     const label = isToday ? "📍 리포트 당일" : day.date;
     const kws = day.keywords.slice(0, 4).map((k) => `<span class="recent-day-kw">${escapeHtml(k)}</span>`).join("");
     const senders = day.topSenders.slice(0, 3).map((s) => `${escapeHtml(s.alias)}(${s.count})`).join(" · ");
-    const evidence = (day.evidence ?? []).slice(0, 2).map((e) => `<li>${escapeHtml(e)}</li>`).join("");
+    const evidence = (day.evidence ?? []).slice(0, 1).map((e) => `<li>${escapeHtml(e)}</li>`).join("");
     return `<article class="${cls}" data-observe>
     <div class="recent-day-header">
       <time datetime="${escapeHtml(day.date)}">${escapeHtml(label)}</time>
@@ -385,7 +394,6 @@ export function renderRecentSnapshot(data) {
     const snap = data.recentSnapshot;
     if (!snap || snap.week.length === 0)
         return "";
-    // 주간 요약
     const weekKws = snap.weekKeywords.slice(0, 6).map((k) => `<span class="recent-day-kw">${escapeHtml(k)}</span>`).join("");
     const summaryHtml = `<div class="recent-week-summary" data-observe>
     <div class="recent-week-stats">
@@ -396,19 +404,30 @@ export function renderRecentSnapshot(data) {
     </div>
     ${weekKws ? `<div class="recent-week-kws">주간 키워드: ${weekKws}</div>` : ""}
   </div>`;
-    // 리포트 당일 카드 (크게)
     const todayHtml = snap.today ? renderDaySnapshotCard(snap.today, true) : "";
-    // 7일 일별 카드 (오늘 제외한 6일)
-    const weekDays = snap.today ? snap.week.slice(0, 6) : snap.week;
+    const weekDays = (snap.today ? snap.week.slice(0, 6) : snap.week).slice(0, 2);
+    const weekMore = snap.week.length > weekDays.length ? ` <small>· 최근 ${weekDays.length}일만 표시</small>` : "";
     const dayCardsHtml = weekDays.map((d) => renderDaySnapshotCard(d, false)).join("");
-    return `<section id="s-recent" class="kca-section recent-snapshot-section anim-enter" style="--enter-delay:0.035s" aria-label="최근 활동 스냅샷" data-observe>
+    const sections = [
+        `<section id="s-recent" class="kca-section recent-snapshot-section kca-shot-block kca-shot-block--compact anim-enter" style="--enter-delay:0.035s" aria-label="최근 활동 요약" data-observe>
     <h2 class="llm-strip-title">⏰ 최근 활동 스냅샷</h2>
-    <p class="recent-section-hint">리포트 기준 최근 7일간 활동이에요. 최근일수록 기억에 많이 남으니 자세히 봐요.</p>
+    <p class="recent-section-hint">리포트 기준 최근 7일 요약이에요. 당일·일별 카드는 아래 섹션에서 이어집니다.</p>
     ${summaryHtml}
-    ${todayHtml ? `<h3 class="recent-today-heading">리포트 당일 (24h)</h3>${todayHtml}` : ""}
-    <h3 class="recent-week-heading">최근 7일</h3>
-    <div class="recent-days-grid">${dayCardsHtml}</div>
-  </section>`;
+  </section>`,
+    ];
+    if (todayHtml) {
+        sections.push(`<section id="s-recent-today" class="kca-section recent-snapshot-section kca-shot-block anim-enter" style="--enter-delay:0.036s" aria-label="리포트 당일" data-observe>
+    <h2 class="llm-strip-title">📍 리포트 당일 (24h)</h2>
+    ${todayHtml}
+  </section>`);
+    }
+    if (dayCardsHtml) {
+        sections.push(`<section id="s-recent-week" class="kca-section recent-snapshot-section kca-shot-block anim-enter" style="--enter-delay:0.037s" aria-label="최근 일별 활동" data-observe>
+    <h2 class="llm-strip-title">📅 최근 일별${weekMore}</h2>
+    <div class="recent-days-grid recent-days-grid--shot">${dayCardsHtml}</div>
+  </section>`);
+    }
+    return sections.join("\n");
 }
 function mapSentimentWeather(s, energy) {
     const total = Math.max(1, s.positive + s.negative + s.neutral);
@@ -445,7 +464,7 @@ export function renderSentimentWeatherStrip(data) {
       </article>`;
     })
         .join("");
-    return `<section id="s-sentiment-weather" class="kca-section card kca-card--data sentiment-weather-strip anim-enter" data-observe style="--enter-delay:0.046s" aria-label="감정 날씨">
+    return `<section id="s-sentiment-weather" class="kca-section card kca-card--data kca-shot-block sentiment-weather-strip anim-enter" data-observe style="--enter-delay:0.046s" aria-label="감정 날씨">
     <h3 class="insight-sub">🌤️ 감정 날씨</h3>
     <p class="chart-hint">최근 7일 감정 흐름을 날씨 아이콘으로 요약했어요.</p>
     <div class="sww-row" role="list">${items}</div>
@@ -493,7 +512,7 @@ export function renderRoomCultureStrip(data) {
     const laughBadge = data.pureLaughMessages > 0
         ? `<span class="culture-laugh-badge">😂 ${formatNumber(data.pureLaughMessages)}</span>`
         : "";
-    return `<section id="s-culture" class="kca-section card kca-card--data room-culture-strip anim-enter" data-observe style="--enter-delay:0.061s" aria-label="방 밈 & 반복 문화">
+    return `<section id="s-culture" class="kca-section card kca-card--data kca-shot-block room-culture-strip anim-enter" data-observe style="--enter-delay:0.061s" aria-label="방 밈 & 반복 문화">
     <h3 class="insight-sub">🎭 방 밈 & 반복 문구 ${laughBadge}</h3>
     <p class="chart-hint">자주 반복된 문구와 방 안에서만 통하는 밈을 타임라인으로 모았어요.</p>
     <div class="culture-scroll" role="list">${phraseCards}${jokeCards}</div>

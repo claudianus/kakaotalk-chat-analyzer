@@ -1360,7 +1360,8 @@ code { font-size: 0.88em; background: var(--bar-bg); padding: 2px 6px; border-ra
 .participant-row:last-child { border-bottom: none; }
 .participant-rank { font-size: var(--font-size-small); color: var(--muted); font-weight: 700; min-width: 24px; }
 .participant-name { flex: 1; font-weight: 650; font-size: var(--font-size-body); }
-.participant-bar { width: 120px; }
+.participant-bar { width: 100%; max-width: 120px; }
+.participant-bar .kw-bar { width: 100%; }
 .participant-count { font-size: var(--font-size-small); color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; min-width: 48px; text-align: right; }
 .participant-pct { font-size: var(--font-size-small); color: var(--accent); font-weight: 700; min-width: 48px; text-align: right; }
 
@@ -2708,6 +2709,8 @@ footer {
 }
 .kw-bar-cell { padding-left: 6px; padding-right: 6px; }
 .kw-bar-track {
+  width: 100%;
+  min-width: 3.5rem;
   height: 9px;
   background: var(--bar-bg);
   border-radius: var(--radius-pill);
@@ -2997,7 +3000,8 @@ footer {
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
-  padding-right: 20px;
+  padding-right: 48px;
+  scroll-padding-inline-end: 24px;
 }
 .deck-nav-shell .deck-nav::-webkit-scrollbar {
   display: none;
@@ -5692,6 +5696,11 @@ body.kca-oled .theme-btn.kca-ripple {
   background: var(--line);
   width: 100%;
 }
+.recent-sentiment-bar__pos,
+.recent-sentiment-bar__neg {
+  display: block;
+  height: 100%;
+}
 .recent-sentiment-bar__pos {
   background: linear-gradient(90deg, color-mix(in oklab, #4caf50 80%, transparent), color-mix(in oklab, #66bb6a 70%, transparent));
   height: 100%;
@@ -5885,6 +5894,233 @@ body.kca-oled .theme-btn.kca-ripple {
 
 @media (max-width: 720px) {
   .recent-focus-deck .focus-cols { grid-template-columns: 1fr; }
+}
+
+
+/* 14-kca-shot-frame.css */
+/* kca Shot Frame — 섹션(카드)당 한 화면 스크린샷 친화 레이아웃 */
+
+:root {
+  --kca-shot-max-h: min(86vh, 880px);
+  --kca-shot-gap: clamp(14px, 2.2vh, 24px);
+}
+
+html {
+  scroll-snap-type: y proximity;
+}
+
+/* 리포트 본문: 한 블록 = 한 행 전체 */
+.kca-report-flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kca-shot-gap);
+}
+
+.kca-report-flow > .kca-section,
+.kca-report-flow > section,
+#s-charts > .kca-section,
+#s-charts > section,
+.kca-shot-block {
+  width: 100%;
+  max-width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* 데이터·차트 그리드: 항상 1열(카드당 한 행) */
+.kca-shot-stack,
+.kca-data-grid,
+.kca-report-flow .grid.smart {
+  display: grid;
+  grid-template-columns: 1fr !important;
+  gap: var(--kca-shot-gap);
+  align-items: stretch;
+}
+
+.kca-data-grid .card,
+.kca-data-grid .kca-card {
+  height: auto;
+}
+
+/* 대시보드 2열 → 1열 스택 */
+.kca-dashboard-grid--recent,
+.kca-dashboard-grid--insight {
+  grid-template-columns: 1fr !important;
+}
+
+/* 인터랙티브 차트: 카드마다 단독 행 */
+.kca-viz-shot-stack .viz-card {
+  grid-column: 1 / -1 !important;
+}
+
+/* 클러스터 래퍼 제거 후 zone 타이틀만 쓸 때 */
+.kca-shot-zone-title {
+  margin: 0 0 4px;
+  font-size: clamp(20px, 2.4vw, 30px);
+  letter-spacing: -0.03em;
+}
+
+/* 차트 높이 상한 — 한 프레임 안에 맞추기 */
+.kca-shot-block .chart-box,
+.kca-report-flow .kca-section .chart-box {
+  height: clamp(168px, 24vh, 248px) !important;
+  max-height: 248px;
+}
+.kca-shot-block .chart-box.tall,
+.kca-report-flow .kca-section .chart-box.tall {
+  height: clamp(188px, 27vh, 272px) !important;
+  max-height: 272px;
+}
+.kca-shot-block .chart-box.compact,
+.kca-report-flow .kca-section .chart-box.compact {
+  height: clamp(148px, 20vh, 212px) !important;
+  max-height: 212px;
+}
+.kca-shot-block .chart-box--network {
+  height: clamp(200px, 28vh, 280px) !important;
+  max-height: 280px;
+}
+
+/* 리스트·막대 묶음 높이 캡 */
+.kca-shot-block .dynamics-curve,
+.kca-shot-block .latency-rows,
+.kca-shot-block .honorific-bars,
+.kca-shot-block .bars,
+.kca-shot-block .kg-grid,
+.kca-shot-block .burst-anatomy-grid {
+  max-height: min(34vh, 300px);
+  overflow: hidden;
+}
+
+/* 최근 7일 카드: 2열 고정 */
+.recent-snapshot-section .recent-days-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.recent-days-grid--shot {
+  grid-template-columns: 1fr !important;
+}
+.kca-shot-block--compact .recent-week-summary {
+  margin-bottom: 0;
+}
+.kca-shot-block .recent-day-evidence,
+.kca-shot-block .recent-day-summary {
+  display: none;
+}
+.kca-shot-block .recent-day-card {
+  max-height: min(52vh, 420px);
+  overflow: hidden;
+}
+
+/* 핫토픽: 2열, 프레임 높이 제한 */
+.hot-topics-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-height: min(72vh, 660px);
+  overflow: hidden;
+}
+
+/* Wrapped 카드 덱 */
+.wrapped-deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+  max-height: min(38vh, 340px);
+  overflow: hidden;
+}
+
+/* GitHub 캘린더 */
+#s-calendar .gh-contrib {
+  max-height: min(32vh, 260px);
+  overflow: hidden;
+}
+
+/* 스토리 타임라인: 한 섹션에 하나만 */
+.story-timeline-pair--single .spine-list,
+.story-timeline-pair--single .moments-list {
+  max-height: min(58vh, 520px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* 인사이트 보조 그리드: 세로 스택 */
+.insight-aux-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.insight-grid {
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 8px;
+}
+
+/* 참여자 scatter 높이 */
+.kca-shot-block .participant-scatter {
+  max-height: min(32vh, 280px);
+  overflow: hidden;
+}
+
+/* 참여자 랭킹 — 스크린샷 프레임용 카드만 */
+.kca-shot-block .rank-table-fold {
+  display: none;
+}
+
+.kca-shot-block .participant-card-list {
+  max-height: min(40vh, 360px);
+  overflow: hidden;
+}
+
+.kca-shot-block .narrative-quote-grid,
+.kca-shot-block .llm-moments-grid {
+  max-height: min(34vh, 300px);
+  overflow: hidden;
+}
+
+.kca-shot-block .llm-char-row {
+  max-height: min(36vh, 320px);
+  overflow: hidden;
+}
+
+.kca-shot-block .chapter-list {
+  max-height: min(52vh, 460px);
+  overflow-y: auto;
+}
+
+.kca-shot-block .llm-episode-scroll {
+  max-height: min(34vh, 300px);
+  overflow-x: auto;
+}
+
+.kca-shot-block .explorer-stats {
+  max-height: min(18vh, 140px);
+  overflow: hidden;
+}
+
+@media (max-width: 720px) {
+  .hot-topics-grid,
+  .recent-snapshot-section .recent-days-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kca-shot-block .participant-roles-grid,
+  .kca-shot-block .topic-grid,
+  .kca-shot-block .topic-group {
+    max-height: min(68vh, 560px);
+    overflow: hidden;
+  }
+
+  .kca-shot-block.recent-focus-deck .focus-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .kca-shot-block .insight-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kca-shot-block .narrative-quote-grid,
+  .kca-shot-block .llm-moments-grid {
+    max-height: min(58vh, 460px);
+  }
 }
 
 `;

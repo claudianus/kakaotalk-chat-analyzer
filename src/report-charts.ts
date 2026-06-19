@@ -940,6 +940,38 @@ export const CHARTS_INIT_SCRIPT = `
           .sort(function (a, b) { return (replyCounts[b] || 0) - (replyCounts[a] || 0); })
           .slice(0, maxNode);
 
+        var maxReply = 1;
+        for (var mi = 0; mi < replyCounts.length; mi += 1) {
+          if (replyCounts[mi] > maxReply) maxReply = replyCounts[mi];
+        }
+        var maxMsg = 1;
+        for (var mj = 0; mj < msgCounts.length; mj += 1) {
+          if (msgCounts[mj] > maxMsg) maxMsg = msgCounts[mj];
+        }
+
+        function netWeight(val, max) {
+          if (!max || max <= 0) return 0;
+          return Math.pow(val / max, 0.62);
+        }
+        function netNodeColor(weight) {
+          var w = Math.max(0.08, Math.min(1, weight));
+          if (dark) {
+            var r = Math.round(18 + w * 42);
+            var g = Math.round(110 + w * 122);
+            var b = Math.round(150 + w * 105);
+            return "rgb(" + r + "," + g + "," + b + ")";
+          }
+          var r2 = Math.round(170 - w * 118);
+          var g2 = Math.round(220 - w * 92);
+          var b2 = Math.round(210 - w * 78);
+          return "rgb(" + r2 + "," + g2 + "," + b2 + ")";
+        }
+        function netEdgeColor(weight) {
+          var w = Math.max(0.12, Math.min(1, weight));
+          if (dark) return "rgba(94,232,255," + (0.28 + w * 0.68) + ")";
+          return "rgba(15,107,92," + (0.22 + w * 0.72) + ")";
+        }
+
         // 모든 엣지 수집 (임계값 없이)
         var allLinks = [];
         var maxLink = 1;
@@ -992,16 +1024,35 @@ export const CHARTS_INIT_SCRIPT = `
           var isMobile = ng.w < 380;
           var isSmall = ng.w < 600;
 
-          // 노드: 응답 총량 기반 크기, 원형 배치
+          // 노드: 응답·메시지 비중으로 크기·색·라벨 강조
           var nodes = indices.map(function (idx) {
             var totalReplies = replyCounts[idx] || 0;
-            var size = Math.max(34, Math.min(92, Math.sqrt(totalReplies + 1) * 4.5));
+            var msgs = msgCounts[idx] || 0;
+            var replyW = netWeight(totalReplies, maxReply);
+            var msgW = netWeight(msgs, maxMsg);
+            var weight = Math.max(replyW, msgW * 0.88);
+            var size = Math.max(30, Math.min(108, 30 + weight * 78));
+            var labelSize = isMobile ? 9 : (isSmall ? 10 : 11);
+            if (weight > 0.55) labelSize += 1;
+            if (weight > 0.78) labelSize += 1;
             return {
               name: aliases[idx],
               value: totalReplies,
               symbolSize: size,
               category: 0,
-              label: { show: true }
+              itemStyle: {
+                color: netNodeColor(weight),
+                borderColor: dark ? "#0d1117" : "#fff",
+                borderWidth: weight > 0.65 ? 2.5 : 1.5,
+                opacity: 0.58 + weight * 0.42,
+                shadowBlur: weight > 0.55 ? Math.round(6 + weight * 14) : 0,
+                shadowColor: netNodeColor(weight)
+              },
+              label: {
+                show: true,
+                fontWeight: weight > 0.5 ? 700 : 500,
+                fontSize: labelSize
+              }
             };
           });
 
@@ -1016,16 +1067,18 @@ export const CHARTS_INIT_SCRIPT = `
 
           if (nodes.length === 0) return;
 
-          // 엣지 스타일: 비례 두께 + 방향 화살표
+          // 엣지 스타일: 비례 두께·색·투명도 + 방향 화살표
           var styledLinks = links.map(function (l) {
+            var edgeW = netWeight(l.value, maxLink);
             return {
               source: l.source,
               target: l.target,
               value: l.value,
               lineStyle: {
-                width: Math.max(2, Math.min(14, (l.value / maxLink) * 10)),
+                width: Math.max(1.5, Math.min(18, edgeW * 14 + 1.5)),
                 curveness: 0.28,
-                opacity: Math.max(0.5, Math.min(0.95, (l.value / maxLink) * 0.85 + 0.2))
+                opacity: Math.max(0.38, Math.min(0.98, edgeW * 0.72 + 0.28)),
+                color: netEdgeColor(edgeW)
               }
             };
           });
@@ -1058,9 +1111,7 @@ export const CHARTS_INIT_SCRIPT = `
             symbol: "circle",
             itemStyle: {
               borderColor: dark ? "#1c2128" : "#fff",
-              borderWidth: 2,
-              color: dark ? "#5ee8ff" : "#0f6b5c",
-              opacity: 0.92
+              borderWidth: 2
             },
             label: {
               show: true,
@@ -1079,9 +1130,8 @@ export const CHARTS_INIT_SCRIPT = `
             },
             labelLayout: { hideOverlap: true },
             lineStyle: {
-              color: dark ? "rgba(94,232,255,0.72)" : "rgba(15,107,92,0.62)",
               curveness: 0.28,
-              opacity: 0.72
+              opacity: 0.5
             },
             emphasis: {
               focus: "adjacency",
