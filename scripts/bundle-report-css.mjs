@@ -25,6 +25,7 @@ const layers = [
   "11-kca-safari-fallback.css",
   "12-kca-recent-snapshot.css",
   "13-kca-focus-density.css",
+  "14-kca-shot-frame.css",
 ];
 
 function readLayer(name) {

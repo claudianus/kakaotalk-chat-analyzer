@@ -165,7 +165,7 @@ export function renderChartDeck(data: ReportData): string {
     <h2>📈 인터랙티브 차트</h2>
     <p>ECharts 기반 — 막대·히트맵·워드클라우드에 마우스를 올리면 수치를 확인할 수 있어요. 키워드 <strong>${formatNumber(kw)}</strong>개(메시지 등장 횟수 기준).</p>
   </section>
-  <div class="viz-grid ${densityClass} anim-enter" data-observe style="--enter-delay:0.06s">
+  <div class="viz-grid kca-viz-shot-stack ${densityClass} anim-enter" data-observe style="--enter-delay:0.06s">
     <article class="viz-card kca-card--chart span-6 span-xl-4 viz-card--cloud">
       <h3>키워드 워드클라우드</h3>
       <p class="viz-hint">글자 크기 = 메시지 등장 빈도. Kiwi·BM25로 뽑은 본문 키워드입니다.</p>
