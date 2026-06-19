@@ -606,6 +606,17 @@ function renderEmojiInsight(emojiInsight) {
     </div>
   </div>`;
 }
+function honorificBarPercents(p) {
+    if (p.dominantStyle === "insufficient") {
+        return { formal: 0, casual: 0, neutral: 100, insufficient: true };
+    }
+    const observed = Math.max(p.sampleCount ?? 0, 1);
+    const styled = p.styledSampleCount ?? 0;
+    const formal = Math.round((p.honorificRatio * styled) / observed * 100);
+    const casual = Math.round((p.casualRatio * styled) / observed * 100);
+    const neutral = Math.max(0, 100 - formal - casual);
+    return { formal, casual, neutral, insufficient: false };
+}
 function renderHonorificInsight(honorific) {
     if (!honorific || honorific.participants.length === 0)
         return "";
@@ -617,30 +628,37 @@ function renderHonorificInsight(honorific) {
         insufficient: "판별 표본 부족",
     };
     const roomLabel = styleLabels[honorific.roomStyle] ?? honorific.roomStyle;
+    const legend = `<ul class="honorific-legend" aria-label="높임법 막대 범례">
+    <li><i class="honorific-swatch honorific-swatch--formal"></i>존칭 <span class="honorific-legend-hint">요·습니다·세요 등</span></li>
+    <li><i class="honorific-swatch honorific-swatch--casual"></i>반말 <span class="honorific-legend-hint">해·다·야 등</span></li>
+    <li><i class="honorific-swatch honorific-swatch--neutral"></i>판별 불가 <span class="honorific-legend-hint">ㅋㅋ·짧은 답장 등</span></li>
+  </ul>`;
     const rows = honorific.participants
         .slice(0, 10)
         .map((p) => {
-        const formalPct = p.dominantStyle === "insufficient" ? 0 : Math.round(p.honorificRatio * 100);
-        const casualPct = p.dominantStyle === "insufficient" ? 0 : Math.round((1 - p.honorificRatio) * 100);
-        const neutralPct = p.neutralRatio !== undefined ? Math.round(p.neutralRatio * 100) : 0;
+        const shares = honorificBarPercents(p);
         const style = styleLabels[p.dominantStyle] ?? p.dominantStyle;
-        const label = p.dominantStyle === "insufficient"
-            ? "표본 부족"
-            : `${style} ${formalPct >= casualPct ? formalPct : casualPct}%`;
-        return `<div class="honorific-bar-row" title="${escapeHtml(p.alias)}: ${escapeHtml(label)}">
+        const styledN = p.styledSampleCount ?? 0;
+        const detail = p.dominantStyle === "insufficient"
+            ? `높임 판별 메시지 ${formatNumber(styledN)}건`
+            : `존칭 ${shares.formal}% · 반말 ${shares.casual}%${shares.neutral > 0 ? ` · 판별불가 ${shares.neutral}%` : ""}`;
+        const rowCls = p.dominantStyle === "insufficient" ? "honorific-bar-row honorific-bar-row--insufficient" : "honorific-bar-row";
+        const trackInner = p.dominantStyle === "insufficient"
+            ? `<span class="honorific-seg honorific-seg--neutral honorific-seg--empty" style="width:100%"></span>`
+            : `<span class="honorific-seg honorific-seg--formal" style="width:${shares.formal}%"></span>
+          <span class="honorific-seg honorific-seg--casual" style="width:${shares.casual}%"></span>
+          ${shares.neutral > 0 ? `<span class="honorific-seg honorific-seg--neutral" style="width:${shares.neutral}%"></span>` : ""}`;
+        return `<div class="${rowCls}" title="${escapeHtml(p.alias)}: ${escapeHtml(detail)}">
         <span class="honorific-alias">${escapeHtml(p.alias)}</span>
-        <div class="honorific-track" role="meter" aria-valuenow="${formalPct}" aria-valuemin="0" aria-valuemax="100" aria-label="${escapeHtml(p.alias)} 존칭 ${formalPct}%">
-          <span class="honorific-seg honorific-seg--formal" style="width:${formalPct}%"></span>
-          <span class="honorific-seg honorific-seg--casual" style="width:${casualPct}%"></span>
-          ${neutralPct > 0 ? `<span class="honorific-seg honorific-seg--neutral" style="width:${neutralPct}%"></span>` : ""}
-        </div>
-        <span class="honorific-pct">${escapeHtml(label)}</span>
+        <div class="honorific-track" role="img" aria-label="${escapeHtml(p.alias)} ${escapeHtml(detail)}">${trackInner}</div>
+        <span class="honorific-summary"><strong class="honorific-dominant">${escapeHtml(style)}</strong><span class="honorific-detail">${escapeHtml(detail)}</span></span>
       </div>`;
     })
         .join("");
     return `<div class="honorific-insight-card" style="margin-top:14px">
     <h3 class="insight-sub">높임법 분석</h3>
-    <p class="chart-hint">이 방은 대체로 <strong>${escapeHtml(roomLabel)}</strong> 톤 · 말 많은 상위 10명</p>
+    <p class="chart-hint">말끝 패턴으로 본 <strong>존칭 vs 반말</strong> 비율입니다. 막대 한 줄 = 그 사람 메시지 100% · 이 방 전체 톤은 <strong>${escapeHtml(roomLabel)}</strong> · 상위 10명</p>
+    ${legend}
     <div class="honorific-bars">${rows}</div>
   </div>`;
 }
